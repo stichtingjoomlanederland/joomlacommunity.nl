@@ -20,6 +20,7 @@ class RseventsproViewEvent extends JViewLegacy
 		if ($tpl == 'tickets') {
 			$tid = rseventsproController::savedata();
 			$this->tickets = $this->eventClass->getTickets($tid);
+			$this->ticketsform	= $this->get('FormTickets');
 			
 			$response = new stdClass();
 			$response->id = $tid;
@@ -30,6 +31,7 @@ class RseventsproViewEvent extends JViewLegacy
 		} elseif ($tpl == 'coupons') {
 			$cid = rseventsproController::savedata();
 			$this->coupons = $this->eventClass->getCoupons($cid);
+			$this->couponsform	= $this->get('FormCoupons');
 			
 			$response = new stdClass();
 			$response->id = $cid;

@@ -25,6 +25,7 @@ JFactory::getLanguage()->load('mod_easydiscuss_most_hit', JPATH_ROOT);
 $config = ED::config();
 
 ED::init();
+$lib = ED::modules($module);
 
 $options = array(
 	'params' => $params,

@@ -304,7 +304,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -326,7 +326,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -348,7 +348,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 
 		$query = 'UPDATE `#__discuss_thread`';
@@ -359,7 +359,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}	
 	}
 
@@ -383,7 +383,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -486,7 +486,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError( 500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -507,7 +507,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError( 500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -552,7 +552,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError( 500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -589,7 +589,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$db->query();
 
 		if ($db->getErrorNum()) {
-			JError::raiseError( 500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 
@@ -605,7 +605,7 @@ class plgUserEasyDiscussUsers extends JPlugin
 		$state = $model->removeBadge($userId);
 
 		if ($state == false) {
-			JError::raiseError( 500, $db->stderr());
+			throw ED::exception($db->stderr(), 500);
 		}
 	}
 

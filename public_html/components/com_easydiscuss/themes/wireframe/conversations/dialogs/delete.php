@@ -40,11 +40,11 @@ defined('_JEXEC') or die('Unauthorized Access');
         <form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
             
             <input type="hidden" name="id" value="<?php echo $id;?>" />
-            <?php echo $this->html('form.hidden', 'conversation', 'conversation', 'delete'); ?>
+            <?php echo $this->html('form.action', 'conversation', 'conversation', 'delete'); ?>
         </form>        
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_NO'); ?></button>
-        <button data-submit-button type="button" class="btn btn-danger btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_DELETE_CONVERSATION'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_NO'); ?></button>
+        <button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--danger"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_DELETE_CONVERSATION'); ?></button>
     </buttons>
 </dialog>

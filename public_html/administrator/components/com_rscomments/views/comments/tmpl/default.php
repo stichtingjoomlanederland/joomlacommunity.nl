@@ -26,7 +26,7 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 					<th nowrap="nowrap"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_NAME'), 'comment', $listDirn, $listOrder); ?></th>
 					<th width="5%" class="center text-center"><?php echo JText::_('COM_RSCOMMENTS_REPORTS'); ?></th>
 					<th width="10%" class="center text-center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_AUTHOR'), 'name', $listDirn, $listOrder); ?></th>
-					<th class="hidden-phone center text-center" width="8%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_COMPONENT'), 'option', $listDirn, $listOrder); ?></th>
+					<th class="hidden-phone center text-center" width="15%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_COMPONENT'), 'option', $listDirn, $listOrder); ?></th>
 					<th width="10%" class="center text-center"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_DATE'), 'date', $listDirn, $listOrder); ?></th>
 					<th class="hidden-phone" width="5%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_COMMENT_PUBLISHED'), 'published', $listDirn, $listOrder); ?></th>
 				</tr>
@@ -34,6 +34,7 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 			<tbody>
 			<?php foreach ($this->items as $i => $item) { ?>
 			<?php $comment_length = mb_strlen(RSCommentsHelperAdmin::cleanComment(strip_tags($item->comment))); ?>
+			<?php $title = RSCommentsHelperAdmin::ArticleTitle($item->option, $item->id); ?>
 				<tr class="row<?php echo $i % 2; ?>">
 					<td width="2%"><?php echo JHtml::_('grid.id', $i, $item->IdComment); ?></td>
 					<td class="hidden-phone" ><?php echo $item->IdComment; ?></td>
@@ -70,7 +71,9 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 						</span>
 					</td>
 					
-					<td class="hidden-phone center text-center"><?php echo RSCommentsHelperAdmin::component($item->option); ?></td>
+					<td class="hidden-phone center text-center">
+						<?php echo RSCommentsHelperAdmin::component($item->option); ?> <?php echo $title ? ' - <em>'.$title.'</em>' : ''; ?>
+					</td>
 					
 					<td class="center text-center"><?php echo RSCommentsHelperAdmin::showDate($item->date); ?></td>
 					

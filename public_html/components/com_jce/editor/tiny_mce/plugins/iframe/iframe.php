@@ -69,6 +69,10 @@ class WFIframePlugin extends WFEditorPlugin
 
         foreach ($this->aggregators as $aggregator) {
             foreach ($aggregator->getAggregators() as $item) {
+                if ($item->getName() === 'video' || $item->getName() === 'audio') {
+                    continue;
+                }
+                
                 $names[] = JText::_($item->getTitle());
             }
         }
@@ -82,6 +86,10 @@ class WFIframePlugin extends WFEditorPlugin
 
         foreach ($this->aggregators as $aggregator) {
             foreach ($aggregator->getAggregators() as $item) {
+                if ($item->getName() === 'video' || $item->getName() === 'audio') {
+                    continue;
+                }
+                
                 $data = $aggregator->loadTemplate($item->getName());
 
                 if (!empty($data)) {

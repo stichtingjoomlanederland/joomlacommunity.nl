@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,26 +11,40 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-// Load ED engine
+// Load ED engine.
 $path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
+
 if (!JFile::exists($path)) {
-    return;
+	return;
 }
 
 require_once($path);
-require_once dirname( __FILE__ ) . '/helper.php';
 
 ED::init();
+$lib = ED::modules($module);
+$lib->addScript('filter.js');
 
-// Load language
+// Load language.
 JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
-$categories = modEasydiscussCategoriesHelper::getData($params);
+$helper = $lib->getHelper(false);
+$categories = $helper->getData($params);
 
 $tpl = 'default';
 
 if ($params->get('layouttype') == 'tree') {
     $tpl = 'tree';
 }
+
+$app = JFactory::getApplication();
+$input = $app->input;
+
+$activeCategory = $input->get('category_id', 0);
+
+if ($input->get('view', '') == 'ask') {
+	$activeCategory = $input->get('category', 0);
+}
+
+$activeCategory = ED::category($activeCategory);
 
 require(JModuleHelper::getLayoutPath('mod_easydiscuss_categories', $tpl));

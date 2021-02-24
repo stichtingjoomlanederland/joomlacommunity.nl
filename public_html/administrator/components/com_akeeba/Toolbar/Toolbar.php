@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -67,10 +67,12 @@ class Toolbar extends BaseToolbar
 		ToolbarHelper::help(null, false, 'https://www.akeeba.com/documentation/akeeba-backup-documentation/configuration.html');
 
 		$js = <<< JS
-akeeba.System.documentReady(function(){
-    var elButtons = document.querySelectorAll('#toolbar-lightning>button');
-    akeeba.System.iterateNodes(elButtons, function (elButton) {
-		akeeba.System.addClass(elButton, 'btn-primary');        
+akeeba.Loader.add('akeeba.System', function(){
+    akeeba.System.documentReady(function(){
+	    var elButtons = document.querySelectorAll('#toolbar-lightning>button');
+	    akeeba.System.iterateNodes(elButtons, function (elButton) {
+			akeeba.System.addClass(elButton, 'btn-primary');        
+	    });
     });
 });
 

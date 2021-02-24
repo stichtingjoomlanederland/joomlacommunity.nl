@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if (empty($data['allUsers'])) { ?>
+<?php if (empty($data['allUsers'])) { ?>
 	<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
 <?php } else { ?>
 	<div class="cell grid-x margin-top-1">
@@ -15,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
             ?>
 		</div>
 		<div class="cell grid-x">
-			<div class="auto cell">
+			<div class="auto cell acym_vcenter">
                 <?php
                 $options = [
                     '' => ['ACYM_ALL', $data['userNumberPerStatus']['all']],
@@ -30,14 +28,15 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell acym_listing_sort-by auto">
                 <?php echo acym_sortBy(
                     [
-                        'id' => strtolower(acym_translation('ACYM_ID')),
+                        'id' => acym_strtolower(acym_translation('ACYM_ID')),
                         'email' => acym_translation('ACYM_EMAIL'),
                         'name' => acym_translation('ACYM_NAME'),
                         'creation_date' => acym_translation('ACYM_DATE_CREATED'),
                         'active' => acym_translation('ACYM_ACTIVE'),
                         'confirmed' => acym_translation('ACYM_CONFIRMED'),
                     ],
-                    'users'
+                    'users',
+                    $data['ordering']
                 ); ?>
 			</div>
 		</div>
@@ -61,8 +60,8 @@ defined('_JEXEC') or die('Restricted access');
                 if (!empty($data['fields'])) {
                     foreach ($data['fields'] as $field) {
                         ?>
-						<div class="cell medium-auto hide-for-small-only acym__listing__header__title text-center">
-                            <?php echo acym_escape($field); ?>
+						<div class="cell medium-auto hide-for-small-only acym__listing__header__title">
+                            <?php echo acym_escape(acym_translation($field)); ?>
 						</div>
                         <?php
                     }
@@ -73,10 +72,10 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
                 <?php if (acym_isAdmin()) { ?>
 					<div class="cell medium-1 hide-for-small-only acym__listing__header__title">
-                        <?php echo acym_translation_sprintf('ACYM_CMS_USER', ACYM_CMS_TITLE); ?>
+                        <?php echo acym_translationSprintf('ACYM_CMS_USER', ACYM_CMS_TITLE); ?>
 					</div>
                 <?php } ?>
-				<div class="cell medium-1 small-5 text-right medium-text-center acym__listing__header__title">
+				<div class="cell medium-1 small-5 small-text-right medium-text-center acym__listing__header__title">
                     <?php echo acym_translation('ACYM_STATUS'); ?>
 				</div>
 				<div class="cell medium-shrink hide-for-small-only text-center acym__listing__header__title acym__listing__id">
@@ -128,9 +127,15 @@ defined('_JEXEC') or die('Restricted access');
                             $counter = 0;
                             foreach ($data['usersSubscriptions'][$user->id] as $oneSub) {
                                 if ($counter < 5) {
-                                    echo acym_tooltip('<i class="acym_subscription acymicon-circle" style="color:'.acym_escape($oneSub->color).'"></i>', acym_escape($oneSub->name));
+                                    echo acym_tooltip(
+                                        '<i class="acym_subscription acymicon-circle" style="color:'.acym_escape($oneSub->color).'"></i>',
+                                        acym_escape($oneSub->name)
+                                    );
                                 } else {
-                                    echo acym_tooltip('<i class="acym_subscription acym_subscription_more acymicon-circle" style="color:'.acym_escape($oneSub->color).'"></i>', acym_escape($oneSub->name));
+                                    echo acym_tooltip(
+                                        '<i class="acym_subscription acym_subscription_more acymicon-circle" style="color:'.acym_escape($oneSub->color).'"></i>',
+                                        acym_escape($oneSub->name)
+                                    );
                                 }
                                 $counter++;
                             }
@@ -199,4 +204,3 @@ defined('_JEXEC') or die('Restricted access');
     <?php
     echo $data['pagination']->display('users');
 }
-

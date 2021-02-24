@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -24,15 +24,17 @@ class EasyDiscussControllerSpools extends EasyDiscussController
 	{
 		ED::checkToken();
 
-		$db = ED::db();
-		$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_mailq');
+		$model = ED::model('Spools');
+		$model->purge();
 
-		$db->setQuery($query);
-		$db->Query();
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_MAILS_PURGED', 'spools');
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_MAILS_PURGED'), 'success');
+		$redirection = 'index.php?option=com_easydiscuss&view=spools';
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=spools');
+		return ED::redirect($redirection);
 	}
 
 	public function remove()
@@ -43,10 +45,14 @@ class EasyDiscussControllerSpools extends EasyDiscussController
 		$mails = $this->input->get('cid', '', 'POST');
 		$message = '';
 		$type = 'success';
+		$redirection = 'index.php?option=com_easydiscuss&view=spools';
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
 
 		if (empty($mails)) {
 			$message = JText::_('COM_EASYDISCUSS_NO_MAIL_ID_PROVIDED');
-			$type = 'error';
+			$type = ED_MSG_ERROR;
 		} else {
 			$table = ED::table('MailQueue');
 
@@ -54,10 +60,21 @@ class EasyDiscussControllerSpools extends EasyDiscussController
 
 				$table->load($id);
 
-				if (!$table->delete()) {
-					ED::setMessage(JText::_('COM_EASYDISCUSS_SPOOLS_DELETE_ERROR'), 'error');
-					return $this->app->redirect('index.php?option=com_easydiscuss&view=spools');
+				$recipientEmail = $table->recipient;
+				$emailSubject = $table->subject;
+
+				$state = $table->delete();
+
+				if (!$state) {
+					ED::setMessage(JText::_('COM_EASYDISCUSS_SPOOLS_DELETE_ERROR'), ED_MSG_ERROR);
+					return ED::redirect($redirection);
 				}
+
+				$actionlog->log('COM_ED_ACTIONLOGS_MAILS_SENT_PURGED', 'spools', array(
+					'recipientEmail' => $recipientEmail,
+					'emailSubject' => $emailSubject
+				));
+
 			}
 
 			$message = JText::_('COM_EASYDISCUSS_SPOOLS_EMAILS_DELETED');
@@ -65,6 +82,6 @@ class EasyDiscussControllerSpools extends EasyDiscussController
 
 		ED::setMessage($message, $type);
 
-		$this->app->redirect('index.php?option=com_easydiscuss&view=spools');
+		return ED::redirect($redirection);
 	}
 }

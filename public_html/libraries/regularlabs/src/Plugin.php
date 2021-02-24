@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -34,8 +34,7 @@ class Plugin extends JPlugin
 	public $_disable_on_components = false;
 	public $_protected_formats     = [];
 	public $_page_types            = [];
-
-	public $_params = null;
+	public $_jversion              = 3;
 
 	private $_pass = null;
 
@@ -62,6 +61,8 @@ class Plugin extends JPlugin
 			$this->_id = $config['id'];
 		}
 
+		parent::__construct($subject, $config);
+
 		$this->app = JFactory::getApplication();
 		$this->db  = JFactory::getDbo();
 
@@ -76,8 +77,6 @@ class Plugin extends JPlugin
 		{
 			$this->_title = strtoupper($this->_alias);
 		}
-
-		parent::__construct($subject, $config);
 
 		Language::load('plg_' . $this->_type . '_' . $this->_name);
 	}
@@ -107,12 +106,14 @@ class Plugin extends JPlugin
 
 		$this->handleOnAfterDispatch();
 
-		if ( ! $buffer = Document::getBuffer())
+		$buffer = Document::getBuffer();
+
+		$this->loadStylesAndScripts($buffer);
+
+		if ( ! $buffer)
 		{
 			return;
 		}
-
-		$this->loadStylesAndScripts($buffer);
 
 		if ( ! $this->changeDocumentBuffer($buffer))
 		{
@@ -143,7 +144,7 @@ class Plugin extends JPlugin
 	 *
 	 * @return  bool
 	 */
-	public function onContentPrepare($context, &$article, &$params, $page)
+	public function onContentPrepare($context, &$article, &$params, $page = 0)
 	{
 		if ( ! $this->passChecks())
 		{
@@ -153,12 +154,12 @@ class Plugin extends JPlugin
 		$area    = isset($article->created_by) ? 'article' : 'other';
 		$context = (($params instanceof \JRegistry) && $params->get('rl_search')) ? 'com_search.' . $params->get('readmore_limit') : $context;
 
-		if ( ! $this->handleOnContentPrepare($area, $context, $article, $params))
+		if ( ! $this->handleOnContentPrepare($area, $context, $article, $params, $page))
 		{
 			return false;
 		}
 
-		Article::process($article, $context, $this, 'processArticle', [$area, $context, $article]);
+		Article::process($article, $context, $this, 'processArticle', [$area, $context, $article, $page]);
 
 		return true;
 	}
@@ -169,7 +170,7 @@ class Plugin extends JPlugin
 	 *
 	 * @return  bool
 	 */
-	public function onContentPrepareForm($form, $data)
+	public function onContentPrepareForm(JForm $form, $data)
 	{
 		if ( ! $this->passChecks())
 		{
@@ -234,10 +235,11 @@ class Plugin extends JPlugin
 	 * @param string    $context The context of the content being passed to the plugin.
 	 * @param mixed     $article An object with a "text" property
 	 * @param mixed    &$params  Additional parameters. See {@see PlgContentContent()}.
+	 * @param int       $page    Optional page number. Unused. Defaults to zero.
 	 *
 	 * @return  bool
 	 */
-	protected function handleOnContentPrepare($area, $context, &$article, &$params)
+	protected function handleOnContentPrepare($area, $context, &$article, &$params, $page = 0)
 	{
 		return true;
 	}
@@ -248,7 +250,7 @@ class Plugin extends JPlugin
 	 *
 	 * @return  bool
 	 */
-	protected function handleOnContentPrepareForm($form, $data)
+	protected function handleOnContentPrepareForm(JForm $form, $data)
 	{
 		return true;
 	}
@@ -258,7 +260,7 @@ class Plugin extends JPlugin
 	 *
 	 * @return  void
 	 */
-	protected function loadStylesAndScripts($buffer)
+	protected function loadStylesAndScripts(&$buffer)
 	{
 	}
 
@@ -276,10 +278,11 @@ class Plugin extends JPlugin
 	 * @param string  $area
 	 * @param string  $context The context of the content being passed to the plugin.
 	 * @param mixed   $article An object with a "text" property
+	 * @param int     $page    Optional page number. Unused. Defaults to zero.
 	 *
 	 * @return  void
 	 */
-	public function processArticle(&$string, $area = 'article', $context = '', $article = null)
+	public function processArticle(&$string, $area = 'article', $context = '', $article = null, $page = 0)
 	{
 	}
 
@@ -312,6 +315,9 @@ class Plugin extends JPlugin
 	{
 	}
 
+	/**
+	 * @return  bool
+	 */
 	protected function passChecks()
 	{
 		if ( ! is_null($this->_pass))
@@ -338,10 +344,12 @@ class Plugin extends JPlugin
 			return false;
 		}
 
+		$params = Parameters::getInstance()->getPluginParams($this->_name);
+
 		// allow in admin?
 		if ( ! $this->_enable_in_admin
 			&& $this->_is_admin
-			&& ( ! isset($this->_params->enable_admin) || ! $this->_params->enable_admin))
+			&& ( ! isset($params->enable_admin) || ! $params->enable_admin))
 		{
 			return false;
 		}
@@ -355,7 +363,7 @@ class Plugin extends JPlugin
 
 		// disabled by component?
 		if ($this->_disable_on_components
-			&& Protect::isRestrictedComponent(isset($this->_params->disabled_components) ? $this->_params->disabled_components : [], 'component'))
+			&& Protect::isRestrictedComponent(isset($params->disabled_components) ? $params->disabled_components : [], 'component'))
 		{
 			return false;
 		}

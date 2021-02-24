@@ -12,8 +12,8 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
-    <width>400</width>
-    <height>120</height>
+    <width>450</width>
+    <height>200</height>
     <selectors type="json">
     {
         "{closeButton}" : "[data-close-button]",
@@ -38,17 +38,17 @@ defined('_JEXEC') or die('Unauthorized Access');
         </p>
 
         <form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
-            <div class="mt-20">
+            <div class="t-mt--lg">
                 <?php echo $categories; ?>
             </div>
 
             <input type="hidden" name="id" value="<?php echo $id;?>" />
 
-            <?php echo $this->html('form.hidden', 'posts', 'posts', 'move');?>
+            <?php echo $this->html('form.action', 'posts', 'posts', 'move');?>
         </form>       
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
-        <button data-submit-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_MOVE'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+        <button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_MOVE'); ?></button>
     </buttons>
 </dialog>

@@ -56,6 +56,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 					$controller = new rseventsproControllerRseventspro();
 					$tid = $controller->saveticket();
 					$this->tickets = $this->eventClass->getTickets($tid);
+					$this->ticketsform	= $this->get('FormTickets');
 					
 					$response = new stdClass();
 					$response->id = $tid;
@@ -69,6 +70,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 					$controller = new rseventsproControllerRseventspro();
 					$cid = $controller->savecoupon();
 					$this->coupons = $this->eventClass->getCoupons($cid);
+					$this->couponsform	= $this->get('FormCoupons');
 					
 					$response = new stdClass();
 					$response->id = $cid;

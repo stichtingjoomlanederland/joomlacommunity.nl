@@ -53,6 +53,15 @@ class EasyDiscussConversationMessage extends EasyDiscuss
 		return $user;
 	}
 
+	public function isMine()
+	{
+		if ($this->table->created_by == $this->my->id) {
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * Retrieves the content of the message
 	 *

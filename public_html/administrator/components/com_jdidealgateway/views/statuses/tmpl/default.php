@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -18,12 +18,17 @@ defined('_JEXEC') or die;
 
 ?>
 <form action="index.php?option=com_jdidealgateway&view=statuses" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal">
-	<div id="j-sidebar-container" class="span2">
-		<?php echo $this->sidebar; ?>
-	</div>
+	<?php if (JVERSION < 4) : ?>
+		<div id="j-sidebar-container" class="span2">
+			<?php echo $this->sidebar; ?>
+		</div>
+	<?php endif; ?>
 	<div id="j-main-container" class="span10">
 		<?php if (empty($this->items)) : ?>
-			<div class="alert alert-no-items">
+			<div class="alert alert-no-items alert-info">
+				<?php if (JVERSION >= 4) : ?>
+					<span class="fas fa-info-circle" aria-hidden="true"></span><span class="sr-only"><?php echo Text::_('INFO'); ?></span>
+				<?php endif; ?>
 				<?php echo Text::_('JGLOBAL_NO_MATCHING_RESULTS'); ?>
 			</div>
 		<?php else : ?>
@@ -44,13 +49,15 @@ defined('_JEXEC') or die;
 					</th>
 				</tr>
 				</thead>
-				<tfoot>
-				<tr>
-					<td colspan="15">
-						<?php echo $this->pagination->getListFooter(); ?>
-					</td>
-				</tr>
-				</tfoot>
+				<?php if (JVERSION < 4) : ?>
+					<tfoot>
+					<tr>
+						<td colspan="15">
+							<?php echo $this->pagination->getListFooter(); ?>
+						</td>
+					</tr>
+					</tfoot>
+				<?php endif; ?>
 				<tbody>
 				<?php
 					$canEdit   = $this->canDo->get('core.edit');
@@ -119,6 +126,9 @@ defined('_JEXEC') or die;
 				<?php endforeach; ?>
 				</tbody>
 			</table>
+			<?php if (JVERSION >= 4) : ?>
+				<?php echo $this->pagination->getListFooter(); ?>
+			<?php endif; ?>
 		<?php endif; ?>
 	</div>
 	<input type="hidden" name="task" value="" />

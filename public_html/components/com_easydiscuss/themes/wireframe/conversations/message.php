@@ -12,15 +12,15 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-convo-messages__item" data-ed-conversations-message>
-    <div class="o-flag ed-convo-messages__item-content">
-        <div class="o-flag__image o-flag--top">
+    <div class="o-media o-media--top ed-convo-messages__item-content">
+        <div class="o-media__image ">
             <?php echo $this->html('user.avatar', $message->getCreator(), array('rank' => false, 'size' => 'l')); ?>
         </div>
 
-        <div class="o-flag__body">
-            <div class="ed-user-name t-lg-mb--sm"><?php echo $message->getCreator()->getName();?></div>
+        <div class="o-media__body">
+            <div class="ed-user-name t-mb--xs"><?php echo $message->getCreator()->getName();?></div>
             
-            <div class="ed-convo-text t-lg-mb--sm">
+            <div class="ed-convo-text t-mb--xs">
                 <?php echo $message->getContent();?>
             </div>
 
@@ -34,6 +34,6 @@ defined('_JEXEC') or die('Unauthorized Access');
     </div>
     
     <div class="ed-convo-messages__time">
-        <?php echo $message->getElapsedTime();?>
+    	<div class="o-meta"><?php echo $message->getElapsedTime();?></div>
     </div>
 </div>

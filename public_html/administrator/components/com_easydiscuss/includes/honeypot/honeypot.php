@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -13,129 +13,124 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussHoneypot extends EasyDiscuss
 {
-	private $host = 'dnsbl.httpbl.org';
-	public $ip;
-	public $api;
-	public $result;
-
-	public $seg_prefix;
-	public $seg_days;
-	public $seg_threat;
-	public $seg_type;
-
-	function check()
+	/**
+	 * Retrieves the honeypot key to be used in the form
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getKey()
 	{
-		if( $this->enabled() && $this->lookup() )
-		{
-			return $this->isSpammer();
-		}
+		static $key = null;
 
-		return true;
-	}
+		// If there is no key, generate one
+		if (is_null($key)) {
 
-	function isSpammer()
-	{
-		$blocktype = $this->config->get( 'antispam_honeypot_block' );
+			$key = $this->config->get('antispam_honeypot_key');
 
-		if( !empty( $blocktype ) )
-		{
-			switch( $blocktype )
-			{
-				case 'threat':
-					return $this->blockByThreat();
-					break;
-				case 'type':
-					return $this->blockByType();
-					break;
-				case 'both':
-					return ( $this->blockByThreat() || $this->blockByType() );
-					break;
+			if (!$key) {
+				$key = $this->updateKey();
 			}
 		}
 
-		return false;
+		return $key;
 	}
 
-	private function blockByThreat()
+	/**
+	 * Generates a random word
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function generateKey($length = 8)
 	{
-		// if seg_type == 0, it means search engine, and seg_threat becomes identifier value instead of threat value
-		if( $this->seg_type == 0 )
-		{
+		$string = '';
+		$vowels = array("a","e","i","o","u");
+
+		$consonants = array(
+			'b', 'c', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'm',
+			'n', 'p', 'r', 's', 't', 'v', 'w', 'x', 'y', 'z'
+		);
+
+		// Seed it
+		srand((double) microtime() * 1000000);
+
+		$max = $length/2;
+
+		for ($i = 1; $i <= $max; $i++) {
+			$string .= $consonants[rand(0,19)];
+			$string .= $vowels[rand(0,4)];
+		}
+
+		return $string;
+	}
+
+	/**
+	 * Determines if the spammer is trapped
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function isTrapped($type)
+	{
+		$enabled = $this->config->get('antispam_honeypot_' . $type);
+
+		if (!$enabled) {
 			return false;
 		}
 
-		$threatValue = $this->config->get( 'antispam_honeypot_threatvalue' );
+		$key = $this->getKey();
 
-		return ( $this->seg_threat >= $threatValue );
-	}
+		$value = $this->input->get($key, '', 'default');
 
-	private function blockByType()
-	{
-		if( $this->config->get( 'antispam_honeypot_threat_searchengine' ) && $this->seg_type == 0 ) return true;
+		if ($value) {
+			$this->log($type);
 
-		if( $this->config->get( 'antispam_honeypot_threat_suspicious' ) && in_array( $this->seg_type, array( 1, 3, 5, 7 ) ) ) return true;
-
-		if( $this->config->get( 'antispam_honeypot_threat_harvester' ) && in_array( $this->$seg_type, array( 3, 6, 7 ) ) ) return true;
-
-		if( $this->config->get( 'antispam_honeypot_threat_spammer' ) && in_array( $this->$seg_type, array( 4, 5, 6, 7 ) ) ) return true;
+			return true;
+		}
 
 		return false;
 	}
 
-	private function reverseIp()
+	/**
+	 * Generates a log for honeypot
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function log($type)
 	{
-		return implode( '.', array_reverse( explode( '.', $this->getIp() ) ) );
+		$data = $this->input->post->getArray();
+
+		$table = ED::table('Honeypot');
+		$table->type = $type;
+		$table->key = $this->getKey();
+		$table->data = json_encode($data);
+		$table->created = JFactory::getDate()->toSql();
+		$table->store();
+
+		return $table;
 	}
 
-	private function getIp()
+
+	/**
+	 * Updates the honeypot key
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function updateKey()
 	{
-		if( empty( $this->ip ) )
-		{
-			$this->ip = JRequest::getVar('REMOTE_ADDR', '', 'SERVER');
-		}
+		$key = $this->generateKey();
 
-		return $this->ip;
-	}
+		$data = array(
+			'antispam_honeypot_key' => $key,
+			'antispam_honeypot_lastupdate' => time()
+		);
 
-	private function getApi()
-	{
-		if( empty( $this->api ) )
-		{
-			$this->api = $this->config->get( 'antispam_honeypot_key' );
-		}
+		$model = ED::model('Settings');
+		$model->save($data);
 
-		return $this->api;
-	}
-
-	private function getConfig()
-	{
-		if( empty( $this->config ) )
-		{
-			$this->config = DiscussHelper::getConfig();
-		}
-
-		return $this->config;
-	}
-
-	private function enabled()
-	{
-		$api = $this->getApi();
-		return ( $this->config->get( 'antispam_honeypot' ) && !empty( $api ) );
-	}
-
-	private function lookup()
-	{
-		$link = $this->getApi() . '.' . $this->reverseIp() . '.' . $this->host;
-
-		$this->result = dns_get_record( $link, DNS_A );
-
-		if( empty( $this->result ) )
-		{
-			return false;
-		}
-
-		list( $this->seg_prefix, $this->seg_days, $this->seg_threat, $this->seg_type ) = $this->result;
-
-		return true;
+		return $key;
 	}
 }

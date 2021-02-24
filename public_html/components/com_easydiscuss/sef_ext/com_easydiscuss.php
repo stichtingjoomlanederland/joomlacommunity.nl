@@ -105,7 +105,7 @@ if (isset($view) && !empty($view)) {
 
 	if ($addView) {
 		// Translate the view
-		$title[] = JText::_('COM_EASYDISCUSS_SH404_VIEW_' . JString::strtoupper($view));
+		$title[] = JText::_('COM_EASYDISCUSS_SH404_VIEW_' . EDJString::strtoupper($view));
 	}
 
 	shRemoveFromGETVarsList('view');

@@ -59,35 +59,39 @@ class PlgPwtSitemapKunena extends PwtSitemapPlugin
 		if ($this->checkDisplayParameters($item, $format))
 		{
 			// Get categories
-			if (array_key_exists('layout', $item->query) && $item->query['layout'] === 'list' && $item->query['view'] === 'category')
+			if (array_key_exists('layout', $item->query)
+				&& $item->query['layout'] === 'list'
+				&& $item->query['view'] === 'category'
+				&& (int) $item->params->get('addkunenato' . $format . 'sitemap', 1)
+			)
 			{
-				if (!array_key_exists('catid', $item->query))
-				{
-					return [];
-				}
+				$parentCategory = $item->query['catid'] ?? 0;
+				$sitemapItems   = $this->getForumIndex($parentCategory, $item->level);
+			}
 
-				$items = $this->getCategories($item->query['catid']);
+			// Get topics for category
+			if (!array_key_exists('layout', $item->query)
+				&& $item->query['view'] === 'category'
+				&& (int) $item->params->get('addkunenato' . $format . 'sitemap', 1)
+			)
+			{
+				$items = $this->getCategoryTopics($item->query['catid']);
 
 				if ($items !== false)
 				{
-					foreach ($items as $entries)
+					foreach ($items as $entry)
 					{
-						foreach ($entries as $entry)
-						{
-							
-							if ($entry->parent_id > 0)
-							{
-								$link           = KunenaRoute::_('index.php?option=com_kunena&view=category&catid=' . $entry->id);
-								$sitemapItems[] = new PwtSitemapItem($entry->name, $link, $item->level + 1);
-							}
-							
-						}
+						$link           = KunenaRoute::getTopicUrl($entry, null, null, null);
+						$sitemapItems[] = new PwtSitemapItem($entry->subject, $link, $item->level + 1);
 					}
 				}
 			}
 
 			// Get Topics
-			if (array_key_exists('view', $item->query) && $item->query['view'] === 'topics')
+			if (array_key_exists('view', $item->query)
+				&& $item->query['view'] === 'topics'
+				&& (int) $item->params->get('addkunenato' . $format . 'sitemap', 1)
+			)
 			{
 				if (array_key_exists('mode', $item->query))
 				{
@@ -127,20 +131,43 @@ class PlgPwtSitemapKunena extends PwtSitemapPlugin
 	/**
 	 * Get all Categories
 	 *
-	 * @param   int  $id  Category id
+	 * @param   integer  $parentCategory  Category ID to start with
+	 * @param   integer  $startLevel      Menu item start level
 	 *
-	 * @return  mixed  stdClass on success, false otherwise
+	 * @return array List of sitemap items
 	 *
 	 * @since   1.3.0
-	 *
-	 * @throws  Exception
+	 * @throws Exception
 	 */
-	private function getCategories($id)
+	private function getForumIndex($parentCategory, $startLevel)
 	{
-		$categoryModel = new KunenaModelCategory(['ignore_request' => true]);
-		$categoryModel->setState('item.id', $id);
+		$categoryTree = KunenaForumCategoryHelper::getCategoryTree($parentCategory);
+		$categories   = KunenaForumCategoryHelper::getCategories();
+		$categoryIds  = $this->getArrayKeysRecusrive($categoryTree);
 
-		return $categoryModel->getCategories();
+		$sitemapItems = [];
+
+		foreach ($categoryIds as $categoryId)
+		{
+			$sitemapItems[] = new PwtSitemapItem(
+				$categories[$categoryId]->name,
+				KunenaRoute::_('index.php?option=com_kunena&view=category&catid=' . $categories[$categoryId]->id),
+				$startLevel + $categories[$categoryId]->level + 1
+			);
+
+			$topics = $this->getCategoryTopics($categoryId);
+
+			foreach ($topics as $topic)
+			{
+				$sitemapItems[] = new PwtSitemapItem(
+					$topic->subject,
+					KunenaRoute::getTopicUrl($topic, null, null, null),
+					$startLevel + $categories[$categoryId]->level + 2
+				);
+			}
+		}
+
+		return $sitemapItems;
 	}
 
 	/**
@@ -162,4 +189,50 @@ class PlgPwtSitemapKunena extends PwtSitemapPlugin
 		return $topicsModel->getTopics();
 	}
 
+	/**
+	 * Get all Topics for category
+	 *
+	 * @param   integer  $category  The category ID
+	 *
+	 * @return  mixed  stdClass on success, false otherwise
+	 *
+	 * @since   1.4.3
+	 *
+	 * @throws  Exception
+	 */
+	private function getCategoryTopics($category)
+	{
+		$categoryModel = new KunenaModelCategory(['ignore_request' => true]);
+		$categoryModel->setState('item.id', $category);
+		$categoryModel->setState('list.start', 0);
+		$categoryModel->setState('list.limit', 1000);
+
+		return $categoryModel->getTopics();
+	}
+
+	/**
+	 * Flatten the recusrive array
+	 *
+	 * @param   array  $array  Array to flatten
+	 *
+	 * @return array
+	 *
+	 * @since 1.4.3
+	 */
+	protected function getArrayKeysRecusrive(array $array)
+	{
+		$keys = array();
+
+		foreach ($array as $key => $value)
+		{
+			$keys[] = $key;
+
+			if (is_array($value))
+			{
+				$keys = array_merge($keys, self::getArrayKeysRecusrive($value));
+			}
+		}
+
+		return $keys;
+	}
 }

@@ -1,17 +1,29 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymformClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Helpers\FormPositionHelper;
+use AcyMailing\Helpers\PaginationHelper;
+use AcyMailing\Libraries\acymClass;
+
+class FormClass extends acymClass
 {
     var $table = 'form';
     var $pkey = 'id';
     var $positionHelper;
+    public $emptyModel;
 
     const SUB_FORM_TYPE_SHORTCODE = 'shortcode';
     const SUB_FORM_TYPE_POPUP = 'popup';
     const SUB_FORM_TYPE_HEADER = 'header';
     const SUB_FORM_TYPE_FOOTER = 'footer';
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->positionHelper = new FormPositionHelper();
+        $this->emptyModel = $this->initEmptyForm(self::SUB_FORM_TYPE_FOOTER);
+    }
 
     public function getConstPopup()
     {
@@ -31,12 +43,6 @@ class acymformClass extends acymClass
     public function getConstHeader()
     {
         return self::SUB_FORM_TYPE_HEADER;
-    }
-
-    public function __construct()
-    {
-        $this->positionHelper = acym_get('helper.formposition');
-        parent::__construct();
     }
 
     public function getMatchingElements($settings = [])
@@ -69,7 +75,7 @@ class acymformClass extends acymClass
         }
 
         if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
-            $pagination = acym_get('helper.pagination');
+            $pagination = new PaginationHelper();
             $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
@@ -119,7 +125,7 @@ class acymformClass extends acymClass
 
     public function initEmptyForm($type)
     {
-        $newForm = new stdClass();
+        $newForm = new \stdClass();
         $newForm->name = '';
         $newForm->creation_date = acym_date('now', 'Y-m-d H:i:s');
         $newForm->active = 1;
@@ -134,6 +140,15 @@ class acymformClass extends acymClass
             'displayed' => [],
             'display_mode' => 'inside',
         ];
+        $newForm->termspolicy_options = [
+            'termscond' => 0,
+            'privacy' => 0,
+        ];
+        if (in_array($type, [self::SUB_FORM_TYPE_FOOTER, self::SUB_FORM_TYPE_HEADER, self::SUB_FORM_TYPE_POPUP])) {
+            $newForm->cookie = [
+                'cookie_expiration' => 1,
+            ];
+        }
         if ($type == self::SUB_FORM_TYPE_POPUP) {
             $newForm->style_options = [
                 'position' => 'image-top',
@@ -180,6 +195,11 @@ class acymformClass extends acymClass
         }
         $newForm->delay = 0;
         $newForm->pages = [];
+        $newForm->redirection_options = [
+            'after_subscription' => '',
+            'confirmation_message' => '',
+        ];
+        $newForm->id = 0;
 
         return $newForm;
     }
@@ -188,11 +208,24 @@ class acymformClass extends acymClass
     {
         $htmlMenu = [];
         foreach ($form as $key => $value) {
+            if (!$this->shouldHaveOption($form->type, $key)) continue;
             $functionName = 'prepareMenuHtmlSettings_'.$key;
+            if (!empty($this->emptyModel->$key) && is_array($this->emptyModel->$key)) {
+                foreach ($this->emptyModel->$key as $oneOption => $defaultValue) {
+                    if (!isset($value[$oneOption])) $value[$oneOption] = $defaultValue;
+                }
+            }
             if (method_exists($this, $functionName)) $htmlMenu[$key] = $this->$functionName($key, $value);
         }
 
         return $htmlMenu;
+    }
+
+    private function shouldHaveOption($formType, $option)
+    {
+        if ($formType == self::SUB_FORM_TYPE_SHORTCODE && $option == 'cookie') return false;
+
+        return true;
     }
 
     public function prepareMenuHtmlStyle($form)
@@ -384,34 +417,44 @@ class acymformClass extends acymClass
             'title' => acym_translation('ACYM_LISTS'),
         ];
         $return['render'] = [];
-        $listClass = acym_get('class.list');
+        $listClass = new ListClass();
         $lists = $listClass->getAllForSelect(false);
         foreach ($options as $key => $value) {
             $name = 'form['.$optionName.']['.$key.']';
             $vModel = 'form.'.$optionName.'.'.$key;
             if ($key == 'automatic_subscribe') {
-                $return['render'][$key] = '<label class="cell medium-4 grid-x acym_vcenter"><span class="cell auto">'.acym_translation('ACYM_AUTO_SUBSCRIBE_TO').'</span><div class="cell shrink">'.acym_info(acym_translation('ACYM_AUTO_SUBSCRIBE_TO_DESC')).'</div></label>';
-                $return['render'][$key] .= '<div class="cell auto">
-                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(json_encode($lists)).'" v-model="'.$vModel.'"></select2multiple>
+                $return['render'][$key] = '<label class="cell grid-x acym_vcenter">'.acym_translation('ACYM_AUTO_SUBSCRIBE_TO').acym_info('ACYM_AUTO_SUBSCRIBE_TO_DESC').'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(
+                        json_encode($lists)
+                    ).'" v-model="'.$vModel.'"></select2multiple>
                                             </div>';
             } elseif ($key == 'displayed') {
-                $return['render'][$key] = '<label class="cell medium-4 grid-x acym_vcenter"><span class="cell auto">'.acym_translation('ACYM_DISPLAYED_LISTS').'</span><div class="cell shrink">'.acym_info(acym_translation('ACYM_DISPLAYED_LISTS_DESC')).'</div></label>';
-                $return['render'][$key] .= '<div class="cell auto">
-                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(json_encode($lists)).'" v-model="'.$vModel.'"></select2multiple>
+                $return['render'][$key] = '<label class="cell grid-x acym_vcenter">'.acym_translation('ACYM_DISPLAYED_LISTS').acym_info('ACYM_DISPLAYED_LISTS_DESC').'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(
+                        json_encode($lists)
+                    ).'" v-model="'.$vModel.'"></select2multiple>
                                             </div>';
             } elseif ($key == 'checked') {
-                $return['render'][$key] = '<label class="cell medium-4 grid-x acym_vcenter"><span class="cell auto">'.acym_translation('ACYM_LISTS_CHECKED_DEFAULT').'</span><div class="cell shrink">'.acym_info(acym_translation('ACYM_LISTS_CHECKED_DEFAULT_DESC')).'</div></label>';
-                $return['render'][$key] .= '<div class="cell auto">
-                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(json_encode($lists)).'" v-model="'.$vModel.'"></select2multiple>
+                $return['render'][$key] = '<label class="cell grid-x acym_vcenter">'.acym_translation('ACYM_LISTS_CHECKED_DEFAULT').acym_info(
+                        'ACYM_LISTS_CHECKED_DEFAULT_DESC'
+                    ).'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(
+                        json_encode($lists)
+                    ).'" v-model="'.$vModel.'"></select2multiple>
                                             </div>';
             } elseif ($key == 'display_position') {
                 $displayPositions = [
                     'after' => acym_translation('ACYM_AFTER_FIELDS'),
                     'before' => acym_translation('ACYM_BEFORE_FIELDS'),
                 ];
-                $return['render'][$key] = '<label class="cell medium-4">'.acym_translation('ACYM_DISPLAY_LISTS').'</label>';
-                $return['render'][$key] .= '<div class="cell auto">
-                                                <select2 :name="\''.$name.'\'" :value="\''.$value.'\'" :options="'.acym_escape(json_encode($displayPositions)).'" v-model="'.$vModel.'"></select2>
+                $return['render'][$key] = '<label class="cell">'.acym_translation('ACYM_DISPLAY_LISTS').'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2 :name="\''.$name.'\'" :value="\''.$value.'\'" :options="'.acym_escape(
+                        json_encode($displayPositions)
+                    ).'" v-model="'.$vModel.'"></select2>
                                             </div>';
             }
         }
@@ -425,7 +468,7 @@ class acymformClass extends acymClass
             'title' => acym_translation('ACYM_FIELDS'),
         ];
         $return['render'] = [];
-        $fieldClass = acym_get('class.field');
+        $fieldClass = new FieldClass();
         $allFields = $fieldClass->getAllfields();
         $fields = [];
         foreach ($allFields as $field) {
@@ -436,17 +479,19 @@ class acymformClass extends acymClass
             $name = 'form['.$optionName.']['.$key.']';
             $vModel = 'form.'.$optionName.'.'.$key;
             if ($key == 'displayed') {
-                $return['render'][$key] = '<label class="cell medium-4">'.acym_translation('ACYM_FIELDS_TO_DISPLAY').'</label>';
-                $return['render'][$key] .= '<div class="cell auto">
-                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(json_encode($fields)).'" v-model="'.$vModel.'"></select2multiple>
+                $return['render'][$key] = '<label class="cell">'.acym_translation('ACYM_FIELDS_TO_DISPLAY').'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2multiple :name="\''.$name.'\'" :value="\''.acym_escape(json_encode($value)).'\'" :options="'.acym_escape(
+                        json_encode($fields)
+                    ).'" v-model="'.$vModel.'"></select2multiple>
                                             </div>';
             } elseif ($key == 'display_mode') {
                 $displayModes = [
                     'inside' => acym_translation('ACYM_TEXT_INSIDE'),
                     'outside' => acym_translation('ACYM_TEXT_OUTSIDE'),
                 ];
-                $return['render'][$key] = '<label class="cell medium-4">'.acym_translation('ACYM_DISPLAY_FIELDS_LABEL').'</label>';
-                $return['render'][$key] .= '<div class="cell auto">
+                $return['render'][$key] = '<label class="cell">'.acym_translation('ACYM_DISPLAY_FIELDS_LABEL').'</label>';
+                $return['render'][$key] .= '<div class="cell">
                                                 <select2 :name="\''.$name.'\'" :value="\''.$value.'\'" :options="'.acym_escape(json_encode($displayModes)).'" v-model="'.$vModel.'"></select2>
                                             </div>';
             }
@@ -455,11 +500,87 @@ class acymformClass extends acymClass
         return $return;
     }
 
+    private function prepareMenuHtmlSettings_termspolicy_options($optionName, $options)
+    {
+        $return = [
+            'title' => acym_translation('ACYM_ARTICLE'),
+        ];
+        $return['render'] = [];
+        foreach ($options as $key => $value) {
+            $name = 'form['.$optionName.']['.$key.']';
+            $vModel = 'form.'.$optionName.'.'.$key;
+
+            if ($key == 'termscond') {
+                $return['render'][$key] = '<label class="cell">'.acym_translation('ACYM_TERMS_CONDITIONS').'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2ajax :name="\''.$name.'\'" :value="\''.$value.'\'" v-model="'.$vModel.'" :urlselected="\'&ctrl=forms&task=getArticlesById&article_id=\'" :ctrl="\'forms\'" :task="\'getArticles\'"></select2ajax>
+                                            </div>';
+            } elseif ($key == 'privacy') {
+                $return['render'][$key] = '<label class="cell">'.acym_translation('ACYM_PRIVACY_POLICY').'</label>';
+                $return['render'][$key] .= '<div class="cell">
+                                                <select2ajax :name="\''.$name.'\'" :value="\''.$value.'\'" v-model="'.$vModel.'" :urlselected="\'&ctrl=forms&task=getArticlesById&article_id=\'" :ctrl="\'forms\'" :task="\'getArticles\'"></select2ajax>
+                                            </div>';
+            }
+        }
+
+        return $return;
+    }
+
+
+    private function prepareMenuHtmlSettings_cookie($optionName, $options)
+    {
+        if (empty($options)) return '';
+        $return = [
+            'title' => acym_translation('ACYM_COOKIE_SETTINGS'),
+        ];
+        $return['render'] = [];
+        foreach ($options as $key => $value) {
+            $name = 'form['.$optionName.']['.$key.']';
+            $vModel = 'form.'.$optionName.'.'.$key;
+
+            if ($key == 'cookie_expiration') {
+                $return['render'][$key] = '<label class="cell">'.acym_translation('ACYM_COOKIE_EXPIRATION').'</label>';
+                $return['render'][$key] .= '<div class="cell grid-x acym_vcenter">
+                                                <input min="1" type="number" class="cell medium-3 margin-right-1" v-model="'.$vModel.'">
+                                                <span class="cell shrink">'.acym_translation('ACYM_DAYS').'</span>
+                                            </div>';
+            }
+        }
+
+        return $return;
+    }
+
+    private function prepareMenuHtmlSettings_redirection_options($categoryName, $options)
+    {
+        $return = [
+            'title' => acym_translation('ACYM_REDIRECTIONS'),
+        ];
+
+        foreach ($options as $key => $value) {
+            $id = 'form_'.$categoryName.'_'.$key;
+            $vModel = 'form.'.$categoryName.'.'.$key;
+
+            $return['render'][$key] = '<label class="cell" for="'.$id.'">';
+            if ($key === 'after_subscription') {
+                $return['render'][$key] .= acym_translation('ACYM_AFTER_SUBSCRIPTION');
+                $return['render'][$key] .= acym_info('ACYM_REDIRECT_LINK_DESC');
+            } elseif ($key === 'confirmation_message') {
+                $return['render'][$key] .= acym_translation('ACYM_CONFIRMATION_MESSAGE');
+                $return['render'][$key] .= acym_info('ACYM_CONFIRMATION_MESSAGE_DESC');
+            }
+            $return['render'][$key] .= '</label>';
+            $return['render'][$key] .= '<input type="text" class="cell" id="'.$id.'" v-model="'.$vModel.'">';
+        }
+
+
+        return $return;
+    }
+
     public function renderForm($form, $edition = false)
     {
         acym_initModule();
-        $fieldClass = acym_get('class.field');
-        $listClass = acym_get('class.list');
+        $fieldClass = new FieldClass();
+        $listClass = new ListClass();
         $form->fields_options['displayed'][] = 2;
         $form->fields_options['displayed'] = $fieldClass->getFieldsByID($form->fields_options['displayed']);
         foreach ($form->fields_options['displayed'] as $key => $field) {
@@ -469,7 +590,7 @@ class acymformClass extends acymClass
             $valuesArray = [];
             if (!empty($field->value)) {
                 foreach ($field->value as $value) {
-                    $valueTmp = new stdClass();
+                    $valueTmp = new \stdClass();
                     $valueTmp->text = $value->title;
                     $valueTmp->value = $value->value;
                     if ($value->disabled == 'y') $valueTmp->disable = true;
@@ -486,10 +607,10 @@ class acymformClass extends acymClass
             $form->fields_options['displayed'][$key]->valuesArray = $valuesArray;
         }
         $form->fieldClass = $fieldClass;
-        $form->lists = $listClass->getAllForSelect(false);
+        $form->lists = $listClass->getAllForSelect(false, 0, true);
 
-        $form->form_tag_name = acym_getModuleFormName();
-        $form->form_tag_action = ACYM_CMS == 'wordpress' ? htmlspecialchars_decode(acym_rootURI().acym_addPageParam('frontusers', true, true)) : htmlspecialchars_decode(acym_completeLink('frontusers', true, true));
+        $form->form_tag_name = 'formAcym'.$form->id;
+        $form->form_tag_action = htmlspecialchars_decode(ACYM_CMS == 'wordpress' ? acym_frontendLink('frontusers') : acym_completeLink('frontusers', true, true));
         $form->formClass = $this;
 
         $formFieldRender = ACYM_PARTIAL.'forms'.DS.$form->type.'.php';
@@ -498,9 +619,7 @@ class acymformClass extends acymClass
 
         ob_start();
         include $formFieldRender;
-        $render = ob_get_clean();
 
-        return $render;
+        return ob_get_clean();
     }
 }
-

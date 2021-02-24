@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymurlClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class UrlClass extends acymClass
 {
     var $table = 'url';
     var $pkey = 'id';
@@ -36,7 +38,7 @@ class acymurlClass extends acymClass
     {
         $currentUrl = $this->getOneByUrl($url);
         if (empty($currentUrl->id)) {
-            $currentUrl = new stdClass();
+            $currentUrl = new \stdClass();
             $currentUrl->name = $url;
             $currentUrl->url = $url;
             $currentUrl->id = $this->save($currentUrl);
@@ -81,4 +83,3 @@ class acymurlClass extends acymClass
         );
     }
 }
-

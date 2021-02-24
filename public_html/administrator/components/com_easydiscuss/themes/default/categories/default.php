@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -26,7 +26,7 @@ $originalOrders	= array();
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -45,11 +45,14 @@ $originalOrders	= array();
 					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CATEGORIES_CATEGORY_TITLE') , 'title', $orderDirection, $order); ?>
 					</th>
-					<th width="5%" class="center">
+					<th width="8%" class="center">
 						<?php echo JText::_('COM_EASYDSCUSS_CATEGORIES_DEFAULT'); ?>
 					</th>
-					<th width="5%" class="center">
+					<th width="8%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_PUBLISHED'); ?>
+					</th>
+					<th width="8%" class="center">
+						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_COLOR'); ?>
 					</th>
 					<?php if (count($categories) > 1) { ?>
 					<th width="10%" class="center">
@@ -58,17 +61,15 @@ $originalOrders	= array();
 					</th>
 					<?php } ?>
 					<th width="5%" class="center">
-						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_ENTRIES'); ?>
+						<?php echo JText::_('COM_ED_TABLE_COLUMN_POSTS'); ?>
 					</th>
-					<th width="10%" class="center">
-						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_CHILD_COUNT'); ?>
-					</th>
+
+					<?php if (ED::isSiteMultilingualEnabled()) { ?>
 					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_EDIT_CATEGORY_LANGUAGE'); ?>
 					</th>
-					<th width="8%" class="center">
-						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CATEGORIES_AUTHOR') , 'created_by', $orderDirection, $order); ?>
-					</th>
+					<?php } ?>
+
 					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_ID'); ?>
 					</th>
@@ -95,18 +96,23 @@ $originalOrders	= array();
 						<td class="center">
 							<?php echo $this->html('table.state', 'categories', $category, 'published'); ?>
 						</td>
+
+						<td class="center">
+							<?php echo $this->html('string.bubble', $category->getColour()); ?>
+						</td>
+
 						<?php if (count($categories) > 1) { ?>
 						<td class="order center">
 							<?php echo $this->html( 'table.ordering', 'order', $orderkey + 1, count($ordering[$category->parent_id]), true); ?>
 							<?php $originalOrders[] = $orderkey + 1; ?>
 						</td>
 						<?php } ?>
+
 						<td class="center">
 							<?php echo $category->count;?>
 						</td>
-						<td class="center">
-							<?php echo $category->child_count; ?>
-						</td>
+
+						<?php if (ED::isSiteMultilingualEnabled()) { ?>
 						<td class="center">
 							<?php if (!$category->language || $category->language == '*') { ?>
 								<?php echo JText::_('COM_ED_LANGUAGE_ALL');?>
@@ -114,9 +120,8 @@ $originalOrders	= array();
 								<?php echo $category->language;?>
 							<?php } ?>
 						</td>
-						<td class="center">
-							<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&controller=user&id=' . $category->created_by . '&task=edit'); ?>"><?php echo $category->user->name; ?></a>
-						</td>
+						<?php } ?>
+
 						<td class="center">
 							<?php echo $category->id;?>
 						</td>
@@ -124,7 +129,7 @@ $originalOrders	= array();
 					<?php } ?>
 				<?php } else { ?>
 					<tr>
-						<td colspan="9" class="center">
+						<td colspan="<?php echo ED::isSiteMultilingualEnabled() ? '9' : '8';  ?>" class="center">
 							<?php echo JText::_('COM_EASYDISCUSS_CATEGORIES_NO_CATEGORY_CREATED_YET');?>
 						</td>
 					</tr>
@@ -132,7 +137,7 @@ $originalOrders	= array();
 			</tbody>
 			<tfoot>
 				<tr>
-					<td colspan="9">
+					<td colspan="<?php echo ED::isSiteMultilingualEnabled() ? '9' : '8';  ?>">
 						<div class="footer-pagination center">
 							<?php echo $pagination->getListFooter(); ?>
 						</div>
@@ -146,5 +151,5 @@ $originalOrders	= array();
 	<input type="hidden" name="filter_order_Dir" value="<?php echo $orderDirection; ?>" />
 	<input type="hidden" name="original_order_values" value="<?php echo implode(',', $originalOrders); ?>" />
 
-	<?php echo $this->html('form.hidden', 'category', 'categories'); ?>
+	<?php echo $this->html('form.action', 'category', 'categories'); ?>
 </form>

@@ -1,16 +1,17 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="acym__content cell grid-x" id="acy_bounces_details" style="<?php echo !empty($data['id']) ? 'display: none;' : ''; ?>">
-	<div class="acym_area_title cell"><?php echo acym_translation('ACYM_BOUNCE_RULE_CONDITION'); ?></div>
+<div class="acym__content cell grid-x" id="acy_bounces_details" style="<?php echo !empty($data['id']) ? 'display: none;' : ''; ?>">
+	<div class="acym__title acym__title__secondary cell"><?php echo acym_translation('ACYM_BOUNCE_RULE_CONDITION'); ?></div>
 
 	<div class="cell grid-x large-6 padding-left-1">
 		<label class="cell grid-x">
 			<span class="cell medium-5 acym__label">
 				<?php echo acym_translation('ACYM_REGEX');
-                echo acym_info(acym_translation('ACYM_BOUNCES_REGEX_DESC')); ?>
+                echo acym_info('ACYM_BOUNCES_REGEX_DESC'); ?>
 			</span>
 			<span class="cell medium-7 acym__label">
-				# <input class="intext_input_large intext_input" type="text" name="bounce[regex]" value="<?php echo acym_escape((empty($data['rule']) || empty($data['rule']->regex)) ? '' : $data['rule']->regex); ?>"> #ims
+				# <input class="intext_input_large intext_input"
+						 type="text"
+						 name="bounce[regex]"
+						 value="<?php echo acym_escape((empty($data['rule']) || empty($data['rule']->regex)) ? '' : $data['rule']->regex); ?>"> #ims
 			</span>
 		</label>
 
@@ -40,14 +41,16 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 
 	<div class="cell">
-		<div class="acym_area_title margin-top-1">
+		<div class="acym__title acym__title__secondary margin-top-1">
             <?php echo acym_translation('ACYM_ACTION_ON_USER');
-            echo acym_info(acym_translation('ACYM_BOUNCES_ACTION_USER_DESC')); ?></div>
+            echo acym_info('ACYM_BOUNCES_ACTION_USER_DESC'); ?></div>
 		<div class="cell grid-x padding-left-1">
 			<p class="acym__label">
-                <?php echo acym_translation_sprintf(
+                <?php echo acym_translationSprintf(
                     'ACYM_EXECUTE_ACTIONS_AFTER',
-                    '<input type="number" min="0" name="bounce[execute_action_after]" value="'.acym_escape(!empty($data['rule']) ? $data['rule']->execute_action_after : '0').'" class="intext_input">'
+                    '<input type="number" min="0" name="bounce[execute_action_after]" value="'.acym_escape(
+                        !empty($data['rule']) ? $data['rule']->execute_action_after : '0'
+                    ).'" class="intext_input">'
                 ); ?>
 			</p>
             <?php
@@ -91,13 +94,16 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
 
 	<div class="cell">
-		<div class="acym_area_title margin-top-1">
+		<div class="acym__title acym__title__secondary margin-top-1">
             <?php echo acym_translation('ACYM_ACTION_ON_EMAIL');
-            echo acym_info(acym_translation('ACYM_BOUNCES_ACTION_MSG_DESC')); ?></div>
+            echo acym_info('ACYM_BOUNCES_ACTION_MSG_DESC'); ?></div>
 		<div class="cell grid-x padding-left-1">
             <?php
             $forwardMsg = '<div class="cell grid-x"><span class="medium-4 cell acym__label">'.acym_translation('ACYM_FORWARD_EMAIL').'</span>';
-            $forwardMsg .= '<input class="medium-7 input__in__checkbox cell" type="email" name="bounce[action_message][forward_to]" value="'.(!empty($data['rule']) && in_array('forward_message', $data['rule']->action_message) ? $data['rule']->action_message['forward_to'] : '').'"></div>';
+            $forwardMsg .= '<input class="medium-7 input__in__checkbox cell" type="email" name="bounce[action_message][forward_to]" value="'.(!empty($data['rule']) && in_array(
+                    'forward_message',
+                    $data['rule']->action_message
+                ) ? $data['rule']->action_message['forward_to'] : '').'"></div>';
 
             $valuesActionEmail = [
                 'save_message' => '<div>'.acym_translation('ACYM_SAVE_MESSAGE_DATABASE').'</div>',
@@ -124,4 +130,3 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
-

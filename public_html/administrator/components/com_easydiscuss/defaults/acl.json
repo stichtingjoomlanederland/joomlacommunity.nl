@@ -27,13 +27,22 @@
 		"id": 3
 	},
 	{
+		"action": "download_attachment",
+		"group": "post",
+		"desc": "COM_ED_ACL_OPTION_DOWNLOAD_ATTACHMENT_DESC",
+		"published": 1,
+		"default" : 1,
+		"public": 1,
+		"id": 4
+	},
+	{
 		"action": "add_tag",
 		"group": "tags",
 		"desc": "COM_EASYDISCUSS_ACL_OPTION_ADD_TAG_DESC",
 		"published": 1,
 		"default" : 1,
 		"public": 1,
-		"id": 4
+		"id": 5
 	},
 	{
 		"action": "edit_reply",
@@ -42,7 +51,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 5
+		"id": 6
 	},
 	{
 		"action": "delete_reply",
@@ -51,7 +60,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 6
+		"id": 7
 	},
 	{
 		"action": "mark_answered",
@@ -60,7 +69,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 7
+		"id": 8
 	},
 	{
 		"action": "lock_discussion",
@@ -69,7 +78,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 8
+		"id": 9
 	},
 	{
 		"action": "edit_question",
@@ -78,7 +87,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 9
+		"id": 10
 	},
 	{
 		"action": "delete_question",
@@ -87,7 +96,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 10
+		"id": 11
 	},
 	{
 		"action": "delete_attachment",
@@ -96,7 +105,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 11
+		"id": 12
 	},
 	{
 		"action": "add_comment",
@@ -105,7 +114,16 @@
 		"published": 1,
 		"default" : 0,
 		"public": 1,
-		"id": 12
+		"id": 13
+	},
+	{
+		"action": "edit_comment",
+		"group": "moderation",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_COMMENT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 14
 	},
 	{
 		"action": "delete_comment",
@@ -114,7 +132,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 13
+		"id": 15
 	},
 	{
 		"action": "feature_post",
@@ -123,7 +141,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 14
+		"id": 16
 	},
 	{
 		"action": "send_report",
@@ -132,52 +150,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 1,
-		"id": 15
-	},
-	{
-		"action": "mark_on_hold",
-		"group": "status",
-		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ON_HOLD_DESC",
-		"published": 1,
-		"default" : 0,
-		"public": 0,
-		"id": 16
-	},
-	{
-		"action": "mark_accepted",
-		"group": "status",
-		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_ACCEPTED_DESC",
-		"published": 1,
-		"default" : 0,
-		"public": 0,
 		"id": 17
-	},
-	{
-		"action": "mark_working_on",
-		"group": "status",
-		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_WORKING_ON_DESC",
-		"published": 1,
-		"default" : 0,
-		"public": 0,
-		"id": 18
-	},
-	{
-		"action": "mark_rejected",
-		"group": "status",
-		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_REJECTED_DESC",
-		"published": 1,
-		"default" : 0,
-		"public": 0,
-		"id": 19
-	},
-	{
-		"action": "mark_no_status",
-		"group": "status",
-		"desc": "COM_EASYDISCUSS_ACL_OPTION_MARK_NO_STATUS_DESC",
-		"published": 1,
-		"default" : 0,
-		"public": 0,
-		"id": 20
 	},
 	{
 		"action": "edit_branch",
@@ -186,7 +159,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 21
+		"id": 18
 	},
 	{
 		"action": "show_signature",
@@ -195,7 +168,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 1,
-		"id": 22
+		"id": 19
 	},
 	{
 		"action": "delete_own_question",
@@ -204,7 +177,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 23
+		"id": 20
 	},
 	{
 		"action": "delete_own_replies",
@@ -213,7 +186,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 24
+		"id": 21
 	},
 	{
 		"action": "edit_own_reply",
@@ -222,7 +195,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 25
+		"id": 22
 	},
 	{
 		"action": "edit_own_question",
@@ -231,7 +204,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 26
+		"id": 23
 	},
 	{
 		"action": "ban_user",
@@ -240,7 +213,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 27
+		"id": 24
 	},
 	{
 		"action": "vote_discussion",
@@ -249,16 +222,25 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 28
+		"id": 25
 	},
 	{
-		"action": "delete_own_comment",
+		"action": "edit_own_comment",
 		"group": "comments",
 		"desc": "COM_EASYDISCUSS_ACL_OPTION_EDIT_OWN_COMMENT_DESC",
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 29
+		"id": 26
+	},
+	{
+		"action": "delete_own_comment",
+		"group": "comments",
+		"desc": "COM_EASYDISCUSS_ACL_OPTION_DELETE_OWN_COMMENT_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 27
 	},
 	{
 		"action": "allow_privatemessage",
@@ -267,7 +249,7 @@
 		"published": 1,
 		"default" : 1,
 		"public": 0,
-		"id": 30
+		"id": 28
 	},
 	{
 		"action": "manage_holiday",
@@ -276,7 +258,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 31
+		"id": 29
 	},
 	{
 		"action": "board_statistics",
@@ -285,7 +267,7 @@
 		"published": 1,
 		"default" : 1,
 		"public": 1,
-		"id": 32
+		"id": 30
 	},
 	{
 		"action": "manage_pending",
@@ -294,7 +276,7 @@
 		"published": 1,
 		"default" : 0,
 		"public": 0,
-		"id": 33
+		"id": 31
 	},
 	{
 		"action": "create_tag",
@@ -302,6 +284,24 @@
 		"desc": "COM_ED_ACL_OPTION_CREATE_TAG",
 		"published": 1,
 		"default" : 1,
+		"public": 0,
+		"id": 32
+	},
+	{
+		"action": "set_label",
+		"group": "post",
+		"desc": "COM_ED_ACL_OPTION_SET_POST_LABEL_DESC",
+		"published": 1,
+		"default" : 0,
+		"public": 0,
+		"id": 33
+	},
+	{
+		"action": "remove_label",
+		"group": "post",
+		"desc": "COM_ED_ACL_OPTION_REMOVE_POST_LABEL_DESC",
+		"published": 1,
+		"default" : 0,
 		"public": 0,
 		"id": 34
 	}

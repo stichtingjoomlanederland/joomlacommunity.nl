@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 class JFormFieldHelp extends JFormField
 {
@@ -8,7 +6,10 @@ class JFormFieldHelp extends JFormField
 
     public function getInput()
     {
-        if ('Joomla' == 'Joomla' && !include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
+        if ('Joomla' === 'Joomla' && !include_once(rtrim(
+                    JPATH_ADMINISTRATOR,
+                    DIRECTORY_SEPARATOR
+                ).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
             echo 'This extension cannot work without AcyMailing';
         }
 
@@ -19,4 +20,3 @@ class JFormFieldHelp extends JFormField
         return '<a class="btn" target="_blank" href="'.$link.'">'.acym_translation('ACYM_HELP').'</a>';
     }
 }
-

@@ -22,6 +22,7 @@ if (!JFile::exists($path)) {
 require_once($path);
 
 ED::init();
+$lib = ED::modules($module);
 
 $lang = JFactory::getLanguage();
 

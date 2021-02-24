@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -57,7 +57,7 @@ defined('_JEXEC') || die();
 
     <div class="akeeba-panel--information">
         <div id="ak_crumbs_container">
-            <ul class="breadcrumb">
+            <ul class="akeeba-breadcrumb" style="margin-bottom: 0">
                 <li>
                     <a data-s3prefix="{{ base64_encode('') }}" class="akeebaS3ImportChangeDirectory">&lt; root &gt;</a>
                     <span class="divider">/</span>

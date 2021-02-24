@@ -6,16 +6,14 @@
 		<action name="discuss.manage.autoposting" title="COM_EASYDISCUSS_JACL_MANAGE_AUTOPOSTING" description="COM_EASYDISCUSS_JACL_MANAGE_AUTOPOSTING_DESC" />
 		<action name="discuss.manage.badges" title="COM_EASYDISCUSS_JACL_MANAGE_BADGES" description="COM_EASYDISCUSS_JACL_MANAGE_BADGES_DESC" />
 		<action name="discuss.manage.categories" title="COM_EASYDISCUSS_JACL_MANAGE_CATEGORIES" description="COM_EASYDISCUSS_JACL_MANAGE_CATEGORIES_DESC" />
-		<action name="discuss.manage.comments" title="COM_EASYDISCUSS_JACL_MANAGE_COMMENTS" description="COM_EASYDISCUSS_JACL_MANAGE_COMMENTS_DESC" />
 		<action name="discuss.manage.customfields" title="COM_EASYDISCUSS_JACL_MANAGE_CUSTOMFIELDS" description="COM_EASYDISCUSS_JACL_MANAGE_CUSTOMFIELDS_DESC" />
 		<action name="discuss.manage.languages" title="COM_EASYDISCUSS_JACL_MANAGE_LANGUAGES" description="COM_EASYDISCUSS_JACL_MANAGE_LANGUAGES_DESC" />
+		<action name="discuss.manage.modules" title="COM_EASYDISCUSS_JACL_MANAGE_MODULES" description="COM_EASYDISCUSS_JACL_MANAGE_MODULES_DESC" />
 		<action name="discuss.manage.migrators" title="COM_EASYDISCUSS_JACL_MANAGE_MIGRATORS" description="COM_EASYDISCUSS_JACL_MANAGE_MIGRATORS_DESC" />
 		<action name="discuss.manage.points" title="COM_EASYDISCUSS_JACL_MANAGE_POINTS" description="COM_EASYDISCUSS_JACL_MANAGE_POINTS_DESC" />
 		<action name="discuss.manage.posts" title="COM_EASYDISCUSS_JACL_MANAGE_POSTS" description="COM_EASYDISCUSS_JACL_MANAGE_POSTS_DESC" />
-		<action name="discuss.manage.ranks" title="COM_EASYDISCUSS_JACL_MANAGE_RANKS" description="COM_EASYDISCUSS_JACL_MANAGE_RANKS_DESC" />
 		<action name="discuss.manage.replies" title="COM_EASYDISCUSS_JACL_MANAGE_REPLIES" description="COM_EASYDISCUSS_JACL_MANAGE_REPLIES_DESC" />
 		<action name="discuss.manage.reports" title="COM_EASYDISCUSS_JACL_MANAGE_REPORTS" description="COM_EASYDISCUSS_JACL_MANAGE_REPORTS_DESC" />
-		<action name="discuss.manage.roles" title="COM_EASYDISCUSS_JACL_MANAGE_ROLES" description="COM_EASYDISCUSS_JACL_MANAGE_ROLES_DESC" />
 		<action name="discuss.manage.rules" title="COM_EASYDISCUSS_JACL_MANAGE_RULES" description="COM_EASYDISCUSS_JACL_MANAGE_RULES_DESC" />
 		<action name="discuss.manage.settings" title="COM_EASYDISCUSS_JACL_MANAGE_SETTINGS" description="COM_EASYDISCUSS_JACL_MANAGE_SETTINGS_DESC" />
 		<action name="discuss.manage.spools" title="COM_EASYDISCUSS_JACL_MANAGE_MAILPOOLS" description="COM_EASYDISCUSS_JACL_MANAGE_MAILPOOLS_DESC" />
@@ -26,7 +24,6 @@
 		<action name="discuss.manage.types" title="COM_EASYDISCUSS_JACL_MANAGE_POSTTYPES" description="COM_EASYDISCUSS_JACL_MANAGE_POSTTYPES_DESC" />
 		<action name="discuss.manage.priorities" title="COM_EASYDISCUSS_JACL_MANAGE_PRIORITIES" description="COM_EASYDISCUSS_JACL_MANAGE_PRIORITIES_DESC" />
 		<action name="discuss.manage.maintenance" title="COM_EASYDISCUSS_JACL_MANAGE_MAINTENANCE" description="COM_EASYDISCUSS_JACL_MANAGE_MAINTENANCE_DESC" />
-		<action name="discuss.manage.bans" title="COM_EASYDISCUSS_JACL_MANAGE_BANS" description="COM_EASYDISCUSS_JACL_MANAGE_BANS_DESC" />
 		<action name="discuss.manage.emails" title="COM_EASYDISCUSS_JACL_MANAGE_EMAILS" description="COM_EASYDISCUSS_JACL_MANAGE_EMAILS_DESC" />
 	</section>
 </access>

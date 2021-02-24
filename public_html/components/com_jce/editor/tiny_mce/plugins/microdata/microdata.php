@@ -15,7 +15,7 @@ defined('JPATH_PLATFORM') or die;
 // Link Plugin Controller
 class WFMicrodataPlugin extends WFEditorPlugin
 {
-    protected static $_url = 'https://schema.org/version/latest/schema.jsonld';
+    protected static $_url = 'https://schema.org/version/latest/schemaorg-current-https.jsonld';
     //protected static $_url = 'https://schema.org/docs/schema_org_rdfa.html';
     protected static $_schema = null;
 
@@ -124,13 +124,38 @@ class WFMicrodataPlugin extends WFEditorPlugin
         return false;
     }
 
+    private static function extractKey($value)
+    {        
+        if (is_array($value) && array_key_exists('@value', $value)) {
+            $value = $value['@value'];
+        }
+
+        // key is in url format, eg: 'https://schema.org/value'
+        if (strpos($value, '://') !== false) {
+            $key = parse_url($value, PHP_URL_PATH);
+
+            if (!$key) {
+                return $value;
+            }
+
+            return trim($key, "/");
+        }
+
+        // key is in format 'schema:value'
+        if (substr($value, 0, 7) === 'schema:') {
+            return substr($value, 7);
+        }
+
+        return $value;
+    }
+
     private static function buildListFromJson($nodes)
     {
         $data = array();
         $nodes = isset($nodes['@graph']) ? $nodes['@graph'] : array();
 
         foreach ($nodes as $node) {
-            $id = str_replace('http://schema.org/', '', $node['@id']);
+            $id = self::extractKey($node['@id']);
 
             if ($node['@type'] != 'rdfs:Class') {
                 continue;
@@ -143,7 +168,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
             $comment = '';
 
             if (isset($node['rdfs:comment'])) {
-                $comment = str_replace('http://schema.org/', '', $node['rdfs:comment']);
+                $comment = self::extractKey($node['rdfs:comment']);
             }
 
             $values = array(
@@ -160,8 +185,6 @@ class WFMicrodataPlugin extends WFEditorPlugin
 
         do {
             foreach ($nodes as $node) {
-                $id = str_replace('http://schema.org/', '', $node['@id']);
-
                 if ($node['@type'] != 'rdfs:Class') {
                     $count--;
                     continue;
@@ -172,6 +195,8 @@ class WFMicrodataPlugin extends WFEditorPlugin
                     continue;
                 }
 
+                $id = self::extractKey($node['@id']);
+
                 if (self::findClassPositionByType($id, $data)) {
                     $count--;
                     continue;
@@ -180,7 +205,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
                 $comment = '';
 
                 if (isset($node['rdfs:comment'])) {
-                    $comment = str_replace('http://schema.org/', '', $node['rdfs:comment']);
+                    $comment = self::extractKey($node['rdfs:comment']);
                 }
 
                 $values = array(
@@ -195,9 +220,9 @@ class WFMicrodataPlugin extends WFEditorPlugin
 
                 foreach ($items as $item) {
                     if (is_string($item)) {
-                        $values['subClassOf'][] = str_replace('http://schema.org/', '', $item);
+                        $values['subClassOf'][] = self::extractKey($item);
                     } else {
-                        $values['subClassOf'][] = str_replace('http://schema.org/', '', $item['@id']);
+                        $values['subClassOf'][] = self::extractKey($item['@id']);
                     }
                 }
 
@@ -217,17 +242,17 @@ class WFMicrodataPlugin extends WFEditorPlugin
             }
         } while ($count > 0);
 
-        foreach ($nodes as $node) {
+        foreach ($nodes as $node) {            
             if ($node['@type'] != 'rdf:Property') {
                 continue;
             }
 
-            $id = str_replace('http://schema.org/', '', $node['@id']);
+            $id = self::extractKey($node['@id']);
 
             $comment = '';
 
             if (isset($node['rdfs:comment'])) {
-                $comment = str_replace('http://schema.org/', '', $node['rdfs:comment']);
+                $comment = self::extractKey($node['rdfs:comment']);
             }
 
             $entry = array(
@@ -236,7 +261,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
             );
 
             foreach (['domainIncludes', 'rangeIncludes'] as $prop) {
-                $key = 'http://schema.org/' . $prop;
+                $key = 'schema:' . $prop;
 
                 if (!isset($node[$key])) {
                     continue;
@@ -245,7 +270,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
                 $val = $node[$key];
 
                 if (!is_array($val)) {
-                    $subclass = str_replace('http://schema.org/', '', $val['@id']);
+                    $subclass = self::extractKey($val['@id']);
 
                     array_walk($data, function (&$item) use ($subclass, $prop, $entry) {
                         if ($item['resource'] == $subclass) {
@@ -259,7 +284,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
                             $subclass = $subclass['@id'];
                         }
 
-                        $subclass = str_replace('http://schema.org/', '', $subclass);
+                        $subclass = self::extractKey($subclass);
 
                         array_walk($data, function (&$item) use ($subclass, $prop, $entry) {
                             if ($item['resource'] == $subclass) {
@@ -294,7 +319,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
         }
 
         foreach ($nodes as $node) {
-            $value = str_replace('http://schema.org/', '', $node->getAttribute('resource'));
+            $value = self::extractKey($node->getAttribute('resource'));
 
             if ($node->getAttribute('typeof') === 'rdfs:Class') {
                 $subclass = array();
@@ -302,7 +327,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
 
                 foreach ($node->getElementsByTagName('a') as $item) {
                     if ($item->getAttribute('property') === 'rdfs:subClassOf') {
-                        $subclass[] = str_replace('http://schema.org/', '', $item->nodeValue);
+                        $subclass[] = self::extractKey($item->nodeValue);
                     }
                 }
 
@@ -310,7 +335,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
                     $prop = $item->getAttribute('property');
 
                     if ($prop === 'rdfs:comment') {
-                        $comment = str_replace('http://schema.org/', '', $item->nodeValue);
+                        $comment = self::extractKey($item->nodeValue);
                     }
                 }
 
@@ -322,18 +347,18 @@ class WFMicrodataPlugin extends WFEditorPlugin
                 $comment = '';
 
                 foreach ($node->getElementsByTagName('span') as $item) {
-                    $prop = str_replace('http://schema.org/', '', $item->getAttribute('property'));
+                    $prop = self::extractKey($item->getAttribute('property'));
 
                     if ($prop === 'rdfs:comment') {
-                        $comment = str_replace('http://schema.org/', '', $item->nodeValue);
+                        $comment = self::extractKey($item->nodeValue);
                     }
                 }
 
                 foreach ($node->getElementsByTagName('a') as $item) {
-                    $prop = str_replace('http://schema.org/', '', $item->getAttribute('property'));
+                    $prop = self::extractKey($item->getAttribute('property'));
 
                     if ($prop === 'domainIncludes' || $prop === 'rangeIncludes') {
-                        $subclass = str_replace('http://schema.org/', '', $item->nodeValue);
+                        $subclass = self::extractKey($item->nodeValue);
 
                         if ($value) {
                             $entry = array('label' => $value, 'comment' => $comment);
@@ -349,23 +374,23 @@ class WFMicrodataPlugin extends WFEditorPlugin
         return $data;
     }
 
-    private function getData()
+    private function getData($url)
     {
         $http = JHttpFactory::getHttp();
 
         try {
-            $response = $http->get(self::$_url);
+            $response = $http->get($url);
         } catch (\RuntimeException $e) {
             $response = null;
         }
 
         if ($response === null || $response->code !== 200) {
-            return array('error' => JText::_('Unable to load schema - Invalid response from ' . self::$_url));
+            return array('error' => JText::_('Unable to load schema - Invalid response from ' . $url));
         }
 
-        if ($data = gzdecode($response->body)) {
+        /*if ($data = gzdecode($response->body)) {
             return $data;
-        }
+        }*/
 
         return $response->body;
     }
@@ -374,9 +399,12 @@ class WFMicrodataPlugin extends WFEditorPlugin
     {
         jimport('joomla.filesystem.file');
 
+        // get the url from parameters or default
+        $url = $this->getParam('schema_url', self::$_url);
+
         if (empty(self::$_schema)) {
             // create cache file path
-            $cache = JPATH_SITE . '/cache/com_jce/' . md5(self::$_url) . '.json';
+            $cache = JPATH_SITE . '/cache/com_jce/' . md5($url) . '.json';
 
             // get refresh time
             $ttl = (int) $this->getParam('cache_ttl', 7);
@@ -388,9 +416,8 @@ class WFMicrodataPlugin extends WFEditorPlugin
             }
 
             if (empty(self::$_schema) || !$ttl || (JFile::exists($cache) && filemtime($cache) >= strtotime($ttl . ' days ago'))) {
-
-                if (pathinfo(self::$_url, PATHINFO_EXTENSION) === 'jsonld') {
-                    $jsonld = @file_get_contents(self::$_url);
+                if (pathinfo($url, PATHINFO_EXTENSION) === 'jsonld') {
+                    $jsonld = $this->getData($url);
 
                     if (!is_string($jsonld)) {
                         return self::$_schema;
@@ -405,8 +432,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
                     $data = self::buildListFromJson($json);
 
                 } else {
-                    //$html = $this->getData();
-                    $html = @file_get_contents(self::$_url);
+                    $html = $this->getData($url);
 
                     // result should be string, otherwise an error
                     if (!is_string($html)) {

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewSpools extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
@@ -20,7 +18,8 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.spools');
 
 		$this->setHeading('COM_EASYDISCUSS_SPOOLS_TITLE', 'COM_EASYDISCUSS_SPOOLS_DESC');
-
+		$this->addHelpButton('/docs/easydiscuss/administrators/cronjobs/understanding-cronjobs');
+		
 		JToolbarHelper::deleteList();
 		JToolBarHelper::custom('purge','purge','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
 
@@ -39,6 +38,14 @@ class EasyDiscussViewSpools extends EasyDiscussAdminView
 			}
 		}
 
+		// Determine the last execution time of the cronjob if there is
+		$cronLastExecuted = $this->config->get('cron_last_execute', '');
+
+		if ($cronLastExecuted) {
+			$cronLastExecuted = JFactory::getDate($cronLastExecuted)->format(JText::_('DATE_FORMAT_LC2'));
+		}
+
+		$this->set('cronLastExecuted', $cronLastExecuted);
 		$this->set('filter', $filter);
 		$this->set('mails', $mails);
 		$this->set('pagination', $pagination);

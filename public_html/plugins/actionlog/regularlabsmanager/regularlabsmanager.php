@@ -1,13 +1,15 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.5
+ * @version         7.4.7
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
+
+use RegularLabs\Library\Document as RL_Document;
 
 defined('_JEXEC') or die;
 
@@ -18,12 +20,17 @@ if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 
 require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
-/**
- * Plugin that logs User Actions
- */
-class PlgActionlogRegularLabsManager
-	extends \RegularLabs\Library\ActionLogPlugin
+if ( ! RL_Document::isJoomlaVersion(3))
 {
-	public $name  = 'REGULARLABSEXTENSIONMANAGER';
-	public $alias = 'regularlabsmanager';
+	return;
+}
+
+if (true)
+{
+	class PlgActionlogRegularLabsManager
+		extends \RegularLabs\Library\ActionLogPlugin
+	{
+		public $name  = 'REGULARLABSEXTENSIONMANAGER';
+		public $alias = 'regularlabsmanager';
+	}
 }

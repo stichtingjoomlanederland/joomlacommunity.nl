@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
     <?php
     $isEmpty = empty($data['lists']) && empty($data['search']) && empty($data['tag']) && empty($data['status']);
     if (!$isEmpty) {
@@ -15,4 +13,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(); ?>
 </form>
-

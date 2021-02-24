@@ -1,12 +1,14 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymworkflowHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Libraries\acymObject;
+
+class WorkflowHelper extends acymObject
 {
     var $disabledAfter = null;
 
-    public function display($steps, $currentStep, $edition = true, $needTabs = false)
+    public function display($steps, $currentStep, $edition = true, $needTabs = false, $linkParameters = '')
     {
         $ctrl = acym_getVar('cmd', 'ctrl');
         $id = acym_getVar('int', 'id', 0);
@@ -26,7 +28,7 @@ class acymworkflowHelper extends acymObject
                 } else {
                     $link = $ctrl.'&task='.$task;
                 }
-                $title = '<a href="'.acym_completeLink($link).'">'.$title.'</a>';
+                $title = '<a href="'.acym_completeLink($link.$linkParameters).'">'.$title.'</a>';
             }
 
             $workflow[] = '<li class="'.$class.'">'.$title.'</li>';
@@ -71,4 +73,3 @@ class acymworkflowHelper extends acymObject
         return $result;
     }
 }
-

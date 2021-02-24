@@ -3,9 +3,9 @@
     height: auto;
     margin: 0 10px 10px 0;
     min-height: 90px;
-    min-width: 150px;
+    min-width: 40px;
     padding: 5px;
-    width: 250px;
+    width: 40px;
 	cursor: move;
 	position: absolute;
 	border: 1px solid #aaaaaa;

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -560,7 +560,7 @@ class Joomla3x extends BasePlatform
 				// Akeeba Engine extended version, Akeeba\Engine\Driver\Joomla
 				case 'mysql':
 					// So, Joomla! 4's "mysql" is, actually, "pdomysql". Therefore I can use our own wrapper driver
-					if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+					if (version_compare(JVERSION, '3.999.999', 'gt'))
 					{
 						return Joomla::class;
 					}

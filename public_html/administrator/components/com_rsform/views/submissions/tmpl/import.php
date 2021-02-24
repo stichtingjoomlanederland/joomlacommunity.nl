@@ -67,7 +67,7 @@ JText::script('ERROR');
             ?>
                 <th>
                     <select name="header[]">
-                        <?php echo $this->options; ?>
+                        <?php echo JHtml::_('select.options', $this->options, 'value', 'text', isset($this->selected[$i]) ? $this->selected[$i] : false); ?>
                     </select>
                 </th>
             <?php

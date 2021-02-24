@@ -3,14 +3,16 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
-use Jdideal\Gateway;
-
 defined('_JEXEC') or die;
+
+use Jdideal\Gateway;
+use Joomla\CMS\Factory;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 /**
  * Status model
@@ -18,7 +20,7 @@ defined('_JEXEC') or die;
  * @package  JDiDEAL
  * @since    4.13.0
  */
-class JdidealgatewayModelStatus extends JModelLegacy
+class JdidealgatewayModelStatus extends BaseDatabaseModel
 {
 	/**
 	 * Get the message to show.
@@ -29,9 +31,9 @@ class JdidealgatewayModelStatus extends JModelLegacy
 	 *
 	 * @since   4.13.0
 	 */
-	public function getMessage()
+	public function getMessage(): string
 	{
-		$menu = JFactory::getApplication()->getMenu()->getActive();
+		$menu = Factory::getApplication()->getMenu()->getActive();
 
 		if (!$menu)
 		{

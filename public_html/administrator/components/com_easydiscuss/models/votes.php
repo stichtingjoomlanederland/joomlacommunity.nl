@@ -218,21 +218,33 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 		return $state;
 	}
 
-
 	/**
 	 * Get's the total number of votes made for a specific post.
 	 *
 	 * @since	4.0
-	 *
+	 * @access	public
 	 */
-	public function getTotalVotes($postId)
+	public function getTotalVotes($postId, $type = null)
 	{
 		$db = $this->db;
+		$query = array();
+		$select = 'SUM(' . $db->nameQuote('value') . ')';
 
-		$query = 'SELECT SUM(' . $db->nameQuote('value') . ') AS ' . $db->nameQuote('total');
-		$query .= ' FROM ' . $db->nameQuote('#__discuss_votes');
-		$query .= ' WHERE ' . $db->nameQuote('post_id') . '=' . $db->Quote($postId);
+		$where = array();
+		$where[] = 'WHERE ' . $db->nameQuote('post_id') . '=' . $db->Quote($postId);
 
+		if ($type == DISCUSS_VOTE_UP_STRING || $type == DISCUSS_VOTE_DOWN_STRING) {
+			$select = 'COUNT(1)';
+			$value = $type == DISCUSS_VOTE_UP_STRING ? DISCUSS_VOTE_UP : DISCUSS_VOTE_DOWN;
+
+			$where[] = 'AND ' . $db->nameQuote('value') . '=' . $db->Quote($value);
+		}
+
+		$query[] = 'SELECT ' . $select . ' AS ' . $db->nameQuote('total');
+		$query[] = 'FROM ' . $db->nameQuote('#__discuss_votes');
+		$query[] = implode(' ', $where);
+
+		$query = implode(' ', $query);
 		$db->setQuery($query);
 
 		$total = $db->loadResult();
@@ -240,7 +252,7 @@ class EasyDiscussModelVotes extends EasyDiscussAdminModel
 		if (is_null($total)) {
 			$total = 0;
 		}
-		
+
 		return $total;
 	}
 

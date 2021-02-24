@@ -2,8 +2,8 @@
 <extension version="3.9" type="plugin" group="actionlog" method="upgrade">
 	<name>plg_actionlog_dbreplacer</name>
 	<description>PLG_ACTIONLOG_DBREPLACER_DESC</description>
-	<version>6.3.7PRO</version>
-	<creationDate>February 2020</creationDate>
+	<version>6.3.8PRO</version>
+	<creationDate>September 2020</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>
@@ -29,14 +29,14 @@
 			<fieldset name="basic">
 				<field name="@loadlanguage_regularlabs" type="rl_loadlanguage" extension="plg_system_regularlabs" />
 				<field name="@loadlanguage" type="rl_loadlanguage" extension="plg_actionlog_dbreplacer" />
-				<field name="@license" type="rl_license" extension="DB_REPLACER" />
-				<field name="@version" type="rl_version" extension="DB_REPLACER" />
+				<field name="@license" type="rl_license" extension="DBREPLACER" />
+				<field name="@version" type="rl_version" extension="DBREPLACER" />
 				<field name="@dependency" type="rl_dependency"
 					   label="DBR_THE_COMPONENT"
 					   file="/administrator/components/com_dbreplacer/dbreplacer.php" />
 				<field name="@header" type="rl_header"
-					   label="DB_REPLACER"
-					   description="DB_REPLACER_DESC"
+					   label="DBREPLACER"
+					   description="DBREPLACER_DESC"
 					   url="https://www.regularlabs.com/dbreplacer" />
 
 				<field name="@notice_settings" type="note" class="alert alert-info"

@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 class JFormFieldArchive extends JFormField
 {
@@ -8,15 +6,15 @@ class JFormFieldArchive extends JFormField
 
     public function getInput()
     {
-        if ('Joomla' == 'Joomla' && !include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
+        if ('Joomla' === 'Joomla' && !include_once(rtrim(
+                    JPATH_ADMINISTRATOR,
+                    DIRECTORY_SEPARATOR
+                ).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
             echo 'This extension cannot work without AcyMailing';
         }
 
         $value = empty($this->value) ? 0 : $this->value;
 
-        $return = '<input type="number" value="'.$value.'" name="'.$this->name.'" min="0">';
-
-        return $return;
+        return '<input type="number" value="'.$value.'" name="'.$this->name.'" min="0">';
     }
 }
-

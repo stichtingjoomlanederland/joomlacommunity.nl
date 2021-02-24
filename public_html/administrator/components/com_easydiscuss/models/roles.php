@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,42 +9,22 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once dirname( __FILE__ ) . '/model.php';
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussModelRoles extends EasyDiscussAdminModel
 {
-	/**
-	 * Category total
-	 *
-	 * @var integer
-	 */
 	protected $_total = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	protected $_pagination = null;
-
-	/**
-	 * Category data array
-	 *
-	 * @var array
-	 */
 	protected $_data = null;
-
 
 	public function __construct()
 	{
 		parent::__construct();
 
-		$mainframe	= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
-		$limit		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.roles.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limit = $mainframe->getUserStateFromRequest( 'com_easydiscuss.roles.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
+		$limitstart = $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -95,20 +75,12 @@ class EasyDiscussModelRoles extends EasyDiscussAdminModel
 	protected function _buildQuery()
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere();
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere();
+		$orderby = $this->_buildQueryOrderBy();
+		$db = $this->db;
 
-		if( DiscussHelper::getJoomlaVersion() >= '1.6' )
-		{
-			$select	= ' b.title AS usergroup_title';
-			$join	= ' LEFT JOIN `#__usergroups` AS b ON b.id = a.usergroup_id';
-		}
-		else
-		{
-			$select	= ' b.name AS usergroup_title';
-			$join	= ' LEFT JOIN `#__core_acl_aro_groups` AS b ON b.id = a.usergroup_id';
-		}
+		$select	= ' b.title AS usergroup_title';
+		$join	= ' LEFT JOIN `#__usergroups` AS b ON b.id = a.usergroup_id';
 
 		$query	= 'SELECT a.*, '
 				. $select
@@ -122,26 +94,26 @@ class EasyDiscussModelRoles extends EasyDiscussAdminModel
 
 	protected function _buildQueryWhere()
 	{
-		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
-
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.roles.filter_state', 'filter_state', '', 'word' );
-
+		$db = $this->db;
+		$state = $this->app->getUserStateFromRequest('com_easydiscuss.roles.filter_state', 'filter_state', '', 'word');
+		$search = $this->app->getUserStateFromRequest('com_easydiscuss.roles.search', 'search', '', 'word');
 		$where = array();
 
-		if ( $filter_state )
-		{
-			if ( $filter_state == 'P' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '1' );
+		if ($state) {
+			if ($state == 'P') {
+				$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('1');
 			}
-			else if ($filter_state == 'U' )
-			{
-				$where[] = $db->nameQuote( 'a.published' ) . '=' . $db->Quote( '0' );
+
+			if ($state == 'U') {
+				$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('0');
 			}
 		}
 
-		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		if ($search) {
+			$where[] = $db->nameQuote('a.title') . ' LIKE ' . $db->Quote('%' . $search . '%');
+		}
+
+		$where = (count($where) ? ' WHERE ' . implode(' AND ', $where) : '');
 
 		return $where;
 	}
@@ -185,26 +157,42 @@ class EasyDiscussModelRoles extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	public function publish( &$roles = array(), $publish = 1 )
+	public function publish(&$roles = array(), $publish = 1)
 	{
-		if( count( $roles ) > 0 )
-		{
-			$db		= DiscussHelper::getDBO();
+		$origPublishState = $publish;
 
-			$ids	= implode( ',' , $roles );
+		if (count($roles) > 0) {
+			
+			$db	= ED::db();
+			$ids = implode(',', $roles);
 
-			$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_roles' ) . ' '
-					. 'SET ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( $publish ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'id' ) . ' IN (' . $ids . ')';
-			$db->setQuery( $query );
+			$query = 'UPDATE ' . $db->nameQuote('#__discuss_roles') . ' '
+					. 'SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish) . ' '
+					. 'WHERE ' . $db->nameQuote('id') . ' IN (' . $ids . ')';
 
-			if( !$db->query() )
-			{
+			$db->setQuery($query);
+
+			if (!$db->query()) {
 				$this->setError($this->_db->getErrorMsg());
 				return false;
 			}
+
+			$actionString = $origPublishState ? 'COM_ED_ACTIONLOGS_AUTHOR_PUBLISH_USER_ROLE' : 'COM_ED_ACTIONLOGS_AUTHOR_UNPUBLISH_USER_ROLE';
+
+			foreach ($roles as $roleId) {
+				$role = ED::table('Role');
+				$role->load($roleId);
+
+				$actionlog = ED::actionlog();
+				$actionlog->log($actionString, 'category', array(
+					'link' => 'index.php?option=com_easydiscuss&view=roles&layout=form&id=' . $role->id,
+					'roleTitle' => JText::_($role->title)
+				));
+			}
+
 			return true;
 		}
+
 		return false;
 	}
 

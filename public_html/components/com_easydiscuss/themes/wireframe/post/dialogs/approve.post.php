@@ -39,11 +39,11 @@ defined('_JEXEC') or die('Restricted access');
 
 		<form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
 			<input type="hidden" id="postId" name="postId" value="<?php echo $id; ?>">
-			<?php echo $this->html('form.hidden', 'posts', 'posts', 'approvePendingPost');?>
+			<?php echo $this->html('form.action', 'posts', 'posts', 'approvePendingPost');?>
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
-		<button data-submit-button type="button" class="btn btn-primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_APPROVE_REPLY'); ?></button>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_APPROVE_REPLY'); ?></button>
 	</buttons>
 </dialog>

@@ -34,7 +34,7 @@ class EasyDiscussVote extends EasyDiscuss
 		}
 
 		$my		= isset($params['my']) ? $params['my'] : JFactory::getUser();
-		$config	= isset($params['config']) ? $params['config'] : DiscussHelper::getConfig();
+		$config	= isset($params['config']) ? $params['config'] : ED::config();
 		$tmpl	= isset($params['tmpl']) ? $params['tmpl'] : 'vote.php';
 
 		$canVote	= (!$config->get( 'main_allowselfvote') && ($my->id == $post->user_id)) ? false : true;
@@ -51,7 +51,7 @@ class EasyDiscussVote extends EasyDiscuss
 
 	private static function isLock( $post_id )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT `islock` FROM `#__discuss_posts` WHERE `id` = ' . $db->quote( $post_id );
 		$db->setQuery($query);
 

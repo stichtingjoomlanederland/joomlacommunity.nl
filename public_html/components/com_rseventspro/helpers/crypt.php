@@ -118,3 +118,116 @@ class RseventsproCryptHelperLegacy {
 		return;
 	}
 }
+
+class RseventsproCrypt {
+	
+	public static function decrypt($data, $key) {
+		$decrypted = '';
+		$tmp = $key;
+
+		// Convert the HEX input into an array of integers and get the number of characters.
+		$chars = self::_hexToIntArray($data);
+		$charCount = count($chars);
+
+		// Repeat the key as many times as necessary to ensure that the key is at least as long as the input.
+		for ($i = 0; $i < $charCount; $i = strlen($tmp)) {
+			$tmp = $tmp . $tmp;
+		}
+
+		// Get the XOR values between the ASCII values of the input and key characters for all input offsets.
+		for ($i = 0; $i < $charCount; $i++) {
+			$decrypted .= chr($chars[$i] ^ ord($tmp[$i]));
+		}
+
+		return $decrypted;
+	}
+	
+	public static function encrypt($data, $key) {
+		$encrypted = '';
+		$tmp = $key;
+
+		// Split up the input into a character array and get the number of characters.
+		$chars = preg_split('//', $data, -1, PREG_SPLIT_NO_EMPTY);
+		$charCount = count($chars);
+
+		// Repeat the key as many times as necessary to ensure that the key is at least as long as the input.
+		for ($i = 0; $i < $charCount; $i = strlen($tmp)) {
+			$tmp = $tmp . $tmp;
+		}
+
+		// Get the XOR values between the ASCII values of the input and key characters for all input offsets.
+		for ($i = 0; $i < $charCount; $i++) {
+			$encrypted .= self::_intToHex(ord($tmp[$i]) ^ ord($chars[$i]));
+		}
+
+		return $encrypted;
+	}
+
+	private static function _hexToInt($s, $i) {
+		$j = (int) $i * 2;
+		$k = 0;
+		$s1 = (string) $s;
+
+		// Get the character at position $j.
+		$c = substr($s1, $j, 1);
+
+		// Get the character at position $j + 1.
+		$c1 = substr($s1, $j + 1, 1);
+
+		switch ($c) {
+			case 'A': $k += 160; break;
+			case 'B': $k += 176; break;
+			case 'C': $k += 192; break;
+			case 'D': $k += 208; break;
+			case 'E': $k += 224; break;
+			case 'F': $k += 240; break;
+			case ' ': $k += 0; 	 break;
+			default:  (int) $k = $k + (16 * (int) $c); break;
+		}
+
+		switch ($c1) {
+			case 'A': $k += 10; break;
+			case 'B': $k += 11; break;
+			case 'C': $k += 12; break;
+			case 'D': $k += 13; break;
+			case 'E': $k += 14; break;
+			case 'F': $k += 15; break;
+			case ' ': $k += 0; 	break;
+			default: $k += (int) $c1; break;
+		}
+
+		return $k;
+	}
+	
+	private static function _hexToIntArray($hex) {
+		$array = array();
+
+		$j = (int) strlen($hex) / 2;
+
+		for ($i = 0; $i < $j; $i++) {
+			$array[$i] = (int) self::_hexToInt($hex, $i);
+		}
+
+		return $array;
+	}
+	
+	private static function _intToHex($i) {
+		// Sanitize the input.
+		$i = (int) $i;
+
+		// Get the first character of the hexadecimal string if there is one.
+		$j = (int) ($i / 16);
+
+		if ($j === 0) {
+			$s = ' ';
+		} else {
+			$s = strtoupper(dechex($j));
+		}
+
+		// Get the second character of the hexadecimal string.
+		$k = $i - $j * 16;
+		$s = $s . strtoupper(dechex($k));
+
+		return $s;
+	}
+}

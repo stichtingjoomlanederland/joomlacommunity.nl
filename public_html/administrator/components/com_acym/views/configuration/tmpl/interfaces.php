@@ -1,18 +1,16 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if ('joomla' === ACYM_CMS) { ?>
+<?php if ('joomla' === ACYM_CMS) { ?>
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
-		<div class="acym_area_title"><?php echo acym_translation('ACYM_FRONTEND_EDITION'); ?></div>
+		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_FRONTEND_EDITION'); ?></div>
         <?php
         if (acym_level(2)) {
             ?>
-			<div class="grid-x grid-margin-x">
+			<div class="grid-x grid-margin-x margin-y">
 				<div class="cell medium-3"><?php echo acym_translation('ACYM_FRONT_DELETE_BUTTON').acym_info('ACYM_FRONT_DELETE_BUTTON_DESC'); ?></div>
 				<div class="cell medium-9">
                     <?php
                     echo acym_radio(
                         [
-                            'delete' => acym_translation('ACYM_DELETE_THE_USER'),
+                            'delete' => acym_translation('ACYM_DELETE_THE_SUBSCRIBER'),
                             'removesub' => acym_translation('ACYM_REMOVE_USER_SUBSCRIPTION'),
                         ],
                         'config[frontend_delete_button]',
@@ -33,8 +31,8 @@ defined('_JEXEC') or die('Restricted access');
 
 
 <div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
-	<div class="acym_area_title"><?php echo acym_translation('ACYM_UNSUBSCRIBE_PAGE'); ?></div>
-	<div class="grid-x grid-margin-x">
+	<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_UNSUBSCRIBE_PAGE'); ?></div>
+	<div class="grid-x grid-margin-x margin-y">
 		<div class="cell grid-x margin-top-1 acym_vcenter">
             <?php
             echo acym_switch(
@@ -44,7 +42,7 @@ defined('_JEXEC') or die('Restricted access');
                 [],
                 'xlarge-3 medium-5 small-9',
                 'auto',
-                'tiny',
+                '',
                 'unsubpage_header'
             );
             ?>
@@ -66,4 +64,3 @@ defined('_JEXEC') or die('Restricted access');
         <?php } ?>
 	</div>
 </div>
-

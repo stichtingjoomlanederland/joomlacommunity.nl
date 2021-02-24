@@ -1,44 +1,61 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
-	$('[data-eparser-test]').on('click', function() {
+var resultElement = $('[data-test-result]');
 
-		// clear message
-		$('#test-result')
-			.removeClass('alert')
-			.html('');
+var resetTestResult = function() {
+	
+	resultElement
+		.addClass('t-hidden')
+		.html('');
+};
 
-		var server      = $('input[name=main_email_parser_server]').val();
-		var port        = $('input[name=main_email_parser_port]').val();
-		var service     = $('#main_email_parser_service').val();
-		var ssl         = $('input[name=main_email_parser_ssl]').val();
-		var user        = $('input[name=main_email_parser_username]').val();
-		var pass        = $('input[name=main_email_parser_password]').val();
-		var validate    = $('input[name=main_email_parser_validate]').val();
+var setMessage = function(message, className) {
 
-		EasyDiscuss.ajax('admin/views/settings/testParser', {
-			"server": server,
-			"port": port,
-			"service": service,
-			"ssl": ssl,
-			"user": user,
-			"pass": pass,
-			"validate": validate
-		})
-		.done(function(msg){
+	resultElement.removeClass('t-hidden')
+		.html(message);
 
-			$('#test-result').html(msg);
+	if (className) {
+		resultElement.addClass(className);
+	}
+}
 
-			// alert 'hello';
+$('[data-test]').on('click', function() {
+	var element = $(this);
+	
+	element.addClass('is-loading');
 
-		})
-		.fail(function(msg) {
+	resetTestResult();
 
-			$('#test-result')
-				.addClass('alert')
-				.html(msg);
+	var opts = [
+		'server',
+		'port',
+		'service',
+		'ssl',
+		'username',
+		'password',
+		'validate'
+	];
 
-		});
+	var data = {};
 
+	$(opts).each(function(i, key) {
+		var input = $('input[name=main_email_parser_' + key + ']');
+		var value = input.val();
+
+		data[key] = value;
 	});
+
+	EasyDiscuss.ajax('admin/views/settings/testParser', data)
+	.done(function(msg) {
+		setMessage(msg);
+	})
+	.fail(function(msg) {
+		setMessage(msg, 'alert');
+	})
+	.always(function() {
+		element.removeClass('is-loading');
+	});
+
+});
 
 });

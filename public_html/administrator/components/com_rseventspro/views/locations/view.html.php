@@ -25,7 +25,5 @@ class RseventsproViewLocations extends JViewLegacy
 		JToolBarHelper::deleteList('','locations.delete');
 		JToolBarHelper::publishList('locations.publish');
 		JToolBarHelper::unpublishList('locations.unpublish');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

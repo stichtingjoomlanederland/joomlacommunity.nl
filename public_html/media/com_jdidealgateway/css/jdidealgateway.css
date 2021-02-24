@@ -55,3 +55,9 @@ fieldset.adminform label.config, fieldset.adminform span.faux-label .config, div
 #ropayments div:last-child {
 	height: inherit;
 }
+
+.ro-container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}

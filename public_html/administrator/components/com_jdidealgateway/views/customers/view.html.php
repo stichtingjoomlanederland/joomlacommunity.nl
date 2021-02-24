@@ -3,10 +3,12 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Language\Text;
@@ -14,8 +16,6 @@ use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Pagination\Pagination;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\Registry\Registry;
-
-defined('_JEXEC') or die;
 
 /**
  * Customers list.
@@ -31,7 +31,7 @@ class JdidealgatewayViewCustomers extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	protected $items = array();
+	protected $items = [];
 
 	/**
 	 * The model state
@@ -47,7 +47,7 @@ class JdidealgatewayViewCustomers extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	public $filterForm = array();
+	public $filterForm = [];
 
 	/**
 	 * List of active filters
@@ -55,7 +55,7 @@ class JdidealgatewayViewCustomers extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	public $activeFilters = array();
+	public $activeFilters = [];
 
 	/**
 	 * The pagination object
@@ -102,32 +102,32 @@ class JdidealgatewayViewCustomers extends HtmlView
 		$this->activeFilters = $model->getActiveFilters();
 		$this->canDo         = ContentHelper::getActions('com_jdidealgateway');
 
-		// Show the toolbar
 		$this->toolbar();
 
-		// Render the sidebar
-		$jdidealgatewayHelper = new JdidealGatewayHelper;
-		$jdidealgatewayHelper->addSubmenu('customers');
-		$this->sidebar = JHtmlSidebar::render();
+		if (JVERSION < 4)
+		{
+			$jdidealgatewayHelper = new JdidealGatewayHelper;
+			$jdidealgatewayHelper->addSubmenu('customers');
+			$this->sidebar = JHtmlSidebar::render();
+		}
 
-		// Display it all
 		return parent::display($tpl);
 	}
 
 	/**
 	 * Displays a toolbar for a specific page.
 	 *
-	 * @return  void.
+	 * @return  void
 	 *
 	 * @since   5.0.0
 	 */
-	private function toolbar()
+	private function toolbar(): void
 	{
 		ToolbarHelper::title(Text::_('COM_ROPAYMENTS_CUSTOMERS'), 'user');
 
 		if ($this->canDo->get('core.create'))
 		{
-			ToolbarHelper::addNew('customer.add');
+			ToolbarHelper::custom('customers.sync', 'refresh', 'refresh', Text::_('COM_ROPAYMENTS_SYNC'), false);
 		}
 
 		if ($this->canDo->get('core.edit') || $this->canDo->get('core.edit.own'))

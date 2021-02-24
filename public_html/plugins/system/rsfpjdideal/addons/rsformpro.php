@@ -4,7 +4,7 @@
  * @subpackage  Addon
  *
  * @author      Roland Dalmulder <contact@rolandd.com>
- * @copyright   Copyright (C) 2006 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright   Copyright (C) 2006 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link        https://rolandd.com
  */
@@ -22,6 +22,10 @@ use stdClass;
 \JLoader::register(
 	'RSFormProHelper',
 	JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/rsform.php'
+);
+\JLoader::register(
+	'RsfpjdidealHelper',
+	dirname(__DIR__) . '/RsfpjdidealHelper.php'
 );
 
 /**
@@ -77,24 +81,42 @@ class AddonRsformpro implements AddonInterface
 	 */
 	public function getOrderInformation(string $orderId, array $data): array
 	{
-		list($formId, $submissionId) = explode('.', $orderId);
+		$helper = new \RsfpjdidealHelper;
+
+		[$formId, $submissionId] = explode('.', $orderId);
+		$settings   = $helper->loadFormSettings($formId);
+		$emailField = $settings->get('fieldEmail');
 
 		$query = $this->db->getQuery(true);
-		$query->select($this->db->quoteName('v.FieldValue', 'order_state_id'))
-			->select($this->db->quoteName('u.email', 'user_email'))
-			->from($this->db->quoteName('#__rsform_submission_values', 'v'))
+		$query->select(
+			$this->db->quoteName(
+				[
+					'values.FieldName',
+					'values.FieldValue',
+					'submissions.UserId',
+					'users.email'
+				],
+				[
+					'fieldName',
+					'fieldValue',
+					'userId',
+					'userEmail'
+				]
+			)
+		)
+			->from($this->db->quoteName('#__rsform_submission_values', 'values'))
 			->leftJoin(
-				$this->db->quoteName('#__rsform_submissions', 's')
-				. ' ON ' . $this->db->quoteName('v.SubmissionId') . ' = ' . $this->db->quoteName('s.SubmissionId')
+				$this->db->quoteName('#__rsform_submissions', 'submissions')
+				. ' ON ' . $this->db->quoteName('values.SubmissionId') . ' = ' . $this->db->quoteName('submissions.SubmissionId')
 			)
 			->leftJoin(
-				$this->db->quoteName('#__users', 'u')
-				. ' ON ' . $this->db->quoteName('s.UserId') . ' = ' . $this->db->quoteName('u.id')
+				$this->db->quoteName('#__users', 'users')
+				. ' ON ' . $this->db->quoteName('submissions.UserId') . ' = ' . $this->db->quoteName('users.id')
 			)
-			->where($this->db->quoteName('FieldName') . ' = ' . $this->db->quote('_STATUS'))
-			->where($this->db->quoteName('v.SubmissionId') . ' = ' . (int) $submissionId);
+			->where($this->db->quoteName('values.FieldName') . ' IN (' . $this->db->quote('_STATUS') . ',' . $this->db->quote($emailField) . ')')
+			->where($this->db->quoteName('values.SubmissionId') . ' = ' . (int) $submissionId);
 		$this->db->setQuery($query);
-		$order = $this->db->loadObject();
+		$order = $this->db->loadObjectList('fieldName');
 
 		if (!$order)
 		{
@@ -103,20 +125,17 @@ class AddonRsformpro implements AddonInterface
 			return $this->callBack($data);
 		}
 
-		// Get the order total
-		$query = $this->db->getQuery(true)
+		$query->clear()
 			->select($this->db->quoteName('amount'))
 			->from($this->db->quoteName('#__jdidealgateway_logs'))
 			->where($this->db->quoteName('order_id') . ' = ' . $this->db->quote($orderId))
 			->where($this->db->quoteName('origin') . ' = ' . $this->db->quote('rsformpro'));
 		$this->db->setQuery($query);
-		$order->order_total = $this->db->loadResult();
 
-		$data['order_total']  = $order->order_total;
-		$data['order_status'] = $this->translateOrderStatus($order->order_state_id);
-		$data['user_email']   = $order->user_email;
+		$data['order_total']  = $this->db->loadResult();
+		$data['order_status'] = $this->translateOrderStatus($order['_STATUS']->fieldValue);
+		$data['user_email']   = $order[$emailField]->fieldValue ?? $order[$emailField]->userEmail;
 
-		// Return the data
 		return $data;
 	}
 
@@ -147,18 +166,13 @@ class AddonRsformpro implements AddonInterface
 	{
 		switch ($orderStatus)
 		{
-			case '0':
-				return 'P';
-				break;
 			case '1':
 				return 'C';
-				break;
 			case '3':
 				return 'X';
-				break;
+			case '0':
 			default:
 				return 'P';
-				break;
 		}
 	}
 
@@ -173,27 +187,27 @@ class AddonRsformpro implements AddonInterface
 	 */
 	public function getCustomerInformation(string $orderId): array
 	{
-		// Collect the data
-		$data = [];
+		$data   = [];
+		$helper = new \RsfpjdidealHelper;
 
-		// Get the email address field name
-		$emailField = RSFormProHelper::getConfig('jdideal.email');
-
-		// Get the email value
 		[$formId, $submissionId] = explode('.', $orderId);
-
-		$query = $this->db->getQuery(true);
-		$query->select($this->db->quoteName('FieldValue'))
+		$settings   = $helper->loadFormSettings($formId);
+		$emailField = $settings->get('fieldEmail');
+		$nameField  = $settings->get('fieldName');
+		$query      = $this->db->getQuery(true);
+		$query->select($this->db->quoteName(['FieldValue','FieldName']))
 			->from($this->db->quoteName('#__rsform_submission_values', 'v'))
-			->where($this->db->quoteName('FieldName') . ' = ' . $this->db->quote($emailField))
+			->where($this->db->quoteName('FormId') . ' = ' . $formId)
+			->where($this->db->quoteName('FieldName') . ' IN (' . $this->db->quote($emailField) . ',' . $this->db->quote($nameField) . ')')
 			->where($this->db->quoteName('v.SubmissionId') . ' = ' . (int) $submissionId);
 		$this->db->setQuery($query);
-		$email = $this->db->loadResult();
+		$fieldValues = $this->db->loadAssocList('FieldName');
 
-		if ($email)
+		if (isset($fieldValues[$emailField]))
 		{
 			$data['billing']        = new stdClass;
-			$data['billing']->email = $email;
+			$data['billing']->name  = $fieldValues[$nameField]['FieldValue'] ?? $fieldValues[$emailField]['FieldValue'];
+			$data['billing']->email = $fieldValues[$emailField]['FieldValue'];
 		}
 
 		return $data;

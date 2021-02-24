@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Controller;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Controller\Mixin\PredefinedTaskList;
@@ -31,7 +31,7 @@ class ServerConfigMaker extends Controller
 	{
 		parent::__construct($container, $config);
 
-		$this->predefinedTaskList = ['browse', 'preview', 'save', 'apply'];
+		$this->predefinedTaskList = ['browse', 'preview', 'save', 'apply', 'reset'];
 	}
 
 	public function preview()
@@ -86,5 +86,19 @@ class ServerConfigMaker extends Controller
 		}
 
 		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, Text::_($this->langKeyPrefix . 'APPLIED'));
+	}
+
+	public function reset()
+	{
+		$this->csrfProtection();
+
+		/** @var \Akeeba\AdminTools\Admin\Model\ServerConfigMaker $model */
+		$model = $this->getModel();
+
+		// Fetch the default config from the model and save it again
+		$default_options = $model->defaultConfig;
+		$model->saveConfiguration($default_options, true);
+
+		$this->setRedirect('index.php?option=com_admintools&view=' . $this->view, Text::_($this->langKeyPrefix . 'RESET_DONE'));
 	}
 }

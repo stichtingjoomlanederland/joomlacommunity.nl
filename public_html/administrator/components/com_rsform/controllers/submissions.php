@@ -474,6 +474,9 @@ class RsformControllerSubmissions extends RsformController
 		
 		$model = $this->getModel('submissions');
 
+		$model->exportType = $type;
+		$model->stripLines = !empty($post['StripLines']);
+
 		switch ($post['ExportRows'])
 		{
 			// All rows
@@ -534,7 +537,9 @@ class RsformControllerSubmissions extends RsformController
 							$submission['SubmissionValues'][$header]['Value'] = str_replace(array("\r\n", "\r"), "\n", $submission['SubmissionValues'][$header]['Value']);
 							// Is this right ?
 							if (strpos($submission['SubmissionValues'][$header]['Value'],"\n") !== false)
+							{
 								$submission['SubmissionValues'][$header]['Value'] = str_replace("\n",' ',$submission['SubmissionValues'][$header]['Value']);
+							}
 						}
 						fwrite($handle, $enclosure.(isset($submission['SubmissionValues'][$header]) ? str_replace(array('\\r','\\n','\\t',$enclosure), array("\015","\012","\011",$enclosure.$enclosure), $this->fixValue($submission['SubmissionValues'][$header]['Value'])) : (isset($submission[$header]) ? $this->fixValue($submission[$header]) : '')).$enclosure.($header != end($order) ? $delimiter : ""));
 					}

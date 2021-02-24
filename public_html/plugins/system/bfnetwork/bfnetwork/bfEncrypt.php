@@ -418,23 +418,12 @@ class bfEncrypt
             bfLog::log('ERROR = '.json_encode($msg));
         }
 
-        // remove any stray output
-        echo ' '; // must have something to clean else warning occurs
-        $contents = ob_get_contents();
-
-        if (trim($contents)) {
-            bfLog::log('Buffer Contents Found:  '.$contents);
+        bfLog::log('OB LEVEL: '.ob_get_level());
+        while (ob_get_level()) {
+            ob_end_clean();
         }
 
-        // tmp debug the buffer
-        if (true === _BF_API_DEBUG && $contents) {
-            bfLog::log('WE HAVE AN OUTPUT BUFFER - Saving to file for debugging');
-            file_put_contents(dirname(__FILE__).'/tmp/tmp.ob', $contents);
-        }
-
-        ob_clean();
         // ahhh nice and clean again
-
         $returnJson = new stdClass();
 
         // give a helpful hint if auto-login with out of date connector

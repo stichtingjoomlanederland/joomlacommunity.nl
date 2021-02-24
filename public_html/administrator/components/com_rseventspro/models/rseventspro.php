@@ -43,7 +43,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 					->from($db->qn('#__rseventspro_users','u'))
 					->where($db->qn('u.ide').' = '.(int) $event->id);
 				
-				JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
+				JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 				
 				$db->setQuery($query);
 				$event->subscribers = (int) $db->loadResult();
@@ -70,7 +70,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$subscribers = $db->loadObjectList();
 		
 		if ($subscribers) {
-			JFactory::getApplication()->triggerEvent('rsepro_adminSubscribersDashboard', array(array('subscribers' => &$subscribers)));
+			JFactory::getApplication()->triggerEvent('onrsepro_adminSubscribersDashboard', array(array('subscribers' => &$subscribers)));
 			
 			foreach ($subscribers as $subscriber) {
 				if (!isset($subscriber->events)) {
@@ -168,7 +168,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$buttons[] = array('icon' => 'fa fa-facebook-official', 'name' => JText::_('COM_RSEVENTSPRO_DASHBOARD_SYNC_FACEBOOK'), 'link' => JRoute::_('index.php?option=com_rseventspro&task=settings.facebook'));
 		}
 		
-		$app->triggerEvent('rsepro_adminDashboard',array(array('buttons' => &$buttons)));
+		$app->triggerEvent('onrsepro_adminDashboard',array(array('buttons' => &$buttons)));
 		
 		return $buttons;
 	}

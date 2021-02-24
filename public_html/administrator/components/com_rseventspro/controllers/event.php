@@ -106,7 +106,7 @@ class RseventsproControllerEvent extends JControllerForm
 		// Upload event icon
 		if (!$model->upload()) {
 			$icon = '';
-			$this->setMessage($model->getError());
+			$this->setMessage($model->getError(),'error');
 		} else {
 			$icon = '&icon='.base64_encode($model->getState('com_rseventspro.edit.icon'));
 		}

@@ -55,6 +55,10 @@ INSERT IGNORE INTO `#__rsform_component_type_fields` (`ComponentTypeId`, `FieldN
 (5578, 'REQUIRED', 'select', 'NO\r\nYES', '', 6),
 (5578, 'VALIDATIONMESSAGE', 'textarea', 'INVALIDINPUT', '', 7),
 (5578, 'CURRENCY', 'textbox', '', '', 8),
+(5578, 'BOXTYPE', 'select', 'INPUT\r\nNUMBER', '{"case":{"INPUT":{"show":["DEFAULTQUANTITY"],"hide":["BOXMIN","BOXMAX","BOXSTEP"]}, "NUMBER":{"show":["DEFAULTQUANTITY","BOXMIN","BOXMAX","BOXSTEP"],"hide":[]}}}', 9),
+(5578, 'BOXMIN', 'textbox', '', '', 10),
+(5578, 'BOXMAX', 'textbox', '', '', 11),
+(5578, 'BOXSTEP', 'textbox', '', '', 12),
 /* RO Payments button */
 (5579, 'NAME', 'textbox', '', '', 0),
 (5579, 'LABEL', 'textbox', '', '', 1),

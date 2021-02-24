@@ -23,13 +23,25 @@ class RSEvent
 	protected $id;
 	
 	/**
+	 * Event model
+	 *
+	 * @var    JModelLegacy
+	 */
+	protected $model;
+	
+	/**
 	 * Class constructor
 	 *
 	 * @param   int  $id  Event ID
 	 *
 	 */
 	public function __construct($id) {
+		jimport('joomla.application.component.modeladmin');
+		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/models');
+		JModelLegacy::addTablePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/tables');
+		
 		$this->id = (int) $id;
+		$this->model = JModelLegacy::getInstance('Event','RseventsproModel');
 	}
 	
 	/**
@@ -164,6 +176,27 @@ class RSEvent
 		}
 		
 		return $categories;
+	}
+	
+	/**
+	 * Method to get Event selected tags
+	 *
+	 * @return   array  List of selected tags
+	 *
+	 */
+	public function getSelectedTags() {
+		$db = JFactory::getDbo();
+		$query = $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('t.name'))
+			->from($db->qn('#__rseventspro_tags','t'))
+			->join('left', $db->qn('#__rseventspro_taxonomy','tx').' ON '.$db->qn('tx.id').' = '.$db->qn('t.id'))
+			->where($db->qn('tx.type').' = '.$db->q('tag'))
+			->where($db->qn('tx.ide').' = '.$this->id);
+		
+		$db->setQuery($query);
+		return $db->loadColumn();
 	}
 	
 	/**
@@ -355,33 +388,40 @@ class RSEvent
 	 *
 	 */
 	public function getEventOptions() {
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
 		$defaults = self::getDefaultOptions();
 		
-		$query->clear()
-			->select($db->qn('options'))
-			->from($db->qn('#__rseventspro_events'))
-			->where($db->qn('id').' = '.$this->id);
+		static $eventoptions = array();
 		
-		$db->setQuery($query);
-		$options = $db->loadResult();
-		
-		if (!empty($options)) {
-			try {
-				$registry = new JRegistry;
-				$registry->loadString($options);
-				if ($options = $registry->toArray()) {
-					foreach ($options as $option => $value) {
-						if (isset($defaults[$option])) {
-							$defaults[$option] = $value;
+		if (!isset($eventoptions[$this->id])) {
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			
+			$query->clear()
+				->select($db->qn('options'))
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('id').' = '.$this->id);
+			
+			$db->setQuery($query);
+			$options = $db->loadResult();
+			
+			if (!empty($options)) {
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($options);
+					if ($options = $registry->toArray()) {
+						foreach ($options as $option => $value) {
+							if (isset($defaults[$option])) {
+								$defaults[$option] = $value;
+							}
 						}
 					}
-				}
-			} catch (Exception $e) {}
+				} catch (Exception $e) {}
+			}
+			
+			$eventoptions[$this->id] = $defaults;
 		}
 		
-		return $defaults;
+		return $eventoptions[$this->id];
 	}
 	
 	/**
@@ -639,13 +679,7 @@ class RSEvent
 		$db->setQuery($query);
 		if ($coupons = $db->loadObjectList()) {
 			foreach ($coupons as $i => $coupon) {
-				$query->clear()
-					->select($db->qn('code'))
-					->from($db->qn('#__rseventspro_coupon_codes'))
-					->where($db->qn('idc').' = '.(int) $coupon->id);
-				
-				$db->setQuery($query);
-				$codes = $db->loadColumn();
+				$codes = $this->getCouponCodes($coupon->id);
 				if (!empty($codes)) {
 					$coupons[$i]->code = implode("\n",$codes);
 				}
@@ -792,12 +826,157 @@ class RSEvent
 	 *
 	 */
 	public function getEvent() {
-		jimport('joomla.application.component.modeladmin');
-		JModelLegacy::addIncludePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/models');
-		JModelLegacy::addTablePath(JPATH_ADMINISTRATOR.'/components/com_rseventspro/tables');
+		return $this->model->getItem($this->id);
+	}
+	
+	/**
+	 * Method to get the event form.
+	 *
+	 * @return   object
+	 *
+	 */
+	public function getEventForm() {
+		return $this->model->getForm();
+	}
+	
+	/**
+	 * Method to get the event form dependencies.
+	 *
+	 * @return   object
+	 *
+	 */
+	public function getEventFormDependencies() {
+		$form	= JForm::getInstance('dependencies', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/event_dependencies.xml');
 		
-		$model = JModelLegacy::getInstance('Event','RseventsproModel');
-		return $model->getItem($this->id);
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('speakers', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('sponsors', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('groups', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('categories', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('categories', 'class', 'categories_fancy');
+			$form->setFieldAttribute('statuses', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('ticket_groups', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('coupon_groups', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('repeat_days', 'layout', 'joomla.form.field.list-fancy-select');
+		} else {
+			$form->setFieldAttribute('ticket_name', 'class', 'span10');
+			$form->setFieldAttribute('ticket_price', 'class', 'span10');
+			$form->setFieldAttribute('ticket_seats', 'class', 'span10');
+			$form->setFieldAttribute('ticket_user_seats', 'class', 'span10');
+			$form->setFieldAttribute('ticket_description', 'class', 'span10');
+			$form->setFieldAttribute('coupon_name', 'class', 'span10');
+			$form->setFieldAttribute('coupon_discount', 'class', 'input-mini');
+			$form->setFieldAttribute('coupon_type', 'class', 'input-small');
+			$form->setFieldAttribute('coupon_action', 'class', 'input-large');
+		}
+		
+		$data = array(
+			'speakers' => $this->getSpeakers(),
+			'sponsors' => $this->getSponsors(),
+			'groups' => $this->getGroups(),
+			'categories' => $this->getCategories(),
+			'tags' => $this->getSelectedTags(),
+			'repeat_days' => $this->repeatEventDays()
+		);
+		
+		$form->bind($data);
+		
+		return $form;
+	}
+	
+	/**
+	 * Method to get the event form tickets.
+	 *
+	 * @return   object
+	 *
+	 */
+	public function getEventFormTickets() {
+		$fields	= JFactory::getDbo()->getTableColumns('#__rseventspro_tickets');
+		$fields = array_keys($fields);
+		$return = array();
+		
+		if ($tickets = $this->getTickets()) {
+			foreach ($tickets as $ticket) {
+				$form = JForm::getInstance('tickets'.$ticket->id, JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/event_ticket.xml');
+				
+				if (!rseventsproHelper::isJ4()) {
+					$form->setFieldAttribute('name', 'class', 'span10');
+					$form->setFieldAttribute('price', 'class', 'span10');
+					$form->setFieldAttribute('seats', 'class', 'span10');
+					$form->setFieldAttribute('user_seats', 'class', 'span10');
+					$form->setFieldAttribute('description', 'class', 'span10');
+					$form->setFieldAttribute('groups', 'class', 'rsepro-chosen');
+				}
+				
+				foreach ($fields as $field) {
+					$form->setFieldAttribute($field, 'name', 'tickets['.$ticket->id.']['.$field.']');
+					
+					$value = $ticket->$field;
+					
+					if ($field == 'seats' || $field == 'user_seats') {
+						if (empty($value)) $value = '';
+					} elseif ($field == 'price') {
+						$value = rseventsproHelper::showprice($value);
+					}
+					
+					$form->setValue('tickets['.$ticket->id.']['.$field.']', null, $value);
+					
+					if ($field == 'groups' && rseventsproHelper::isJ4()) {
+						$form->setFieldAttribute('tickets['.$ticket->id.']['.$field.']', 'layout', 'joomla.form.field.list-fancy-select');
+					}
+				}
+				
+				$return[$ticket->id] = $form;
+			}
+		}
+		
+		return $return;
+	}
+	
+	/**
+	 * Method to get the event form coupons.
+	 *
+	 * @return   object
+	 *
+	 */
+	public function getEventFormCoupons() {
+		$fields	= JFactory::getDbo()->getTableColumns('#__rseventspro_coupons');
+		$fields = array_keys($fields);
+		$fields = array_merge($fields, array('code', 'times'));
+		$return = array();
+		
+		if ($coupons = $this->getCoupons()) {
+			foreach ($coupons as $coupon) {
+				$form = JForm::getInstance('coupon'.$coupon->id, JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/event_coupon.xml');
+				
+				if (!rseventsproHelper::isJ4()) {
+					$form->setFieldAttribute('name', 'class', 'span10');
+					$form->setFieldAttribute('groups', 'class', 'rsepro-chosen');
+					$form->setFieldAttribute('discount', 'class', 'input-mini');
+					$form->setFieldAttribute('type', 'class', 'input-small');
+					$form->setFieldAttribute('action', 'class', 'input-large');
+				}
+				
+				foreach ($fields as $field) {
+					$form->setFieldAttribute($field, 'name', 'coupons['.$coupon->id.']['.$field.']');
+					
+					if (isset($coupon->$field)) {
+						$value = $coupon->$field;
+						$value = empty($value) ? '' : $value;
+						
+						$form->setValue('coupons['.$coupon->id.']['.$field.']', null, $value);
+					}
+					
+					if ($field == 'groups' && rseventsproHelper::isJ4()) {
+						$form->setFieldAttribute('coupons['.$coupon->id.']['.$field.']', 'layout', 'joomla.form.field.list-fancy-select');
+					}
+				}
+				
+				$return[$coupon->id] = $form;
+			}
+		}
+		
+		return $return;
 	}
 	
 	/**
@@ -1092,7 +1271,7 @@ class RSEvent
 		$path	= JPATH_SITE.'/components/com_rseventspro/assets/images/files/';
 		$db	  	= JFactory::getDbo();
 		$query	= $db->getQuery(true);
-		$files	= $app->input->files->get('files');
+		$files	= $app->input->files->get('files', null, 'raw');
 		
 		if (!empty($files)) {
 			foreach ($files as $file) {
@@ -1101,7 +1280,7 @@ class RSEvent
 				
 				$extension = JFile::getExt($file['name']);
 				if (!in_array($extension,$extensions)) {
-					$app->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_WRONG_EXTENSION',$file['name']));
+					$app->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_WRONG_EXTENSION',$file['name']), 'error');
 					continue;
 				}
 				
@@ -1112,7 +1291,7 @@ class RSEvent
 					while(JFile::exists($path.$filename.'.'.$extension))
 						$filename .= rand(1,999);
 					
-					if (JFile::upload($file['tmp_name'],$path.$filename.'.'.$extension)) {
+					if (JFile::upload($file['tmp_name'],$path.$filename.'.'.$extension, false, true)) {
 						$query->clear()
 							->insert($db->qn('#__rseventspro_files'))
 							->set($db->qn('name').' = '.$db->q($filename))
@@ -1197,6 +1376,9 @@ class RSEvent
 				$ticket->from = !empty($ticket->from) && $ticket->from != $nulldate ? JFactory::getDate($ticket->from, $tzoffset)->toSql() : $nulldate;
 				$ticket->to = !empty($ticket->to) && $ticket->to != $nulldate ? JFactory::getDate($ticket->to, $tzoffset)->toSql() : $nulldate;
 				
+				if (empty($ticket->seats)) $ticket->seats = 0;
+				if (empty($ticket->user_seats)) $ticket->user_seats = 0;
+				
 				$db->updateObject('#__rseventspro_tickets', $ticket, 'id');
 			}
 		}
@@ -1219,6 +1401,7 @@ class RSEvent
 			foreach ($coupons as $cid => $coupon) {
 				$codes = $coupon['code'];
 				unset($coupon['code']);
+				unset($coupon['times']);
 				$coupon = (object) $coupon;
 				
 				$coupon->from = !empty($coupon->from) && $coupon->from != $nulldate ? JFactory::getDate($coupon->from, $tzoffset)->toSql() : $nulldate;
@@ -1235,6 +1418,8 @@ class RSEvent
 				} else $coupon->groups = '';
 				$coupon->id = $cid;
 				$coupon->ide = $id;
+				
+				if (empty($coupon->usage)) $coupon->usage = 0;
 				
 				$db->updateObject('#__rseventspro_coupons', $coupon, 'id');
 				
@@ -1548,5 +1733,24 @@ class RSEvent
 			// Trigger the onFinderAfterSave event.
 			JFactory::getApplication()->triggerEvent('onFinderAfterSave', array('com_rseventspro.event', $table, $isNew));
 		}
+	}
+	
+	protected function getCouponCodes($id) {
+		static $codes = array();
+		
+		if (!isset($codes[$id])) {
+			$db		= JFactory::getDbo();
+			$query	= $db->getQuery(true);
+			
+			$query->clear()
+				->select($db->qn('code'))
+				->from($db->qn('#__rseventspro_coupon_codes'))
+				->where($db->qn('idc').' = '.(int) $id);
+			
+			$db->setQuery($query);
+			$codes[$id] = $db->loadColumn();
+		}
+		
+		return $codes[$id];
 	}
 }

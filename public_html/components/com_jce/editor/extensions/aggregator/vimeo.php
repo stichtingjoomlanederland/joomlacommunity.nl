@@ -51,6 +51,42 @@ class WFAggregatorExtension_Vimeo extends WFAggregatorExtension
             'byline' => (int) $plugin->getParam('aggregator.vimeo.byline', 0),
             'portrait' => (int) $plugin->getParam('aggregator.vimeo.portrait', 0),
             'fullscreen' => (int) $plugin->getParam('aggregator.vimeo.fullscreen', 1),
+            'dnt' => (int) $plugin->getParam('aggregator.vimeo.dnt', 0),
         );
+    }
+
+    public function getEmbedData($data, $url)
+    {
+        $params = $this->getParams();
+
+        $default = array(
+            'width'     => 560,
+            'height'    => 315,
+            'controls'  => 1,
+            'loop'      => 0,
+            'autoplay'  => 0,
+            'rel'       => 1,
+            'modestbranding' => 0,
+            'privacy'   => 0
+        );
+
+        foreach($params as $name => $value) {
+            if (isset($default[$name]) && $value === $default[$name]) {
+                continue;
+            }
+            
+            if ($name === 'width' || $name == 'height') {
+                $data[$name] = $value;
+                continue;
+            }
+
+            $query[$name] = $value; 
+        }
+
+        if (!empty($options)) {
+            $data['query'] = http_build_query($options);
+        }
+
+        return $data;
     }
 }

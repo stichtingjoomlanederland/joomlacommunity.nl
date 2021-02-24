@@ -269,7 +269,7 @@ class PlgSystemPwtacl extends JPlugin
 		}
 
 		// Get Category ACL setting
-		$aclCategoryManager = ComponentHelper::getParams('com_pwtacl')->get('acl_categorymanager', 1);
+		$aclCategoryManager = ComponentHelper::getParams('com_pwtacl')->get('acl_categorymanager', 0);
 
 		// Remove category links from output in case of no access
 		if (($aclCategoryManager) && (!Factory::getUser()->authorise('core.manage', 'com_categories')))

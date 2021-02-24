@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussComposer extends EasyDiscuss
+class EasyDiscussComposer
 {
 	public $id;
 
@@ -32,15 +32,28 @@ class EasyDiscussComposer extends EasyDiscuss
 
 	public $operation;
 
+	private $tabs = array(
+						'attachments',
+						'fields',
+						'password',
+						'polls',
+						'location'
+					);
+
 	public function __construct($opts = array())
 	{
-		parent::__construct();
+		$this->acl = ED::acl();
+		$this->my = JFactory::getUser();
+		$this->app = JFactory::getApplication();
+		$this->input = $this->app->input;
+		$this->config = ED::config();
 
 		$operation = $opts[0];
 		$post = $opts[1];
 
 		// Generate a random uid
-		$this->uid = 'data-ed-composer-wrapper-' . rand();
+		$this->uuid = rand();
+		$this->uid = 'data-ed-composer-wrapper-' . $this->uuid;
 		$this->operation = $operation;
 
 		// Bind the properties accordingly
@@ -54,7 +67,7 @@ class EasyDiscussComposer extends EasyDiscuss
 		if ($this->editorType != 'bbcode') {
 			JHtml::_('behavior.core');
 			
-			$this->editor = JFactory::getEditor($this->editorType);
+			$this->editor = ED::getEditor($this->editorType);
 		}
 
 		// Names
@@ -63,6 +76,19 @@ class EasyDiscussComposer extends EasyDiscuss
 
 		// Load frontend language
 		ED::loadLanguages();
+	}
+
+	/**
+	 * Method to overrie the uuid of this composer
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function setComposerUuid($uuid)
+	{
+		$this->uuid = $uuid;
+		// update the uid ba
+		$this->uid = 'data-ed-composer-wrapper-' . $this->uuid;
 	}
 
 	/**
@@ -120,19 +146,21 @@ class EasyDiscussComposer extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function getComposer()
+	public function getComposer($currentCatId = null)
 	{
 		$theme = ED::themes();
 
 		// Render the captcha image
 		$captcha = ED::captcha();
+		$hasTabs = $this->hasTabs($currentCatId);
+				
+		$appendAjaxIndex = $this->config->get('system_ajax_index') ? 'index.php' : '';
 
-		// Load the actor
-		$my = ED::user();
-
-		$theme->set('my', $my);
+		$theme->set('hasTabs', $hasTabs);
+		$theme->set('currentCatId', $currentCatId);
 		$theme->set('captcha', $captcha);
 		$theme->set('editorId', $this->uid);
+		$theme->set('editorUuid', $this->uuid);
 		$theme->set('composer', $this);
 		$theme->set('post', $this->post);
 		$theme->set('parent', $this->parent);
@@ -141,9 +169,134 @@ class EasyDiscussComposer extends EasyDiscuss
 		$theme->set('isDiscussion', $this->isDiscussion);
 		$theme->set('operation', $this->operation);
 		$theme->set('renderMode', $this->renderMode);
-
+		$theme->set('appendAjaxIndex', $appendAjaxIndex);
 
 		$output = $theme->output('site/composer/composer');
+		return $output;
+	}
+
+	/**
+	 * Renders captcha output
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderCaptcha(EasyDiscussCaptcha $captcha)
+	{
+		$theme = ED::themes();
+		$theme->set('captcha', $captcha);
+		$output = $theme->output('site/composer/forms/captcha');
+
+		return $output;
+	}
+	
+	/**
+	 * Renders the name and email field
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderAnonymousField($anonymous = false)
+	{
+		$theme = ED::themes();
+		$theme->set('anonymous', $anonymous);
+		$theme->set('operation', $this->operation);
+
+		$output = $theme->output('site/composer/forms/anonymous');
+
+		return $output;
+	}
+
+	/**
+	 * Renders the priority field
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderPriorityField($selected = null)
+	{
+		// Get post priorities
+		$priorities = array();
+
+		if ($this->config->get('post_priority')) {
+			$prioritiesModel = ED::model('Priorities');
+			$priorities = $prioritiesModel->getPriorities();
+		}
+
+		$theme = ED::themes();
+		$theme->set('selected', $selected);
+		$theme->set('priorities', $priorities);
+		$output = $theme->output('site/composer/forms/priority');
+
+		return $output;
+	}
+
+	/**
+	 * Renders the post types field
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderPostTypesField($categoryId, $selected = null)
+	{
+		// Get post types list
+		$model = ED::model('PostTypes');
+		$postTypes = $model->getPostTypes($categoryId);
+
+		$theme = ED::themes();
+		$theme->set('selected', $selected);
+		$theme->set('postTypes', $postTypes);
+		$output = $theme->output('site/composer/forms/post.types');
+
+		return $output;
+	}
+
+	/**
+	 * Renders the post labels field
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderPostLabelsField($selected = null)
+	{
+		$model = ED::model('PostLabels');
+		$labels = $model->getLabels();
+
+		$theme = ED::themes();
+		$theme->set('selected', $selected);
+		$theme->set('labels', $labels);
+		$output = $theme->output('site/composer/forms/post.labels');
+
+		return $output;
+	}
+
+	/**
+	 * Renders the name and email field
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderNameField($type)
+	{
+		$theme = ED::themes();
+		$theme->set('type', $type);
+		$output = $theme->output('site/composer/forms/name');
+
+		return $output;
+	}
+
+	/**
+	 * Renders terms and conditions
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderTnc($type)
+	{
+		$theme = ED::themes();
+		$theme->set('type', $type);
+		$output = $theme->output('site/composer/forms/tnc');
+
 		return $output;
 	}
 
@@ -192,15 +345,58 @@ class EasyDiscussComposer extends EasyDiscuss
 
 		$theme = ED::themes();
 		$theme->set('editorId', $this->uid);
+		$theme->set('editorUuid', $this->uuid);
 		$theme->set('operation', $this->operation);
 		$theme->set('content', $this->content);
 		$theme->set('editor', $this->editor);
 		$theme->set('video', $video);
 		$theme->set('name', $name);
 
+		// GIPHY is only allowed on bbcode
+		if ($this->editorType == 'bbcode') {
+			$giphy = ED::giphy();
+
+			$theme->set('giphy', $giphy);
+		}
+
+		$canSlashCommand = $this->canSlashCommand();
+
+		if ($canSlashCommand) {
+			$commands = $this->parent->getSlashCommands();
+			$theme->set('commands', $commands);
+		}
+
+		$theme->set('canSlashCommand', $canSlashCommand);
+		
 		$html = $theme->output($namespace);
 
 		return $html;
+	}
+
+	/**
+	 * Determine if user has access to the slash commands
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function canSlashCommand()
+	{
+		// doesnt apply to profile signature
+		if (is_null($this->parent)) {
+			return false;
+		}
+
+		// Only replying able to use slash command
+		if (is_null($this->parent->id)) {
+			return false;
+		}
+
+		// Only admin/moderator/owner able to use slash command
+		if (ED::isSiteAdmin() || ED::isModerator($this->parent->category_id)) {
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**
@@ -209,12 +405,15 @@ class EasyDiscussComposer extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function renderTabs()
+	public function renderTabs($categoryId = null)
 	{
-		$theme = ED::themes();
-
 		// Get a list of available tabs
-		$tabs = $this->getTabs();
+		$tabs = $this->getTabs((int) $categoryId);
+
+		// No tabs to render
+		if (!$tabs) {
+			return;
+		}
 
 		// Get a list of tags
 		$model = ED::model('Tags');
@@ -239,12 +438,12 @@ class EasyDiscussComposer extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function hasTabs()
+	public function hasTabs($categoryId = null)
 	{
 		static $hasTabs = null;
 
 		if (is_null($hasTabs)) {
-			$tabs = $this->getTabs();
+			$tabs = $this->getTabs($categoryId);
 
 			foreach ($tabs as $tab) {
 
@@ -268,45 +467,24 @@ class EasyDiscussComposer extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function getTabs()
+	public function getTabs($categoryId = null)
 	{
-		static $result = null;
+		static $result = [];
 
-		if (is_null($result)) {
-			// Get the path to the tabs
-			$path = DISCUSS_ROOT . '/themes/wireframe/composer/tabs';
-
-			// Get a list of files from the defined path
-			$folders = JFolder::folders($path, '.', false, true);
+		if (!isset($result[$categoryId])) {
 
 			$tabs = array();
 
-			foreach ($folders as $folder) {
+			foreach ($this->tabs as $item) {
 				$tab = new stdClass();
-				$name = basename($folder);
 
 				// Check if user can really access the tabs
-				if (!$this->canAccessTabs($name)) {
+				if (!$this->canAccessTabs($item, $categoryId)) {
 					continue;
 				}
 
-				// Get the tab heading
-				$theme = ED::themes();
-				$theme->set('editorId', $this->uid);
-				$theme->set('post', $this->post);
-				$theme->set('composer', $this);
-				$theme->set('operation', $this->operation);
-
-				$heading = $theme->output('site/composer/tabs/' . $name . '/heading');
-
-				// Get the contents of the tab
-				$theme = ED::themes();
-				$theme->set('editorId', $this->uid);
-				$theme->set('post', $this->post);
-				$theme->set('composer', $this);
-				$theme->set('operation', $this->operation);
-
-				$contents = $theme->output('site/composer/tabs/' . $name . '/contents');
+				$heading = $this->getTabHeading($item, $this->uid, $this->post, $this, $this->operation);
+				$contents = $this->getTabContents($item, $this->uid, $this->post, $this, $this->operation, $categoryId);
 
 				// If contents is empty we do not display the tabs
 				if (!$contents) {
@@ -315,15 +493,88 @@ class EasyDiscussComposer extends EasyDiscuss
 
 				$tab->heading = $heading;
 				$tab->contents = $contents;
-				$tab->path = $folder;
 
 				$tabs[] = $tab;
 			}
 
-			$result = $tabs;
+			// Trigger plugins
+			JPluginHelper::importPlugin('easydiscuss');
+			$extraTabs = JFactory::getApplication()->triggerEvent('onRenderTabs', array(&$this->uid, &$this->post, &$this, $this->operation));
+
+			if (!empty($extraTabs)) {
+				$tabs = array_merge($tabs, $extraTabs);
+			}
+
+			$result[$categoryId] = $tabs;
 		}
 
-		return $result;
+		return $result[$categoryId];
+	}
+
+	/**
+	 * Retrieves the heading of the tab
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	private function getTabHeading($name, $uid, $post, $composer, $operation)
+	{
+		// Get the tab heading
+		$theme = ED::themes();
+		$theme->set('editorId', $uid);
+		$theme->set('post', $post);
+		$theme->set('composer', $composer);
+		$theme->set('operation', $operation);
+
+		$heading = $theme->output('site/composer/tabs/' . $name . '/heading');
+
+		return $heading;
+	}
+
+	/**
+	 * Retrieves the heading of the tab
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	private function getTabContents($name, $uid, $post, $composer, $operation, $categoryId = null)
+	{
+		$view = $this->input->get('view', '', 'string');
+
+		// Get the contents of the tab
+		$theme = ED::themes();
+		$theme->set('view', $view);
+		$theme->set('editorId', $uid);
+		$theme->set('post', $post);
+		$theme->set('composer', $composer);
+		$theme->set('operation', $operation);
+		$theme->set('categoryId', $categoryId);
+
+		$contents = $theme->output('site/composer/tabs/' . $name . '/contents');
+
+		return $contents;
+	}
+
+	/**
+	 * Determine if the category allows users to upload attachment
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function canUploadAttachments($categoryId = null)
+	{
+		if (!$categoryId) {
+			return true;
+		}
+
+		static $cache = [];
+
+		if (!isset($cache[$categoryId])) {
+			$category = ED::category($categoryId);
+			$cache[$categoryId] = (bool) $category->allowUploadAttachments();
+		}
+
+		return $cache[$categoryId];
 	}
 
 	/**
@@ -332,53 +583,50 @@ class EasyDiscussComposer extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function canAccessTabs($name)
+	public function canAccessTabs($name, $categoryId = null)
 	{
 		$canAccess = true;
 
-		switch ($name) {
-			case 'attachments':
-				// Ensure that attachments is enabled
-				if ((!$this->config->get('attachment_questions') || (!$this->acl->allowed('add_attachment', false) && !ED::isSiteAdmin()))) {
-					$canAccess = false;
-				}
-				break;
-			case 'fields':
-				if (!$this->config->get('main_customfields_input')) {
-					$canAccess = false;
-				} else {
-					$model = ED::model('CustomFields');
-					$fields = $model->getFields(DISCUSS_CUSTOMFIELDS_ACL_INPUT, $this->operation, $this->post->id);
+		// Ensure that attachments is enabled
+		if ($name == 'attachments' && (!$this->config->get('attachment_questions') || !$this->canUploadAttachments($categoryId) || (!$this->acl->allowed('add_attachment', false) && !ED::isSiteAdmin()))) {
+			$canAccess = false;
+		}
 
-					// if empty fields then we do not show this tab.
-					if (!$fields) {
-						$canAccess = false;
-					}
-				}
-				break;
-			case 'links':
-				// Ensure that this tab is enabled
-				if (!$this->config->get('reply_field_references')) {
-					$canAccess = false;
-				}
-				break;
-			case 'password':
-				if ($this->operation == 'replying' || ($this->operation == 'editing' && $this->post->isReply()) || !$this->config->get('main_password_protection')) {
-					$canAccess = false;
-				}
-				break;
-			case 'polls':
-				if (($this->post->isQuestion() && !$this->config->get('main_polls')) || (($this->operation == 'replying' || $this->post->isReply()) && !$this->config->get('main_polls_replies'))) {
-					$canAccess = false;
-				}
-				break;
-			case 'site':
-				if (($this->post->isQuestion() && !$this->config->get('tab_site_question')) || (!$this->post->isQuestion() && !$this->config->get('tab_site_reply'))) {
-					$canAccess = false;
-				}
-				break;
-			default:
-				break;
+		// Fields is disabled
+		if ($name == 'fields' && !$this->config->get('main_customfields_input')) {
+			$canAccess = false;
+		}
+
+		if ($name == 'fields' && $this->config->get('main_customfields_input')) {
+			$model = ED::model('CustomFields');
+			$fields = $model->getFields(DISCUSS_CUSTOMFIELDS_ACL_INPUT, $this->operation, $this->post->id, $categoryId);
+
+			// if empty fields then we do not show this tab.
+			if (!$fields) {
+				$canAccess = false;
+			}
+		}
+
+		if ($name == 'password') {
+			if ($this->operation == 'replying' || ($this->operation == 'editing' && $this->post->isReply()) || !$this->config->get('main_password_protection')) {
+				$canAccess = false;
+			}
+		}
+
+		if ($name == 'polls') {
+			if (($this->post->isQuestion() && !$this->config->get('main_polls')) || (($this->operation == 'replying' || $this->post->isReply()) && !$this->config->get('main_polls_replies'))) {
+				$canAccess = false;
+			}
+		}
+
+		if ($name == 'location') {
+			if (($this->post->isQuestion() || $this->operation != 'replying') && !$this->config->get('main_location_discussion')) {
+				$canAccess = false;
+			}
+
+			if (($this->post->isReply() || $this->operation == 'replying') && !$this->config->get('main_location_reply')) {
+				$canAccess = false;
+			}
 		}
 
 		return $canAccess;
@@ -397,46 +645,5 @@ class EasyDiscussComposer extends EasyDiscuss
 		}
 
 		return 'joomla';
-	}
-
-	public function getFieldData($fieldName, $params)
-	{
-		$data = array();
-		$json = ED::json();
-
-		// this is to support data from older version
-		if (!$json->isJsonString($params)) {
-
-			$fieldName = (string) $fieldName;
-			$pattern = '/params_' . $fieldName . '[0-9]?=["](.*)["]/i';
-
-			preg_match_all($pattern, $params, $matches);
-
-			if (!empty($matches[1])) {
-				foreach ($matches[1] as $match) {
-					$data[] = $match;
-				}
-			}
-
-			return $data;
-		}
-
-		// Make it to array
-		$params = json_decode($params, true);
-
-		if (!empty($params)) {
-			foreach ($params as $key => $val) {
-
-				$fieldName = (string) $fieldName;
-
-				if (JString::strpos($key, 'params_' . $fieldName) !== false) {
-					$data[] = $val;
-				}
-			}
-
-			return $data;
-		}
-
-		return false;
 	}
 }

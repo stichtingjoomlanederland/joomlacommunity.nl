@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -275,12 +275,13 @@ class StringHelper
 	 * Removes html tags from string
 	 *
 	 * @param string $string
+	 * @param bool   $remove_comments
 	 *
 	 * @return string
 	 */
-	public static function removeHtml($string)
+	public static function removeHtml($string, $remove_comments = false)
 	{
-		return Html::removeHtmlTags($string);
+		return Html::removeHtmlTags($string, $remove_comments);
 	}
 
 	/**

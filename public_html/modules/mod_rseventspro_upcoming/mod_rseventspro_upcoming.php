@@ -9,6 +9,7 @@
 defined('_JEXEC') or die('Restricted access');
 
 if (file_exists(JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php')) {
+	require_once JPATH_SITE.'/components/com_rseventspro/helpers/adapter/adapter.php';
 	require_once JPATH_SITE.'/components/com_rseventspro/helpers/rseventspro.php';
 	require_once JPATH_SITE.'/components/com_rseventspro/helpers/route.php';
 	require_once JPATH_SITE.'/modules/mod_rseventspro_upcoming/helper.php';

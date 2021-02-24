@@ -3,11 +3,12 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
+use Jdideal\Gateway;
 use Joomla\CMS\Application\CliApplication;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
@@ -15,6 +16,7 @@ use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Http\HttpFactory;
 use Joomla\CMS\Http\Response;
 use Joomla\CMS\Language\Text;
+use Joomla\Registry\Registry;
 
 /**
  * This is a CRON script which should be called from the command-line, not the
@@ -124,8 +126,13 @@ class Statusupdate extends CliApplication
 		{
 			$this->out(Text::_('COM_ROPAYMENTS_START_SCRIPT'));
 
-			// Register our namespace
 			JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES);
+
+			if (class_exists(Gateway::class) === false)
+			{
+				JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES . '/Jdideal');
+			}
+
 
 			/** @var Jdideal\Gateway $jdideal */
 			$jdideal = new Jdideal\Gateway;
@@ -203,7 +210,8 @@ class Statusupdate extends CliApplication
 						{
 							$this->out(Text::sprintf('COM_ROPAYMENTS_PROCESS_URL', $url));
 
-							$http = HttpFactory::getHttp(null, array('curl', 'stream'));
+							$options = new Registry;
+							$http    = HttpFactory::getHttp($options, ['curl', 'stream']);
 
 							/** @var Response $response */
 							$response = $http->get($url);

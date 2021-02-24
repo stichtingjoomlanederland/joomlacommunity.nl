@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussControllerNotification extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function markread()
 	{
@@ -37,7 +35,7 @@ class EasyDiscussControllerNotification extends EasyDiscussController
 		if ($notification->target != $this->my->id) {
 			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_TO_MARK_READ', 'error');
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		$notification->state = 0;
@@ -46,7 +44,7 @@ class EasyDiscussControllerNotification extends EasyDiscussController
 		ED::setMessage('COM_EASYDISCUSS_NOTIFICATION_MARKED_AS_READ');
 
 		$redirect = EDR::_('view=notifications', false);
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -54,8 +52,6 @@ class EasyDiscussControllerNotification extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function markreadall()
 	{
@@ -69,6 +65,6 @@ class EasyDiscussControllerNotification extends EasyDiscussController
 
 		ED::setMessage('COM_EASYDISCUSS_ALL_NOTIFICATIONS_MARKED_AS_READ');
 		
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 }

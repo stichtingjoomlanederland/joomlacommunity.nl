@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -22,10 +22,10 @@ if (!JFile::exists($path)) {
 require_once($path);
 
 ED::init();
+$lib = ED::modules($module);
 
 // Load language
 JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
-// ED::loadStylesheet("module", "mod_easydiscuss_notifications");
 
 $app = JFactory::getApplication();
 $user = ED::user();
@@ -50,7 +50,7 @@ $category = (!$category && $defaultCategory !== false) ? $defaultCategory->id : 
 $showPrivateCat = ED::isLoggedIn();
 
 // Retrieve all categories
-$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $category, true, true, $showPrivateCat, true, 'form-control', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT);
+$nestedCategories = ED::populateCategories('', '', 'select', 'category_id', $category, true, true, $showPrivateCat, true, 'o-form-select', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT);
 
 // Captcha Integration
 $captcha = ED::captcha();

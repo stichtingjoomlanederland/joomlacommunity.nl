@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -17,7 +17,7 @@ defined('_JEXEC') || die();
         <h3>@lang('COM_AKEEBA_CPANEL_HEADER_QUICKBACKUP')</h3>
     </header>
 
-    <div class=" akeeba-grid--small">
+    <div class=" akeeba-grid">
 	    @foreach($this->quickIconProfiles as $qiProfile)
             <a class="akeeba-action--green"
                href="index.php?option=com_akeeba&view=Backup&autostart=1&profileid={{ (int) $qiProfile->id }}&@token(true)=1">

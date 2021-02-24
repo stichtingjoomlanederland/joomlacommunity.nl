@@ -238,6 +238,7 @@ class RseventsproController extends JControllerLegacy
 			}
 			
 			$data->layout = '';
+			$data->ticketinfolayout = '';
 			$data->price = (float) $data->price;
 			$data->seats = (int) $data->seats;
 			$data->user_seats = (int) $data->user_seats;
@@ -338,7 +339,7 @@ class RseventsproController extends JControllerLegacy
 		$step	= $app->input->getInt('step',0);
 		$backup = new RSEBackup;
 		
-		$app->triggerEvent('rsepro_backup', array(array('class' => &$backup)));
+		$app->triggerEvent('onrsepro_backup', array(array('class' => &$backup)));
 		
 		$backup->process($step);
 		
@@ -364,7 +365,7 @@ class RseventsproController extends JControllerLegacy
 		try {
 			$backup = new RSEBackup;
 			
-			JFactory::getApplication()->triggerEvent('rsepro_extract', array(array('class' => &$backup)));
+			JFactory::getApplication()->triggerEvent('onrsepro_extract', array(array('class' => &$backup)));
 			
 			$backup->extract();
 			$extract = $backup->getRestoreFolder();
@@ -384,7 +385,7 @@ class RseventsproController extends JControllerLegacy
 		$backup = new RSEBackup;
 		$backup->set('limit', 200);
 		
-		JFactory::getApplication()->triggerEvent('rsepro_restore', array(array('class' => &$backup)));
+		JFactory::getApplication()->triggerEvent('onrsepro_restore', array(array('class' => &$backup)));
 		
 		$backup->restore();
 		
@@ -393,7 +394,7 @@ class RseventsproController extends JControllerLegacy
 	
 	// Trigger plugin functions
 	public function trigger() {
-		JFactory::getApplication()->triggerEvent('rsepro_adminTrigger');
+		JFactory::getApplication()->triggerEvent('onrsepro_adminTrigger');
 	}
 	
 	protected function fixcategories() {

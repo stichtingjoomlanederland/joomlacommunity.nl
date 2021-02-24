@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -76,7 +76,7 @@ class Html extends BaseView
 	 */
 	public function onBeforeListactions()
 	{
-		$this->container->template->addJS('media://com_akeeba/js/RemoteFiles.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/RemoteFiles.min.js', true, false, $this->container->mediaVersion);
 
 		/** @var RemoteFiles $model */
 		$model              = $this->getModel();
@@ -95,7 +95,7 @@ CSS;
 
 	public function onBeforeDltoserver()
 	{
-		$this->container->template->addJS('media://com_akeeba/js/RemoteFiles.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/RemoteFiles.min.js', true, false, $this->container->mediaVersion);
 
 		/** @var RemoteFiles $model */
 		$model = $this->getModel();

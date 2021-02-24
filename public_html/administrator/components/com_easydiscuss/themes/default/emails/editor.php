@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,28 +18,28 @@ defined('_JEXEC') or die('Unauthorized Access');
                 <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EMAILS_EDITOR_GENERAL'); ?>
 
                 <div class="panel-body">
-                    <div class="form-horizontal">
-                        <div class="form-group">
-                            <div class="col-md-3 control-label">
+                    <div class="o-form-horizontal">
+                        <div class="o-form-group">
+                            <div class="col-md-3 o-form-label">
                                 <?php echo $this->html('form.label', 'COM_EASYDISCUSS_EMAILS_EDITOR_FILE_LOCATION'); ?>
                             </div>
 
                             <div class="col-md-9">
-                                <code><?php echo $file->path; ?></code>
+                                <input type="text" value="<?php echo $file->path;?>" class="o-form-control disabled" />
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <div class="col-md-3 control-label">
+                        <div class="o-form-group">
+                            <div class="col-md-3 o-form-label">
                                 <?php echo $this->html('form.label', 'COM_EASYDISCUSS_EMAILS_EDITOR_OVERRIDE_FILE_LOCATION'); ?>
                             </div>
 
                             <div class="col-md-9">
-                                <code><?php echo $file->overridePath; ?></code>
+                                <input type="text" value="<?php echo $file->overridePath;?>" class="o-form-control disabled" />
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="o-form-group">
                             <div class="col-md-12">
                                 <?php echo $editor->display('source', $this->escape($file->contents), '100%', '400px', 80, 20, false, null, null, null, array('syntax' => 'php', 'filter' => 'raw')); ?>
                             </div>
@@ -51,5 +51,5 @@ defined('_JEXEC') or die('Unauthorized Access');
     </div>
 
     <input type="hidden" name="file" value="<?php echo base64_encode($file->name);?>" />
-    <?php echo $this->html('form.hidden', 'emails', 'emails'); ?>
+    <?php echo $this->html('form.action', 'emails', 'emails'); ?>
 </form>

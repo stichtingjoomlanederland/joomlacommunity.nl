@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -83,6 +83,8 @@ class Article
 				$db->quoteName('c.title', 'category_title'),
 				$db->quoteName('c.alias', 'category_alias'),
 				$db->quoteName('c.access', 'category_access'),
+				$db->quoteName('c.lft', 'category_lft'),
+				$db->quoteName('c.lft', 'category_ordering'),
 			]);
 		}
 		$query->innerJoin($db->quoteName('#__categories', 'c') . ' ON ' . $db->quoteName('c.id') . ' = ' . $db->quoteName('a.catid'))
@@ -276,5 +278,47 @@ class Article
 		}
 
 		call_user_func_array([$helper, $method], array_merge([&$article->{$type}], $params));
+	}
+
+	public static function getPages($string)
+	{
+		if (empty($string))
+		{
+			return [''];
+		}
+
+		return preg_split('#(<hr class="system-pagebreak" .*?>)#s', $string, null, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
+	}
+
+	public static function getPageNumber(&$all_pages, $search_string)
+	{
+		if (is_string($all_pages))
+		{
+			$all_pages = self::getPages($all_pages);
+		}
+
+		if (count($all_pages) < 2)
+		{
+			return 0;
+		}
+
+		foreach ($all_pages as $i => $page_text)
+		{
+			if ($i % 2)
+			{
+				continue;
+			}
+
+			if (strpos($page_text, $search_string) === false)
+			{
+				continue;
+			}
+
+			$all_pages[$i] = StringHelper::replaceOnce($search_string, '---', $page_text);
+
+			return $i / 2;
+		}
+
+		return 0;
 	}
 }

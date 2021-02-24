@@ -4,7 +4,7 @@
  * @subpackage  Buckaroo
  *
  * @author      Roland Dalmulder <contact@rolandd.com>
- * @copyright   Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright   Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link        https://rolandd.com
  */
@@ -13,7 +13,9 @@ namespace Jdideal\Psp;
 
 use Jdideal\Gateway;
 use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Http\HttpFactory;
 use Joomla\CMS\Language\Text;
+use Joomla\Registry\Registry;
 
 defined('_JEXEC') or die;
 
@@ -407,8 +409,8 @@ class Buckaroo
 	 */
 	private function send(Gateway $jdideal, array $keyvalue = null, $operation = null)
 	{
-		// Get the transporter
-		$http = \JHttpFactory::getHttp(null, array('curl', 'stream'));
+		$options = new Registry;
+		$http    = HttpFactory::getHttp($options, ['curl', 'stream']);
 
 		// Construct the URL
 		$url = $jdideal->get('testmode', 0) === '1' ? $this->testUrl : $this->liveUrl;
@@ -428,9 +430,7 @@ class Buckaroo
 
 		$jdideal->log('Sending request to: ' . $url, $this->getLogId());
 
-		// Send request
-		$strResponse = $http->post($url, $keyvalue);
-
+		$strResponse    = $http->post($url, $keyvalue);
 		$this->response = $strResponse->body;
 
 		$jdideal->log('Received response: ' . $this->response, $this->getLogId());

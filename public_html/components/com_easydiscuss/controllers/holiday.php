@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,46 +11,66 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(__DIR__ . '/controller.php');
-
 class EasyDiscussControllerHoliday extends EasyDiscussController
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
+	/**
+	 * This occurs when the user tries to create a new discussion or edits an existing discussion
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function save()
+	{
+		// Check for request forgeries
+		ED::checkToken();
 
-    /**
-     * This occurs when the user tries to create a new discussion or edits an existing discussion
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function save()
-    {
-        // Check for request forgeries
-        ED::checkToken();
+		// Determine if the user can truly edit the holiday
+		$user =	ED::profile();
 
-        // Get the id if available
-        $id = $this->input->get('id', 0, 'int');
+		if (!$user->canAccessDashboard()) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
+			return ED::redirect(EDR::_('view=index', false));
+		}
+		
+		// Get the id if available
+		$id = $this->input->get('id', 0, 'int');
 
-        // Load the holiday library
-        $holiday = ED::holiday($id);
+		// Load the holiday library
+		$holiday = ED::holiday($id);
 
-        $isNew = $holiday->id? false : true;
+		$isNew = $holiday->id? false : true;
 
-        // Get the date POST
-        $data = JRequest::get('post');
-        
-        $holiday->bind($data);
-        $holiday->save();
+		$redirect = 'view=dashboard&layout=holidayForm';
 
-        $message = ($isNew)? JText::_('COM_EASYDISCUSS_HOLIDAY_SAVED') : JText::_('COM_EASYDISCUSS_EDIT_HOLIDAY_SUCCESS');
-        
-        ED::setMessage($message, 'info');
-        $this->app->redirect(EDR::_('view=dashboard', false));
+		if (!$isNew) {
+			$redirect .= '&id=' . $holiday->id;
+		}
 
-    }
+		// Get the date POST
+		$data = $this->input->post->getArray();
+		
+		$holiday->bind($data);
+
+		if (!$holiday->title) {
+			ED::setMessage('COM_ED_HOLIDAY_ENTER_TITLE', 'error');
+			return ED::redirect(EDR::_($redirect, false));
+		}
+
+		if (!$holiday->start || !$holiday->end) {
+			ED::setMessage('COM_ED_HOLIDAY_ENTER_START_AND_END', 'error');
+			return ED::redirect(EDR::_($redirect, false));
+		}
+
+		if ($holiday->end < $holiday->start) {
+			ED::setMessage('COM_ED_HOLIDAY_END_DATE_LATER_THAN_START', 'error');
+			return ED::redirect(EDR::_($redirect, false));
+		}
+
+		$holiday->save();
+
+		$message = ($isNew)? 'COM_EASYDISCUSS_HOLIDAY_SAVED' : 'COM_EASYDISCUSS_EDIT_HOLIDAY_SUCCESS';
+		
+		ED::setMessage($message, 'success');
+		ED::redirect(EDR::_('view=dashboard', false));
+	}
 }

@@ -43,7 +43,8 @@
 	margin: 0 0 10px 0;
 }
 
-.rsepro-edit-event > .tab-content {
+.rsepro-edit-event > .tab-content,
+.rsepro-edit-event-form > .row-fluid > .span9 > .tab-content {
 	min-height: 900px;
 	padding: 20px;
 	border: 1px solid #ddd;
@@ -140,12 +141,70 @@
     margin-top: 5px;
 }
 
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs {
+	border-bottom: 0;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs > li {
+	float: none;
+	text-align: right;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs > li > a {
+	min-width: 74px;
+	margin-right: 0;
+	margin-bottom: 3px;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs {
+	margin-right: -1px;
+	border-right: 1px solid #ddd;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs > li > a {
+	margin-right: -1px;
+	-webkit-border-radius: 4px 0 0 4px;
+	-moz-border-radius: 4px 0 0 4px;
+	border-radius: 4px 0 0 4px;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs > li > a:hover,
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs > li > a:focus {
+	border-color: #eee #ddd #eee #eee;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs .active > a,
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs .active > a:hover,
+.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs .active > a:focus {
+	border-color: #ddd transparent #ddd #ddd;
+	*border-right-color: #fff;
+}
+
+.rsepro-edit-event-form > .row-fluid > .span9 {
+	margin-left:0;
+}
+
+.rsepro-edit-event-form #rsepro-photo {
+	max-width: 100%;
+}
+
 @media screen and (max-width: 767px) {
 	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a,
 	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a:hover, 
-	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a:focus {
+	#rsepro-edit-container .rsepro-edit-event .nav-tabs > .active > a:focus,
+	.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs .active > a,
+	.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs .active > a:hover,
+	.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs .active > a:focus {
 		border-color: #ddd;
 		border-radius: 4px;
+	}
+	
+	.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs {
+		border-right: none;
+	}
+	
+	.rsepro-edit-event-form > .row-fluid > .span3 > .nav-tabs > li {
+		text-align: center;
 	}
 	
 	.rsepro-edit-event .rsepro-well {

@@ -3,7 +3,7 @@
  * @package    RO Payments
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -121,8 +121,7 @@ class Gateway
 	private function findProfileAlias(): string
 	{
 		// Initialise the alias
-		$alias         = false;
-		$transactionId = 0;
+		$alias = false;
 
 		// Check how many profiles there are
 		$db    = $this->db;
@@ -455,20 +454,19 @@ class Gateway
 	 * @since   5.0.0
 	 */
 	public function createTransaction(
-		$orderId,
-		$orderNumber,
-		$quantity,
-		$currency,
-		$amount,
-		$origin,
-		$returnUrl,
-		$cancelUrl,
-		$notifyUrl = '',
-		$paymentId = '',
-		$transactionId = '',
-		$language = ''
+		string $orderId,
+		string $orderNumber,
+		string $quantity,
+		string $currency,
+		string $amount,
+		string $origin,
+		string $returnUrl,
+		string $cancelUrl,
+		string $notifyUrl = '',
+		string $paymentId = '',
+		string $transactionId = '',
+		string $language = ''
 	): int {
-		// Store the information in the log table
 		$db    = Factory::getDbo();
 		$pid   = UserHelper::genRandomPassword(50);
 		$date  = HTMLHelper::_('date', 'now', 'Y-m-d H:i:s', false);
@@ -750,7 +748,7 @@ class Gateway
 	 * @throws  InvalidArgumentException
 	 * @throws  Exception
 	 */
-	public function getMessage($logId, $profileId = 0, $result = ''): string
+	public function getMessage(int $logId, int $profileId = 0, string $result = ''): string
 	{
 		$messageType = 0;
 		$text        = false;
@@ -775,7 +773,7 @@ class Gateway
 			->where($this->db->quoteName('profile_id') . ' = ' . (int) $profileId)
 			->where(
 				$this->db->quoteName('language') . ' IN (' . $this->db->quote(
-					\JFactory::getLanguage()->getTag()
+					Factory::getLanguage()->getTag()
 				) . ', ' . $this->db->quote('*') . ')'
 			);
 
@@ -1018,7 +1016,7 @@ class Gateway
 				break;
 			case 'failure':
 			case 'fail':
-				$newStatus = $this->get('failedStatus');
+				$newStatus = $this->get('failureStatus');
 				break;
 			case 'transfer':
 				$newStatus = $this->get('transferStatus', $this->get('openStatus'));
@@ -1071,10 +1069,8 @@ class Gateway
 			case 'authorized':
 			case 'transfer':
 				return true;
-				break;
 			default:
 				return false;
-				break;
 		}
 	}
 

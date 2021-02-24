@@ -1,13 +1,4 @@
-ed.require(['edq', 'site/src/frontpage', 'site/src/profile'], function($, frontpage, profile) {
+ed.require(['edq', 'site/src/filters'], function($, filters) {
 
-	// Find anchor links inside the tab
-	var filters = $('[data-filter-anchor]');
-
-	filters.on('click', function(event) {
-		event.preventDefault();
-
-		$(this).route();
-	});
-
-	frontpage.execute('[data-posts]');
+	filters.execute('[data-posts]');
 });

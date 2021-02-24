@@ -7,9 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewEvents extends JViewLegacy
-{
-	protected $sidebar;
-	
+{	
 	public function display($tpl = null) {
 		$this->layout	= $this->getLayout();
 		$this->app		= JFactory::getApplication();
@@ -51,8 +49,6 @@ class RseventsproViewEvents extends JViewLegacy
 		} else {
 			$this->tpl				= rseventsproHelper::getConfig('backendlist','int',0) ? 'general' : 'timeline';
 			
-			JHtml::_('rseventspro.chosen');
-			
 			if (rseventsproHelper::checkTimezone()) {
 				$this->app->enqueueMessage(JText::_('COM_RSEVENTSPRO_TIMEZONE_HAS_CHANGED'),'notice');
 			}
@@ -89,6 +85,8 @@ class RseventsproViewEvents extends JViewLegacy
 			$this->operator			= $this->get('Operator');
 			$this->showCondition	= $this->get('ConditionsNr');
 			$this->tabs				= $this->get('Tabs');
+			$this->form				= $this->get('BatchForm');
+			$this->version			= rseventsproHelper::isJ4() ? 'j4' : 'j3';
 			
 			$this->addToolBar();
 		}
@@ -97,38 +95,114 @@ class RseventsproViewEvents extends JViewLegacy
 	}
 	
 	protected function addToolBar() {
-		$doc = JFactory::getDocument();
-		
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_LIST_EVENTS'),'rseventspro48');
+		
+		$toolbar = JToolbar::getInstance('toolbar');
 		JToolBarHelper::addNew('event.add');
-		JToolBarHelper::editList('event.edit');
-		JToolBarHelper::custom('preview','zoom-in','zoom-in',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'));
-		JToolBarHelper::divider();
-		JToolBarHelper::deleteList(JText::_('COM_RSEVENTSPRO_REMOVE_EVENTS'),'events.delete');
-		JToolBarHelper::custom('events.copy', 'copy.png', 'copy_f2.png', 'COM_RSEVENTSPRO_COPY_EVENT' );
-		JToolBarHelper::publishList('events.publish');
-		JToolBarHelper::unpublishList('events.unpublish');
-		JToolBarHelper::archiveList('events.archive');
-		JToolbarHelper::custom('events.cancel', 'cancel', 'cancel', JText::_('COM_RSEVENTSPRO_CANCEL_EVENT'), true);
-		JToolbarHelper::custom('events.featured', 'featured.png', 'featured_f2.png', 'JFEATURED', true);
-		JToolBarHelper::custom('events.exportical','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_ICAL'));
-		JToolBarHelper::custom('events.exportcsv','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_CSV'));
-		JToolBarHelper::divider();
-		JToolBarHelper::custom('events.rating','trash','trash',JText::_('COM_RSEVENTSPRO_CLEAR_RATING'));
-		JToolBarHelper::divider();
+		
+		if (rseventsproHelper::isJ4()) {
+			$dropdown = $toolbar->dropdownButton('status-group')
+				->text('JTOOLBAR_CHANGE_STATUS')
+				->toggleSplit(false)
+				->icon('fas fa-ellipsis-h')
+				->buttonClass('btn btn-action')
+				->listCheck(true);
+
+			$childBar = $dropdown->getChildToolbar();
+			$childBar->edit('page.edit')->listCheck(true);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="rsepro_show_preview()" '
+				. 'class="button-preivew dropdown-item"><span class="fas fa-search-plus" aria-hidden="true"></span>'
+				. JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT') . '</button></joomla-toolbar-button>', 'preivew'
+			);
+			
+			$childBar->delete('events.delete')
+				->text('JTOOLBAR_DELETE')
+				->message('COM_RSEVENTSPRO_REMOVE_EVENTS')
+				->icon('icon-trash')
+				->listCheck(true);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="Joomla.submitbutton(\'events.copy\')" '
+				. 'class="button-copy dropdown-item"><span class="fas fa-copy" aria-hidden="true"></span>'
+				. JText::_('COM_RSEVENTSPRO_COPY_EVENT') . '</button></joomla-toolbar-button>', 'copy'
+			);
+			
+			$childBar->publish('events.publish')->listCheck(true);
+			$childBar->unpublish('events.unpublish')->listCheck(true);
+			$childBar->archive('events.archive')->listCheck(true);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="Joomla.submitbutton(\'events.cancel\')" '
+				. 'class="button-cancel dropdown-item"><span class="fas fa-times" aria-hidden="true"></span>'
+				. JText::_('COM_RSEVENTSPRO_CANCEL_EVENT') . '</button></joomla-toolbar-button>', 'cancel'
+			);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="Joomla.submitbutton(\'events.featured\')" '
+				. 'class="button-featured dropdown-item"><span class="fas fa-star" aria-hidden="true"></span>'
+				. JText::_('JFEATURED') . '</button></joomla-toolbar-button>', 'featured'
+			);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="Joomla.submitbutton(\'events.exportical\')" '
+				. 'class="button-exportical dropdown-item"><span class="fas fa-arrow-down" aria-hidden="true"></span>'
+				. JText::_('COM_RSEVENTSPRO_EXPORT_ICAL') . '</button></joomla-toolbar-button>', 'exportical'
+			);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="Joomla.submitbutton(\'events.exportcsv\')" '
+				. 'class="button-exportcsv dropdown-item"><span class="fas fa-arrow-down" aria-hidden="true"></span>'
+				. JText::_('COM_RSEVENTSPRO_EXPORT_CSV') . '</button></joomla-toolbar-button>', 'exportcsv'
+			);
+			
+			$childBar->appendButton(
+				'Custom', '<joomla-toolbar-button><button onclick="Joomla.submitbutton(\'events.rating\')" '
+				. 'class="button-rating dropdown-item"><span class="fas fa-trash" aria-hidden="true"></span>'
+				. JText::_('COM_RSEVENTSPRO_CLEAR_RATING') . '</button></joomla-toolbar-button>', 'rating'
+			);
+			
+		} else {
+			JToolBarHelper::editList('event.edit');
+			
+			$layout = new JLayoutFile('joomla.toolbar.standard');
+			$dhtml = $layout->render(array('text' => JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'), 'btnClass' => 'btn', 'id' => '', 'htmlAttributes' => '', 'onclick' => 'rsepro_show_preview()', 'class' => 'icon-preview', 'doTask' => 'rsepro_show_preview()'));
+			$toolbar->appendButton('Custom', $dhtml, 'preview', false);
+			
+			JToolBarHelper::divider();
+			JToolBarHelper::deleteList(JText::_('COM_RSEVENTSPRO_REMOVE_EVENTS'),'events.delete');
+			JToolBarHelper::custom('events.copy', 'copy.png', 'copy_f2.png', 'COM_RSEVENTSPRO_COPY_EVENT' );
+			JToolBarHelper::publishList('events.publish');
+			JToolBarHelper::unpublishList('events.unpublish');
+			JToolBarHelper::archiveList('events.archive');
+			JToolbarHelper::custom('events.cancel', 'cancel', 'cancel', JText::_('COM_RSEVENTSPRO_CANCEL_EVENT'), true);
+			JToolbarHelper::custom('events.featured', 'featured.png', 'featured_f2.png', 'JFEATURED', true);
+			JToolBarHelper::custom('events.exportical','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_ICAL'));
+			JToolBarHelper::custom('events.exportcsv','arrow-down','arrow-down',JText::_('COM_RSEVENTSPRO_EXPORT_CSV'));
+			JToolBarHelper::divider();
+			JToolBarHelper::custom('events.rating','trash','trash',JText::_('COM_RSEVENTSPRO_CLEAR_RATING'));
+			JToolBarHelper::divider();
+			
+			JHtml::_('formbehavior.chosen','#modal-batchevents select');
+		}
+		
 		JToolBarHelper::custom('events.sync','refresh','refresh',JText::_('COM_RSEVENTSPRO_SYNC'),false);
 		
 		$layout = new JLayoutFile('joomla.toolbar.popup');
-		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_BATCH'), 'class' => 'icon-checkbox-partial', 'name' => 'batchevents', 'doTask' => ''));
-		JToolbar::getInstance('toolbar')->appendButton('Custom', $dhtml, 'batch');
+		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_BATCH'), 'htmlAttributes' => '', 'btnClass' => 'btn', 'class' => 'icon-checkbox-partial', 'name' => 'batchevents', 'selector' => 'batchevents', 'doTask' => ''));
+		$toolbar->appendButton('Custom', $dhtml, 'batch');
 		
-		JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'version' => 'auto'));
+		JHtml::script('com_rseventspro/jquery.filter.'.$this->version.'.js', array('relative' => true, 'version' => 'auto'));
 	}
 	
 	protected function addToolBarReport() {
 		JToolBarHelper::title(JText::sprintf('COM_RSEVENTSPRO_REPORTS_FOR', @$this->reports['name']),'rseventspro48');
 		JToolBarHelper::deleteList('','events.deletereports');
-		JToolBarHelper::custom('back','back','back',JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'),false);
+		
+		$layout = new JLayoutFile('joomla.toolbar.link');
+		$dhtml = $layout->render(array('text' => JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), 'btnClass' => 'btn btn-primary', 'id' => '', 'class' => 'icon-arrow-left', 'htmlAttributes' => '', 'url' => 'index.php?option=com_rseventspro&view=events', 'doTask' => 'index.php?option=com_rseventspro&view=events'));
+		JToolbar::getInstance('toolbar')->appendButton('Custom', $dhtml, 'back');
 	}
 	
 	protected function getDetails($id) {
@@ -197,7 +271,7 @@ class RseventsproViewEvents extends JViewLegacy
 			->from($db->qn('#__rseventspro_users','u'))
 			->where($db->qn('u.ide').' = '.(int) $id);
 		
-		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
+		JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 		
 		$db->setQuery($query);
 		return (int) $db->loadResult();

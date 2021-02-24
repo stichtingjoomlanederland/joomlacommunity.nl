@@ -9,7 +9,7 @@ JHtml::_('behavior.keepalive');
 JHtml::_('behavior.formvalidator'); ?>
 
 <script type="text/javascript">
-	jQuery(document).ready(function (){
+	window.addEventListener('DOMContentLoaded', function() {
 		<?php if (!$this->social['js']) { ?>jQuery('#jform_user_display option[value=2]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['cb']) { ?>jQuery('#jform_user_display option[value=3]').prop('disabled',true);<?php } ?>
 		<?php if (!$this->social['js']) { ?>jQuery('#jform_user_profile option[value=1]').prop('disabled',true);<?php } ?>
@@ -42,31 +42,19 @@ JHtml::_('behavior.formvalidator'); ?>
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=settings'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off" enctype="multipart/form-data">
-	<div class="row-fluid">
-		<div id="j-sidebar-container" class="span2">
-			<?php echo JHtmlSidebar::render(); ?>
-		</div>
-		<div id="j-main-container" class="span10 j-main-container">
-		<?php foreach ($this->layouts as $layout) {
-			// add the tab title
-			$this->tabs->title('COM_RSEVENTSPRO_CONF_TAB_'.strtoupper($layout), $layout);
-			
-			// prepare the content
-			$content = $this->loadTemplate($layout);
-			
-			// add the tab content
-			$this->tabs->content($content);
-		}
+	<?php echo RSEventsproAdapterGrid::sidebar(); ?>
+		<?php 
+			foreach ($this->layouts as $layout) {
+				$this->tabs->addTitle('COM_RSEVENTSPRO_CONF_TAB_'.strtoupper($layout), $layout);
+				$this->tabs->addContent($this->loadTemplate($layout));
+			}
 		
-		// render tabs
-		echo $this->tabs->render();
+			echo $this->tabs->render();
 		?>
-			<div>
-			<?php echo JHtml::_('form.token'); ?>
-			<input type="hidden" name="task" value="" />
-			</div>
-		</div>
 	</div>
+	
+	<?php echo JHtml::_('form.token'); ?>
+	<input type="hidden" name="task" value="" />
 </form>
 
 <?php echo JHtml::_('bootstrap.renderModal', 'rseproFacebookLog', array('title' => JText::_('COM_RSEVENTSPRO_CONF_SYNC_LOG_BTN'), 'url' => 'index.php?option=com_rseventspro&view=settings&layout=log&from=facebook&tmpl=component', 'bodyHeight' => 70)); ?>

@@ -14,12 +14,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 class EasyDiscussStylesheet extends EasyDiscuss
 {
 	public $location = '';
+	private $theme = null;
+	private $type = 'themes';
 
 	public function __construct($location = 'site')
 	{
 		parent::__construct();
-
+		
 		$this->location = $location;
+		$this->theme = 'wireframe';
+
+		if ($this->location == 'admin') {
+			$this->theme = 'default';
+		}
 	}
 
 	/**
@@ -30,41 +37,41 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 */
 	public function attach()
 	{
-		$themeName = ED::themes()->getName();
-		$rtl = $this->isRTL();
-
-		if ($rtl && $this->location == 'site') {
-
-			// check if site is now runing on production or not.
-			$filename = 'style-rtl';
-
-			if (!$this->isDevelopment()) {
-				$filename .= '.min';
-			}
-
-			$base = JURI::root(true);
-			$uri = $base . '/media/com_easydiscuss/themes/' . $themeName . '/css/' . $filename . '.css';
-
-			$this->doc->addStyleSheet($uri);
-
-			$this->attachCustomCss();
-
-			return;
+		// Attach font awesome
+		if ($this->location == 'admin' || ($this->location == 'site' && $this->config->get('layout_fontawesome'))) {
+			$this->attachFontAwesome();
 		}
 
-		$uri = $this->compile();
+		// Attach Prism code syntax highlighter
+		if ($this->location == 'site' && $this->config->get('layout_prism')) {
+			$this->attachPrism();
+		}
 
+		// Attach mmenu css
+		if (ED::responsive()->isMobile() || ED::responsive()->isTablet()) {
+			$this->attachMobileMenu();
+		}
+
+		$uri = $this->getStylesheetUri();
 		$this->doc->addStyleSheet($uri);
 
-		if ($this->location == 'site') {
+		// Attach custom css codes on the page
+		if ($this->location == 'site' && $this->config->get('layout_customcss')) {
 			$this->attachCustomCss();
+		}
+
+		// Add print css
+		$print = JFactory::getApplication()->input->get('print', 0, 'int');
+
+		if ($this->location == 'site' && $print) {
+			$this->doc->addStyleSheet(JURI::root(true) . '/media/com_easydiscuss/themes/wireframe/css/print.min.css');
 		}
 	}
 
 	/**
 	 * if there is a custom.css overriding, we need to attach this custom.css file.
 	 *
-	 * @since	3.0.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	private function attachCustomCss()
@@ -76,170 +83,106 @@ class EasyDiscussStylesheet extends EasyDiscuss
 			return;
 		}
 
-		$customURI = JURI::root() . 'templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/css/custom.css';
+		$customURI = JURI::root(true) . '/templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/css/custom.css';
 		$this->doc->addStyleSheet($customURI);
 	}
 
 	/**
-	 * Responsible to compile the LESS > CSS file
+	 * if there is a custom.css overriding, we need to attach this custom.css file.
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
-	public function compile()
+	private function attachFontAwesome()
 	{
-		if ($this->location == 'site') {
-			return $this->compileSiteStylesheet();
+		static $loaded = null;
+
+		if (is_null($loaded)) {
+			$path = JURI::root(true) . '/media/com_easydiscuss/fonts/font-awesome/css/all.min.css';
+
+			$this->doc->addStyleSheet($path);
+
+			$loaded = true;
 		}
 
-		if ($this->location == 'admin') {
-			return $this->compileAdminStylesheet();
-		}
+		return $loaded;
 	}
 
 	/**
-	 * Compiles the stylesheet for the site
+	 * Determine the site whether need to load built-in Prism stylesheets
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
-	public function compileSiteStylesheet($theme = null)
+	private function attachPrism()
 	{
-		// Allow caller to specify a different stylesheet to compile
-		if (is_null($theme)) {
-			$theme = ED::themes()->getName();
+		static $loaded = null;
+
+		if (is_null($loaded)) {
+			$path = JURI::root(true) . '/media/com_easydiscuss/vendors/prism/prism.css';
+
+			$this->doc->addStyleSheet($path);
+
+			$loaded = true;
 		}
 
-		$options = array(
-					'source' => DISCUSS_MEDIA . '/themes/' . $theme . '/less/style.less',
-					'output' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style.css',
-					'compressed' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style.min.css',
-					'compressed_rtl' => DISCUSS_MEDIA . '/themes/' . $theme . '/css/style-rtl.min.css',
-				);
+		return $loaded;
+	}
+	
+	/**
+	 * Renders the mobile menu css
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	private function attachMobileMenu()
+	{
+		$config = ED::config();
 
-		// For production mode, we simply just include the minified css file. Don't render anything else
-		// Request compiler to compile less files
-		if (!defined('ED_CLI') && !$this->isDevelopment()) {
-			$rtl = $this->isRTL();
-			$url = $options['compressed'];
+		if (!defined('SI_MMENU') && $config->get('layout_enabletoolbar')) {
+			$css = JURI::root(true) . '/media/com_easydiscuss/vendors/mmenu/mmenu.css';
 
-			if ($rtl) {
-				$url = $options['compressed_rtl'];
-			}
+			$this->doc->addStylesheet($css);
+
+			define('SI_MMENU', true);
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Generates the url to the stylesheet file
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getStylesheetUri()
+	{
+		$theme = $this->location == 'admin' ? 'admin' : $this->theme;
+		$uri = JURI::root(true) . '/media/com_easydiscuss/' . $this->type . '/' . $theme . '/css/';
+		$file = 'style';
+
+		if ($this->isRTL()) {
+			$file .= '-rtl.min';
+		}
+
+		if (!$this->isDevelopment()) {
 			
-			$url = str_ireplace(DISCUSS_MEDIA, rtrim(JURI::root(true), '/') . '/media/com_easydiscuss', $url);
-
-			// Hash version to avoid cache
-			$hash = md5(ED::getLocalVersion());
-
-			$url = $url . '?' . $hash . '=1';
-
-			return $url;
-		}
-
-
-		// Compile
-		$less = ED::less();
-		$result = $less->compileStylesheet($options);
-
-		// System encountered error while compiling the admin themes
-		if (!$result) {
-			ED::setMessageQueue('Could not load stylesheet for default theme.', 'error');
-		}
-
-		// If the compilation failed, we need to capture the errors
-		if ($result->failed) {
-
-			// Use last compiled stylesheet.
-			if (JFile::exists($result->out)) {
-				ED::setMessageQueue('Could not compile stylesheet for default theme. Using last compiled stylesheet.', 'error');
-
-				return $result->out_uri;
+			if ($this->isRTL()) {
+				$file .= '-rtl';
 			}
 
-			// Use failsafe stylesheet
-			if (JFile::exists($result->failsafe)) {
-				ED::setMessageQueue('Could not compile stylesheet for default theme. Using failsafe stylesheet.', 'error');
-				return $result->failsafe_uri;
-			}
-
-			return false;
+			$file .= '.min';
 		}
 
+		$file .= '.css';
 
-		// Use relative paths
-		$url = str_ireplace(rtrim(JURI::root(), '/'), JURI::root(true), $result->out_uri);
+		$hash = md5(ED::getLocalVersion());
+		$uri .= $file . '?' . $hash . '=1';
 
-		// Here we assume that the process was successful
-		return $url;
-	}
-
-	/**
-	 * Compiles the stylesheet for the admin
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function compileAdminStylesheet()
-	{
-		$less = ED::less();
-
-		// Request compiler to compile less files
-		$options = array(
-					'source' => DISCUSS_MEDIA . '/themes/admin/less/style.less',
-					'output' => DISCUSS_MEDIA . '/themes/admin/css/style.css',
-					'compressed' => DISCUSS_MEDIA . '/themes/admin/css/style.min.css',
-					'compressed_rtl' => DISCUSS_MEDIA . '/themes/admin/css/style-rtl.min.css'
-				);
-
-		// For production mode, we simply just include the minified css file. Don't render anything else
-		// Request compiler to compile less files
-		if (!defined('ED_CLI') && !$this->isDevelopment()) {
-			$rtl = $this->isRTL();
-			$url = $options['compressed'];
-
-			if ($rtl) {
-				$url = $options['compressed_rtl'];
-			}
-
-			$url = str_ireplace(DISCUSS_MEDIA, rtrim(JURI::root(), '/') . '/media/com_easydiscuss', $url);
-
-			// Hash version to avoid cache
-			$hash = md5(ED::getLocalVersion());
-
-			$url = $url . '?' . $hash . '=1';
-
-			return $url;
-		}
-
-		$result = $less->compileStylesheet($options);
-
-		// System encountered error while compiling the admin themes
-		if (!$result) {
-			ED::setMessageQueue('Could not load stylesheet for default theme.', 'error');
-		}
-
-		// If the compilation failed, we need to capture the errors
-		if ($result->failed) {
-
-			// Use last compiled stylesheet.
-			if (JFile::exists($result->out)) {
-				ED::setMessageQueue('Could not compile stylesheet for default theme. Using last compiled stylesheet.', 'error');
-
-				return $result->out_uri;
-			}
-
-			// Use failsafe stylesheet
-			if (JFile::exists($result->failsafe)) {
-				ED::setMessageQueue('Could not compile stylesheet for default theme. Using failsafe stylesheet.', 'error');
-				return $result->failsafe_uri;
-			}
-
-			return false;
-		}
-
-		// Here we assume that the process was successful
-		return $result->out_uri;
+		return $uri;
 	}
 
 	/**
@@ -250,8 +193,12 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	 */
 	public function isRTL()
 	{
-		$lang = JFactory::getLanguage();
-		$rtl = $lang->isRTL();
+		static $rtl = null;
+
+		if (is_null($rtl)) {
+			$lang = JFactory::getLanguage();
+			$rtl = $lang->isRTL();
+		}
 
 		return $rtl;
 	}

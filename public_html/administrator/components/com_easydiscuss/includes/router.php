@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -15,60 +15,73 @@ require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydis
 
 jimport('joomla.filter.filteroutput');
 
-$jVerArr = explode('.', JVERSION);
-$jVersion = $jVerArr[0] . '.' . $jVerArr[1];
-
-if ($jVersion <= '3.1') {
-	jimport('joomla.application.router');
-} else {
-	jimport('joomla.libraries.cms.router');
-}
-
-class DiscussJoomlaRouter extends JRouter
-{
-	public function encode($segments)
-	{
-		return parent::_encodeSegments($segments);
-	}
-}
-
 class EDR
 {
-	public static function getMessageRoute( $id = 0 , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getMessageRoute($id = 0 , $xhtml = true , $ssl = null)
 	{
 		$url = self::_('view=conversation&layout=read&id=' . $id , $xhtml , $ssl);
 
 		return $url;
 	}
 
-	public static function getPrintRoute( $id = 0 , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getPrintRoute($id = 0 , $xhtml = true , $ssl = null)
 	{
 		$url = self::_('view=post&id=' . $id . '&tmpl=component&print=1' , $xhtml , $ssl);
 
 		return $url;
 	}
 
-	public static function getPostRoute( $id = 0 , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getPostRoute($id = 0 , $xhtml = true , $ssl = null)
 	{
 		$url = self::_('view=post&id=' . $id , $xhtml , $ssl);
 
 		return $url;
 	}
 
-	public static function getTagRoute( $id = 0 , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getTagRoute($id = 0 , $xhtml = true , $ssl = null)
 	{
 		$url = self::_('view=tags&id=' . $id , $xhtml , $ssl);
 		return $url;
 	}
 
-	public static function getBadgeRoute( $id = 0 , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getBadgeRoute($id = 0 , $xhtml = true , $ssl = null)
 	{
 		$url = self::_('view=badges&layout=listings&id=' . $id , $xhtml , $ssl);
 
 		return $url;
 	}
 
-	public static function getCategoryRoute( $id = 0, $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getCategoryRoute($id = 0, $xhtml = true , $ssl = null)
 	{
 		$url = self::_('view=categories&layout=listings&category_id=' . $id , $xhtml , $ssl);
 
@@ -150,42 +163,54 @@ class EDR
 		return $url;
 	}
 
-	public static function getEditRoute( $postId = null , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getEditRoute($postId = null , $xhtml = true , $ssl = null)
 	{
-		$tmp 	= 'index.php?option=com_easydiscuss&view=ask';
+		$tmp = 'index.php?option=com_easydiscuss&view=ask';
 
-		if( !is_null( $postId ) )
-		{
-			$tmp 	.= '&id=' . $postId;
+		if (!is_null($postId)) {
+			$tmp .= '&id=' . $postId;
 		}
 
-		$url 	= self::_( $tmp , $xhtml , $ssl );
+		$url = self::_($tmp , $xhtml , $ssl);
 
 		return $url;
 	}
 
-	public static function getUserRoute( $userId = null ,$xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getUserRoute($userId = null ,$xhtml = true , $ssl = null)
 	{
-		$tmp 	= 'index.php?option=com_easydiscuss&view=profile';
+		$tmp = 'index.php?option=com_easydiscuss&view=profile';
 
-		if( $userId )
-		{
-			$tmp 	.= '&id=' . $userId;
+		if ($userId) {
+			$tmp .= '&id=' . $userId;
 		}
 
-		return self::_( $tmp , $xhtml , $ssl );
+		return self::_($tmp , $xhtml , $ssl);
 	}
 
-	public static function getAskRoute( $categoryId = null , $xhtml = true , $ssl = null )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getAskRoute($categoryId = null , $xhtml = true , $ssl = null)
 	{
-		$tmp 	= 'index.php?option=com_easydiscuss&view=ask';
+		$tmp = 'index.php?option=com_easydiscuss&view=ask';
 
-		if( !is_null( $categoryId ) )
-		{
-			$tmp 	.= '&category=' . $categoryId;
+		if (!is_null($categoryId)) {
+			$tmp .= '&category=' . $categoryId;
 		}
 
-		$url 	= self::_( $tmp , $xhtml , $ssl );
+		$url = self::_($tmp , $xhtml , $ssl);
 
 		return $url;
 	}
@@ -203,6 +228,11 @@ class EDR
 
 		$mainframe = JFactory::getApplication();
 		$config = ED::config();
+
+		// newer version of joomla require $ssl to be passed as integer.
+		if (!is_int($ssl)) {
+			$ssl = (int) $ssl;
+		}
 
 		// Since 4.0, we no longer need to add index.php?option=com_easydiscuss in the url any longer.
 		if (stristr($url, 'index.php') === false) {
@@ -264,7 +294,7 @@ class EDR
 
 			// @rule: If there is already an item id, try to use the explicitly set one.
 			if (empty($tmpId)) {
-				if (!$mainframe->isAdmin()) {
+				if (!ED::isFromAdmin()) {
 					// Retrieve the active menu item.
 					$menu = $mainframe->getMenu();
 					$item = $menu->getActive();
@@ -480,19 +510,19 @@ class EDR
 
 		if (self::isSefEnabled() && $dropSegment) {
 
-			$url    = 'index.php?Itemid=' . $tmpId;
-			$loaded[$key]	= JRoute::_( $url , $xhtml , $ssl );
+			$url = 'index.php?Itemid=' . $tmpId;
+			$loaded[$key]	= JRoute::_($url , $xhtml , $ssl);
 
 			return $loaded[$key];
 		}
 
 		//check if there is any anchor in the link or not.
-		$pos = JString::strpos($url, '#');
+		$pos = EDJString::strpos($url, '#');
 
 		if ($pos === false) {
 			$url .= '&Itemid='.$tmpId;
 		} else {
-			$url = JString::str_ireplace('#', '&Itemid='.$tmpId.'#', $url);
+			$url = EDJString::str_ireplace('#', '&Itemid='.$tmpId.'#', $url);
 		}
 
 		$loaded[$key] = ($jRouted) ? JRoute::_($url, $xhtml, $ssl) : $url;
@@ -534,9 +564,9 @@ class EDR
 		$isEnabled = false;
 
 		//check if sh404sef enabled or not.
-		if ( defined('sh404SEF_AUTOLOADER_LOADED') && JFile::exists(JPATH_ADMINISTRATOR . '/components/com_sh404sef/sh404sef.class.php')) {
+		if (defined('sh404SEF_AUTOLOADER_LOADED') && JFile::exists(JPATH_ADMINISTRATOR . '/components/com_sh404sef/sh404sef.class.php')) {
 			require_once JPATH_ADMINISTRATOR . '/components/com_sh404sef/sh404sef.class.php';
-			if ( class_exists('shRouter')) {
+			if (class_exists('shRouter')) {
 				$sefConfig = shRouter::shGetConfig();
 
 				if ($sefConfig->Enabled) {
@@ -548,69 +578,81 @@ class EDR
 		return $isEnabled;
 	}
 
-	public static function getCategoryAliases( $categoryId )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getCategoryAliases($categoryId)
 	{
 		static $loaded = array();
 
-		if(! isset( $loaded[$categoryId] ) )
-		{
-			$table	= DiscussHelper::getTable( 'Category' );
-			$table->load( $categoryId );
+		if (!isset($loaded[$categoryId])) {
+			$table = ED::table('Category');
+			$table->load($categoryId);
 
-			$items		= array();
-			self::recurseCategories( $categoryId , $items );
+			$items = array();
+			self::recurseCategories($categoryId , $items);
 
-			$items		= array_reverse( $items );
+			$items = array_reverse($items);
 
-			$loaded[$categoryId]    = $items;
+			$loaded[$categoryId] = $items;
 		}
 
 		return $loaded[$categoryId];
 	}
 
-	public static function recurseCategories( $currentId , &$items )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function recurseCategories($currentId , &$items)
 	{
 		static $loaded = array();
 
-		if(! isset( $loaded[$currentId] ) )
-		{
+		if (!isset($loaded[$currentId])) {
 
-			$db		= DiscussHelper::getDBO();
+			$db = ED::db();
 
-			$query	= 'SELECT ' . $db->nameQuote( 'id' ) . ',' . $db->nameQuote( 'alias' ) . ',' . $db->nameQuote( 'parent_id' ) . ' '
-					. 'FROM ' . $db->nameQuote( '#__discuss_category' ) . ' WHERE ' . $db->nameQuote( 'id' ) . '=' . $db->Quote( $currentId );
-			$db->setQuery( $query );
+			$query = 'SELECT ' . $db->nameQuote('id') . ',' . $db->nameQuote('alias') . ',' . $db->nameQuote('parent_id') . ' '
+					. 'FROM ' . $db->nameQuote('#__discuss_category') . ' WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($currentId);
+			$db->setQuery($query);
 			$result	= $db->loadObject();
 
 			$loaded[$currentId] = $result;
-
 		}
 
 		$result = $loaded[$currentId];
 
-		if( !$result ) {
+		if (!$result) {
 			return;
 		}
 
-		$items[]	= ED::permalinkSlug($result->alias, $result->id);
+		$items[] = ED::permalinkSlug($result->alias, $result->id);
 
 		if ($result->parent_id != 0) {
-			self::recurseCategories( $result->parent_id , $items );
+			self::recurseCategories($result->parent_id , $items);
 		}
 	}
 
-	public static function getAlias( $tableName ,$key)
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function getAlias($tableName ,$key)
 	{
 		static $loaded = array();
 
-		$sig    = $tableName . '-' . $key;
+		$sig = $tableName . '-' . $key;
 
-		if (! isset( $loaded[$sig])) {
+		if (!isset($loaded[$sig])) {
 
 			$table = ED::table($tableName);
 			$table->load($key);
 
-			$loaded[$sig]   = ED::permalinkSlug($table->alias, $table->id);
+			$loaded[$sig] = ED::permalinkSlug($table->alias, $table->id);
 		}
 
 		return $loaded[$sig];
@@ -621,8 +663,6 @@ class EDR
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function normalizePermalink($string)
 	{
@@ -649,7 +689,12 @@ class EDR
 		return $permalink;
 	}
 
-	public static function replaceAccents( $string )
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public static function replaceAccents($string)
 	{
 		$a = array('Ã„', 'Ã¤', 'Ã–', 'Ã¶', 'Ãœ', 'Ã¼', 'ÃŸ' , 'Ã€', 'Ã', 'Ã‚', 'Ãƒ', 'Ã„', 'Ã…', 'Ã†', 'Ã‡', 'Ãˆ', 'Ã‰', 'ÃŠ', 'Ã‹', 'ÃŒ', 'Ã', 'Ã', 'Ã', 'Ã', 'Ã‘', 'Ã’', 'Ã“', 'Ã”', 'Ã•', 'Ã–', 'Ã˜', 'Ã™', 'Ãš', 'Ã›', 'Ãœ', 'Ã', 'ÃŸ', 'Ã ', 'Ã¡', 'Ã¢', 'Ã£', 'Ã¤', 'Ã¥', 'Ã¦', 'Ã§', 'Ã¨', 'Ã©', 'Ãª', 'Ã«', 'Ã¬', 'Ã­', 'Ã®', 'Ã¯', 'Ã±', 'Ã²', 'Ã³', 'Ã´', 'Ãµ', 'Ã¶', 'Ã¸', 'Ã¹', 'Ãº', 'Ã»', 'Ã¼', 'Ã½', 'Ã¿', 'Ä€', 'Ä', 'Ä‚', 'Äƒ', 'Ä„', 'Ä…', 'Ä†', 'Ä‡', 'Äˆ', 'Ä‰', 'ÄŠ', 'Ä‹', 'ÄŒ', 'Ä', 'Ä', 'Ä', 'Ä', 'Ä‘', 'Ä’', 'Ä“', 'Ä”', 'Ä•', 'Ä–', 'Ä—', 'Ä˜', 'Ä™', 'Äš', 'Ä›', 'Äœ', 'Ä', 'Ä', 'ÄŸ', 'Ä ', 'Ä¡', 'Ä¢', 'Ä£', 'Ä¤', 'Ä¥', 'Ä¦', 'Ä§', 'Ä¨', 'Ä©', 'Äª', 'Ä«', 'Ä¬', 'Ä­', 'Ä®', 'Ä¯', 'Ä°', 'Ä±', 'Ä²', 'Ä³', 'Ä´', 'Äµ', 'Ä¶', 'Ä·', 'Ä¹', 'Äº', 'Ä»', 'Ä¼', 'Ä½', 'Ä¾', 'Ä¿', 'Å€', 'Å', 'Å‚', 'Åƒ', 'Å„', 'Å…', 'Å†', 'Å‡', 'Åˆ', 'Å‰', 'ÅŒ', 'Å', 'Å', 'Å', 'Å', 'Å‘', 'Å’', 'Å“', 'Å”', 'Å•', 'Å–', 'Å—', 'Å˜', 'Å™', 'Åš', 'Å›', 'Åœ', 'Å', 'Å', 'ÅŸ', 'Å ', 'Å¡', 'Å¢', 'Å£', 'Å¤', 'Å¥', 'Å¦', 'Å§', 'Å¨', 'Å©', 'Åª', 'Å«', 'Å¬', 'Å­', 'Å®', 'Å¯', 'Å°', 'Å±', 'Å²', 'Å³', 'Å´', 'Åµ', 'Å¶', 'Å·', 'Å¸', 'Å¹', 'Åº', 'Å»', 'Å¼', 'Å½', 'Å¾', 'Å¿', 'Æ’', 'Æ ', 'Æ¡', 'Æ¯', 'Æ°', 'Ç', 'Ç', 'Ç', 'Ç', 'Ç‘', 'Ç’', 'Ç“', 'Ç”', 'Ç•', 'Ç–', 'Ç—', 'Ç˜', 'Ç™', 'Çš', 'Ç›', 'Çœ', 'Çº', 'Ç»', 'Ç¼', 'Ç½', 'Ç¾', 'Ç¿');
 		$b = array('AE', 'ae', 'O', 'o', 'U', 'u', 'ss', 'A', 'A', 'A', 'A', 'A', 'A', 'AE', 'C', 'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I', 'D', 'N', 'O', 'O', 'O', 'O', 'O', 'O', 'U', 'U', 'U', 'U', 'Y', 's', 'a', 'a', 'a', 'a', 'a', 'a', 'ae', 'c', 'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i', 'n', 'o', 'o', 'o', 'o', 'o', 'o', 'u', 'u', 'u', 'u', 'y', 'y', 'A', 'a', 'A', 'a', 'A', 'a', 'C', 'c', 'C', 'c', 'C', 'c', 'C', 'c', 'D', 'd', 'D', 'd', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'E', 'e', 'G', 'g', 'G', 'g', 'G', 'g', 'G', 'g', 'H', 'h', 'H', 'h', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'I', 'i', 'IJ', 'ij', 'J', 'j', 'K', 'k', 'L', 'l', 'L', 'l', 'L', 'l', 'L', 'l', 'l', 'l', 'N', 'n', 'N', 'n', 'N', 'n', 'n', 'O', 'o', 'O', 'o', 'O', 'o', 'O', 'o', 'R', 'r', 'R', 'r', 'R', 'r', 'S', 's', 'S', 's', 'S', 's', 'S', 's', 'T', 't', 'T', 't', 'T', 't', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'W', 'w', 'Y', 'y', 'Y', 'Z', 'z', 'Z', 'z', 'Z', 'z', 's', 'f', 'O', 'o', 'U', 'u', 'A', 'a', 'I', 'i', 'O', 'o', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'U', 'u', 'A', 'a', 'AE', 'ae', 'O', 'o');
@@ -657,6 +702,11 @@ class EDR
 		return str_replace($a, $b, $string);
 	}
 
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
 	public static function decodeAlias($alias, $tablename, $forceAlias = false)
 	{
 		$config = ED::config();
@@ -694,44 +744,48 @@ class EDR
 		return $id;
 	}
 
+	/**
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
 	public static function getPostAlias($id , $external = false)
 	{
 
 		static $loaded = array();
 
 		if (! isset($loaded[$id])) {
-			$config	= ED::config();
-			$db		= ED::db();
+			$config = ED::config();
+			$db = ED::db();
 
-			$data	= ED::table('Posts');
+			$data = ED::table('Posts');
 			$data->load($id);
 
 			// Empty alias needs to be regenerated.
 			if (empty($data->alias)) {
-				$data->alias	= JFilterOutput::stringURLSafe( $data->title );
-				$i			= 1;
+				$data->alias = JFilterOutput::stringURLSafe($data->title);
+				$i = 1;
 
 				while (self::_isAliasExists($data->alias, 'post' , $id)) {
-					$data->alias = JFilterOutput::stringURLSafe( $data->title ) . '-' . $i;
+					$data->alias = JFilterOutput::stringURLSafe($data->title) . '-' . $i;
 					$i++;
 				}
 
-				$query	= 'UPDATE `#__discuss_posts` SET alias=' . $db->Quote( $data->alias ) . ' '
-						. 'WHERE ' . $db->nameQuote( 'id' ) . '=' . $db->Quote( $id );
+				$query	= 'UPDATE `#__discuss_posts` SET alias=' . $db->Quote($data->alias) . ' '
+						. 'WHERE ' . $db->nameQuote('id') . '=' . $db->Quote($id);
 				$db->setQuery($query);
 				$db->Query();
 			}
 
 
-			$loaded[$id]    = ED::permalinkSlug($data->alias, $id);
+			$loaded[$id] = ED::permalinkSlug($data->alias, $id);
 		}
 
 
 
-		if( $external )
-		{
-			$uri		= JURI::getInstance();
-			return $uri->toString( array('scheme', 'host', 'port')) . '/' . $loaded[$id];
+		if ($external) {
+			$uri = JURI::getInstance();
+			return $uri->toString(array('scheme', 'host', 'port')) . '/' . $loaded[$id];
 		}
 
 		return $loaded[$id];
@@ -750,9 +804,8 @@ class EDR
 			if (count($segments) > 1 && $segments[1]) {
 				$loaded[$idx] = ED::permalinkSlug($segments[1], $segments[0]);
 			} else {
-				$table	= ED::table('Tags');
+				$table = ED::table('Tags');
 				$table->load($id);
-
 				$loaded[$idx] = ED::permalinkSlug($table->alias, $id);
 			}
 		}
@@ -762,36 +815,37 @@ class EDR
 
 
 
-	public static function getUserAlias( $id )
+	public static function getUserAlias($id)
 	{
 		static $loaded = array();
 
-		if(! isset( $loaded[$id] ) )
-		{
-			$config		= DiscussHelper::getConfig();
+		if (!isset($loaded[$id])) {
+			$config = ED::config();
+
 			$profile = ED::user($id);
+			$user = JFactory::getUser($id);
 
 			if ($config->get('main_sef_user') == 'realname') {
-				$urlname 	= $profile->id . ':' . $profile->user->name;
+				$urlname = $profile->id . ':' . $user->name;
 			}
 
 			if ($config->get('main_sef_user') == 'username') {
-				$urlname 	= $profile->id . ':' . $profile->user->username;
+				$urlname = $profile->id . ':' . $user->username;
 			}
 
 			if ($config->get('main_sef_user') == 'default') {
-				$urlname 	= empty($profile->alias) ? $profile->user->name : $profile->alias;
+				$urlname = empty($profile->alias) ? $user->name : $profile->alias;
 
 				$urlname = ED::permalinkSlug($urlname, $id);
 			}
 
-			$urlname	= DiscussHelper::permalinkUnicodeSlug($urlname);
+			$urlname = ED::permalinkUnicodeSlug($urlname);
 
-			if ($config->get( 'main_sef_unicode' )) {
+			if ($config->get('main_sef_unicode')) {
 				//unicode support.
-				$alias	= DiscussHelper::permalinkUnicodeSlug( $urlname );
+				$alias = ED::permalinkUnicodeSlug($urlname);
 			} else {
-				$alias	= JFilterOutput::stringURLSafe( $urlname );
+				$alias = JFilterOutput::stringURLSafe($urlname);
 			}
 
 			$loaded[$id] = $alias;
@@ -806,21 +860,20 @@ class EDR
 			return EDR::_($url, $xhtml);
 		}
 
-		$mainframe = JFactory::getApplication();
 		$uri = JURI::getInstance(JURI::base());
 
 
 		// flag to determine if we should sef the link or not.
 		$sefUrl = true;
 
-		if ($mainframe->isAdmin() && EDR::isSh404Enabled()) {
+		if (ED::isFromAdmin() && EDR::isSh404Enabled()) {
 			// dont sef the url since sh404sef will not work from backend.
 			$sefUrl = false;
 		}
 
 		// Address issues with JRoute as it will include the /administrator/ portion in the url if this link
 		// is being generated from the back end.
-		if ($mainframe->isAdmin() && EDR::isSefEnabled() && $sefUrl) {
+		if (ED::isFromAdmin() && EDR::isSefEnabled() && $sefUrl) {
 
 			$routedUrl = self::siteLink($url, $xhtml);
 
@@ -850,6 +903,10 @@ class EDR
 	public static function siteLink($url, $xhtml = true, $ssl = null, $findItemId = true)
 	{
 		static $_router = null;
+
+		if (!is_int($ssl)) {
+			$ssl = (int) $ssl;
+		}
 
 		// if Jroute already support link method, lets use it.
 		// Joomla 3.9 and above should work with this Jroute::link.
@@ -999,107 +1056,99 @@ class EDR
 	{
 		static $discussionItems	= null;
 
-		if(!isset( $discussionItems[ $postId ]))
-		{
-			$db	= DiscussHelper::getDBO();
+		if (!isset($discussionItems[$postId])) {
+			$db	= ED::db();
 
-			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'link' ) . '=' . $db->Quote( 'index.php?option=com_easydiscuss&view=users') . ' '
-					. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+					. 'WHERE ' . $db->nameQuote('link') . '=' . $db->Quote('index.php?option=com_easydiscuss&view=users') . ' '
+					. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 					. self::getLanguageQuery()
 					. ' LIMIT 1';
 
-			$db->setQuery( $query );
+			$db->setQuery($query);
 			$itemid = $db->loadResult();
 
-			$discussionItems[ $postId ] = $itemid;
+			$discussionItems[$postId] = $itemid;
 		}
 
-		return $discussionItems[ $postId ];
+		return $discussionItems[$postId];
 
 	}
 
-	public static function getItemIdByDiscussion( $postId )
+	public static function getItemIdByDiscussion($postId)
 	{
 		static $discussionItems	= null;
 
-		if( !isset( $discussionItems[ $postId ] ) )
-		{
-			$db	= DiscussHelper::getDBO();
+		if (!isset($discussionItems[$postId])) {
+			$db	= ED::db();
 
-			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'link' ) . '=' . $db->Quote( 'index.php?option=com_easydiscuss&view=post&id='.$postId) . ' '
-					. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+					. 'WHERE ' . $db->nameQuote('link') . '=' . $db->Quote('index.php?option=com_easydiscuss&view=post&id='.$postId) . ' '
+					. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 					. self::getLanguageQuery()
 					. ' LIMIT 1';
 
-			$db->setQuery( $query );
+			$db->setQuery($query);
 			$itemid = $db->loadResult();
 
-			$discussionItems[ $postId ] = $itemid;
+			$discussionItems[$postId] = $itemid;
 		}
 
-		return $discussionItems[ $postId ];
+		return $discussionItems[$postId];
 
 	}
 
-	public static function getItemIdByTags( $tagId )
+	public static function getItemIdByTags($tagId)
 	{
-		static $tagItems	= null;
+		static $tagItems = null;
 
-		if( !isset( $tagItems[ $tagId ] ) )
-		{
+		if (!isset($tagItems[$tagId])) {
 
-			$db	= DiscussHelper::getDBO();
+			$db	= ED::db();
 
-			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'link' ) . '=' . $db->Quote( 'index.php?option=com_easydiscuss&view=tags&layout=tag&id='.$tagId) . ' '
-					. 'OR ' . $db->nameQuote( 'link' ) . ' LIKE ' . $db->Quote( 'index.php?option=com_easydiscuss&view=tags&layout=tag&id='.$tagId . '%') . ' '
-					. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+					. 'WHERE ' . $db->nameQuote('link') . '=' . $db->Quote('index.php?option=com_easydiscuss&view=tags&layout=tag&id='.$tagId) . ' '
+					. 'OR ' . $db->nameQuote('link') . ' LIKE ' . $db->Quote('index.php?option=com_easydiscuss&view=tags&layout=tag&id='.$tagId . '%') . ' '
+					. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 					. self::getLanguageQuery()
 					. ' LIMIT 1';
 
-			$db->setQuery( $query );
+			$db->setQuery($query);
 			$itemid = $db->loadResult();
 
-			$tagItems[ $tagId ] = $itemid;
+			$tagItems[$tagId] = $itemid;
 			return $itemid;
-		}
-		else
-		{
-			return $tagItems[ $tagId ];
+		} else {
+			return $tagItems[$tagId];
 		}
 	}
 
-	public static function getItemIdByCategories( $categoryId )
+	public static function getItemIdByCategories($categoryId)
 	{
 		static $categoryItems	= null;
 
-		if( !isset( $categoryItems[ $categoryId ] ) )
-		{
+		if (!isset($categoryItems[$categoryId])) {
 
-			$db	= DiscussHelper::getDBO();
+			$db	= ED::db();
 
-			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-					. 'WHERE ' . $db->nameQuote( 'link' ) . '=' . $db->Quote( 'index.php?option=com_easydiscuss&view=categories&layout=listings&category_id='.$categoryId) . ' '
-					. 'OR ' . $db->nameQuote( 'link' ) . ' LIKE ' . $db->Quote( 'index.php?option=com_easydiscuss&view=categories&layout=listings&category_id='.$categoryId . '&limit%') . ' '
-					. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+			$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+					. 'WHERE ' . $db->nameQuote('link') . '=' . $db->Quote('index.php?option=com_easydiscuss&view=categories&layout=listings&category_id='.$categoryId) . ' '
+					. 'OR ' . $db->nameQuote('link') . ' LIKE ' . $db->Quote('index.php?option=com_easydiscuss&view=categories&layout=listings&category_id='.$categoryId . '&limit%') . ' '
+					. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 					. self::getLanguageQuery()
 					. ' LIMIT 1';
 
-			$db->setQuery( $query );
+			$db->setQuery($query);
 			$itemid = $db->loadResult();
 
-			$categoryItems[ $categoryId ] = $itemid;
+			$categoryItems[$categoryId] = $itemid;
 			return $itemid;
-		}
-		else
-		{
-			return $categoryItems[ $categoryId ];
+		} else {
+			return $categoryItems[$categoryId];
 		}
 	}
 
-	public static function getItemId( $view='', $layout='', $exact = false )
+	public static function getItemId($view='', $layout='', $exact = false)
 	{
 		static $loaded 	= array();
 
@@ -1117,7 +1166,7 @@ class EDR
 
 		$db = ED::db();
 
-		switch($view)
+		switch ($view)
 		{
 			case 'categories':
 				$view = 'categories';
@@ -1153,80 +1202,69 @@ class EDR
 				break;
 		}
 
-		$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'link' ) . '=' . $db->Quote( 'index.php?option=com_easydiscuss&view='.$view ) . ' '
-				. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+		$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+				. 'WHERE ' . $db->nameQuote('link') . '=' . $db->Quote('index.php?option=com_easydiscuss&view='.$view) . ' '
+				. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 				. self::getLanguageQuery()
 				. ' LIMIT 1';
-		$db->setQuery( $query );
+		$db->setQuery($query);
 		$itemid = $db->loadResult();
 
-		if( ! $exact )
-		{
+		if (!$exact) {
 
-			if( !$itemid && $view == 'post')
-			{
-				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' );
+			if (!$itemid && $view == 'post') {
+				$query = 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu');
 
-				if( empty( $layout ) )
-				{
-					$query	.= ' WHERE ' . $db->nameQuote( 'link' ) . ' = ' . $db->Quote( 'index.php?option=com_easydiscuss&view=' . $view );
+				if (empty($layout)) {
+					$query .= ' WHERE ' . $db->nameQuote('link') . ' = ' . $db->Quote('index.php?option=com_easydiscuss&view=' . $view);
+				} else {
+					$query .= ' WHERE ' . $db->nameQuote('link') . ' = ' . $db->Quote('index.php?option=com_easydiscuss&view=' . $view . '&layout=' . $layout );
 				}
-				else
-				{
-					$query	.= ' WHERE ' . $db->nameQuote( 'link' ) . ' = ' . $db->Quote( 'index.php?option=com_easydiscuss&view=' . $view . '&layout=' . $layout  );
-				}
-				$query	.= ' AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' );
-				$query  .= self::getLanguageQuery() . ' LIMIT 1';
+				$query .= ' AND ' . $db->nameQuote('published') . '=' . $db->Quote('1');
+				$query .= self::getLanguageQuery() . ' LIMIT 1';
 
-				$db->setQuery( $query );
+				$db->setQuery($query);
 				$itemid = $db->loadResult();
 			}
 
 			// @rule: Try to fetch based on the current view.
-			if( !$itemid && $view != 'post')
-			{
+			if (!$itemid && $view != 'post') {
 				//post view wil be abit special bcos of its layout 'submit'
 
-				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-						. 'WHERE ' . $db->nameQuote( 'link' ) . ' LIKE ' . $db->Quote( 'index.php?option=com_easydiscuss&view=' . $view . '%' ) . ' '
-						. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+						. 'WHERE ' . $db->nameQuote('link') . ' LIKE ' . $db->Quote('index.php?option=com_easydiscuss&view=' . $view . '%') . ' '
+						. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 						. self::getLanguageQuery()
 						. ' LIMIT 1';
-				$db->setQuery( $query );
+				$db->setQuery($query);
 				$itemid = $db->loadResult();
 			}
 
 			// if still failed, try to get easydiscuss index view.
-			if( !$itemid )
-			{
-				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-						. 'WHERE ' . $db->nameQuote( 'link' ) . ' LIKE ' . $db->Quote( '%index.php?option=com_easydiscuss&view=index%' ) . ' '
-						. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+			if (!$itemid) {
+				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+						. 'WHERE ' . $db->nameQuote('link') . ' LIKE ' . $db->Quote('%index.php?option=com_easydiscuss&view=index%') . ' '
+						. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 						. self::getLanguageQuery()
 						. ' LIMIT 1';
-				$db->setQuery( $query );
+				$db->setQuery($query);
 				$itemid = $db->loadResult();
 			}
 
 
 			// If all else fails, just try to find anything with %index.php?option=com_easydiscuss%
-			if( !$itemid )
-			{
-				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote( '#__menu' ) . ' '
-						. 'WHERE ' . $db->nameQuote( 'link' ) . ' LIKE ' . $db->Quote( '%index.php?option=com_easydiscuss%' ) . ' '
-						. 'AND ' . $db->nameQuote( 'published' ) . '=' . $db->Quote( '1' ) . ' '
+			if (!$itemid) {
+				$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote('#__menu') . ' '
+						. 'WHERE ' . $db->nameQuote('link') . ' LIKE ' . $db->Quote('%index.php?option=com_easydiscuss%') . ' '
+						. 'AND ' . $db->nameQuote('published') . '=' . $db->Quote('1') . ' '
 						. self::getLanguageQuery()
 						. ' LIMIT 1';
-				$db->setQuery( $query );
+				$db->setQuery($query);
 				$itemid = $db->loadResult();
 			}
 
-
-			$itemid = ( empty( $itemid ) ) ? '1' : $itemid;
+			$itemid = (empty($itemid)) ? '1' : $itemid;
 		}
-
-
 
 		$loaded[$indexKey] = $itemid;
 
@@ -1235,28 +1273,35 @@ class EDR
 
 	public static function getLanguageQuery()
 	{
-		if( DiscussHelper::isJoomla15() )
-		{
+		if (ED::isJoomla15()) {
 			return '';
 		}
 
-		$lang		= JFactory::getLanguage()->getTag();
+		$lang = JFactory::getLanguage()->getTag();
 
-		$langQuery	= '';
+		$langQuery = '';
 
-		if( !empty( $lang ) && $lang != '*' )
-		{
-			$db			= DiscussHelper::getDBO();
-			$langQuery	= ' AND (' . $db->nameQuote( 'language' ) . '=' . $db->Quote( $lang ) . ' OR ' . $db->nameQuote( 'language' ) . ' = '.$db->Quote('*').' )';
+		if (!empty($lang) && $lang != '*') {
+			$db = ED::db();
+			$langQuery = ' AND (' . $db->nameQuote('language') . '=' . $db->Quote($lang) . ' OR ' . $db->nameQuote('language') . ' = '.$db->Quote('*').')';
 		}
 
 		return $langQuery;
 	}
 
+	/**
+	 * Encode segments to follow Joomla format.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
 	public static function encodeSegments($segments)
 	{
-		$router 	= new DiscussJoomlaRouter();
-		return $router->encode( $segments );
+		$total = count($segments);
+		for ($i = 0; $i < $total; $i++) {
+			$segments[$i] = str_replace(':', '-', $segments[$i]);
+		}
+		return $segments;
 	}
 
 	/**
@@ -1268,7 +1313,6 @@ class EDR
 	public static function getCurrentURI()
 	{
 		$url = JURI::getInstance()->toString();
-
 		return $url;
 	}
 
@@ -1446,7 +1490,7 @@ class EDR
 		$languageTag = JFactory::getLanguage()->getTag();
 
 		// If language filter is enabled, we need to get the language tag
-		if (!JFactory::getApplication()->isAdmin()) {
+		if (!ED::isFromAdmin()) {
 			$language = JFactory::getApplication()->getLanguageFilter();
 			$languageTag = JFactory::getLanguage()->getTag();
 		}
@@ -1513,7 +1557,7 @@ class EDR
 			}
 
 			// Searches for $view and $layout only.
-			if (isset($_cache[$view]) && isset($_cache[$view]) && !is_null($layout) && isset($_cache[$view][$layout]) && (is_null($id) || empty($id)) ) {
+			if (isset($_cache[$view]) && isset($_cache[$view]) && !is_null($layout) && isset($_cache[$view][$layout]) && (is_null($id) || empty($id))) {
 				$selection[$key] = isset($_cache[$view][$layout][$languageTag]) ? $_cache[$view][$layout][$languageTag] : $_cache[$view][$layout]['*'];
 			}
 

@@ -30,8 +30,8 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
         }
 
         $headers['Referer'] = JURI::root();
-
         $extension = $matches[1];
+        $error = false;
 
         if (array_key_exists($extension, static::$_extensions)) {
             $api_key = $this->_getApiKey(static::$_extensions[$extension]);
@@ -40,7 +40,49 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
                 $headers['Authorization'] = 'Bearer '.$api_key;
             }
             else {
-                JLog::add(sprintf('API key for %s not found', $extension), JLog::ERROR, 'jerror');
+                $error = sprintf('API key for %s not found.', ucfirst($extension));
+
+            }
+        }
+
+        if (!$error) {
+            try {
+                $res = \JHttpFactory::getHttp()->head($url, $headers);
+                if ($res->code === 403) {
+                    $error = sprintf('Cannot validate your API key for %s.', ucfirst($extension));
+                }
+            }
+            catch (\RuntimeException $exception) {
+                $error = sprintf('Unable to download %s.', ucfirst($extension));
+            }
+        }
+
+        if ($error) {
+            $error .= ' Please go to <a target="_blank" href="https://dashboard.joomlatools.com">Joomlatools Dashboard</a> and download the latest version manually.';
+
+            \JLog::add($error, \JLog::ERROR, 'jerror');
+
+            $app = JFactory::getApplication();
+
+            if ($app->isClient('administrator') && JFactory::getDocument()->getType() === 'html') {
+                $redirect_url = $app->getUserState('com_installer.redirect_url');
+
+                // Don't redirect to an external URL.
+                if (!JUri::isInternal($redirect_url)) {
+                    $redirect_url = '';
+                }
+
+                if (empty($redirect_url)) {
+                    $redirect_url = JRoute::_('index.php?option=com_installer&view=update', false);
+                }
+                else {
+                    // Wipe out the user state when we're going to redirect.
+                    $app->setUserState('com_installer.redirect_url', '');
+                    $app->setUserState('com_installer.message', '');
+                    $app->setUserState('com_installer.extension_message', '');
+                }
+
+                $app->redirect($redirect_url);
             }
         }
     }
@@ -49,7 +91,7 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
     {
         $app = JFactory::getApplication();
 
-        if ($app->isAdmin() && JFactory::getDocument()->getType() === 'html') {
+        if ($app->isClient('administrator') && JFactory::getDocument()->getType() === 'html') {
             $option = str_replace('com_', '', $app->input->get('option'));
 
             if (array_key_exists($option, static::$_extensions) && static::$_extensions[$option]['type'] === 'component') {

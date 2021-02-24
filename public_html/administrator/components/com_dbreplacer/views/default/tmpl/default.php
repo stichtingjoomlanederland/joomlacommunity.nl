@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.7PRO
+ * @version         6.3.8PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -44,13 +44,13 @@ $script = "
 	var DBR_INVALID_QUERY = '" . addslashes(JText::_('DBR_INVALID_QUERY')) . "';
 ";
 RL_Document::scriptDeclaration($script);
-RL_Document::script('dbreplacer/script.min.js', '6.3.7.p');
+RL_Document::script('dbreplacer/script.min.js', '6.3.8.p');
 
 // Version check
 
 if ($this->config->show_update_notification)
 {
-	echo RL_Version::getMessage('DB_REPLACER');
+	echo RL_Version::getMessage('DBREPLACER');
 }
 
 $search  = JFactory::getApplication()->input->get('search', '', 'RAW');
@@ -181,4 +181,4 @@ $class = 'pro';
 <?php
 
 // Copyright
-echo RL_Version::getFooter('DB_REPLACER', $this->config->show_copyright);
+echo RL_Version::getFooter('DBREPLACER', $this->config->show_copyright);

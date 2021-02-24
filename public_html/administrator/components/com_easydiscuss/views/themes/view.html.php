@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewThemes extends EasyDiscussAdminView
 {
@@ -37,6 +35,7 @@ class EasyDiscussViewThemes extends EasyDiscussAdminView
 	
 		$this->set('default', $this->config->get('layout_site_theme'));
 		$this->set('themes', $themes);
+		$this->addHelpButton('/docs/easydiscuss/administrators/templating/applying-new-theme');
 
 		parent::display('themes/default');
 	}	
@@ -64,7 +63,7 @@ class EasyDiscussViewThemes extends EasyDiscussAdminView
 		$contents = '';
 
 		if (JFile::exists($path)) {
-			$contents = JFile::read($path);
+			$contents = file_get_contents($path);
 		}
 		
 		$this->set('contents', $contents);

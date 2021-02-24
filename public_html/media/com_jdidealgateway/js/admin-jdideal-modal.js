@@ -69,7 +69,7 @@
 			window.parent.jInsertEditorText(tag, editor);
 		}
 
-		window.parent.jModalClose();
+		window.parent.Joomla.Modal && window.parent.Joomla.Modal.getCurrent().close();
 		return false;
 	};
 })();

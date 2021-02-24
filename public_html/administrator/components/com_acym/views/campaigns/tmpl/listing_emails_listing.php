@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if (empty($data['allCampaigns'])) { ?>
+<?php if (empty($data['allCampaigns'])) { ?>
 	<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
 <?php } else { ?>
 	<div class="cell margin-bottom-1 acym__listing__actions grid-x">
@@ -14,15 +12,13 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell acym_listing_sort-by">
                 <?php echo acym_sortBy(
                     [
-                        'id' => strtolower(acym_translation('ACYM_ID')),
+                        'id' => acym_strtolower(acym_translation('ACYM_ID')),
                         'name' => acym_translation('ACYM_NAME'),
-                        'sending_date' => acym_translation('ACYM_SENDING_DATE'),
                         'creation_date' => acym_translation('ACYM_DATE_CREATED'),
-                        'draft' => acym_translation('ACYM_DRAFT'),
-                        'active' => acym_translation('ACYM_ACTIVE'),
-                        'sent' => acym_translation('ACYM_SENT'),
                     ],
-                    'campaigns'
+                    $data['email_type'],
+                    $data['ordering'],
+                    $data['orderingSortOrder']
                 ); ?>
 			</div>
 		</div>
@@ -86,7 +82,11 @@ defined('_JEXEC') or die('Restricted access');
                             }
                             echo '</div>';
                         } else {
-                            echo '<div class="cell medium-12">'.(empty($email->automation) ? acym_translation('ACYM_NO_LIST_SELECTED') : acym_translation('ACYM_SENT_WITH_AUTOMATION')).'</div>';
+                            echo '<div class="cell medium-12">'.(empty($email->automation)
+                                    ? acym_translation('ACYM_NO_LIST_SELECTED')
+                                    : acym_translation(
+                                        'ACYM_SENT_WITH_AUTOMATION'
+                                    )).'</div>';
                         }
                         ?>
 					</div>
@@ -117,4 +117,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php echo $data['pagination']->display('campaigns');
 }
-

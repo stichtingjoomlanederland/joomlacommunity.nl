@@ -33,6 +33,8 @@ class com_rseventsproInstallerScript
 		$db			= JFactory::getDbo();
 		$installer	= new JInstaller();
 		
+		JFolder::delete(JPATH_SITE.'/layouts/rseventspro/');
+		
 		$db->setQuery('SELECT '.$db->qn('extension_id').' FROM '.$db->qn('#__extensions').' WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('folder').' = '.$db->q('installer').' AND '.$db->qn('type').' = '.$db->q('plugin').' LIMIT 1');
 		$plg_id = $db->loadResult();
 		if ($plg_id) $installer->uninstall('plugin', $plg_id);
@@ -46,6 +48,8 @@ class com_rseventsproInstallerScript
 	public function installprocess($type, $parent) {
 		$db	= JFactory::getDbo();
 		$installer = new JInstaller();
+		
+		JFolder::copy($parent->getParent()->getPath('source').'/other/layouts/', JPATH_SITE.'/layouts/', '', true);
 		
 		$installer->install($parent->getParent()->getPath('source').'/other/plg_installer');
 		$db->setQuery('UPDATE '.$db->qn('#__extensions').' SET '.$db->qn('enabled').' = 1 WHERE '.$db->qn('element').' = '.$db->q('rseventspro').' AND '.$db->qn('type').' = '.$db->q('plugin').' AND '.$db->qn('folder').' = '.$db->q('installer'));
@@ -995,6 +999,8 @@ class com_rseventsproInstallerScript
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_prefix', 'type' => 'VARCHAR(50)', 'default' => '');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_title', 'type' => 'VARCHAR(50)', 'default' => '');
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_layout', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_confirm_tickets', 'type' => 'TINYINT(2)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'limit_events', 'type' => 'INT(11)', 'default' => '0');
 			
 			foreach ($updateData as $data) {
 				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
@@ -1033,7 +1039,7 @@ class com_rseventsproInstallerScript
 			
 			// Process each query in the $queries array (split out of sql file).
 			foreach ($queries as $query) {
-				$db->setQuery($query);
+				$db->setQuery($db->convertUtf8mb4QueryToUtf8($query));
 				if (!$db->execute()) {
 					throw new Exception(JText::sprintf('JLIB_INSTALLER_ERROR_SQL_ERROR', $db->stderr(true)), 1);
 				}
@@ -1231,9 +1237,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.13.1</h2>
+	<h2>Changelog v1.13.6</h2>
 	<ul class="version-history">
-		<li><span class="version-upgraded">Upg</span> Upgraded the export of subscribers that have RSForm!Pro fields.</li>
+		<li><span class="version-fixed">Fix</span> Unsubscribe end date was not working in the 'My subscriptions' menu item.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>
@@ -1288,19 +1294,24 @@ class com_rseventsproInstallerScript
 				'rseventspro' => '1.3'
 			),
 			'system' => array(
-				'rsepropdf' => '1.18',
-				'rsfprseventspro' => '1.51.17',
-				'rsepro2co' => '1.1',
-				'rseproanzegate' => '1.2',
-				'rseproauthorize' => '1.2',
-				'rseproeway' => '1.5',
-				'rseproideal' => '1.9',
-				'rsepromygate' => '1.1',
-				'rsepropaypal' => '1.2',
-				'rseprovmerchant' => '1.2',
-				'rseprostripe' => '1.2',
-				'rseprooffline' => '1.3',
-				'rseprocart' => '1.2.0'
+				'rseprocart' => '1.2.3',
+				'rsepropdf' => '1.19',
+				'rseprooffline' => '1.4',
+				'rsfprseventspro' => '1.51.19',
+				
+				'rsepro2co' => '1.2',
+				'rseproanzegate' => '1.3',
+				'rseproauthorize' => '1.3',
+				'rseproeway' => '1.6',
+				'rseproideal' => '1.10',
+				'rseproiyzico' => '1.0',
+				'rsepromygate' => '1.2',
+				'rsepropagseguro' => '1.1',
+				'rsepropayfast' => '1.1',
+				'rsepropaypal' => '1.3',
+				'rseprosquare' => '1.1',
+				'rseprostripe' => '1.4',
+				'rseprovmerchant' => '1.3'
 			)
 		);
 		
@@ -1313,7 +1324,7 @@ class com_rseventsproInstallerScript
 					$version	= $plugins[$plugin->folder][$plugin->element];
 					
 					if ($this->checkVersion($xml, $version, '>') || strpos($xml, '<extension') === false) {
-						$lang->load($plugin->element, JPATH_ADMINISTRATOR);
+						$lang->load('plg_system_'.$plugin->element, JPATH_ADMINISTRATOR);
 						//$this->disableExtension($plugin->extension_id);
 						$messages[] = 'Please update the plugin "'.JText::_($plugin->name).'" manually.';
 					}
@@ -1322,20 +1333,22 @@ class com_rseventsproInstallerScript
 		}
 		
 		$modules = array(
-			'mod_rseventspro_archived' => '1.5',
-			'mod_rseventspro_attendees' => '1.3',
-			'mod_rseventspro_calendar' => '1.10',
+			'mod_rseventspro_archived' => '1.6',
+			'mod_rseventspro_attendees' => '1.4',
+			'mod_rseventspro_calendar' => '1.11',
 			'mod_rseventspro_categories' => '1.4',
-			'mod_rseventspro_events' => '1.9',
-			'mod_rseventspro_featured' => '1.7',
-			'mod_rseventspro_location' => '1.5',
+			'mod_rseventspro_events' => '1.10',
+			'mod_rseventspro_featured' => '1.8',
+			'mod_rseventspro_location' => '1.6',
 			'mod_rseventspro_locations' => '1.3',
-			'mod_rseventspro_map' => '1.11',
-			'mod_rseventspro_popular' => '1.7',
-			'mod_rseventspro_search' => '1.6',
-			'mod_rseventspro_slider' => '1.7.5',
-			'mod_rseventspro_tags' => '1.1',
-			'mod_rseventspro_upcoming' => '1.7'
+			'mod_rseventspro_map' => '1.12',
+			'mod_rseventspro_popular' => '1.8',
+			'mod_rseventspro_related' => '1.0',
+			'mod_rseventspro_search' => '1.7',
+			'mod_rseventspro_slider' => '1.8',
+			'mod_rseventspro_tags' => '1.2',
+			'mod_rseventspro_tickets' => '1.2',
+			'mod_rseventspro_upcoming' => '1.8'
 		);
 		
 		// Check modules version

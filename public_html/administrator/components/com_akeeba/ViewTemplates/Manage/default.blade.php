@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,9 +10,7 @@ defined('_JEXEC') || die();
 
 /** @var  \Akeeba\Backup\Admin\View\Manage\Html $this */
 ?>
-@if (version_compare(JVERSION, '3.999.999', 'lt'))
 @jhtml('formbehavior.chosen')
-@endif
 
 @if($this->promptForBackupRestoration)
     @include('admin:com_akeeba/Manage/howtorestore_modal')
@@ -59,12 +57,12 @@ defined('_JEXEC') || die();
 
                 <div class="akeeba-filter-element akeeba-form-group">
                     {{-- Joomla 3.x: Chosen does not work with attached event handlers, only with inline event scripts (e.g. onchange) --}}
-                    @if (version_compare(JVERSION, '3.999.999', 'lt'))
-                        @jhtml('select.genericlist', $this->profilesList, 'profile', ['list.select' => $this->fltProfile, 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.adminForm.submit();'], 'id' => 'comAkeebaManageProfileSelector'])
-                    @else
-                        @jhtml('select.genericlist', $this->profilesList, 'profile', ['list.select' => $this->fltProfile, 'list.attr' => ['class' => 'advancedSelect'], 'id' => 'comAkeebaManageProfileSelector'])
-                    @endif
+                    @jhtml('select.genericlist', $this->profilesList, 'profile', ['list.select' => $this->fltProfile, 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.adminForm.submit();'], 'id' => 'comAkeebaManageProfileSelector'])
+                </div>
 
+                <div class="akeeba-filter-element akeeba-form-group">
+                    {{-- Joomla 3.x: Chosen does not work with attached event handlers, only with inline event scripts (e.g. onchange) --}}
+                    @jhtml('select.genericlist', $this->frozenList, 'frozen', ['list.select' => $this->fltFrozen, 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.adminForm.submit();'], 'id' => 'comAkeebaManageFrozenSelector'])
                 </div>
             </div>
 
@@ -81,6 +79,9 @@ defined('_JEXEC') || die();
                 </th>
                 <th width="48" class="akeeba-hidden-phone">
 					@sortgrid('id', 'COM_AKEEBA_BUADMIN_LABEL_ID')
+                </th>
+                <th>
+                    @sortgrid('frozen', 'COM_AKEEBA_BUADMIN_LABEL_FROZEN')
                 </th>
                 <th>
 					@sortgrid('description', 'COM_AKEEBA_BUADMIN_LABEL_DESCRIPTION')
@@ -122,15 +123,31 @@ defined('_JEXEC') || die();
                 @foreach($this->items as $record)
 					<?php
 					$id = 1 - $id;
-					list($originDescription, $originIcon) = $this->getOriginInformation($record);
-					list($startTime, $duration, $timeZoneText) = $this->getTimeInformation($record);
-					list($statusClass, $statusIcon) = $this->getStatusInformation($record);
+					[$originDescription, $originIcon] = $this->getOriginInformation($record);
+					[$startTime, $duration, $timeZoneText] = $this->getTimeInformation($record);
+					[$statusClass, $statusIcon] = $this->getStatusInformation($record);
 					$profileName = $this->getProfileName($record);
+
+					$frozenIcon  = 'akion-waterdrop';
+					$frozenTask  = 'freeze';
+					$frozenTitle = \JText::_('COM_AKEEBA_BUADMIN_LABEL_ACTION_FREEZE');
+
+					if ($record['frozen'])
+                    {
+	                    $frozenIcon  = 'akion-ios-snowy';
+	                    $frozenTask  = 'unfreeze';
+	                    $frozenTitle = \JText::_('COM_AKEEBA_BUADMIN_LABEL_ACTION_UNFREEZE');
+                    }
 					?>
                     <tr class="row{{ $id }}">
                         <td>@jhtml('grid.id', ++$i, $record['id'])</td>
                         <td class="akeeba-hidden-phone">
                             {{{ $record['id'] }}}
+                        </td>
+                        <td>
+                            <a href="#" onclick="return Joomla.listItemTask('cb{{ $i }}', '{{$frozenTask}}')" title="{{$frozenTitle}}">
+                                <span class="{{ $frozenIcon }}"></span>
+                            </a>
                         </td>
                         <td>
 						<span class="{{ $originIcon }} akeebaCommentPopover" rel="popover"

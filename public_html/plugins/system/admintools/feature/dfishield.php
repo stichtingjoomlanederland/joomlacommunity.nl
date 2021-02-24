@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 use Joomla\CMS\Factory;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 {
@@ -39,8 +39,13 @@ class AtsystemFeatureDfishield extends AtsystemFeatureAbstract
 	public function onAfterInitialise()
 	{
 		$input  = Factory::getApplication()->input;
+
+		$fallbackView = version_compare(JVERSION, '3.999.999', 'ge')
+			? $input->getCmd('controller', '')
+			: '';
+
 		$option = $input->getCmd('option', '');
-		$view   = $input->getCmd('view', '');
+		$view   = $input->getCmd('view', $fallbackView);
 		$layout = $input->getCmd('layout', '');
 
 		// Special case: JCE

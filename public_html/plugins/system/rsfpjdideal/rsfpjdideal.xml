@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="3.5" type="plugin" group="system" method="upgrade">
     <name>PLG_RSFP_PAYMENT_JDIDEAL_TITLE</name>
-    <creationDate>20 July 2020</creationDate>
+    <creationDate>21 January 2021</creationDate>
     <author>RolandD Cyber Produksi</author>
     <authorEmail>contact@rolandd.com</authorEmail>
     <authorUrl>https://rolandd.com</authorUrl>
-    <copyright>Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.</copyright>
+    <copyright>Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
-    <version>6.0.2</version>
+    <version>6.3.2</version>
     <description>PLG_RSFP_PAYMENT_JDIDEAL_DESCRIPTION</description>
 
     <scriptfile>script.php</scriptfile>
@@ -27,6 +27,7 @@
     <files>
         <filename plugin="rsfpjdideal">rsfpjdideal.php</filename>
         <filename>configuration.xml</filename>
+        <filename>RsfpjdidealHelper.php</filename>
         <filename>script.php</filename>
         <folder>addons</folder>
         <folder>language</folder>

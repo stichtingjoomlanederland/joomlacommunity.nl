@@ -1,6 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Controllers;
+
+use AcyMailing\Classes\FormClass;
+use AcyMailing\Helpers\PaginationHelper;
+use AcyMailing\Helpers\ToolbarHelper;
+use AcyMailing\Libraries\acymController;
 
 class FormsController extends acymController
 {
@@ -16,13 +21,13 @@ class FormsController extends acymController
     public function listing()
     {
         acym_setVar('layout', 'listing');
-        $pagination = acym_get('helper.pagination');
-        $searchFilter = acym_getVar('string', 'forms_search', '');
-        $status = acym_getVar('string', 'forms_status', '');
-        $tagFilter = acym_getVar('string', 'forms_tag', '');
-        $ordering = acym_getVar('string', 'forms_ordering', 'id');
-        $orderingSortOrder = acym_getVar('string', 'forms_ordering_sort_order', 'asc');
-        $formClass = acym_get('class.form');
+        $pagination = new PaginationHelper();
+        $searchFilter = $this->getVarFiltersListing('string', 'forms_search', '');
+        $status = $this->getVarFiltersListing('string', 'forms_status', '');
+        $tagFilter = $this->getVarFiltersListing('string', 'forms_tag', '');
+        $ordering = $this->getVarFiltersListing('string', 'forms_ordering', 'id');
+        $orderingSortOrder = $this->getVarFiltersListing('string', 'forms_ordering_sort_order', 'asc');
+        $formClass = new FormClass();
 
         $formsPerPage = $pagination->getListLimit();
         $page = acym_getVar('int', 'forms_pagination_page', 1);
@@ -49,7 +54,6 @@ class FormsController extends acymController
 
         $data = [
             'allForms' => $matchingForms['elements'],
-            'allTags' => acym_get('class.tag')->getAllTagsByType('forms'),
             'pagination' => $pagination,
             'search' => $searchFilter,
             'ordering' => $ordering,
@@ -67,7 +71,7 @@ class FormsController extends acymController
 
     public function prepareToolbar(&$data)
     {
-        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper = new ToolbarHelper();
         $toolbarHelper->addSearchBar($data['search'], 'forms_search', 'ACYM_SEARCH');
         $toolbarHelper->addButton(acym_translation('ACYM_CREATE'), ['data-task' => 'newForm'], 'add', true);
 
@@ -82,10 +86,10 @@ class FormsController extends acymController
 
             $moduleId = acym_loadResult('SELECT extension_id FROM #__extensions WHERE element = "mod_acym"');
 
-            if (is_string($moduleId)) {
-                $widgetUrl = 'index.php?option=com_modules&task=module.add&eid='.$moduleId;
-            } else {
+            if (empty($moduleId)) {
                 $widgetUrl = 'index.php?option=com_modules&view=select';
+            } else {
+                $widgetUrl = 'index.php?option=com_modules&task=module.add&eid='.intval($moduleId);
             }
         } else {
             $widgetUrl = 'widgets.php';
@@ -204,7 +208,7 @@ class FormsController extends acymController
 
     private function getFormWithMissingParams($formArray)
     {
-        $form = new stdClass();
+        $form = new \stdClass();
         $formEmpty = $this->currentClass->initEmptyForm($formArray['type']);
 
         if (!empty($formArray['id'])) $form->id = $formArray['id'];
@@ -230,5 +234,20 @@ class FormsController extends acymController
 
         return $form;
     }
-}
 
+    public function getArticles()
+    {
+        $searchedTerm = acym_getVar('string', 'searchedterm', '');
+
+        echo json_encode(acym_getArticles($searchedTerm));
+        exit;
+    }
+
+    public function getArticlesById()
+    {
+        $id = acym_getVar('int', 'article_id', 0);
+
+        echo json_encode(acym_getArticleById($id));
+        exit;
+    }
+}

@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -42,10 +42,10 @@ class JdidealgatewayViewPay extends HtmlView
 	/**
 	 * Return the payment result.
 	 *
-	 * @var    array
+	 * @var    string
 	 * @since  2.0.0
 	 */
-	protected $result = [];
+	protected $result = '';
 
 	/**
 	 * Array with payment details
@@ -63,7 +63,6 @@ class JdidealgatewayViewPay extends HtmlView
 	 * @return  mixed  The rendered view
 	 *
 	 * @since   2.0.0
-	 *
 	 * @throws  Exception
 	 */
 	public function display($tpl = null)
@@ -78,12 +77,12 @@ class JdidealgatewayViewPay extends HtmlView
 				$this->data = $model->getIdeal();
 				break;
 			case 'result':
-				$this->result = $model->getResult();
+				break;
+			default:
+				$this->form  = $model->getForm();
+				$this->state = $model->getState();
 				break;
 		}
-
-		$this->form  = $model->getForm();
-		$this->state = $model->getState();
 
 		return parent::display($tpl);
 	}

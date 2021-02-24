@@ -726,8 +726,8 @@ function reloadSubscribeCaptcha() {
 function rs_calendar_add_filter(name, search) {
 	if (name != 0) {
 		if (parseInt(search) == 1) {
-			jQuery('#rsepro-filter-from > ul > li > a[rel=categories]').click();
-			jQuery('#rsepro-filter-condition > ul > li > a[rel=is]').click();
+			jQuery('#rsepro-filter-from a[rel=categories]').click();
+			jQuery('#rsepro-filter-condition a[rel=is]').click();
 			jQuery('#rsepro-filter').val(name);
 			jQuery('.rsepro-filter-filters input[value=categories]').parent().parent().remove();
 			jQuery('#rsepro-filter-btn').click();
@@ -871,7 +871,11 @@ function rs_calendar(root,month,year,module) {
 		jQuery('#rscalendar'+module).css('display','none');
 		
 		jQuery('.tooltip').hide();
-		jQuery('.hasTooltip').tooltip('destroy');
+		try {
+			jQuery('.hasTooltip').tooltip('destroy');
+			jQuery('.hasTooltip').tooltip('dispose');
+		} catch (err) {}
+		
 		jQuery('.hasTooltip').tooltip({"html": true,"container": "body"});
 	});
 }
@@ -1727,20 +1731,26 @@ function rsepro_rsvp(id, rsvp) {
 	}).done(function( response ) {
 		jQuery('#rsepro_rsvp a').attr('disabled', false);
 		if (response.success) {
-			jQuery('#rsepro_rsvp a').removeClass('btn-success hasTooltip');
+			jQuery('#rsepro_rsvp a').removeClass('btn-secondary btn-success hasTooltip');
 			jQuery('#rsepro_rsvp a').removeAttr('title');
 			jQuery('#rsepro_rsvp a').removeAttr('data-original-title');
-			jQuery('#rsepro_rsvp a').tooltip('destroy');
 			
+			try {
+				jQuery('#rsepro_rsvp a').tooltip('destroy');
+				jQuery('#rsepro_rsvp a').tooltip('dispose');
+			} catch (err) {}
+			
+			jQuery('#rsepro_rsvp a').addClass('btn-secondary');
+			jQuery('#rsepro_' + rsvp).removeClass('btn-secondary');
 			jQuery('#rsepro_' + rsvp).addClass('btn-success hasTooltip');
 			jQuery('#rsepro_' + rsvp).prop('title', response.info);
+			jQuery('#rsepro_' + rsvp).data('data-original-title', response.info);
 			
 			if (response.remove) {
+				jQuery('#rsepro_rsvp a').addClass('btn-secondary');
 				jQuery('#rsepro_rsvp a').removeClass('btn-success hasTooltip');
 			}
 			
-			jQuery('.tooltip').hide();
-			jQuery('.hasTooltip').tooltip('destroy');
 			jQuery('.hasTooltip').tooltip({"html": true,"container": "body"});
 		} else {
 			alert(response.message);

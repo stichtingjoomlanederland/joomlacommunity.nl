@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -41,7 +41,7 @@ class Joomla
 					// So, Joomla! 4's "mysql" is, actually, "pdomysql".
 					$driver = 'mysql';
 
-					if (version_compare(JVERSION, '3.99999.99999', 'gt'))
+					if (version_compare(JVERSION, '3.999.999', 'gt'))
 					{
 						$driver = 'pdomysql';
 					}

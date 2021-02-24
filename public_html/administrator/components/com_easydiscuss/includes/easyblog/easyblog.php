@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussEasyBlog extends EasyDiscuss
+class EasyDiscussEasyBlog
 {
 	/**
 	 * Determines if EasyBlog is installed on the site.
@@ -54,7 +54,9 @@ class EasyDiscussEasyBlog extends EasyDiscuss
 			return false;
 		}
 
-		if (!$this->config->get('integrations_easyblog_toolbar') || !$this->exists()) {
+		$config = ED::config();
+
+		if (!$config->get('integrations_easyblog_toolbar') || !$this->exists()) {
 			return false;
 		}
 
@@ -109,8 +111,14 @@ class EasyDiscussEasyBlog extends EasyDiscuss
 		$theme->set('config', $config);
 		$theme->set('acl', $acl);
 		$theme->set('showManage', $showManage);
-		
-		$output = $theme->output('site/toolbar/easyblog');
+
+		$namespace = 'site/toolbar/easyblog';
+
+		if ($theme->isMobile()) {
+			$namespace .= '.mobile';
+		}
+
+		$output = $theme->output($namespace);
 
 		return $output;
 	}

@@ -1,8 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class failactionType extends acymObject
+namespace AcyMailing\Types;
+
+use AcyMailing\Classes\ListClass;
+use AcyMailing\Libraries\acymObject;
+
+class FailactionType extends acymObject
 {
     public function __construct()
     {
@@ -16,7 +19,7 @@ class failactionType extends acymObject
         $this->values[] = acym_selectOption('block', 'ACYM_BLOCK_USER');
         $this->values[] = acym_selectOption('delete', 'ACYM_DELETE_USER');
 
-        $listClass = acym_get('class.list');
+        $listClass = new ListClass();
         $lists = $listClass->getAll('name');
         $this->lists = [];
         foreach ($lists as $oneList) {
@@ -61,4 +64,3 @@ class failactionType extends acymObject
         return $return;
     }
 }
-

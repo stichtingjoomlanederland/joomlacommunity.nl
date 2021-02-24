@@ -42,6 +42,6 @@ class DiscussHashKeys extends EasyDiscussTable
 	 */
 	public function generate()
 	{
-		return JString::substr(md5($this->uid . $this->type . ED::date()->toSql()), 0, 12);
+		return EDJString::substr(md5($this->uid . $this->type . ED::date()->toSql()), 0, 12);
 	}
 }

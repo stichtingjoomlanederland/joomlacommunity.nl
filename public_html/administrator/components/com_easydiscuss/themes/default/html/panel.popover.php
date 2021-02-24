@@ -12,7 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <label><?php echo JText::_($header);?></label>
-<i class="fa fa-question-circle label__help-icon pull-right" 
+<i class="fa fa-question-circle o-form-label__help-icon" 
     data-ed-provide="popover"
     data-title="<?php echo JText::_($header);?>" 
     data-content="<?php echo JText::_($desc);?>"

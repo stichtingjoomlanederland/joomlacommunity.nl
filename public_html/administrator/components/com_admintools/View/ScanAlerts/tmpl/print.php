@@ -1,11 +1,11 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use FOF30\Date\Date;
 use Joomla\CMS\Language\Text;
@@ -43,7 +43,7 @@ $date->setTimezone($tz);
 	</tr>
 	</thead>
 	<tbody>
-	<?php if ($count = count($this->items)): ?>
+	<?php if ($count = is_array($this->items) || $this->items instanceof \Countable ? count($this->items) : 0): ?>
 		<?php
 		$i = 0;
 		foreach ($this->items as $item):

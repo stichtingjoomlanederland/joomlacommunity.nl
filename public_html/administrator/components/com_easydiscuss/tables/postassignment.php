@@ -38,7 +38,7 @@ class DiscussPostAssignment extends EasyDiscussTable
 	 */
 	public function load( $keys = null, $reset = true )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT id FROM `#__discuss_assignment_map` WHERE `post_id` = ' . $db->quote( $keys )
 				. ' ORDER BY `created` DESC LIMIT 0, 1';
 

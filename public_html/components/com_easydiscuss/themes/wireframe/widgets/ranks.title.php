@@ -14,10 +14,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php if ($this->config->get('main_ranking')) { ?>
 <div class="widget user-rank">
     <div class="widget-body">
-        <span class="discuss-user-rank fs-11"><?php echo ED::getUserRanks($userId); ?></span>
+        <span class="discuss-user-rank fs-11"><?php echo ED::ranks()->getRank($userId); ?></span>
         <div class="discuss-user-graph">
             <div class="rank-bar mini">
-                <div class="rank-progress" style="width: <?php echo ED::getUserRankScore($userId); ?>%"></div>
+                <div class="rank-progress" style="width: <?php echo ED::ranks()->getScore($userId); ?>%"></div>
             </div>
         </div>
     </div>

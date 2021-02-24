@@ -6,20 +6,18 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); 
 
-use Joomla\CMS\Crypt\Cipher\SimpleCipher;
-use Joomla\CMS\Crypt\CipherInterface;
-use Joomla\CMS\Crypt\Crypt;
-use Joomla\CMS\Crypt\Key;
-
 class RseventsproController extends JControllerLegacy
 {
-	/**
-	 *	Main constructor
-	 *
-	 * @return void
-	 */
-	public function __construct() {
-		parent::__construct();
+	public function display($cachable = false, $urlparams = false) {
+		// Set the default view name and format from the Request.
+		$views = array('rseventspro', 'calendar');
+		$vName = $this->input->getCmd('view', 'rseventspro');
+		if (!in_array($vName, $views)) {
+			$this->input->set('view', 'rseventspro');
+		}
+		
+		parent::display($cachable, $urlparams);
+		return $this;
 	}
 	
 	/**
@@ -349,11 +347,11 @@ class RseventsproController extends JControllerLegacy
 				$total = $total + $details->tax;
 			}
 		} else {
-			$app->triggerEvent('rsepro_paymentForm', array(array('id' => $details->id, 'total' => &$total, 'info' => &$info)));
+			$app->triggerEvent('onrsepro_paymentForm', array(array('id' => $details->id, 'total' => &$total, 'info' => &$info)));
 			$cart = true;
 		}
 		
-		$app->triggerEvent('rsepro_showForm', array(array('method' => &$method, 'details' => &$details, 'tickets' => &$tickets, 'total' => $total, 'info' => $info, 'cart' => $cart, 'currency' => &$currency)));
+		$app->triggerEvent('onrsepro_showForm', array(array('method' => &$method, 'details' => &$details, 'tickets' => &$tickets, 'total' => $total, 'info' => $info, 'cart' => $cart, 'currency' => &$currency)));
 	}
 	
 	/**
@@ -365,7 +363,7 @@ class RseventsproController extends JControllerLegacy
 		$app	= JFactory::getApplication();
 		$data	= $app->input->get->request;
 		
-		$app->triggerEvent('rsepro_processForm',array(array('data' => &$data)));
+		$app->triggerEvent('onrsepro_processForm',array(array('data' => &$data)));
 	}
 	
 	/**
@@ -429,7 +427,7 @@ class RseventsproController extends JControllerLegacy
 		
 		$html = 'RS_DELIMITER0';
 		if (!empty($events)) {
-			$html .= '<li class="rsepro_ajax_close"><a href="javascript:void(0);" onclick="rsepro_ajax_close();"></a></li>';
+			$html .= '<li class="rsepro_ajax_close"><a href="javascript:void(0);" onclick="rsepro_ajax_close();">x</a></li>';
 			foreach ($events as $event) {
 				if (!rseventsproHelper::canview($event->id)) 
 					continue;
@@ -502,13 +500,18 @@ class RseventsproController extends JControllerLegacy
 						$name	= $owner->get('name');
 						rseventsproEmails::approval($to, $event->id, $name, $lang->getTag());
 						
-						return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)),JText::_('COM_RSEVENTSPRO_EVENT_PUBLISHED'));
+						// Update user events added count
+						rseventsproHelper::addUserEventCount($event->id, $event->owner);
+						
+						JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_EVENT_PUBLISHED'));
+						return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
 					}
 				}
 			}
 		}
 		
-		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false),JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'),'error');
+		JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), 'error');
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
 	}
 	
 	/**
@@ -539,12 +542,15 @@ class RseventsproController extends JControllerLegacy
 					->where($db->qn('id').' = '.(int) $tag->id);
 				
 				$db->setQuery($query);
-				if ($db->execute())
-					return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false), JText::_('COM_RSEVENTSPRO_EVENT_TAG_PUBLISHED'));
+				if ($db->execute()) {
+					JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_EVENT_TAG_PUBLISHED'));
+					return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
+				}
 			}
 		}
 		
-		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false),JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'),'error');
+		JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), 'error');
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false));
 	}
 	
 	/**
@@ -576,7 +582,8 @@ class RseventsproController extends JControllerLegacy
 			$msg = JText::_('COM_RSEVENTSPRO_EVENT_REMINDERS_SENT');
 		}
 		
-		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), $msg);
+		JFactory::getApplication()->enqueueMessage($msg);
+		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
 	}
 	
 	/**
@@ -663,7 +670,6 @@ class RseventsproController extends JControllerLegacy
 		$id		= JFactory::getApplication()->input->getInt('id');
 		$sid	= JFactory::getSession()->getId();
 		$msg	= JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED');
-		$type	= rseventsproHelper::getConfig('postreminder','int');
 		
 		$query->clear()
 			->select($db->qn('id'))->select($db->qn('name'))->select($db->qn('end'))
@@ -691,7 +697,8 @@ class RseventsproController extends JControllerLegacy
 				$msg = JText::_('COM_RSEVENTSPRO_EVENT_POSTREMINDERS_SENT');
 			}
 		
-			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), $msg);
+			JFactory::getApplication()->enqueueMessage($msg);
+			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
 		}
 		
 		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro'));
@@ -707,7 +714,6 @@ class RseventsproController extends JControllerLegacy
 		$query	= $db->getQuery(true);
 		$lang	= JFactory::getLanguage();
 		$config	= rseventsproHelper::getConfig();
-		$type	= $config->postreminder;
 		$hash	= JFactory::getApplication()->input->getString('hash');
 		$now	= JFactory::getDate()->toUnix();
 		
@@ -720,7 +726,7 @@ class RseventsproController extends JControllerLegacy
 					->select($db->qn('start'))->select($db->qn('end'))
 					->select($db->qn('allday'))
 					->from($db->qn('#__rseventspro_events'))
-					->where($db->qn('published').' = 1')
+					->where($db->qn('published').' IN (1,2)')
 					->where($db->qn('completed').' = 1');
 				
 				$db->setQuery($query);
@@ -809,18 +815,25 @@ class RseventsproController extends JControllerLegacy
 					$price = $price * $quantity;
 					if ($event->discounts) {
 						$eventdiscount = rseventsproHelper::discount($idevent,$price);
+						
 						if (is_array($eventdiscount)) {
 							$query->clear()
-								->select($db->qn('c.action'))
+								->select($db->qn('c.action'))->select($db->qn('c.type'))
 								->from($db->qn('#__rseventspro_coupons','c'))
 								->join('left', $db->qn('#__rseventspro_coupon_codes','cc').' ON '.$db->qn('cc.idc').' = '.$db->qn('c.id'))
 								->where($db->qn('cc.id').' = '.(int) $eventdiscount['id']);
 							
 							$db->setQuery($query);
-							$couponaction = (int) $db->loadResult();
+							$thecoupon = $db->loadObject();
 							
-							if ($couponaction == 0)
-								$discount += $eventdiscount['discount'] * $quantity;
+							if ($thecoupon->action == 0) {
+								if ($thecoupon->type == 0) {
+									$discount += $eventdiscount['discount'] * $quantity;
+								} else {
+									$discount += $eventdiscount['discount'];
+								}
+							}
+							
 							$couponid = $eventdiscount['id'];
 						}
 					}
@@ -830,6 +843,7 @@ class RseventsproController extends JControllerLegacy
 			
 			if ($event->discounts) {
 				$eventdiscount = rseventsproHelper::discount($idevent,$total);
+				
 				if (is_array($eventdiscount)) {
 					$query->clear()
 						->select($db->qn('c.action'))
@@ -940,7 +954,7 @@ class RseventsproController extends JControllerLegacy
 					
 				} else {
 					$tax = 0;
-					$plugintaxes = $app->triggerEvent('rsepro_tax',array(array('method'=>&$payment, 'total'=>$total)));
+					$plugintaxes = $app->triggerEvent('onrsepro_tax',array(array('method'=>&$payment, 'total'=>$total)));
 					
 					if (!empty($plugintaxes))
 						foreach ($plugintaxes as $plugintax)
@@ -1103,7 +1117,7 @@ class RseventsproController extends JControllerLegacy
 	
 	// Trigger plugin functions
 	public function trigger() {
-		JFactory::getApplication()->triggerEvent('rsepro_frontTrigger');
+		JFactory::getApplication()->triggerEvent('onrsepro_frontTrigger');
 	}
 	
 	// Cron for rules
@@ -1143,11 +1157,13 @@ class RseventsproController extends JControllerLegacy
 			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscriptions',false));
 		}
 		
+		$email = strtolower($email);
+		
 		$query->clear()
 			->select($db->qn('id'))->select($db->qn('date'))
 			->select($db->qn('verification'))
 			->from($db->qn('#__rseventspro_users'))
-			->where($db->qn('email').' = '.$db->q($email));
+			->where('LOWER('.$db->qn('email').') = '.$db->q($email));
 		$db->setQuery($query);
 		$subscriber = $db->loadObject();
 		
@@ -1156,7 +1172,7 @@ class RseventsproController extends JControllerLegacy
 				->select($db->qn('r.id'))->select($db->qn('r.date'))
 				->from($db->qn('#__rseventspro_rsvp_users','r'))
 				->join('LEFT', $db->qn('#__users','u').' ON '.$db->qn('r.uid').' = '.$db->qn('u.id'))
-				->where($db->qn('u.email').' = '.$db->q($email));
+				->where('LOWER('.$db->qn('u.email').') = '.$db->q($email));
 			$db->setQuery($query);
 			$subscriber = $db->loadObject();
 		}
@@ -1168,7 +1184,9 @@ class RseventsproController extends JControllerLegacy
 			$subject	= JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_SUBJECT');
 			$body		= JText::sprintf('COM_RSEVENTSPRO_SUBSCRIPTION_BODY',$url);
 			
-			JFactory::getMailer()->sendMail($config->email_from, $config->email_fromname, $email, $subject, $body, 1, null, null, null, $config->email_replyto, $config->email_replytoname);
+			try {
+				JFactory::getMailer()->sendMail($config->email_from, $config->email_fromname, $email, $subject, $body, 1, null, null, null, $config->email_replyto, $config->email_replytoname);
+			} catch (Exception $e) {}
 			
 			$this->setMessage(JText::_('COM_RSEVENTSPRO_EMAIL_SENT'));
 		} else {
@@ -1179,76 +1197,81 @@ class RseventsproController extends JControllerLegacy
 	}
 	
 	public function confirm() {
-		$db		= JFactory::getDbo();
-		$query	= $db->getQuery(true);
-		$hash	= JFactory::getApplication()->input->getString('hash');
-		$secret = JFactory::getConfig()->get('secret');
-		$ids	= 0;
-		$found	= false;
+		$db				= JFactory::getDbo();
+		$query			= $db->getQuery(true);
+		$hash			= JFactory::getApplication()->input->getString('hash');
+		$secret 		= JFactory::getConfig()->get('secret');
+		$permissions	= rseventsproHelper::permissions();
+		$admin			= rseventsproHelper::admin();
+		$ids			= 0;
+		$found			= false;
 		
-		if (substr($hash, 0 , 2) == 'cr') {
-			$hash = str_replace('_', ' ', $hash);
-			$hash = substr_replace($hash,'',0,2);
-			
-			try {
-				$key	= new Key('simple',$secret, $secret);
-				$crypt	= new \JCrypt(null, $key);
-				$hash	= $crypt->decrypt($hash);
-			} catch (Exception $e) {}
-			
-		}
-		
-		if (preg_match('#\|([0-9]*)\|#is', $hash, $match)) {
-			if (isset($match) && isset($match[1])) {
-				$ids	= $match[1];
-				$hash	= str_replace($match[0], '', $hash);
+		if ($admin || !empty($permissions['can_confirm_tickets'])) {
+			if (substr($hash, 0 , 2) == 'cr') {
+				$hash = str_replace('_', ' ', $hash);
+				$hash = substr_replace($hash,'',0,2);
+				
+				try {
+					require_once JPATH_SITE.'/components/com_rseventspro/helpers/crypt.php';
+					
+					$hash = RseventsproCrypt::decrypt($hash, $secret);
+				} catch (Exception $e) {}
 			}
-		}
-		
-		if ($ids) {
-			$query->clear()
-				->select($db->qn('t.id'))->select($db->qn('t.ide'))->select($db->qn('t.name'))
-				->select($db->qn('t.price'))->select($db->qn('ut.quantity'))
-				->from($db->qn('#__rseventspro_tickets','t'))
-				->join('left',$db->qn('#__rseventspro_user_tickets','ut').' ON '.$db->qn('t.id').' = '.$db->qn('ut.idt'))
-				->where($db->qn('ut.ids').' = '.(int) $ids);
-			$db->setQuery($query);
-			if ($tickets = $db->loadObjectList()) {
-				foreach ($tickets as $ticket) {
-					for ($i=1;$i<=$ticket->quantity;$i++) {
-						$tcode	= md5($ids.$ticket->id.$i);
-						
-						if (strtolower($tcode) == strtolower($hash)) {
-							$found	= true;
-							$code	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$ids.'-'.substr($tcode,0,4).substr($tcode,-4);
-														
-							$query->clear()
-								->select($db->qn('id'))
-								->from('#__rseventspro_confirmed')
-								->where($db->qn('ids').' = '.$db->q($ids))
-								->where($db->qn('code').' = '.$db->q($code));
-							$db->setQuery($query);
-							if (!$db->loadResult()) {
+			
+			if (preg_match('#\|([0-9]*)\|#is', $hash, $match)) {
+				if (isset($match) && isset($match[1])) {
+					$ids	= $match[1];
+					$hash	= str_replace($match[0], '', $hash);
+				}
+			}
+			
+			if ($ids) {
+				$query->clear()
+					->select($db->qn('t.id'))->select($db->qn('t.ide'))->select($db->qn('t.name'))
+					->select($db->qn('t.price'))->select($db->qn('ut.quantity'))
+					->from($db->qn('#__rseventspro_tickets','t'))
+					->join('left',$db->qn('#__rseventspro_user_tickets','ut').' ON '.$db->qn('t.id').' = '.$db->qn('ut.idt'))
+					->where($db->qn('ut.ids').' = '.(int) $ids);
+				$db->setQuery($query);
+				if ($tickets = $db->loadObjectList()) {
+					foreach ($tickets as $ticket) {
+						for ($i=1;$i<=$ticket->quantity;$i++) {
+							$tcode	= md5($ids.$ticket->id.$i);
+							
+							if (strtolower($tcode) == strtolower($hash)) {
+								$found	= true;
+								$code	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$ids.'-'.substr($tcode,0,4).substr($tcode,-4);
+								
 								$query->clear()
-									->insert('#__rseventspro_confirmed')
-									->set($db->qn('ids').' = '.$db->q($ids))
-									->set($db->qn('code').' = '.$db->q($code));
+									->select($db->qn('id'))
+									->from('#__rseventspro_confirmed')
+									->where($db->qn('ids').' = '.$db->q($ids))
+									->where($db->qn('code').' = '.$db->q($code));
 								$db->setQuery($query);
-								if ($db->execute()) {
-									JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_CONFIRMED'));
+								if (!$db->loadResult()) {
+									$query->clear()
+										->insert('#__rseventspro_confirmed')
+										->set($db->qn('ids').' = '.$db->q($ids))
+										->set($db->qn('code').' = '.$db->q($code));
+									$db->setQuery($query);
+									if ($db->execute()) {
+										JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_CONFIRMED'));
+									}
+								} else {
+									JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_ALREADY_CONFIRMED'), 'error');
 								}
-							} else {
-								JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_ALREADY_CONFIRMED'), 'error');
+								continue 2;
 							}
-							continue 2;
 						}
 					}
 				}
 			}
-		}
-		
-		if (!$found) {
-			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_CONFIRMED_ERROR'), 'error');
+			
+			if (!$found) {
+				JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_TICKET_CONFIRMED_ERROR'), 'error');
+			}
+		} else {
+			JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), 'error');
 		}
 	}
 	
@@ -1338,7 +1361,7 @@ class RseventsproController extends JControllerLegacy
 			->where($db->qn('u.ide').' = '.(int) $ide)
 			->where($db->qn('u.state').' IN (0,1)');
 		
-		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$db->setQuery($query);
 		if ($subscribers = $db->loadObjectList()) {
@@ -1396,7 +1419,7 @@ class RseventsproController extends JControllerLegacy
 			->where($db->qn('u.ide').' = '.(int) $ide)
 			->where($db->qn('u.state').' = 1');
 		
-		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		$db->setQuery($query);
 		if ($subscribers = $db->loadObjectList()) {

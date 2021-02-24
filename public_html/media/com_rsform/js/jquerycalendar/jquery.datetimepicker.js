@@ -846,6 +846,10 @@
 				return options[optionName];
 			};
 
+			datetimepicker.getValue = function () {
+				return _xdsoft_datetime.getCurrentTime();
+			};
+
 			datetimepicker.setOptions = function (_options) {
 				var highlightedDates = {},
 					getCaretPos = function (input) {

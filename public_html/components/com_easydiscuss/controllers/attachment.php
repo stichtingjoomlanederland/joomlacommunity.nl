@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-jimport('joomla.filesystem.file');
-
 class EasyDiscussControllerAttachment extends EasyDiscussController
 {
 	/**
@@ -33,7 +31,7 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		$file = $attachment->getAbsolutePath(true);
 
 		if (!JFile::exists($file)) {
-			return JError::raiseError(500, JText::_('File cannot be found'));
+			throw ED::exception('File cannot be found', ED_MSG_ERROR);
 		}
 
 		header('Content-Description: File Transfer');
@@ -73,14 +71,14 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		$file = $attachment->getAbsolutePath();
 
 		if (!JFile::exists($file)) {
-			return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_FILE_NOT_FOUND'));
+			throw ED::exception('COM_ED_ATTACHMENT_FILE_NOT_FOUND', ED_MSG_ERROR);
 		}
 
 		$post = ED::post($attachment->uid);
 
 		// Ensure that the viewer can view the post then only can download the file.
 		if (!$post->canView($this->my->id) || !$post->isPublished()) {
-			return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+			throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
 		}
 
 		// Need to check for the discussion whether created from cluster
@@ -91,7 +89,7 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 
 			// Ensure that private post only allow certain user can able to access it
 			if ($post->private && $this->my->id != $post->user_id && !$isModerator) {
-				return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+				throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
 			}
 		}
 
@@ -100,13 +98,13 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			$easysocial = ED::easysocial();
 
 			if (!$easysocial->isGroupAppExists()) {
-				return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+				throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
 			}
 
 			$cluster = $easysocial->getCluster($post->cluster_id, $post->getClusterType());
 
 			if (!$cluster->canViewItem()) {
-				return JError::raiseError(500, JText::_('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION'));
+				throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
 			}
 		}
 
@@ -155,7 +153,7 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 		$link = $storage->getPermalink($relativePath);
 
 		if (!$link) {
-			return JError::raiseError(500, JText::_('File cannot be found'));
+			throw ED::exception('File cannot be found', ED_MSG_ERROR);
 		}
 
 		$relativePath = str_ireplace(JPATH_ROOT, '', $attachment->getAbsolutePath());
@@ -166,7 +164,7 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 
 		// Check if the download is successful.
 		if (!JFile::exists($file)) {
-			return JError::raiseError(500, JText::_('File cannot be found'));
+			throw ED::exception('File cannot be found', ED_MSG_ERROR);
 		}
 
 		header('Content-Description: File Transfer');

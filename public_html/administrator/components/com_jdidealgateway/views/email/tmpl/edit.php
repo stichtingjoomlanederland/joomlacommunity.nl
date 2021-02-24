@@ -3,23 +3,30 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
+defined('_JEXEC') or die;
+
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
-defined('_JEXEC') or die;
-
 /** @var JdidealgatewayViewEmail $this */
 
-HTMLHelper::_('formbehavior.chosen');
+HTMLHelper::_('behavior.formvalidator');
+HTMLHelper::_('behavior.keepalive');
+
+if (JVERSION < 4)
+{
+	HTMLHelper::_('formbehavior.chosen');
+}
 
 ?>
 <form action="<?php echo 'index.php?option=com_jdidealgateway&layout=edit&id=' . (int) $this->item->id; ?>" method="post" name="adminForm" id="adminForm" class="form-validate">
-	<div class="span9">
+	<div class="<?php echo JVERSION < 4 ? '' : 'row'; ?>">
+	<div class="col-md-9 span9">
 		<div class="control-group">
 			<div class="control-label"><?php echo $this->form->getLabel('trigger'); ?></div>
 			<div class="controls"><?php echo $this->form->getInput('trigger'); ?></div>
@@ -33,7 +40,7 @@ HTMLHelper::_('formbehavior.chosen');
 			<div class="controls"><?php echo $this->form->getInput('body'); ?></div>
 		</div>
 	</div>
-	<div class="span3">
+	<div class="col-md-3 span3">
 		<fieldset>
 			<ul>
 				<li class="tag_title"><?php echo Text::_('COM_ROPAYMENTS_ADMIN_STATUS_MISMATCH'); ?></li>
@@ -77,6 +84,7 @@ HTMLHelper::_('formbehavior.chosen');
 				<li>{ORDER_LINK}</li>
 			</ul>
 		</fieldset>
+	</div>
 	</div>
 	<input type="hidden" name="task" value="" />
 	<?php echo HTMLHelper::_('form.token'); ?>

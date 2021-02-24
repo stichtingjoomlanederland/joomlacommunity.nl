@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -21,11 +21,10 @@ if (!JFile::exists($path)) {
 
 require_once($path);
 
-$config = ED::getConfig();
+$config = ED::config();
 $acl = ED::acl();
 
-
-$canViewStatistic = ($config->get('layout_board_stats') && $acl->allowed('board_statistics')) ? true : false;
+$canViewStatistic = $acl->allowed('board_statistics') ? true : false;
 
 // Skip this if the user didn't have permission to view it.
 if (!$canViewStatistic) {
@@ -35,25 +34,15 @@ if (!$canViewStatistic) {
 // load eadydiscuss styling.
 ED::init();
 
-$postModel = ED::model('Posts');
-$totalPosts = $postModel->getTotalThread();
+$lib = ED::modules($module);
+$helper = $lib->getHelper(false);
 
-$resolvedPosts = $postModel->getTotalResolved();
-$unresolvedPosts = $postModel->getUnresolvedCount();
+$totalPosts = $helper->getTotalPosts();
+$resolvedPosts = $helper->getTotalResolvedPosts();
+$unresolvedPosts = $helper->getTotalUnresolvedPosts();
+$totalUsers = $helper->getTotalUsers();
+$latestMember = $helper->getLatestMember();
+$totalGuests = $helper->getTotalGuests();
+$onlineUsers = $helper->getOnlineUsers();
 
-$userModel = ED::model('Users');
-$totalUsers	= $userModel->getTotalUsers();
-
-$latestUserId = $userModel->getLatestUser();
-$latestMember = ED::user($latestUserId);
-
-// Total guests
-$totalGuests = $userModel->getTotalGuests();
-
-// Online users
-$onlineUsers = $userModel->getOnlineUsers();
-
-require(JModuleHelper::getLayoutPath('mod_easydiscuss_board_statistic'));
-
-
-
+require($lib->getLayout());

@@ -65,7 +65,7 @@ class RseventsproModelSubscriptions extends JModelList
 		$tz		= rseventsproHelper::getTimezone();
 		$cart	= false;
 		
-		JFactory::getApplication()->triggerEvent('rsepro_isCart',array(array('cart'=>&$cart)));
+		JFactory::getApplication()->triggerEvent('onrsepro_isCart',array(array('cart'=>&$cart)));
 		
 		// Select fields
 		$query->select($db->qn('e.name','event'))->select($db->qn('e.start'))->select($db->qn('e.end'))->select($db->qn('u.id'))->select($db->qn('u.ide'));
@@ -136,7 +136,7 @@ class RseventsproModelSubscriptions extends JModelList
 		$listDirn = $db->escape($this->getState('list.direction', 'desc'));
 		$query->order($db->qn($listOrdering).' '.$listDirn);
 		
-		JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query)));
+		JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query)));
 		
 		return $query;
 	}

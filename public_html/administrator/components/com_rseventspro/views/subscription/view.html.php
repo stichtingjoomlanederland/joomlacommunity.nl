@@ -8,12 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewSubscription extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	protected $params;
-	protected $fields;
-	protected $tickets;
-	
 	public function display($tpl = null) {		
 		$this->layout	= $this->getLayout();
 		$this->document	= JFactory::getDocument();
@@ -47,7 +41,7 @@ class RseventsproViewSubscription extends JViewLegacy
 			$this->addToolBar();
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_adminSubscriptionDisplayLayout', array(array('view' => &$this)));
+		JFactory::getApplication()->triggerEvent('onrsepro_adminSubscriptionDisplayLayout', array(array('view' => &$this)));
 		
 		parent::display($tpl);
 	}
@@ -58,8 +52,6 @@ class RseventsproViewSubscription extends JViewLegacy
 		JToolBarHelper::save('subscription.save');
 		JToolBarHelper::save2new('subscription.save2new');
 		JToolBarHelper::cancel('subscription.cancel');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getEvent($id) {

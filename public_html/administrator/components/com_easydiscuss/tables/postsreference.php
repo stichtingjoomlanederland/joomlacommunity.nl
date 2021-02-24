@@ -28,7 +28,7 @@ class DiscussPostsReference extends EasyDiscussTable
 
 	public function loadByExtension( $referenceId , $extension )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT * FROM ' . $db->nameQuote( $this->_tbl ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'reference_id' ) . '=' . $db->Quote( $referenceId ) . ' '

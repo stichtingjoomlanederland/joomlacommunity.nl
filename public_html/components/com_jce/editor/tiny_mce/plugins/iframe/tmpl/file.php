@@ -63,7 +63,7 @@ $document = WFDocument::getInstance();
             <div class="uk-width-2-5 html4">
                 <label for="frameborder" class="hastip uk-form-label uk-width-3-5" title="<?php echo JText::_('WF_IFRAME_FRAMEBORDER_DESC'); ?>"><?php echo JText::_('WF_IFRAME_FRAMEBORDER'); ?></label>
                 <div class="uk-form-controls uk-width-2-5">
-                    <input type="checkbox" id="frameborder" value="0" />
+                    <input type="checkbox" id="frameborder" value="1" checked />
                 </div>
             </div>
         </div>
@@ -108,14 +108,14 @@ $document = WFDocument::getInstance();
             </label>
             <div class="uk-form-controls uk-width-1-5">
                 <select id="scrolling">
-                    <option value=""><?php echo JText::_('WF_OPTION_AUTO'); ?></option>
+                    <option value="auto"><?php echo JText::_('WF_OPTION_AUTO'); ?></option>
                     <option value="yes"><?php echo JText::_('JYES'); ?></option>
                     <option value="no"><?php echo JText::_('JNO'); ?></option>
                 </select>
             </div>
         </div>
     </div>
-    <div class="uk-width-1-5 uk-hidden-small">
+    <div class="uk-width-1-5 uk-hidden-mini">
         <div class="preview">
             <img id="sample" src="<?php echo $document->image('sample.jpg', 'libraries'); ?>" alt="sample.jpg" />
             <?php echo JText::_('WF_LOREM_IPSUM'); ?>

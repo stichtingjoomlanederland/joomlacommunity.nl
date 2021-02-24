@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -25,6 +25,8 @@ HTMLHelper::_('formbehavior.chosen');
 	<input type="hidden" name="task" value="" />
 	<?php echo HTMLHelper::_('form.token'); ?>
 </form>
+
+<h2><?php echo Text::_('COM_ROPAYMENTS_CUSTOMER_MANDATES'); ?></h2>
 <table class="table table-striped table-condensed">
 	<thead>
 	<tr>
@@ -53,6 +55,7 @@ HTMLHelper::_('formbehavior.chosen');
     </tbody>
 </table>
 
+<h2><?php echo Text::_('COM_ROPAYMENTS_SUBSCRIPTIONS'); ?></h2>
 <table class="table table-striped table-condensed">
 	<thead>
 	<tr>
@@ -80,7 +83,7 @@ HTMLHelper::_('formbehavior.chosen');
             <td><?php echo $subscription->interval; ?></td>
             <td><?php echo $subscription->description; ?></td>
             <td><?php echo HTMLHelper::_('date', $subscription->startDate, Text::_('DATE_FORMAT_LC4')); ?></td>
-            <td><?php echo HTMLHelper::_('date', $subscription->canceledAt, Text::_('DATE_FORMAT_LC6')); ?></td>
+            <td><?php echo $subscription->canceledAt ? HTMLHelper::_('date', $subscription->canceledAt, Text::_('DATE_FORMAT_LC6')) : ''; ?></td>
             <td><?php echo HTMLHelper::_('date', $subscription->createdAt, Text::_('DATE_FORMAT_LC6')); ?></td>
 		</tr>
 	<?php endforeach; ?>

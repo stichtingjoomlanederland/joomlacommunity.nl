@@ -1,14 +1,14 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 use FOF30\Container\Container;
 use FOF30\Input\Input;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 {
@@ -35,7 +35,12 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 		$option    = [$db->q('')];
 		$view      = [$db->q('')];
 		$task      = [$db->q('')];
-		$rawView   = $this->input->getCmd('view', '');
+
+		$fallbackView = version_compare(JVERSION, '3.999.999', 'ge')
+			? $this->input->getCmd('controller', '')
+			: '';
+
+		$rawView   = $this->input->getCmd('view', $fallbackView);
 		$rawTask   = $this->input->getCmd('task', '');
 		$rawOption = $this->input->getCmd('option', '');
 
@@ -147,8 +152,8 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 			 * This is a bit complicated since we have to take into account that EITHER OF the request AND the rule may
 			 * be using the task=viewName.taskName notation. Moreover, empty views and tasks in rules act as wildcards.
 			 */
-			$view     = isset($viewExplode) ? $viewExplode : $rawView;
-			$task     = isset($taskExplode) ? $taskExplode : $rawTask;
+			$view     = $viewExplode ?? $rawView;
+			$task     = $taskExplode ?? $rawTask;
 			$hasMatch = false;
 			// -- Empty view and task: rule applies to entire component
 			$hasMatch = $hasMatch || (($rule->view == '') && ($rule->task == ''));

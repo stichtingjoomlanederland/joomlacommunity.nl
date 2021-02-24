@@ -28,7 +28,5 @@ class RseventsproViewPayments extends JViewLegacy
 		JToolBarHelper::unpublishList('payments.unpublish');
 		JToolBarHelper::divider();
 		JToolBar::getInstance('toolbar')->appendButton('Link', 'list', JText::_('COM_RSEVENTSPRO_PAYMENT_RULES'), JRoute::_('index.php?option=com_rseventspro&view=rules'));
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

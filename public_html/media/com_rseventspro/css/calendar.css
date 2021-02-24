@@ -34,10 +34,12 @@
 	border: 1px solid #ddd;
 	border-radius: 4px;
 	margin-bottom: 10px;
+	caption-side: top;
 }
 
 .rsepro-calendar table caption select {
 	margin: 0 5px 0 0;
+	width: auto;
 }
 
 .rsepro-calendar table .pager {
@@ -61,6 +63,7 @@
 	font-size: 20px;
 	padding: 2px;
 	height: 100px;
+	vertical-align: top;
 }
 
 .rsepro-calendar table td.week,.rsepro-calendar table th.week {

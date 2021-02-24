@@ -9,7 +9,10 @@ JText::script('ERROR');
 JText::script('COM_RSEVENTSPRO_INVITE_FROM_ERROR');
 JText::script('COM_RSEVENTSPRO_INVITE_FROM_NAME_ERROR');
 JText::script('COM_RSEVENTSPRO_INVITE_EMAILS_ERROR');
-JText::script('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR'); ?>
+JText::script('COM_RSEVENTSPRO_INVITE_CAPTCHA_ERROR');
+$importBtns = ''; 
+if (!empty($this->config->google_client_id)) $importBtns .= '<a class="btn btn-primary" href="javascript:void(0)" onclick="rs_google_auth();">'.JText::_('COM_RSEVENTSPRO_INVITE_FROM_GMAIL').'</a>';
+if ($this->auth) $importBtns .= ' <a class="btn btn-primary" href="'.$this->auth.'">'.JText::_('COM_RSEVENTSPRO_INVITE_FROM_YAHOO').'</a>'; ?>
 
 <script type="text/javascript">
 var invitemessage = new Array();
@@ -30,78 +33,37 @@ function rs_google_auth() {
 </script>
 
 <form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" name="rseInviteForm" id="rseInviteForm">
-	<h3><?php echo JText::sprintf('COM_RSEVENTSPRO_INVITE_FRIENDS',$this->event->name); ?></h3>
-
-	<?php if (!empty($this->config->google_client_id)) { ?><a class="rs_invite_btn" href="javascript:void(0)" onclick="rs_google_auth();"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM_GMAIL'); ?></a><?php } ?> 
-	<?php if ($this->auth) { ?><a class="rs_invite_btn" href="<?php echo $this->auth; ?>"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM_YAHOO'); ?></a><?php } ?>
-	<div class="rs_clear"></div>
-	<br />
-	
-	<div class="form-horizontal">
-		<div class="control-group">
-			<div class="control-label">
-				<label for="jform_from"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM'); ?></label>
-			</div>
-			<div class="controls">
-				<input type="text" name="jform[from]" id="jform_from" value="" class="input-xlarge" />
-			</div>
-		</div>
-		<div class="control-group">
-			<div class="control-label">
-				<label for="jform_from_name"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_FROM_NAME'); ?></label>
-			</div>
-			<div class="controls">
-				<input type="text" name="jform[from_name]" id="jform_from_name" value="" class="input-xlarge" />
-			</div>
-		</div>
+	<h2><?php echo JText::sprintf('COM_RSEVENTSPRO_INVITE_FRIENDS',$this->event->name); ?></h2>
+		
+	<div class="form-horizontal rsepro-horizontal">
+		<?php echo RSEventsproAdapterGrid::renderField('', $importBtns) ?>
+		<?php echo $this->form->renderField('from'); ?>
+		<?php echo $this->form->renderField('from_name'); ?>
 	</div>
 	
 	<div class="form-vertical">
-		<div class="control-group">
-			<div class="control-label">
-				<label for="emails"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_INFO_EMAILS'); ?></label>
-			</div>
-			<div class="controls">
-				<textarea name="jform[emails]" id="emails" cols="60" rows="10" class="input-xxlarge"><?php echo $this->contacts; ?></textarea>
-			</div>
-		</div>
-		
-		<?php if (rseventsproHelper::getConfig('email_invite_message','int')) { ?>
-		<div class="control-group">
-			<div class="control-label">
-				<label for="message"><?php echo JText::_('COM_RSEVENTSPRO_INVITE_MESSAGE'); ?></label>
-			</div>
-			<div class="controls">
-				<textarea name="message" id="message" cols="60" rows="5" class="input-xxlarge"></textarea>
-			</div>
-		</div>
-		<?php } ?>
+		<?php echo $this->form->renderField('emails'); ?>
+		<?php if ($this->config->email_invite_message) echo $this->form->renderField('message'); ?>
 	</div>
 	
 	<?php if (in_array(1,$this->captcha_use)) { ?>
-	<div class="form-horizontal">
-		<div class="control-group">
-			<?php if ($this->config->captcha == 1) { ?>
-			<div class="control-label">
-				<img id="captcha" src="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=captcha&tmpl=component&rand='.rand(),false); ?>" onclick="javascript:reloadCaptcha()" />
-			</div>
-			<div class="controls">
-				<span class="explain">
-					<?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_TEXT'); ?> <br /> <?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_RELOAD'); ?>
-				</span>
-				<input type="text" id="secret" name="secret" value="" class="input-small" />
-			</div>
-			<?php } elseif ($this->config->captcha == 2) { ?>
-			<div id="rse-g-recaptcha"></div>
-			<?php } elseif ($this->config->captcha == 3) { ?>
-			<div id="h-captcha-rseInvite"></div>
-			<?php } ?>
-		</div>
+	<div class="rsepro-invite-captcha">
+		<?php if ($this->config->captcha == 1) { ?>			
+		<img id="captcha" src="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=captcha&tmpl=component&rand='.rand(),false); ?>" onclick="javascript:reloadCaptcha()" />
+		<span class="explain">
+			<?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_TEXT'); ?> <br /> <?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_RELOAD'); ?>
+		</span>
+		<input type="text" id="secret" name="secret" value="" class="input-small" />
+		<?php } elseif ($this->config->captcha == 2) { ?>
+		<div id="rse-g-recaptcha"></div>
+		<?php } elseif ($this->config->captcha == 3) { ?>
+		<div id="h-captcha-rseInvite"></div>
+		<?php } ?>
 	</div>
 	<?php } ?>
 	
 	<div class="form-actions">
-		<button id="rseInviteBtn" type="submit" class="button btn btn-primary" onclick="return rs_invite();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
+		<button id="rseInviteBtn" type="submit" class="btn btn-primary" onclick="return rs_invite();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEND'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 
 		<?php echo rseventsproHelper::redirect(false,JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id))); ?>
 	</div>
 	

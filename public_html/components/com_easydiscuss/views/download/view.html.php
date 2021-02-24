@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,14 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewDownload extends EasyDiscussView
 {
 	/**
 	 * Renders the download account data page
 	 *
-	 * @since	2.2
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function display($tpl = null)
@@ -27,18 +25,18 @@ class EasyDiscussViewDownload extends EasyDiscussView
 		ED::requireLogin();
 
 		if (!$this->config->get('main_userdownload')) {
-			return JError::raiseError(404, JText::_('COM_ED_GDPR_DOWNLOAD_DISABLED'));
+			throw ED::exception('COM_ED_GDPR_DOWNLOAD_DISABLED', ED_MSG_ERROR);
 		}
 
 		if (!$this->my->id) {
-			return JError::raiseError(404, JText::_('COM_ED_GDPR_DOWNLOAD_INVALID_ID'));
+			throw ED::exception('COM_ED_GDPR_DOWNLOAD_INVALID_ID', ED_MSG_ERROR);
 		}
 
 		$download = ED::table('Download');
 		$exists = $download->load(array('userid' => $this->my->id));
 
 		if (!$exists || !$download->isReady()) {
-			return JError::raiseError(404, JText::_('COM_ED_GDPR_DOWNLOAD_INVALID_ID'));
+			throw ED::exception('COM_ED_GDPR_DOWNLOAD_INVALID_ID', ED_MSG_ERROR);
 		}
 
 		return $download->showArchiveDownload();

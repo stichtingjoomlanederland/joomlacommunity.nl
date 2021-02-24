@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,19 +11,25 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div id="ed" class="ed-mod m-whos-online <?php echo $params->get('moduleclass_sfx');?>">   
-    <div class="ed-mod__section">
-        <div class="m-whos-online__content">
+<div id="ed" class="ed-mod ed-mod--whos-online <?php echo $lib->getModuleWrapperClass();?>">
+	<div class="ed-mod-card">
+		<div class="ed-mod-card__body">
 			<?php if ($onlineUsers) { ?>
-				<?php for ($i = 0; $i < count($onlineUsers); $i++) { ?>
-					<span><a href="<?php echo $onlineUsers[$i]->getLink();?>"><?php echo $onlineUsers[$i]->getName();?></a></span>
-					<?php if (next($onlineUsers) !== false) { ?> , <?php } ?>
-				<?php } ?>
-			<?php } ?>
+				<div class="o-card t-bg--100">
+					<div class="o-card__body l-stack">
+						<div class="">
+							<?php for ($i = 0; $i < count($onlineUsers); $i++) { ?>
+								<?php echo $lib->html('user.username', $onlineUsers[$i], ['popbox' => true]); ?>
+								<?php if (next($onlineUsers) !== false) { ?>, <?php } ?>
+							<?php } ?>
 
-			<?php if (($totalGuests && $params->get('showguest')) && $onlineUsers) { ?>
-				<?php echo JText::sprintf('MOD_WHOS_ONLINE_OTHER_GUESTS', $totalGuests); ?>				
+							<?php if (($totalGuests && $params->get('showguest')) && $onlineUsers) { ?>
+								<?php echo JText::sprintf('MOD_WHOS_ONLINE_OTHER_GUESTS', $totalGuests); ?>				
+							<?php } ?>
+						</div>
+					</div>
+				</div>
 			<?php } ?>
-        </div>
-    </div>
+		</div>
+	</div>
 </div>

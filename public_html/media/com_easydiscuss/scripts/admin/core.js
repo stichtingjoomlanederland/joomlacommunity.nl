@@ -10,42 +10,48 @@ ed.require.config({
 		'jquery.uri': 'vendors/jquery.uri',
 		'jquery.server': 'vendors/jquery.server',
 		'jquery.migrate': 'vendors/jquery.migrate',
-		'jquery.flot': 'admin/vendors/jquery.flot',
-		'jquery.joomla': 'admin/vendors/jquery.joomla',
-
 		'dialog': 'vendors/dialog',
 		'bootstrap': 'vendors/bootstrap',
-		'lodash': 'vendors/lodash',
-		'chartjs': 'vendors/chart',
-		'selectize': 'vendors/selectize',
-		'composer': 'vendors/composer',
 		'markitup': 'vendors/markitup',
 		'jquery.expanding': "vendors/jquery.expanding",
-		'jquery.atwho': 'vendors/jquery.atwho',
-		'jquery.caret': 'vendors/jquery.caret',
-		'chosen': 'vendors/jquery.chosen',
-		'select2': 'vendors/select2'
+		'jquery.debounce': 'vendors/jquery.debounce',
+		'select2': 'vendors/select2',
+		'iconpicker': 'admin/vendors/fontawesome-iconpicker',
+		'jquery.joomla': 'admin/vendors/jquery.joomla',
+		'chartjs': 'admin/vendors/chart'
 	}
 });
 
-ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.utils', 'jquery.migrate', 'jquery.server', 'lodash', 'dialog', 'jquery.joomla', 'chartjs', 'select2'], function($) {
+ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.utils', 'jquery.debounce', 'jquery.migrate', 'jquery.server', 'dialog', 'jquery.joomla', 'chartjs', 'select2'], function($) {
 
-	// Implement popover
-	$(document).on("mouseover", "[rel=ed-popover]", function(){
-		$(this).popover({container: 'body', delay: { show: 100, hide: 100},animation: false, trigger: 'hover'});
+	var filters = $('[data-table-filter]');
+
+	var initSelect2Dropdown = function(element, options) {
+		var opts = $.extend({}, {
+						'width': 'resolve',
+						'minimumResultsForSearch': 3
+					}, options);
+
+		$(element).select2(opts);
+	};
+
+	filters.each(function() {
+		var filter = $(this);
+		var totalChildren = filter.children().length;
+
+		initSelect2Dropdown(filter, {
+			'theme': 'backend',
+			'minimumResultsForSearch': totalChildren > 5 ? 3 : Infinity
+		});
 	});
 
-	$('[data-ed-table-filter]').select2({
-		'theme': 'backend',
-		'width': 'resolve',
-		'minimumResultsForSearch': Infinity
-	});
+	initSelect2Dropdown('[data-ed-select]');
 
-	$('[data-ed-table-filter]').on('select2:open', function() {
+	$('[data-table-filter]').on('select2:open', function() {
 		$('body').addClass('has-select2-dropdown');
 	});
 
-	$('[data-ed-table-filter]').on('select2:close', function() {
+	$('[data-table-filter]').on('select2:close', function() {
 		$('body').removeClass('has-select2-dropdown');
 	});
 
@@ -81,6 +87,18 @@ ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.
 
 	});
 
+	// Admin toolbar actions
+	//
+	var actionsButton = $('[data-ed-admin-actions]');
+
+	if (actionsButton.length > 0) {
+		actionsButton
+			.removeClass('t-hidden')
+			.appendTo('#toolbar');
+	}
+
+	// End Admin toolbar
+	
 	// Tooltips
 	// detect if mouse is being used or not.
 	var tooltipLoaded = false;
@@ -119,8 +137,8 @@ ed.define('edq', ['edjquery', 'easydiscuss', 'jquery.uri', 'bootstrap', 'jquery.
 		return nRes;
 	}
 
-	var addTooltip = $._.debounce(function(){
-
+	var addTooltip = $.debounce(function(){
+	
 		if (!tooltipLoaded && mouseCount > 10) {
 
 			tooltipLoaded = true;

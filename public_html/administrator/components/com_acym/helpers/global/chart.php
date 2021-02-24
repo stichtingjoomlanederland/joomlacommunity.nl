@@ -1,8 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
+{
+    return acym_lineChart($id, $dataMonth, $dataDay, $dataHour);
+}
+
+function acym_lineChart($id, $dataMonth, $dataDay, $dataHour, $ajax = false)
 {
     acym_initializeChart();
 
@@ -75,6 +78,7 @@ function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
                 </div>';
 
     $return .= '<script>
+                '.($ajax ? '' : 'document.addEventListener("DOMContentLoaded", function () {').'
                     var ctx = document.getElementById("'.$idCanvas.'").getContext("2d");
                     
                     var gradientBlue = ctx.createLinearGradient(0, 0, 0, 400);
@@ -225,6 +229,7 @@ function acym_line_chart($id, $dataMonth, $dataDay, $dataHour)
                         elem.classList.add("selected__choose_by");
                     }
                     document.querySelector(".selected__choose_by").click();
+                '.($ajax ? '' : '});').'
                 </script>';
 
     return $return;
@@ -240,10 +245,10 @@ function acym_initializeChart()
     }
 }
 
-function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel = '', $bottomLabel = '', $colorChart = '')
+function acym_roundChart($id, $percentage, $type = '', $class = '', $topLabel = '', $bottomLabel = '', $colorChart = '')
 {
-    if ($pourcentage != 0 && empty($pourcentage)) {
-        return;
+    if ($percentage !== 0 && empty($percentage)) {
+        return '';
     }
 
     acym_initializeChart();
@@ -278,6 +283,11 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
             $valueLow = 10;
             $isInverted = true;
             break;
+        case 'unsubscribe':
+            $valueHigh = 10;
+            $valueLow = 1;
+            $isInverted = true;
+            break;
         default:
             $isFixColor = true;
     }
@@ -285,11 +295,11 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
     if ($isFixColor) {
         $color = !empty($colorChart) ? $colorChart : $defaultColor;
     } else {
-        if ($pourcentage >= $valueHigh) {
+        if ($percentage >= $valueHigh) {
             $color = $isInverted ? $red : $green;
-        } elseif ($pourcentage < $valueHigh && $pourcentage >= $valueLow) {
+        } elseif ($percentage < $valueHigh && $percentage >= $valueLow) {
             $color = $orange;
-        } elseif ($pourcentage < $valueLow) {
+        } elseif ($percentage < $valueLow) {
             $color = $isInverted ? $green : $red;
         } else {
             $color = $defaultColor;
@@ -306,6 +316,7 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
                         <p class="acym__chart__doughnut__container__bottom-label text-center">'.$bottomLabel.'</p>
                 </div>';
     $return .= '<script>
+            document.addEventListener("DOMContentLoaded", function () {
             Chart.pluginService.register({
                 beforeDraw: function(chart){
                     if(chart.config.options.elements.center){
@@ -330,7 +341,7 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
             var config = {
                 type: "doughnut", data: {
                     datasets: [{
-                        data: ['.$pourcentage.', (100 - '.$pourcentage.')], //Data of chart
+                        data: ['.$percentage.', (100 - '.$percentage.')], //Data of chart
                          backgroundColor: ["'.$color.'", "#f1f1f1"], //Two color of chart
                          borderWidth: 0 //no border
                     }]
@@ -341,7 +352,7 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
                      }, 
                     elements: {
                         center: {
-                            text: "'.$pourcentage.'%", color: "#363636", 
+                            text: "'.$percentage.'%", color: "#363636", 
                             fontStyle: "Poppins", 
                             sidePadding: 70 
                         }
@@ -353,9 +364,113 @@ function acym_round_chart($id, $pourcentage, $type = '', $class = '', $topLabel 
                 }
             };
             var chart = new Chart(ctx, config);
+            });
         </script>';
 
 
     return $return;
 }
 
+
+function acym_pieChart($id, $data = [], $class = '', $topLabel = '', $bottomLabel = '')
+{
+    if (empty($data)) return '';
+
+    acym_initializeChart();
+
+    if (empty($id)) {
+        $id = 'acy_pie_chart_rand_id'.rand(1000, 9000);
+    }
+
+    $idCanvas = 'acy_canvas_rand_id'.rand(1000, 9000);
+    $idLegend = 'acy_legend_rand_id'.rand(1000, 9000);
+
+    $allLabelsArray = [];
+    $colors = [];
+
+    asort($data);
+    $data = array_reverse($data, true);
+    $position = 0;
+    foreach ($data as $label => $number) {
+        $data[$label] = (float)$number;
+        $allLabelsArray[] = $label;
+        $colors[] = acym_getChartColor($position);
+        $position++;
+    }
+
+    $allNumbers = implode(',', $data);
+    $allLabels = "'".implode("', '", $allLabelsArray)."'";
+    $allColors = "'".implode("', '", $colors)."'";
+
+    $return = '<div class="'.$class.' acym__chart__pie grid-x">
+                        <p class="text-center acym__chart__pie__container__top-label cell medium-6">'.$topLabel.'</p>
+                        <div class="acym__chart__pie__container grid-x cell" id="'.$id.'">
+                            <div class="acym__chart__pie__canvas_container cell medium-6">                            
+                                <canvas id="'.$idCanvas.'" width="200" height="200"></canvas> 
+                            </div>
+                            <div class="acym__chart__pie__legend cell medium-6 padding-left-1" id="'.$idLegend.'"></div>
+                        </div>
+                </div>';
+
+    $return .= '<script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var ctx = document.getElementById("'.$idCanvas.'").getContext("2d");
+            var config = {
+                type: "pie",
+                 data: {
+                    datasets: [{
+                        data: ['.$allNumbers.'], //Data of chart
+                        backgroundColor: ['.$allColors.'],
+                    }],
+                    labels: ['.$allLabels.']
+                }, options: {
+                    responsive: true,
+                    legend: {
+                        display: false,
+                     }, 
+                    tooltips: {
+                        backgroundColor: "#fff",
+                        borderWidth: 2,
+                        borderColor: "#303e46",
+                        titleFontSize: 16,
+                        titleFontColor: "#303e46",
+                        bodyFontColor: "#303e46",
+                        bodyFontSize: 14,
+                    },
+                    legendCallback: function(chart) {
+                        let dataSets = chart.data.datasets;
+                        let colors = dataSets[0].backgroundColor;
+                        let numbers = dataSets[0].data;
+                        let labels = chart.data.labels;
+                        let text = [];
+                        
+                        if (colors.length !== labels.length) {
+                            return "";
+                        }
+                        
+                        for (let i = 0; i < labels.length; i++) {
+                            text.push(\'<div class="acym_chart_pie_labels"><div class="acym_chart_pie_labels_circle" style="background-color: \' + colors[i] + \'"></div>\' + labels[i] + " (" + numbers[i] + ")" + \'</div>\');
+                        }
+                        
+                        return text.join("");
+                    },
+                }
+            };
+            var chart = new Chart(ctx, config);
+            document.getElementById("'.$idLegend.'").innerHTML = (chart.generateLegend());
+        });
+</script>';
+
+    return $return;
+}
+
+function acym_getChartColor($position = null)
+{
+    if ($position === null) {
+        return 'rgba('.round(rand(0, 100) * 2.55).','.round(rand(0, 100) * 2.55).','.round(rand(0, 100) * 2.55).',.8)';
+    }
+
+    $colors = ['#845EC2', '#D65DB1', '#FF6F91', '#FF9671', '#FFC75F', '#F9F871', '#8BE884', '#00CFA9', '#00AFC6', '#008AC9', '#2261AC'];
+
+    return $colors[$position % 11];
+}

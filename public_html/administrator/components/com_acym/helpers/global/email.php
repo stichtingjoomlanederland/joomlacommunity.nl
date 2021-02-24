@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_getEmailRegex($secureJS = false, $forceRegex = false)
 {
@@ -70,4 +68,3 @@ function acym_isValidEmail($email, $extended = false)
 
     return true;
 }
-

@@ -11,15 +11,20 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div id="mod-easyblog-tagcloud" class="ezb-mod eblog-module-tagcloud<?php echo $params->get('moduleclass_sfx') ?>">
-	<?php if (!empty($tagcloud)) { ?>
-		<?php foreach($tagcloud as $tag){ ?>
-		<a	style="font-size: <?php echo floor($tag->fontsize); ?>px;" class="tag-cloud"
-		href="<?php echo EDR::getTagRoute($tag->id . ':' . $tag->alias); ?>">
-			<?php echo ED::string()->escape($tag->title); ?>
-		</a>
-		<?php } ?>
-	<?php } else { ?>
-		<?php echo JText::_('MOD_EASYDISCUSSTAGCLOUD_NO_TAG'); ?>
-	<?php } ?>
+<div id="ed" class="ed-mod ed-mod--tagcloud <?php echo $lib->getModuleWrapperClass();?>">
+	<div class="ed-mod-card">
+		<div class="ed-mod-card__body">
+			<?php if ($tagcloud) { ?>
+				<?php foreach($tagcloud as $tag) { ?>
+					<a href="<?php echo EDR::getTagRoute($tag->id . ':' . $tag->alias);?>" class="tag-cloud"
+						style="font-size: <?php echo floor($tag->fontsize);?>px;"
+						>
+						<?php echo ED::string()->escape($tag->title); ?>
+					</a>
+				<?php } ?>
+			<?php } else { ?>
+				<?php echo JText::_('MOD_EASYDISCUSSTAGCLOUD_NO_TAG'); ?>
+			<?php } ?>
+		</div>
+	</div>
 </div>

@@ -3,7 +3,7 @@
  * Akeeba Engine
  *
  * @package   akeebaengine
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -14,6 +14,7 @@ defined('AKEEBAENGINE') || die();
 use Akeeba\Engine\Base\Part;
 use Akeeba\Engine\Factory;
 use Akeeba\Engine\Platform;
+use Akeeba\Engine\Postproc\Base;
 use DateTime;
 use Exception;
 use Psr\Log\LogLevel;
@@ -323,135 +324,120 @@ class Finalization extends Part
 			return true;
 		}
 
-		$emailFeatureEnabled = Platform::getInstance()->get_platform_configuration_option('frontend_email_on_finish', 0) != 0;
-
-		/**
-		 * Possible values:
-		 * - always (default): email every time we reach this code
-		 * - failedupload    : email only when the upload to remote storage has failed
-		 */
-		$emailWhen = Platform::getInstance()->get_platform_configuration_option('frontend_email_when', 'always');
-
-		if (!$emailFeatureEnabled)
+		// Is the feature enabled?
+		if (Platform::getInstance()->get_platform_configuration_option('frontend_email_on_finish', 0) == 0)
 		{
 			return true;
 		}
 
 		Factory::getLog()->debug("Preparing to send e-mail to administrators");
 
-		$email = Platform::getInstance()->get_platform_configuration_option('frontend_email_address', '');
-		$email = trim($email);
+		$email = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_address', ''));
 
 		if (!empty($email))
 		{
 			Factory::getLog()->debug("Using pre-defined list of emails");
+
 			$emails = explode(',', $email);
 		}
 		else
 		{
 			Factory::getLog()->debug("Fetching list of Super Administrator emails");
+
 			$emails = Platform::getInstance()->get_administrator_emails();
 		}
 
-		if (!empty($emails))
+		if (empty($emails))
 		{
-			Factory::getLog()->debug("Creating email subject and body");
-			// Fetch user's preferences
-			$subject = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_subject', ''));
-			$body    = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_body', ''));
+			Factory::getLog()->debug("No email recipients found! Skipping email.");
 
-			// Get the statistics
-			$statistics = Factory::getStatistics();
-			$stat       = $statistics->getRecord();
-			$parts      = Factory::getStatistics()->get_all_filenames($stat, false);
+			return true;
+		}
 
-			$profile_number = Platform::getInstance()->get_active_profile();
-			$profile_name   = Platform::getInstance()->get_profile_name($profile_number);
-			$parts          = Factory::getStatistics()->get_all_filenames($stat, false);
-			$stat           = (object) $stat;
-			$num_parts      = $stat->multipart;
+		Factory::getLog()->debug("Creating email subject and body");
 
-			// Non-split archives have a part count of 0
-			if ($num_parts == 0)
+		// Get the statistics
+		$statistics    = Factory::getStatistics();
+		$profileNumber = Platform::getInstance()->get_active_profile();
+		$profileName   = Platform::getInstance()->get_profile_name($profileNumber);
+		$statsRecord   = $statistics->getRecord();
+		$partsCount    = max(1, $statsRecord['multipart']);
+		$allFilenames  = $this->getPartFilenames($statsRecord);
+		$filesList     = implode("\n", array_map(function ($file) {
+			return "\t" . $file;
+		}, $allFilenames));
+		$totalSize     = (int) ($statsRecord['total_size'] ?? 0);
+
+		// Get the approximate part sizes and create a list of files and sizes
+		$configuration     = Factory::getConfiguration();
+		$partSize          = $configuration->get('engine.archiver.common.part_size', 0);
+		$lastPartSize      = $totalSize - (($partsCount - 1) * $partSize);
+		$partSizes         = array_fill(0, $partsCount - 1, $partSize);
+		$partSizes[]       = $lastPartSize;
+		$filesAndSizesList = implode("\n", array_map(function ($file, $size) {
+			return sprintf("\t%s (approx. %s)", $file, $this->formatByteSize($size));
+		}, $allFilenames, $partSizes));
+
+		// Determine the upload to remote storage status
+		$remoteStatus   = '';
+		$failedUpdate   = false;
+		$postProcEngine = Factory::getConfiguration()->get('akeeba.advanced.postproc_engine');
+
+		if (!empty($postProcEngine) && ($postProcEngine != 'none'))
+		{
+			$remoteStatus = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_SUCCESS');
+
+			if (empty($statsRecord['remote_filename']))
 			{
-				$num_parts = 1;
+				$failedUpdate = true;
+				$remoteStatus = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_FAILED');
 			}
+		}
 
-			$parts_list = '';
+		// Did the user ask to be emailed only on failed uploads but the upload has succeeded?
+		if (!$failedUpdate && (Platform::getInstance()->get_platform_configuration_option('frontend_email_when', 'always') == 'failedupload'))
+		{
+			return true;
+		}
 
-			if (!empty($parts))
-			{
-				foreach ($parts as $file)
-				{
-					$parts_list .= "\t" . basename($file) . "\n";
-				}
-			}
+		// Fetch user's preferences
+		$subject = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_subject', ''));
+		$body    = trim(Platform::getInstance()->get_platform_configuration_option('frontend_email_body', ''));
 
-			// Get the remote storage status
-			$remote_status       = '';
-			$post_proc_engine    = Factory::getConfiguration()->get('akeeba.advanced.postproc_engine');
-			$failedUploadMessage = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_FAILED');
+		// Get a default subject or post-process a manually defined subject
+		$subject = empty($subject)
+			? Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_SUBJECT_OK')
+			: Factory::getFilesystemTools()->replace_archive_name_variables($subject);
 
-			if (!empty($post_proc_engine) && ($post_proc_engine != 'none'))
-			{
-				if (empty($stat->remote_filename))
-				{
-					$remote_status = $failedUploadMessage;
-				}
-				else
-				{
-					$remote_status = Platform::getInstance()->translate('COM_AKEEBA_EMAIL_POSTPROCESSING_SUCCESS');
-				}
-			}
-
-			// Did the user ask to be emailed only on failed uploads but the upload has succeeded?
-			if (($emailWhen == 'failedupload') && ($remote_status != $failedUploadMessage))
-			{
-				return true;
-			}
-
-			// Do we need a default subject?
-			if (empty($subject))
-			{
-				// Get the default subject
-				$subject = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_SUBJECT_OK');
-			}
-			else
-			{
-				// Post-process the subject
-				$subject = Factory::getFilesystemTools()->replace_archive_name_variables($subject);
-			}
-
-			// Do we need a default body?
-			if (empty($body))
-			{
-				$body        = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_OK');
-				$info_source = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_INFO');
-				$body        .= "\n\n" . sprintf($info_source, $profile_number, $num_parts) . "\n\n";
-				$body        .= $parts_list;
-			}
-			else
-			{
-				// Post-process the body
-				$body = Factory::getFilesystemTools()->replace_archive_name_variables($body);
-				$body = str_replace('[PROFILENUMBER]', $profile_number, $body);
-				$body = str_replace('[PROFILENAME]', $profile_name, $body);
-				$body = str_replace('[PARTCOUNT]', $num_parts, $body);
-				$body = str_replace('[FILELIST]', $parts_list, $body);
-				$body = str_replace('[REMOTESTATUS]', $remote_status, $body);
-			}
-			// Sometimes $body contains literal \n instead of newlines
-			$body = str_replace('\\n', "\n", $body);
-
-			foreach ($emails as $email)
-			{
-				Factory::getLog()->debug("Sending email to $email");
-				Platform::getInstance()->send_email($email, $subject, $body);
-			}
+		// Do we need a default body?
+		if (empty($body))
+		{
+			$body = Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_OK');
+			$body .= "\n\n";
+			$body .= sprintf(Platform::getInstance()->translate('COM_AKEEBA_COMMON_EMAIL_BODY_INFO'), $profileNumber, $partsCount);
+			$body .= "\n\n";
+			$body .= $filesAndSizesList;
 		}
 		else
 		{
-			Factory::getLog()->debug("No email recipients found! Skipping email.");
+			// Post-process the body
+			$body = Factory::getFilesystemTools()->replace_archive_name_variables($body);
+			$body = str_replace('[PROFILENUMBER]', $profileNumber, $body);
+			$body = str_replace('[PROFILENAME]', $profileName, $body);
+			$body = str_replace('[PARTCOUNT]', $partsCount, $body);
+			$body = str_replace('[FILELIST]', $filesList, $body);
+			$body = str_replace('[FILESIZESLIST]', $filesAndSizesList, $body);
+			$body = str_replace('[REMOTESTATUS]', $remoteStatus, $body);
+			$body = str_replace('[TOTALSIZE]', $this->formatByteSize($totalSize), $body);
+		}
+
+		// Sometimes $body contains literal \n instead of newlines
+		$body = str_replace('\\n', "\n", $body);
+
+		foreach ($emails as $email)
+		{
+			Factory::getLog()->debug("Sending email to $email");
+			Platform::getInstance()->send_email($email, $subject, $body);
 		}
 
 		return true;
@@ -490,6 +476,14 @@ class Finalization extends Part
 		Factory::getLog()->debug("Loading post-processing engine object ($engine_name)");
 
 		$post_proc = Factory::getPostprocEngine($engine_name);
+
+		if (!is_object($post_proc) || !($post_proc instanceof Base))
+		{
+			Factory::getLog()->debug("Post-processing engine “{$engine_name}” not found.");
+			Factory::getLog()->debug("The post-processing engine has either been removed or you are trying to use a profile created with the Professional version of the backup software in the Core version which doesn't have this post-processing engine.");
+
+			return true;
+		}
 
 		// Initialize the archive part list if required
 		if (empty($this->backup_parts))
@@ -790,6 +784,12 @@ class Finalization extends Part
 			return false;
 		}
 
+		/**
+		 * We could have handled it in $data above. However, if the schema has not been updated this function will
+		 * continue failing inifnitely, causing the backup to never end.
+		 */
+		$statistics->updateInStep(false);
+
 		$stat = (object) $statistics->getRecord();
 		Platform::getInstance()->remove_duplicate_backup_records($stat->archivename);
 
@@ -899,6 +899,13 @@ class Finalization extends Part
 			{
 				$stat = Platform::getInstance()->get_statistics($id);
 
+				// Exclude frozen record from quota management
+				if (isset($stat['frozen']) && $stat['frozen'])
+				{
+					Factory::getLog()->debug(sprintf("Excluding frozen backup id %d from quota management", $id));
+					continue;
+				}
+
 				try
 				{
 					$backupstart = new DateTime($stat['backupstart']);
@@ -1005,8 +1012,8 @@ class Finalization extends Part
 							elseif (@file_exists(dirname($filePath) . '/' . substr($file['logname'], 0, -4)))
 							{
 								/**
-								 * Transitional period: the log file akeeba.tag.log.php may not exist but the
-								 * akeeba.tag.log does. This addresses this transition.
+								 * Bad host: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log file
+								 * does. This code addresses this problem.
 								 */
 								$killLogs[] = dirname($filePath) . '/' . substr($file['logname'], 0, -4);
 							}
@@ -1033,7 +1040,7 @@ class Finalization extends Part
 			else
 			{
 				Factory::getLog()->debug("Processing count quotas");
-				// Yes, aply the quota setting. Add to $ret all entries minus the last
+				// Yes, apply the quota setting. Add to $ret all entries minus the last
 				// $countQuota ones.
 				$totalRecords = count($allFiles);
 				$checkLimit   = $totalRecords - $countQuota;
@@ -1069,8 +1076,8 @@ class Finalization extends Part
 									elseif (@file_exists(dirname($filePath) . '/' . substr($def['logname'], 0, -4)))
 									{
 										/**
-										 * Transitional period: the log file akeeba.tag.log.php may not exist but the
-										 * akeeba.tag.log does. This addresses this transition.
+										 * Bad host: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log file
+										 * does. This code addresses this problem.
 										 */
 										$killLogs[] = dirname($filePath) . '/' . substr($def['logname'], 0, -4);
 									}
@@ -1123,7 +1130,19 @@ class Finalization extends Part
 
 							if (!empty($filePath))
 							{
-								$killLogs[] = dirname($filePath) . '/' . $def['logname'];
+								if (@file_exists(dirname($filePath) . '/' . $def['logname']))
+								{
+									$killLogs[] = dirname($filePath) . '/' . $def['logname'];
+
+								}
+								elseif (@file_exists(dirname($filePath) . '/' . substr($def['logname'], 0, -4)))
+								{
+									/**
+									 * Bad host: the log file akeeba.tag.log.php may not exist but the akeeba.tag.log file
+									 * does. This code addresses this problem.
+									 */
+									$killLogs[] = dirname($filePath) . '/' . substr($def['logname'], 0, -4);
+								}
 							}
 						}
 					}
@@ -1217,7 +1236,7 @@ class Finalization extends Part
 		// Remove the files
 		$timer = Factory::getTimer();
 
-		while ($timer->getRunningTime() && count($this->remote_files_killlist))
+		while ($timer->getRunningTime() && (is_array($this->remote_files_killlist) || $this->remote_files_killlist instanceof \Countable ? count($this->remote_files_killlist) : 0))
 		{
 			$filename = array_shift($this->remote_files_killlist);
 
@@ -1246,7 +1265,7 @@ class Finalization extends Part
 		}
 
 		// Return false if we have more work to do or true if we're done
-		if (count($this->remote_files_killlist))
+		if (is_array($this->remote_files_killlist) || $this->remote_files_killlist instanceof \Countable ? count($this->remote_files_killlist) : 0)
 		{
 			Factory::getLog()->debug("Remote file removal will continue in the next step");
 
@@ -1290,6 +1309,12 @@ class Finalization extends Part
 		foreach ($allRecords as $item)
 		{
 			if ($item['id'] == $latestBackupId)
+			{
+				continue;
+			}
+
+			// Skip frozen records
+			if (isset($item['frozen']) && $item['frozen'])
 			{
 				continue;
 			}
@@ -1574,5 +1599,49 @@ class Finalization extends Part
 			->where($db->qn('id') . " IN ($ids)");
 		$db->setQuery($query);
 		$db->query();
+	}
+
+	/**
+	 * Formats a number of bytes in human readable format
+	 *
+	 * @param   int  $size  The size in bytes to format, e.g. 8254862
+	 *
+	 * @return  string  The human-readable representation of the byte size, e.g. "7.87 Mb"
+	 */
+	private function formatByteSize(int $size): string
+	{
+		$unit = ['b', 'KB', 'MB', 'GB', 'TB', 'PB'];
+
+		return @round($size / 1024 ** ($i = floor(log($size, 1024))), 2) . ' ' . $unit[$i];
+	}
+
+	private function getPartFilenames(array $statsRecord): array
+	{
+		$baseFile = basename($statsRecord['absolute_path'] ?? $statsRecord['archivename'] ?? $statsRecord['remote_filename'] ?? '');
+
+		if (empty($baseFile))
+		{
+			return [];
+		}
+
+		$partsCount = max($statsRecord['multipart'] ?? 1, 1);
+
+		if ($partsCount === 1)
+		{
+			return [$baseFile];
+		}
+
+		$ret       = [];
+		$extension = substr($baseFile, strrpos($baseFile, '.'));
+		$bareName  = basename($baseFile, $extension);
+
+		for ($i = 1; $i < $partsCount; $i++)
+		{
+			$ret[] = $bareName . substr($extension, 0, 2) . sprintf('%02d', $i);
+		}
+
+		$ret[] = $baseFile;
+
+		return $ret;
 	}
 }

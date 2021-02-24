@@ -3,10 +3,12 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Form\Form;
 use Joomla\CMS\Helper\ContentHelper;
@@ -15,8 +17,6 @@ use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Pagination\Pagination;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\Registry\Registry;
-
-defined('_JEXEC') or die;
 
 /**
  * Subscriptions list.
@@ -32,7 +32,7 @@ class JdidealgatewayViewSubscriptions extends HtmlView
 	 * @var    Form
 	 * @since  5.0.0
 	 */
-	public $filterForm = array();
+	public $filterForm = [];
 
 	/**
 	 * List of active filters
@@ -40,7 +40,7 @@ class JdidealgatewayViewSubscriptions extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	public $activeFilters = array();
+	public $activeFilters = [];
 
 	/**
 	 * List of properties
@@ -48,7 +48,7 @@ class JdidealgatewayViewSubscriptions extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	protected $items = array();
+	protected $items = [];
 
 	/**
 	 * The model state
@@ -104,42 +104,43 @@ class JdidealgatewayViewSubscriptions extends HtmlView
 		$this->activeFilters = $model->getActiveFilters();
 		$this->canDo         = ContentHelper::getActions('com_jdidealgateway');
 
-		// Show the toolbar
 		$this->toolbar();
 
-		// Render the sidebar
-		$jdidealgatewayHelper = new JdidealGatewayHelper;
-		$jdidealgatewayHelper->addSubmenu('subscriptions');
-		$this->sidebar = JHtmlSidebar::render();
+		if (JVERSION < 4)
+		{
+			$jdidealgatewayHelper = new JdidealGatewayHelper;
+			$jdidealgatewayHelper->addSubmenu('subscriptions');
+			$this->sidebar = JHtmlSidebar::render();
+		}
 
-		// Display it all
 		return parent::display($tpl);
 	}
 
 	/**
 	 * Displays a toolbar for a specific page.
 	 *
-	 * @return  void.
+	 * @return  void
 	 *
 	 * @since   5.0.0
 	 */
-	private function toolbar()
+	private function toolbar(): void
 	{
 		ToolbarHelper::title(Text::_('COM_ROPAYMENTS_SUBSCRIPTIONS'), 'calendar');
 
 		if ($this->canDo->get('core.create'))
 		{
-			ToolbarHelper::addNew('subscription.add');
+//			ToolbarHelper::addNew('subscription.add');
+			ToolbarHelper::custom('subscriptions.sync', 'refresh', 'refresh', Text::_('COM_ROPAYMENTS_SYNC'), false);
 		}
 
 		if ($this->canDo->get('core.edit') || $this->canDo->get('core.edit.own'))
 		{
-			ToolbarHelper::editList('subscription.edit');
+//			ToolbarHelper::editList('subscription.edit');
 		}
 
 		if ($this->canDo->get('core.delete'))
 		{
-			ToolbarHelper::deleteList('JGLOBAL_CONFIRM_DELETE', 'subscriptions.delete', 'JTOOLBAR_CANCEL');
+			ToolbarHelper::deleteList('COM_ROPAYMENTS_CONFIRM_SUBSCRIPTION_DELETE', 'subscriptions.delete', 'JTOOLBAR_CANCEL');
 		}
 	}
 }

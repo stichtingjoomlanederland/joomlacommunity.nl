@@ -16,14 +16,14 @@ RSEventsPro.Event = {
 	// Initialize the buttons
 	init: function () {
 		// Set the active tab
-		jQuery('.rsepro-edit-event > ul > li > a').each(function(i, el) {
+		jQuery('#rsepro-edit-menu > li > a').each(function(i, el) {
 			if (i == jQuery('#tab').val() && i != 0) {
 				el.click();
 			}
 		});
 		
 		// Update the tab
-		jQuery('.rsepro-edit-event > ul > li > a').on('click', function() {
+		jQuery('#rsepro-edit-menu > li > a').on('click', function() {
 			var tabindex = jQuery(this).parent().index();
 			
 			if (tabindex != 0) {
@@ -350,11 +350,11 @@ RSEventsPro.Event = {
 			jQuery('#rsepro-overbooking-amount').css('display','');
 			jQuery('#jform_max_tickets').prop('disabled',true);
 			jQuery('#jform_max_tickets').prop('checked',false);
-			jQuery('#jform_max_tickets').parent().parent().addClass('muted');
+			jQuery('#jform_max_tickets').parent().parent().addClass(rsepro_muted_class);
 		} else {
 			jQuery('#rsepro-overbooking-amount').css('display','none');
 			jQuery('#jform_max_tickets').prop('disabled',false);
-			jQuery('#jform_max_tickets').parent().parent().removeClass('muted');
+			jQuery('#jform_max_tickets').parent().parent().removeClass(rsepro_muted_class);
 		}
 	},
 	
@@ -364,11 +364,11 @@ RSEventsPro.Event = {
 			jQuery('#rsepro-max-tickets-amount').css('display','');
 			jQuery('#jform_overbooking').prop('disabled',true);
 			jQuery('#jform_overbooking').prop('checked',false);
-			jQuery('#jform_overbooking').parent().parent().addClass('muted');
+			jQuery('#jform_overbooking').parent().parent().addClass(rsepro_muted_class);
 		} else {
 			jQuery('#rsepro-max-tickets-amount').css('display','none');
 			jQuery('#jform_overbooking').prop('disabled',false);
-			jQuery('#jform_overbooking').parent().parent().removeClass('muted');
+			jQuery('#jform_overbooking').parent().parent().removeClass(rsepro_muted_class);
 		}
 	},
 	
@@ -405,13 +405,9 @@ RSEventsPro.Event = {
 		var container	= jQuery('#rsepro-event-files');
 		var div1		= jQuery('<div>', { 'class' : 'control-group'});
 		var div2		= jQuery('<div>', { 'class' : 'controls'});
-		var input		= jQuery('<input>', { 'class' : 'input-large', 'name' : 'files[]', 'type' : 'file'});
-		var a			= jQuery('<a>', { 'href' : 'javascript:void(0)'}).on('click', function() { RSEventsPro.Event.removeInputFile(this); });
-		var i			= jQuery('<i>', { 'class' : 'fa fa-times'});
+		var input		= jQuery('<input>', { 'class' : 'input-large form-control', 'name' : 'files[]', 'type' : 'file'});
 		
 		div2.append(input);
-		a.html(i);
-		div2.append(a);
 		div1.append(div2);
 		container.append(div1);
 	},
@@ -432,7 +428,7 @@ RSEventsPro.Event = {
 		if (jQuery('#jform_registration').is(':checked')) {
 			jQuery('#jform_rsvp').prop('checked', false);
 			jQuery('#jform_rsvp').prop('disabled', true);
-			jQuery('#jform_rsvp_label').addClass('muted');
+			jQuery('#jform_rsvp').parents('label').addClass(rsepro_muted_class);
 			
 			if (jQuery('#jform_discounts').is(':checked')) {
 				jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent().slideDown();
@@ -445,7 +441,7 @@ RSEventsPro.Event = {
 			}
 		} else {
 			jQuery('#jform_rsvp').prop('disabled', false);
-			jQuery('#jform_rsvp_label').removeClass('muted');
+			jQuery('#jform_rsvp').parents('label').removeClass(rsepro_muted_class);
 			
 			jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent().slideUp();
 			jQuery('ul li a[data-target="#rsepro-edit-tab7"]').parent().slideUp();
@@ -458,10 +454,10 @@ RSEventsPro.Event = {
 		if (jQuery('#jform_rsvp').is(':checked')) {
 			jQuery('#jform_registration').prop('disabled', true);
 			jQuery('#jform_registration').prop('checked', false);
-			jQuery('#jform_registration_label').addClass('muted');
+			jQuery('#jform_registration').parents('label').addClass(rsepro_muted_class);
 		} else {
 			jQuery('#jform_registration').prop('disabled', false);
-			jQuery('#jform_registration_label').removeClass('muted');
+			jQuery('#jform_registration').parents('label').removeClass(rsepro_muted_class);
 		}
 		
 		jQuery('ul li a[data-target="#rsepro-edit-tabrsvp"]').parent().slideToggle();
@@ -479,9 +475,9 @@ RSEventsPro.Event = {
 		jQuery('ul li a[data-target="#rsepro-edit-tab8"]').parent().slideToggle();
 		
 		if (jQuery('#jform_recurring').is(':checked')) {
-			jQuery('#jform_recurring').parent().find('small').css('display','');
+			jQuery('#rsepro-recurring-info').css('display','');
 		} else {
-			jQuery('#jform_recurring').parent().find('small').css('display','none');
+			jQuery('#rsepro-recurring-info').css('display','none');
 		}
 	},
 	
@@ -584,8 +580,15 @@ RSEventsPro.Event = {
 			return;
 		}
 		
-		if (jQuery('#jform_repeatalso option[value="' + value + '"]').length == 0) {
-			jQuery('#jform_repeatalso').append(jQuery('<option>', { 'text': value, 'value': value }));
+		if (jQuery('#jform_repeat_also option[value="' + value + '"]').length == 0) {
+			if (document.querySelector('.repeat_also_fancy') !== null) {
+				document.querySelector('.repeat_also_fancy').choicesInstance.setChoices([
+					{ value: value, text: value, selected: true }
+				], 'value', 'text');
+			} else {
+				jQuery('#jform_repeat_also').append(jQuery('<option>', { 'text': value, 'value': value, selected: true }));
+				jQuery('#jform_repeat_also').trigger('liszt:updated');
+			}
 		}
 		
 		jQuery('#repeat_date').val('');
@@ -600,8 +603,15 @@ RSEventsPro.Event = {
 			return;
 		}
 		
-		if (jQuery('#jform_excludedates option[value="' + value + '"]').length == 0) {
-			jQuery('#jform_excludedates').append(jQuery('<option>', { 'text': value, 'value': value }));
+		if (jQuery('#jform_exclude_dates option[value="' + value + '"]').length == 0) {
+			if (document.querySelector('.exclude_dates_fancy') !== null) {
+				document.querySelector('.exclude_dates_fancy').choicesInstance.setChoices([
+					{ value: value, text: value, selected: true }
+				], 'value', 'text');
+			} else {
+				jQuery('#jform_exclude_dates').append(jQuery('<option>', { 'text': value, 'value': value, selected: true }));
+				jQuery('#jform_exclude_dates').trigger('liszt:updated');
+			}
 		}
 		
 		jQuery('#exclude_date').val('');
@@ -610,13 +620,13 @@ RSEventsPro.Event = {
 	
 	// Remove recurring dates
 	removeRecurringDates: function() {
-		jQuery('#jform_repeatalso option:selected').remove();
+		jQuery('#jform_repeat_also option:selected').remove();
 		RSEventsPro.Event.repeats();
 	},
 	
 	// Remove exclude dates
 	removeExcludeDates: function() {
-		jQuery('#jform_excludedates option:selected').remove();
+		jQuery('#jform_exclude_dates option:selected').remove();
 		RSEventsPro.Event.repeats();
 	},
 	
@@ -656,15 +666,35 @@ RSEventsPro.Event = {
 		}).done(function( response ) {
 			var clone = jQuery('#category-parent option[value=1]').clone();
 			
-			jQuery('#categories option').remove();
+			if (document.querySelector('.categories_fancy') !== null) {
+				var selectedCategories = document.querySelector('.categories_fancy').choicesInstance.getValue();
+				document.querySelector('.categories_fancy').choicesInstance.clearStore();
+			} else {
+				jQuery('#categories option').remove();
+			}
+			
 			jQuery('#category-parent option').remove();
 			jQuery(response).each(function (i,el){
-				jQuery('#categories').append(jQuery('<option>', { 'text': el.text, 'value': el.value }));
+				if (document.querySelector('.categories_fancy') !== null) {
+					document.querySelector('.categories_fancy').choicesInstance.setChoices([
+						{ value: el.value, text: el.text }
+					], 'value', 'text');
+				} else {
+					jQuery('#categories').append(jQuery('<option>', { 'text': el.text, 'value': el.value }));
+				}
+				
 				jQuery('#category-parent').append(jQuery('<option>', { 'text': el.text, 'value': el.value }));
 			});
 			
+			if (document.querySelector('.categories_fancy') !== null) {
+				if (selectedCategories.length) {
+					document.querySelector('.categories_fancy').choicesInstance.setValue(selectedCategories);
+				}
+			} else {
+				jQuery('#categories').trigger('liszt:updated');
+			}
+			
 			jQuery('#category-parent').append(clone);
-			jQuery('#categories').trigger('liszt:updated');
 			jQuery('#rsepro-new-category').val('');
 			jQuery('#rsepro-add-category-loader').css('display','none');
 			
@@ -918,11 +948,12 @@ RSEventsPro.Event = {
 			dataType: 'json',
 			data: params.join('&')
 		}).done(function(response) {
-			jQuery('<li style="display:block;" class="rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a data-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + tName + ' <span class="fa fa-ticket"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
+			jQuery('<li style="display:block;" class="nav-item rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a class="nav-link" data-toggle="tab" data-bs-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" data-bs-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + tName + ' <span class="fa fa-ticket"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
 			jQuery(response.html).insertBefore(jQuery('#rsepro-edit-tab6'));
 			
 			// Add custom js codes
-			jQuery('#ticket_groups'+response.id).chosen();
+			if (typeof jQuery.fn.chosen == 'function') jQuery('select[name="tickets[' + response.id + '][groups][]"]').chosen();
+			
 			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-remove-ticket').on('click', function() {
 				RSEventsPro.Event.removeTicket(jQuery(this).data('id'));
 			});
@@ -971,7 +1002,7 @@ RSEventsPro.Event = {
 			}
 			
 			// Go to the new ticket tab
-			jQuery('.rsepro-edit-event > ul > li > a[data-target="#rsepro-edit-ticket' + response.id + '"]').click();
+			jQuery('#rsepro-edit-menu > li > a[data-target="#rsepro-edit-ticket' + response.id + '"]').click();
 			
 			RSEventsPro.Event.orderTickets();
 			
@@ -1025,11 +1056,11 @@ RSEventsPro.Event = {
 				id: id
 			}
 		}).done(function(response) {
-			jQuery('<li style="display:block;" class="rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a data-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + response.name + ' <span class="fa fa-ticket"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
+			jQuery('<li style="display:block;" class="nav-item rsepro-ticket rsepro-hide" id="ticket_' + response.id + '"><a class="nav-link" data-toggle="tab" data-bs-toggle="tab" data-target="#rsepro-edit-ticket' + response.id + '" data-bs-target="#rsepro-edit-ticket' + response.id + '" href="javascript:void(0);">' + response.name + ' <span class="fa fa-ticket"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab6"]').parent());
 			jQuery(response.html).insertBefore(jQuery('#rsepro-edit-tab6'));
 			
 			// Add custom js codes
-			jQuery('#ticket_groups'+response.id).chosen();
+			if (typeof jQuery.fn.chosen == 'function') jQuery('#ticket_groups'+response.id).chosen();
 			jQuery('#rsepro-edit-ticket' + response.id + ' .rsepro-remove-ticket').on('click', function() {
 				RSEventsPro.Event.removeTicket(jQuery(this).data('id'));
 			});
@@ -1078,7 +1109,7 @@ RSEventsPro.Event = {
 			}
 			
 			// Go to the new ticket tab
-			jQuery('.rsepro-edit-event > ul > li > a[data-target="#rsepro-edit-ticket' + response.id + '"]').click();
+			jQuery('#rsepro-edit-menu > li > a[data-target="#rsepro-edit-ticket' + response.id + '"]').click();
 			
 			RSEventsPro.Event.orderTickets();
 		});
@@ -1143,11 +1174,12 @@ RSEventsPro.Event = {
 			dataType: 'json',
 			data: params.join('&')
 		}).done(function(response) {
-			jQuery('<li style="display:block;" class="rsepro-hide"><a data-toggle="tab" data-target="#rsepro-edit-coupon' + response.id + '" href="javascript:void(0);">' + cName + '</a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab8"]').parent());
+			jQuery('<li style="display:block;" class="nav-item rsepro-hide"><a class="nav-link" data-toggle="tab" data-bs-toggle="tab" data-target="#rsepro-edit-coupon' + response.id + '" data-bs-target="#rsepro-edit-coupon' + response.id + '" href="javascript:void(0);">' + cName + ' <span class="fa fa-money"></span></a></li>').insertBefore(jQuery('ul li a[data-target="#rsepro-edit-tab8"]').parent());
 			jQuery(response.html).insertBefore(jQuery('#rsepro-edit-tab8'));
 			
 			// Add custom js codes
-			jQuery('#coupon_groups'+response.id).chosen();
+			if (typeof jQuery.fn.chosen == 'function') jQuery('select[name="coupons[' + response.id + '][groups][]"]').chosen();
+			
 			jQuery('#rsepro-edit-coupon' + response.id + ' .rsepro-coupon-generate').on('click', function() {
 				RSEventsPro.Event.generateCoupons(jQuery(this).data('id'));
 			});
@@ -1197,7 +1229,7 @@ RSEventsPro.Event = {
 		
 			
 			// Go to the new coupon tab
-			jQuery('.rsepro-edit-event > ul > li > a[data-target="#rsepro-edit-coupon' + response.id + '"]').click();
+			jQuery('#rsepro-edit-menu > li > a[data-target="#rsepro-edit-coupon' + response.id + '"]').click();
 			
 			// Reset values
 			jQuery('#rsepro-add-coupon-loader').css('display','none');
@@ -1530,12 +1562,10 @@ RSEventsPro.Event = {
 		
 		// Set the error messages
 		if (msg.length > 0) {
-			jQuery('#rsepro-errors').css('display', '');
-			jQuery('#rsepro-errors').html(msg.join('<br />'));
+			Joomla.renderMessages({'error': msg});
 			jQuery('html, body').animate({ scrollTop: 0 }, 2000);
 		} else {
-			jQuery('#rsepro-errors').text('');
-			jQuery('#rsepro-errors').css('display', 'none');
+			Joomla.removeMessages();
 		}
 		
 		jQuery('#jform_repeatalso option').prop('selected',true)

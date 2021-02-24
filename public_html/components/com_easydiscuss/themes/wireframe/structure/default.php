@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,9 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php echo $jsToolbar; ?>
-
-<div id="ed" class="type-component
+<div id="ed" class="type-component si-theme--<?php echo $this->config->get('layout_darkmode') ? 'dark' : 'light';?>
 	ed-responsive
 	<?php echo $categoryClass;?>
 	<?php echo $suffix; ?>
@@ -22,18 +20,37 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php echo $rtl ? ' is-rtl' : '';?>
 	<?php echo $this->responsiveClass();?>
 	"
-
 	data-ed-wrapper
 >
-	<?php if ($miniheader) { ?>
-	<div id="es" class="es<?php echo (ES::responsive()->isMobile()) ? ' is-mobile' : ' is-desktop'; ?>">
-		<?php echo $miniheader; ?>
+	<?php if ($heading) { ?>
+	<div class="page-header">
+		<h1>
+			<?php echo $this->html('string.escape', $heading); ?>
+		</h1>
 	</div>
 	<?php } ?>
 
+	<?php echo ED::renderModule('easydiscuss-start'); ?>
+
 	<?php echo $toolbar; ?>
 
-	<?php echo $contents; ?>
+	<?php if ($messageObject) { ?>
+	<div class="o-alert o-alert--<?php echo $messageObject->type;?> t-mb--md">
+		<?php echo $messageObject->message; ?>
+	</div>
+	<?php } ?>
+	
+	<div class="ed-container">
+		<div class="ed-container__sidebar t-hidden">
+		</div>
+		<div class="ed-container__content">
+			<?php echo $contents; ?>
+		</div>
+	</div>
+	
+	<div class="t-mt--lg">
+		<?php echo ED::renderModule('easydiscuss-end'); ?>
+	</div>
 
 	<?php if ($this->config->get('main_copyright_link_back')) { ?>
 		<?php echo DISCUSS_POWERED_BY; ?>

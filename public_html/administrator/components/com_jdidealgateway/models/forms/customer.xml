@@ -13,7 +13,7 @@
                label="COM_ROPAYMENTS_CUSTOMER_NAME_LABEL"
                description="COM_ROPAYMENTS_CUSTOMER_NAME_DESC"
                required="true"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
         </field>
 
         <field name="email"
@@ -21,7 +21,7 @@
                label="COM_ROPAYMENTS_CUSTOMER_EMAIL_LABEL"
                description="COM_ROPAYMENTS_CUSTOMER_EMAIL_DESC"
                required="true"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
         </field>
 
         <field name="customerId"
@@ -29,7 +29,7 @@
                label="COM_ROPAYMENTS_CUSTOMER_CUSTOMERID_LABEL"
                description="COM_ROPAYMENTS_CUSTOMER_CUSTOMERID_DESC"
                required="true"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
         </field>
     </fieldset>
 </form>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -22,14 +22,16 @@ class EasyDiscussFacebook extends Facebook
 
 	public function __construct($key = '', $secret = '', $callback = '')
 	{
-		$config = ED::config();
+		$this->app = JFactory::getApplication();
+		$this->input = ED::request();
+		$this->config = ED::config();
 
 		if (!$key) {
-			$key = $config->get('main_autopost_facebook_id');
+			$key = $this->config->get('main_autopost_facebook_id');
 		}
 
 		if (!$secret) {
-			$secret = $config->get('main_autopost_facebook_secret');
+			$secret = $this->config->get('main_autopost_facebook_secret');
 		}
 
 		if (!$callback) {
@@ -80,7 +82,7 @@ class EasyDiscussFacebook extends Facebook
 	 */
 	public function getVerifier()
 	{
-		$verifier = JRequest::getVar('code', '');
+		$verifier = $this->input->get('code', '', 'default');
 
 		return $verifier;
 	}
@@ -93,8 +95,7 @@ class EasyDiscussFacebook extends Facebook
 	 */
 	public function getAuthorizationURL()
 	{
-		$config = ED::config();
-		$scopes = $config->get('main_autopost_facebook_scope_permissions');
+		$scopes = $this->config->get('main_autopost_facebook_scope_permissions');
 
 		$redirect = $this->callback;
 		$redirect = urlencode($redirect);
@@ -151,8 +152,6 @@ class EasyDiscussFacebook extends Facebook
 	 */
 	public function share(EasyDiscussPost $post)
 	{
-		$config = ED::config();
-
 		// Get the data
 		$data = $this->getContentObject($post);
 
@@ -163,7 +162,7 @@ class EasyDiscussFacebook extends Facebook
 		);
 
 		// Autopost to user's normal account
-		if (!$config->get('main_autopost_facebook_page_id') && !$config->get('main_autopost_facebook_group')) {
+		if (!$this->config->get('main_autopost_facebook_page_id') && !$this->config->get('main_autopost_facebook_group')) {
 
 			$result = parent::api('/me/feed', 'post', $params);
 			$success = isset($result['id']) ? true : false;
@@ -173,9 +172,9 @@ class EasyDiscussFacebook extends Facebook
 
 		// If it passes here, we know that it will autopost to groups or page.
 		// Let's check for group first.
-		if ($config->get('main_autopost_facebook_group')) {
+		if ($this->config->get('main_autopost_facebook_group')) {
 
-			$groups = $config->get('main_autopost_facebook_group_id');
+			$groups = $this->config->get('main_autopost_facebook_group_id');
 			$groups = explode(',', $groups);
 
 			// Get a list of groups the user can access
@@ -196,8 +195,8 @@ class EasyDiscussFacebook extends Facebook
 		}
 
 		// Let's check for the facebook pages.
-		if ($config->get( 'main_autopost_facebook_page')) {
-			$pages = $config->get('main_autopost_facebook_page_id');
+		if ($this->config->get( 'main_autopost_facebook_page')) {
+			$pages = $this->config->get('main_autopost_facebook_page_id');
 			$pages = explode(',', $pages);
 
 			// @rule: Test if there are any pages at all the user can access
@@ -230,8 +229,6 @@ class EasyDiscussFacebook extends Facebook
 	 */
 	public function getContentObject(EasyDiscussPost $post)
 	{
-		$config = ED::config();
-
 		$obj = new stdClass();
 
 		// Get the title to use
@@ -248,10 +245,10 @@ class EasyDiscussFacebook extends Facebook
 		$obj->image = ED::string()->getImage($obj->contents);
 
 		// Truncate the content based on the maximum length
-		$maxLength = (int) $config->get('main_autopost_facebook_max_content', 200);
+		$maxLength = (int) $this->config->get('main_autopost_facebook_max_content', 200);
 
 		$obj->contents = strip_tags($obj->contents);
-		$obj->contents = JString::substr($obj->contents, 0, $maxLength);
+		$obj->contents = EDJString::substr($obj->contents, 0, $maxLength);
 
 		$obj->contents .= JText::_('COM_EASYDISCUSS_ELLIPSES');
 
@@ -349,4 +346,21 @@ class EasyDiscussFacebook extends Facebook
 
 		return $pages;
 	}
+
+	/**
+	 * Overrides the exception method so that we can silently fail
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	protected function throwAPIException($result)
+	{
+		$e = new EasyDiscussFacebookApiException($result);
+
+		$message = $e->getMessage();
+
+		$exception = ED::exception($message);
+
+		$this->error = $exception;
+	}	
 }

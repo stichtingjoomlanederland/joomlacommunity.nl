@@ -1,8 +1,8 @@
 <?php
 /**
-* @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license		GNU/GPL, see LICENSE.php
+* @package      EasyDiscuss
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -48,12 +48,12 @@ defined('_JEXEC') or die('Unauthorized Access');
         <form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
             <input type="hidden" name="id" value="<?php echo $id;?>" />
             <input type="hidden" name="return" value="<?php echo $return;?>" />
-            <?php echo $this->html('form.hidden', 'posts', 'posts', 'delete');?>
+            <?php echo $this->html('form.action', 'posts', 'posts', 'delete');?>
         </form>        
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_NO'); ?></button>
-        <button data-submit-button type="button" class="btn btn-danger btn-sm">
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
+        <button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--danger">
             <?php if ($post->isQuestion()) { ?>
                 <?php echo JText::_('COM_EASYDISCUSS_BUTTON_DELETE_POST'); ?>
             <?php } ?>

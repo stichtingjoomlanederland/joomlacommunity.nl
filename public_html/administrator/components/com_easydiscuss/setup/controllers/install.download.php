@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,11 +27,8 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		$apiKey = $this->input->get('apikey', '', 'default');
 		$license = $this->input->get('license', '', 'default');
 
-		// If the user is updating, we always need to get the latest version.
-		$update = $this->input->get('update', false, 'bool');
-
 		// Get information about the current release.
-		$info = $this->getInfo($update);
+		$info = $this->getInfo();
 
 		if (!$info) {
 			$result = new stdClass();
@@ -73,12 +70,12 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		}
 
 		// Check if the temporary folder exists
-		if (!JFolder::exists(ED_TMP)) {
-			JFolder::create(ED_TMP);
+		if (!JFolder::exists(SI_TMP)) {
+			JFolder::create(SI_TMP);
 		}
 
 		// Extract files here.
-		$tmp = ED_TMP . '/com_easydiscuss_v' . $info->version;
+		$tmp = SI_TMP . '/com_easydiscuss_v' . $info->version;
 
 		// If folder exists previously, remove it first
 		if (JFolder::exists($tmp)) {
@@ -91,7 +88,7 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		// If there is an error extracting the zip file, then there is a possibility that the server returned a json string
 		if (!$state) {
 
-			$contents = JFile::read($storage);
+			$contents = file_get_contents($storage);
 			$result = json_decode($contents);
 
 			if (is_object($result)) {
@@ -162,7 +159,7 @@ class EasyDiscussControllerInstallDownload extends EasyDiscussSetupController
 		curl_close($ch);
 
 		// Set the storage page
-		$storage = ED_PACKAGES . '/easydiscuss_v' . $info->version . '_component.zip';
+		$storage = SI_PACKAGES . '/easydiscuss_v' . $info->version . '_component.zip';
 
 		// Delete zip archive if it already exists.
 		if (JFile::exists($storage)) {

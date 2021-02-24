@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once dirname( __FILE__ ) . '/model.php';
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussModelBadges extends EasyDiscussAdminModel
 {
@@ -133,25 +131,27 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 		return $badges;
 	}
 
-	public function getBadges( $exclusion = false )
+	public function getBadges($exclusion = false)
 	{
-		if(empty($this->_data) )
-		{
-			$this->_data	= $this->_getList( $this->buildQuery( $exclusion ) , $this->getState('limitstart'), $this->getState('limit') );
+		if (empty($this->_data)) {
+			
+			$query = $this->buildQuery($exclusion);
+
+			$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
 		}
 		return $this->_data;
 	}
 
-	private function buildQuery( $exclusion = false )
+	private function buildQuery($exclusion = false)
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere( $exclusion );
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere($exclusion);
+		$orderby = $this->_buildQueryOrderBy();
+		$db	= ED::db();
 
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_badges' ) . ' AS a ';
-		$query	.= $where . ' ';
-		$query	.= $orderby;
+		$query = 'SELECT * FROM ' . $db->nameQuote('#__discuss_badges') . ' AS a ';
+		$query .= $where . ' ';
+		$query .= $orderby;
 
 		return $query;
 	}
@@ -162,7 +162,7 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 
 		$filter_state = $this->app->getUserStateFromRequest('com_easydiscuss.badges.filter_state', 'filter_state', '', 'word');
 		$search	= $this->app->getUserStateFromRequest('com_easydiscuss.badges.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -209,10 +209,10 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 
 	public function _buildQueryOrderBy()
 	{
-		$filter_order		= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order', 		'filter_order', 	'a.created', 'cmd' );
-		$filter_order_Dir	= $this->app->getUserStateFromRequest( 'com_easydiscuss.badges.filter_order_Dir',	'filter_order_Dir',	'ASC', 'word' );
+		$filter_order = $this->app->getUserStateFromRequest('com_easydiscuss.badges.filter_order', 'filter_order', 'a.created', 'cmd');
+		$filter_order_Dir = $this->app->getUserStateFromRequest('com_easydiscuss.badges.filter_order_Dir', 'filter_order_Dir', 'ASC', 'word');
 
-		$orderby 	= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
+		$orderby = ' ORDER BY ' . $filter_order . ' ' . $filter_order_Dir;
 
 		return $orderby;
 	}
@@ -222,9 +222,9 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	 * Get a list of user badge history
 	 *
 	 **/
-	public function getBadgesHistory( $userId )
+	public function getBadgesHistory($userId)
 	{
-		$db		= DiscussHelper::getDBO();
+		$db	= ED::db();
 		$query	= 'SELECT * FROM ' . $db->nameQuote('#__discuss_users_history') . ' '
 				. 'WHERE ' . $db->nameQuote('user_id') . '=' . $db->Quote($userId) . ' '
 				. 'ORDER BY ' . $db->nameQuote('id') . ' DESC '
@@ -260,9 +260,8 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 	public function getTotal()
 	{
 		// Load total number of rows
-		if( empty($this->_total) )
-		{
-			$this->_total	= $this->_getListCount( $this->buildQuery() );
+		if (empty($this->_total)) {
+			$this->_total = $this->_getListCount($this->buildQuery());
 		}
 
 		return $this->_total;
@@ -270,9 +269,11 @@ class EasyDiscussModelBadges extends EasyDiscussAdminModel
 
 	public function getRules()
 	{
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_rules' );
-		$db->setQuery( $query );
+		$db	= ED::db();
+
+		$query = 'SELECT * FROM ' . $db->nameQuote('#__discuss_rules');
+		$db->setQuery($query);
+
 		return $db->loadObjectList();
 	}
 

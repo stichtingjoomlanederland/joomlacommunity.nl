@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,16 +28,18 @@ class EasyDiscussTelegram extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return  
 	 */
 	public function discover()
 	{
 		$result = $this->ping('getUpdates');
-		$messages = array();
+
+		if (!$result) {
+			return false;
+		}
 
 		// We keep items that has already been assigned before here
 		$unique = array();
+		$messages = array();
 
 		// Format the result
 		foreach ($result as &$item) {
@@ -64,8 +66,6 @@ class EasyDiscussTelegram extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return  
 	 */
 	public function ping($method, $data = array())
 	{
@@ -106,9 +106,7 @@ class EasyDiscussTelegram extends EasyDiscuss
 	 * Sends a message to a chat id
 	 *
 	 * @since   4.0
-	 * @access  public
-	 * @param   string
-	 * @return  
+	 * @access  public 
 	 */
 	public function sendMessage($message)
 	{
@@ -128,22 +126,32 @@ class EasyDiscussTelegram extends EasyDiscuss
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return  
 	 */
 	public function share(EasyDiscussPost $post)
 	{
-		// If telegram is 
 		if (!$this->config->get('integrations_telegram')) {
 			return false;
 		}
 
-		$permalink = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
+		if (!$post->isQuestion() && $this->config->get('integrations_telegram_only_post_notify')) {
+			return false;
+		}
 
+		$postTitle = $post->title;
+		$permalink = $post->getPermalink(true);
 		$message = $this->config->get('integrations_telegram_message');
+
+		if ($post->isReply()) {
+			$message = $this->config->get('integrations_telegram_reply_message');
+
+			// retrieve the post title
+			$question = ED::post($post->parent_id);
+			$postTitle = $question->title;
+		}
+
 		$message = str_ireplace('{permalink}', $permalink, $message);
 		$message = str_ireplace('{snippet}', $post->getIntro(), $message);
-		$message = str_ireplace('{title}', $post->title, $message);
+		$message = str_ireplace('{title}', $postTitle, $message);
 		
 		// We need to escape any underscore in the message as this will break the markdown
 		$message = str_replace("_", "\_", $message);

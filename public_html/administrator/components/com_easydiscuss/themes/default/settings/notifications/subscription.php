@@ -14,10 +14,10 @@ defined('_JEXEC') or die('Restricted access');
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SUBSCRIPTIONS'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_SUBSCRIPTIONS', '', '/docs/easydiscuss/administrators/configuration/enabling-subscriptions'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_sitesubscription', 'COM_EASYDISCUSS_ENABLE_SITE_SUBSCRIPTION'); ?>
 					<?php echo $this->html('settings.toggle', 'main_ed_categorysubscription', 'COM_EASYDISCUSS_ENABLE_CATEGORIES_SUBSCRIPTION'); ?>
 					<?php echo $this->html('settings.toggle', 'main_subscription_include_replies', 'COM_EASYDISCUSS_SUBSCRIPTION_INCLUDE_REPLIES'); ?>
@@ -35,18 +35,18 @@ defined('_JEXEC') or die('Restricted access');
 
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EMAIL_DIGEST'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EMAIL_DIGEST', '', '/docs/easydiscuss/administrators/configuration/setting-up-email-digest'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_email_digest', 'COM_EASYDISCUSS_ENABLE_EMAIL_DIGEST'); ?>
 
-					<div class="form-group <?php echo !$this->config->get('main_email_digest') ? ' hide' : '';?>" data-subscription-interval>
+					<div class="o-form-group <?php echo !$this->config->get('main_email_digest') ? ' t-hidden' : '';?>" data-subscription-interval>
 						<div class="col-md-5 control-label">
 							<?php echo $this->html('form.label', 'COM_ED_EMAIL_DIGEST_INTERVAL_DEFAULT'); ?>
 						</div>
 						<div class="col-md-7">
-							<select name="main_email_digest_interval" class="form-control" >
+							<select name="main_email_digest_interval" class="o-form-select" >
 								<option value="instant" <?php echo $this->config->get('main_email_digest_interval') == 'instant' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_ED_SUBSCRIBE_INSTANT'); ?></option>
 								<option value="daily" <?php echo $this->config->get('main_email_digest_interval') == 'daily' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_ED_SUBSCRIBE_DAILY'); ?></option>
 								<option value="weekly" <?php echo $this->config->get('main_email_digest_interval') == 'weekly' ? 'selected="selected"' : ''; ?>><?php echo JText::_('COM_ED_SUBSCRIBE_WEEKLY'); ?></option>

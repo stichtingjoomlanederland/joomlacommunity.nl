@@ -7,4 +7,4 @@
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <button class="btn btn-primary" type="button" id="rsepro-save-file"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+<button class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>

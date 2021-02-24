@@ -18,7 +18,6 @@ function rs_validate_subscr() {
 	var ret = true;
 	var msg = new Array();
 	
-	// do field validation
 	if (jQuery('#jform_name').val().length == 0) {
 		jQuery('#jform_name').addClass('invalid');
 		msg.push('<?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_NAME', true); ?>');
@@ -55,181 +54,98 @@ function rs_validate_subscr() {
 	<?php } ?>
 </div>
 
-<fieldset class="rs_fieldset form-horizontal">
+<fieldset class="options-form form-horizontal rsepro-horizontal">
 	<legend><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_INFO'); ?></legend>
 	
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_name"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" name="jform[name]" value="<?php echo $this->escape($subscriber->name); ?>" id="jform_name" size="60" class="input-xlarge" />
-		</div>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_email"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" name="jform[email]" value="<?php echo $this->escape($subscriber->email); ?>" id="jform_email" size="60" class="input-xlarge" />
-		</div>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_state"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS'); ?></label>
-		</div>
-		<div class="controls">
-			<?php if (!$this->user) { ?>
-			<?php echo $this->lists['status']; ?>
-			<?php } else { ?>
-			<div class="rsepro-text"><?php echo $this->getStatus($subscriber->state); ?></div>
-			<?php } ?>
-		</div>
-	</div>
+	<?php echo $this->form->renderField('name'); ?>
+	<?php echo $this->form->renderField('email'); ?>
+	<?php if (!$this->user) echo $this->form->renderField('state'); ?>
+	<?php if ($this->user) echo RSEventsproAdapterGrid::renderField($this->form->getLabel('state'), $this->getStatus($subscriber->state), true); ?>
 </fieldset>
 
-<div class="rs_clear"></div>
-
-<fieldset class="rs_fieldset">
+<fieldset class="options-form form-horizontal rsepro-horizontal">
 	<legend><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_DETAILS'); ?></legend>
-	<table cellspacing="0" cellpadding="3" border="0" class="rs_table">
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_DATE'); ?></td>
-			<td><?php echo rseventsproHelper::showdate($subscriber->date); ?></td>
-		</tr>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_IP'); ?></td>
-			<td><?php echo $subscriber->ip; ?></td>
-		</tr>
-		<?php if (!empty($subscriber->gateway)) { ?>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_PAYMENT'); ?></td>
-			<td><?php echo rseventsproHelper::getPayment($subscriber->gateway); ?></td>
-		</tr>
-		<?php } ?>
-		<?php if (!empty($tickets)) { ?>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKETS'); ?></td>
-			<td>
-				<?php $purchasedtickets = ''; ?>
-				<?php if ($tickets) {
-						$purchasedtickets .= '<table class="table">';
-						$purchasedtickets .= '<thead>';
-						$purchasedtickets .= '<tr>';
-						$purchasedtickets .= '<th>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET').'</th>';
-						if (rseventsproHelper::pdf() && $subscriber->state == 1) {
-							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF').'</th>';
-							$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CODE').'</th>';
-							
-							if (!$this->user) {
-								$purchasedtickets .= '<th align="center" class="center">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED').'</th>';
-							}
-						}
-						$purchasedtickets .= '</tr>';
-						$purchasedtickets .= '</thead>';
+	
+	<?php echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_DATE'), rseventsproHelper::showdate($subscriber->date), true); ?>
+	<?php echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_IP'), $subscriber->ip, true); ?>
+	<?php if (!empty($subscriber->gateway)) echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_PAYMENT'), rseventsproHelper::getPayment($subscriber->gateway), true); ?>
+	<?php 
+		$purchasedtickets = '';
+		 
+		if ($tickets) {
+			$purchasedtickets .= '<table class="table">';
+			$purchasedtickets .= '<thead>';
+			$purchasedtickets .= '<tr>';
+			$purchasedtickets .= '<th>'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET').'</th>';
+			if (rseventsproHelper::pdf() && $subscriber->state == 1) {
+				$purchasedtickets .= '<th class="'.RSEventsproAdapterGrid::styles(array('center')).'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF').'</th>';
+				$purchasedtickets .= '<th class="'.RSEventsproAdapterGrid::styles(array('center')).'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CODE').'</th>';
+				
+				if (!$this->user) {
+					$purchasedtickets .= '<th class="'.RSEventsproAdapterGrid::styles(array('center')).'">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED').'</th>';
+				}
+			}
+			$purchasedtickets .= '</tr>';
+			$purchasedtickets .= '</thead>';
+			
+			foreach ($tickets as $ticket) {
+				$total += (int) $ticket->quantity * $ticket->price;
+				for ($j = 1; $j <= $ticket->quantity; $j++) {
+					$purchasedtickets .= '<tr>';
+					$purchasedtickets .= '<td>'.$ticket->name.' ('.($ticket->price > 0 ?rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE')).')'.'</td>';
+					if (rseventsproHelper::pdf() && $subscriber->state == 1) {
+						$code	= md5($subscriber->id.$ticket->id.$j);
+						$code	= substr($code,0,4).substr($code,-4);
+						$code	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$subscriber->id.'-'.$code;
+						$code	= in_array(rseventsproHelper::getBarcodeOptions('barcode', 'C39'), array('C39', 'C93')) ? strtoupper($code) : $code;
+						$confirmed	= rseventsproHelper::confirmed($subscriber->id, $code);
+						$hasLayout	= rseventsproHelper::hasPDFLayout($ticket->layout,$subscriber->SubmissionId);
+						$scode		= JFactory::getApplication()->input->getString('code');
+						$scode		= $scode ? '&code='.$scode : '';
 						
-						foreach ($tickets as $ticket) {
-							$total += (int) $ticket->quantity * $ticket->price;
-							for ($j = 1; $j <= $ticket->quantity; $j++) {
-								$purchasedtickets .= '<tr>';
-								$purchasedtickets .= '<td>'.$ticket->name.' ('.($ticket->price > 0 ?rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE')).')'.'</td>';
-								if (rseventsproHelper::pdf() && $subscriber->state == 1) {
-									$code	= md5($subscriber->id.$ticket->id.$j);
-									$code	= substr($code,0,4).substr($code,-4);
-									$code	= rseventsproHelper::getBarcodeOptions('barcode_prefix', 'RST-').$subscriber->id.'-'.$code;
-									$code	= in_array(rseventsproHelper::getBarcodeOptions('barcode', 'C39'), array('C39', 'C93')) ? strtoupper($code) : $code;
-									$confirmed	= rseventsproHelper::confirmed($subscriber->id, $code);
-									$hasLayout	= rseventsproHelper::hasPDFLayout($ticket->layout,$subscriber->SubmissionId);
-									$scode		= JFactory::getApplication()->input->getString('code');
-									$scode		= $scode ? '&code='.$scode : '';
-									
-									$purchasedtickets .= '<td align="center" class="center">'.($hasLayout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&layout=ticket&from=subscriber&format=raw&id='.$subscriber->id.'&ide='.$subscriber->ide.'&tid='.$ticket->id.'&position='.$j.$scode).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
-									$purchasedtickets .= '<td align="center" class="center">'.($ticket->id ? $code : '-').'</td>';
+						$purchasedtickets .= '<td class="'.RSEventsproAdapterGrid::styles(array('center')).'">'.($hasLayout ? '<a class="rsextra" href="'.JRoute::_('index.php?option=com_rseventspro&layout=ticket&from=subscriber&format=raw&id='.$subscriber->id.'&ide='.$subscriber->ide.'&tid='.$ticket->id.'&position='.$j.$scode).'"><i class="fa fa-file-pdf-o"></i> '.$ticket->name.'</a>' : '-').'</td>';
+						$purchasedtickets .= '<td class="'.RSEventsproAdapterGrid::styles(array('center')).'">'.($ticket->id ? $code : '-').'</td>';
 
-									if (!$this->user) {
-										$purchasedtickets .= '<td align="center" class="center">';
-										$purchasedtickets .= $ticket->id ? ($confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$subscriber->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>') : '-';
-										$purchasedtickets .= '</td>';
-									}
-								}
-								$purchasedtickets .= '</tr>';
-							}
+						if (!$this->user) {
+							$purchasedtickets .= '<td class="'.RSEventsproAdapterGrid::styles(array('center')).'">';
+							$purchasedtickets .= $ticket->id ? ($confirmed ? '<span class="label label-success">'.JText::_('JYES').'</span>' : '<span><a href="javascript:void(0)" class="label '.rseventsproHelper::tooltipClass().'" title="'.rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_TICKET_PDF_CONFIRMED_DESC')).'" onclick="rsepro_confirm_ticket(\''.$subscriber->id.'\',\''.$code.'\', this)">'.JText::_('JNO').'</a></span>') : '-';
+							$purchasedtickets .= '</td>';
 						}
-						$purchasedtickets .= '</table>';
 					}
-					echo $purchasedtickets;
-				?>
-			</td>
-		</tr>
-		<?php } ?>
-		<?php if ($subscriber->discount) { ?>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT'); ?></td>
-			<td><?php echo rseventsproHelper::currency($subscriber->discount); ?></td>
-		</tr>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT_CODE'); ?></td>
-			<td><?php echo $subscriber->coupon; ?></td>
-		</tr>
-		<?php $total = $total - $subscriber->discount; ?>
-		<?php } ?>
-		<?php if ($subscriber->early_fee) { ?>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_EARLY_FEE'); ?></td>
-			<td><?php echo rseventsproHelper::currency($subscriber->early_fee); ?></td>
-		</tr>
-		<?php $total = $total - $subscriber->early_fee; ?>
-		<?php } ?>
-		<?php if ($subscriber->late_fee) { ?>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_LATE_FEE'); ?></td>
-			<td><?php echo rseventsproHelper::currency($subscriber->late_fee); ?></td>
-		</tr>
-		<?php $total = $total + $subscriber->late_fee; ?>
-		<?php } ?>
-		<?php if ($subscriber->tax) { ?>
-		<tr>
-			<td width="160"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TAX'); ?></td>
-			<td><?php echo rseventsproHelper::currency($subscriber->tax); ?></td>
-		</tr>
-		<?php $total = $total + $subscriber->tax; ?>
-		<?php } ?>
-		
-		<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id) && !$this->user) { ?>
-		<tr>
-			<td width="160">&nbsp;</td>
-			<td><a class="btn" rel="rs_seats" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo 'onclick="jQuery(\'#rseModal\').modal(\'show\');" href="javascript:void(0);"'; else echo 'href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)).'"'; ?>><?php echo JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION'); ?></a></td>
-		</tr>
-		<?php } ?>
-		<?php $total = $total > 0 ? $total : 0; ?>
-		<tr>
-			<td width="160"><b><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL'); ?></b></td>
-			<td><span id="total"><?php echo rseventsproHelper::currency($total); ?></span></td>
-		</tr>
-	</table>
+					$purchasedtickets .= '</tr>';
+				}
+			}
+			$purchasedtickets .= '</table>';
+		}
+		echo $purchasedtickets;
+	?>
+	<?php if ($subscriber->discount) echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT'), rseventsproHelper::currency($subscriber->discount), true); ?>
+	<?php if ($subscriber->discount) echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_GLOBAL_DISCOUNT_CODE'), $subscriber->coupon, true); ?>
+	<?php if ($subscriber->discount) $total = $total - $subscriber->discount; ?>
+	<?php if ($subscriber->early_fee) echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_GLOBAL_EARLY_FEE'), rseventsproHelper::currency($subscriber->early_fee), true); ?>
+	<?php if ($subscriber->early_fee) $total = $total - $subscriber->early_fee; ?>
+	<?php if ($subscriber->late_fee) echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_GLOBAL_LATE_FEE'), rseventsproHelper::currency($subscriber->late_fee), true); ?>
+	<?php if ($subscriber->late_fee) $total = $total + $subscriber->late_fee; ?>
+	<?php if ($subscriber->tax) echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_GLOBAL_TAX'), rseventsproHelper::currency($subscriber->tax), true); ?>
+	<?php if ($subscriber->tax) $total = $total + $subscriber->tax; ?>
+	<?php if ($event->ticketsconfig && rseventsproHelper::hasSeats($subscriber->id) && !$this->user) echo RSEventsproAdapterGrid::renderField('', '<a class="btn btn-primary" rel="rs_seats" '.($this->config->modaltype == 1 ? 'onclick="jQuery(\'#rseModal\').modal(\'show\');" href="javascript:void(0);"' : 'href="'.rseventsproHelper::route('index.php?option=com_rseventspro&layout=userseats&tmpl=component&id='.rseventsproHelper::sef($subscriber->id,$subscriber->name)).'"').'>'.JText::_('COM_RSEVENTSPRO_SEATS_CONFIGURATION').'</a>', true); ?>
+	<?php $total = $total > 0 ? $total : 0; ?>
+	<?php echo RSEventsproAdapterGrid::renderField('<strong>'.JText::_('COM_RSEVENTSPRO_GLOBAL_TOTAL').'</strong>', rseventsproHelper::currency($total), true); ?>
 </fieldset>
-
-<div class="rs_clear"></div>
 
 <?php if (!empty($subscriber->log)) { ?>
-<fieldset class="rs_fieldset">
+<fieldset class="options-form">
 	<legend><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_LOG'); ?></legend>
-	<table cellspacing="0" cellpadding="3" border="0" class="rs_table">
-		<tr>
-			<td><?php echo $subscriber->log; ?></td>
-		</tr>
-	</table>
+	<pre><?php echo $subscriber->log; ?></pre>
 </fieldset>
 <?php } ?>
 
-<div class="rs_clear"></div>
-<?php JFactory::getApplication()->triggerEvent('rsepro_info',array(array('method'=>&$subscriber->gateway, 'data' => $this->tparams))); ?>
-<div class="rs_clear"></div>
+<?php JFactory::getApplication()->triggerEvent('onrsepro_info',array(array('method'=>&$subscriber->gateway, 'data' => $this->tparams))); ?>
 
 <?php if (!empty($subscriber->SubmissionId) && !empty($this->fields)) { ?>
-<fieldset class="rs_fieldset">
+<fieldset class="options-form">
 	<legend><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIPTION_RSFORM'); ?></legend>
-	<table cellspacing="0" cellpadding="3" border="0" class="rs_table">
+	<table cellspacing="0" cellpadding="3" border="0" class="table">
 	<?php foreach ($this->fields as $field) { ?>
 	<?php $name = @$field['name']; ?>
 	<?php $value = @$field['value']; ?>

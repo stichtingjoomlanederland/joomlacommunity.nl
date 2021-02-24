@@ -16,20 +16,22 @@ $modulo = $columns == 2 ? 1 : ($columns == 3 ? 2 : ($columns == 4 ? 3 : 0)); ?>
 <?php $i = $limitstart + $i; ?>
 <?php $class = $this->params->get('hierarchy', 0) ? 'rs_level_'.$category->level : 'rsepro-category-row'.$columns; ?>
 <li class="rsepro-category <?php echo $class; ?>">
-	<div class="well">
-		<div class="rs_heading">
-			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($category->id,$category->title)); ?>">
-				<?php echo $category->title; ?>
-				<?php if ($this->params->get('events',0)) { ?>
-				<?php $events = (int) $this->getNumberEvents($category->id,'categories'); ?>
-				<?php if (!empty($events)) { ?>
-				<small>(<?php echo $this->getNumberEvents($category->id,'categories'); ?>)</small>
-				<?php } ?>
-				<?php } ?>
-			</a>
-		</div>
-		<div class="rs_description">
-			<?php echo rseventsproHelper::shortenjs($category->description,$category->id, 255, $this->params->get('type', 1)); ?>
+	<div class="<?php echo RSEventsproAdapterGrid::card(); ?>">
+		<div class="card-body">
+			<div class="rs_heading">
+				<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&category='.rseventsproHelper::sef($category->id,$category->title)); ?>">
+					<?php echo $category->title; ?>
+					<?php if ($this->params->get('events',0)) { ?>
+					<?php $events = (int) $this->getNumberEvents($category->id,'categories'); ?>
+					<?php if (!empty($events)) { ?>
+					<small>(<?php echo $this->getNumberEvents($category->id,'categories'); ?>)</small>
+					<?php } ?>
+					<?php } ?>
+				</a>
+			</div>
+			<div class="rs_description">
+				<?php echo rseventsproHelper::shortenjs($category->description,$category->id, 255, $this->params->get('type', 1)); ?>
+			</div>
 		</div>
 	</div>
 </li>

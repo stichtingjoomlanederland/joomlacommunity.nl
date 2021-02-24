@@ -1,6 +1,6 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Helpers\CaptchaHelper;
 
 $listsContent = '';
 if (!empty($visibleLists)) {
@@ -54,7 +54,7 @@ if ($listPosition == 'before') echo $listsContent;
 
     if (empty($identifiedUser->id) && $config->get('captcha', '') == 1) {
         echo '<div class="onefield fieldacycaptcha" id="field_captcha_'.$formName.'">';
-        $captcha = acym_get('helper.captcha');
+        $captcha = new CaptchaHelper();
         echo $captcha->display($formName, $params->get('includejs') == 'module');
         echo '</div>';
     }
@@ -75,10 +75,17 @@ if ($listPosition == 'before') echo $listsContent;
         <?php echo acym_translation('ACYM_NO_JAVASCRIPT'); ?>
 	</div>
 </noscript>
-<input type="button" class="btn btn-primary button subbutton" value="<?php echo acym_translation($subscribeText, true); ?>" name="Submit" onclick="try{ return submitAcymForm('subscribe','<?php echo $formName; ?>', 'acySubmitSubForm'); }catch(err){alert('The form could not be submitted '+err);return false;}" />
+<input type="button"
+	   class="btn btn-primary button subbutton"
+	   value="<?php echo acym_translation($subscribeText, true); ?>"
+	   name="Submit"
+	   onclick="try{ return submitAcymForm('subscribe','<?php echo $formName; ?>', 'acymSubmitSubForm'); }catch(err){alert('The form could not be submitted '+err);return false;}" />
 <?php if ($params->get('unsub', '0') == '1' && !empty($countUnsub)) { ?>
 	<span style="display: none;"></span>
-	<input type="button" class="btn button unsubbutton" value="<?php echo acym_translation($unsubscribeText, true); ?>" name="Submit" onclick="try{ return submitAcymForm('unsubscribe','<?php echo $formName; ?>', 'acySubmitSubForm'); }catch(err){alert('The form could not be submitted '+err);return false;}" />
+	<input type="button"
+		   class="btn button unsubbutton"
+		   value="<?php echo acym_translation($unsubscribeText, true); ?>"
+		   name="Submit"
+		   onclick="try{ return submitAcymForm('unsubscribe','<?php echo $formName; ?>', 'acymSubmitSubForm'); }catch(err){alert('The form could not be submitted '+err);return false;}" />
 <?php } ?>
 </p>
-

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<layout title="COM_DOCMAN_VIEW_DOCUMENT">
+		<message>
+			<![CDATA[COM_DOCMAN_VIEW_DOCUMENT_DESCRIPTION]]>
+		</message>
+	</layout>
+	<fields name="request" addfieldpath="/components/com_docman/forms/fields">
+		<fieldset name="request">
+			<field name="slug" type="docmandocuments" key_field="slug" default="" label="Document" required="true" />
+		</fieldset>
+	</fields>
+	<fields name="params" addfieldpath="/components/com_docman/forms/fields">
+        <fieldset name="basic" label="DOCman">
+            <field name="docmanmenufixer" type="docmanmenufixer" />
+
+            <field label="DOCUMENT_OPTIONS" type="heading" />
+
+            <field name="document_title_link" type="list" default="details" label="MENU_ITEM_LINKS_TO">
+                <option value="0">NOTHING</option>
+                <option value="download">DIRECT_DOWNLOAD</option>
+                <option value="details">DETAILS_PAGE</option>
+            </field>
+            <field name="show_document_title" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_TITLE">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_tags" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_TAGS">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_description" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_icon" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_ICON">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_image" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_IMAGE">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_recent" type="radio" class="btn-group btn-group-yesno" default="1" label="MARK_RECENT_DOCUMENTS">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_popular" type="radio" class="btn-group btn-group-yesno" default="1" label="MARK_POPULAR_DOCUMENTS">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_created" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PUBLISHED_DATE">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_created_by" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_CREATOR_NAME">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_modified" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_LAST_MODIFIED_DATE">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_filename" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_FILE_NAME">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_size" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_SIZE">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_hits" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_HITS">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_extension" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_EXTENSION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="track_downloads" type="radio" class="btn-group btn-group-yesno" default="1" label="TRACK_DOWNLOADS" description="TRACK_DOWNLOADS_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_player" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PLAYER" description="SHOW_PLAYER_DESCRIPTION"
+                   showon="force_download:0">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+
+            <field label="JGLOBAL_FIELDSET_ADVANCED" type="heading" />
+
+            <field name="download_in_blank_page" type="radio" class="btn-group btn-group-yesno" default="0" label="DOWNLOAD_IN_BLANK_PAGE" description="DOWNLOAD_IN_BLANK_PAGE_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="force_download" type="radio" class="btn-group btn-group-yesno" default="0" label="FORCE_DOWNLOAD" description="FORCE_DOWNLOAD_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="preview_with_gdocs" type="radio" class="btn-group btn-group-yesno" default="0" label="PREVIEW_WITH_GDOCS" description="PREVIEW_WITH_GDOCS_DESCRIPTION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="days_for_new" type="text" default="7" label="DAYS_FOR_NEW" description="DAYS_FOR_NEW_DESCRIPTION" />
+            <field name="hits_for_popular" type="text" default="100" label="HITS_FOR_POPULAR" description="HITS_FOR_POPULAR_DESCRIPTION" />
+        </fieldset>
+	</fields>
+</metadata>

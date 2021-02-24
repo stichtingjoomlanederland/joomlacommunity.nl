@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -37,6 +37,7 @@ class JFormFieldRL_Modules extends \RegularLabs\Library\Field
 		$showtype  = $this->get('showtype');
 		$showid    = $this->get('showid');
 		$showinput = $this->get('showinput');
+		$showlink  = ! $multiple ? $this->get('showlink') : false;
 
 		// load the list of modules
 		$query = $this->db->getQuery(true)
@@ -50,6 +51,8 @@ class JFormFieldRL_Modules extends \RegularLabs\Library\Field
 
 		// assemble menu items to the array
 		$options = [];
+
+		$selected_title = '';
 
 		$p = 0;
 		foreach ($modules as $item)
@@ -81,6 +84,11 @@ class JFormFieldRL_Modules extends \RegularLabs\Library\Field
 			$item->title = RL_Form::prepareSelectItem($item->title, $item->published);
 
 			$options[] = JHtml::_('select.option', $item->id, $item->title);
+
+			if ($showlink && $this->value == $item->id)
+			{
+				$selected_title = $item->title;
+			}
 		}
 
 		if ($showinput)
@@ -135,7 +143,41 @@ class JFormFieldRL_Modules extends \RegularLabs\Library\Field
 			$attr .= $multiple ? ' multiple="multiple"' : '';
 			$attr .= ' class="input-xxlarge"';
 
+			if ($showlink)
+			{
+				$link = '\'<a'
+					. ' href=&quot;index.php?option=com_advancedmodules&task=module.edit&id=\'+this.value+\'&quot;'
+					. ' target=&quot;_blank&quot; class=&quot;btn btn-small&quot;>\''
+					. '+\'<span class=&quot;icon-edit&quot;></span>\' '
+					. '+\'' . JText::_('JACTION_EDIT', true) . ' :\' '
+					. '+(this.options[this.selectedIndex].text)'
+					. '+\'</a>\'';
+
+				$function = 'document.getElementById(\'module_link_' . $this->id . '\').innerHTML = \'\';'
+					. 'if(this.value){'
+					. 'document.getElementById(\'module_link_' . $this->id . '\').innerHTML = ' . $link . ';'
+					. '}';
+
+				$attr .= ' onchange="' . $function . '"';
+			}
+
 			$html = JHtml::_('select.genericlist', $options, $this->name, trim($attr), 'value', 'text', $this->value, $this->id);
+
+			if ($showlink)
+			{
+				$link = $this->value
+					? '<a href="index.php?option=com_advancedmodules&task=module.edit&id=' . $this->value . '"'
+					. ' target="_blank" class="btn btn-small">'
+					. '<span class="icon-edit"></span> '
+					. JText::_('JACTION_EDIT') . ': ' . $selected_title
+					. '</a>'
+					: '';
+
+				$html .= '<div id="module_link_' . $this->id . '" class="alert-block">'
+					. $link
+					. '</div>';
+			}
+
 			$html = '<div class="input-maximize">' . $html . '</div>';
 		}
 

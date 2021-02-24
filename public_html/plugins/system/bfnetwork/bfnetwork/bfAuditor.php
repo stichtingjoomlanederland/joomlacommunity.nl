@@ -159,6 +159,10 @@ final class bfAudit
     /**
      * @var
      */
+    private $skipped;
+    /**
+     * @var
+     */
     private $folders_777;
     /**
      * @var
@@ -614,6 +618,7 @@ final class bfAudit
         @unlink(dirname(__FILE__).'/tmp/STATE.php');
         @unlink(dirname(__FILE__).'/tmp/Folders');
         @unlink(dirname(__FILE__).'/tmp/Files');
+        @unlink(dirname(__FILE__).'/tmp/currentlyAuditingFile.php');
 
         bfLog::truncate();
 
@@ -755,7 +760,8 @@ final class bfAudit
         // legacy
         $obj->filestoscan = $obj->queuecount;
 
-        $obj->logtail = bfLog::getTail();
+        // Log tail for debugging online
+//         $obj->logtail = bfLog::getTail();
 
         // close db
         unset($this->db);
@@ -790,6 +796,8 @@ final class bfAudit
             if (method_exists($this->db, 'getConnection')) {
                 switch (get_class($this->db->getConnection())) {
                     case 'mysql':
+                        // PHP < 7.x
+                        /* @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
                         @mysql_ping($this->db->getConnection());
                         break;
                     case 'mysqli':
@@ -800,6 +808,8 @@ final class bfAudit
                 // Joomla 1.freaking.5
                 switch (get_class($this->db->name)) {
                     case 'mysql':
+                        // PHP < 7.x
+                        /* @noinspection PhpElementIsNotAvailableInCurrentPhpVersionInspection */
                         @mysql_ping($this->db->_resource);
                         break;
                     case 'mysqli':
@@ -864,7 +874,7 @@ final class bfAudit
 
             // Dont allow blank or invalid folders
             if (!is_dir($this->_cleanupFileFolderName(JPATH_BASE.DIRECTORY_SEPARATOR.$folder))
-                && !is_dir($this->_cleanupFileFolderName(JPATH_BASE.DIRECTORY_SEPARATOR.$folder.DIRECTORY_SEPARATOR))
+                || !is_dir($this->_cleanupFileFolderName(JPATH_BASE.DIRECTORY_SEPARATOR.$folder.DIRECTORY_SEPARATOR))
                 || is_link($this->_cleanupFileFolderName(JPATH_BASE.DIRECTORY_SEPARATOR.$folder.DIRECTORY_SEPARATOR))
                 || is_link($this->_cleanupFileFolderName(JPATH_BASE.DIRECTORY_SEPARATOR.$folder)) || !$folder
             ) {
@@ -1499,7 +1509,7 @@ final class bfAudit
 
         $folder = trim($folder);
 
-        if (!is_dir($folder) && !is_dir($folder.DIRECTORY_SEPARATOR) || is_link($folder.DIRECTORY_SEPARATOR) || is_link($folder) || !$folder) {
+        if (!is_dir($folder) || !is_dir($folder.DIRECTORY_SEPARATOR) || is_link($folder.DIRECTORY_SEPARATOR) || is_link($folder) || !$folder) {
             return $false;
         }
 
@@ -1517,7 +1527,7 @@ final class bfAudit
         }
 
         while ((false !== ($file = @readdir($handle)))) {
-            if (('.' != $file) && ('..' != $file)) {
+            if (('.' !== $file) && ('..' !== $file)) {
                 $ds    = ('' == $folder) || (DIRECTORY_SEPARATOR == $folder) || (DIRECTORY_SEPARATOR == @substr($folder, -1)) || (DIRECTORY_SEPARATOR == @substr($folder, -1)) ? '' : DIRECTORY_SEPARATOR;
                 $dir   = $folder.$ds.$file;
                 $isDir = @is_dir($dir);
@@ -1729,6 +1739,15 @@ final class bfAudit
             $this->saveState(false, __LINE__);
         }
 
+        if (file_exists(dirname(__FILE__).'/tmp/currentlyAuditingFile.php')) {
+            bfLog::log('Found currentlyAuditingFile - setting it skipped');
+            $file = explode('||', file_get_contents(dirname(__FILE__).'/tmp/currentlyAuditingFile.php'))[1];
+            $this->db->setQuery('UPDATE bf_files SET queued = 0, skipped = 1 WHERE filewithpath = "'.$file.'"');
+            $this->db->query();
+            $this->skipped = $this->skipped + 1;
+            unlink(dirname(__FILE__).'/tmp/currentlyAuditingFile.php');
+        }
+
         try {
             // if we are not complete
             $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE queued = 1');
@@ -1802,13 +1821,7 @@ final class bfAudit
                                 AND filewithpath NOT LIKE '%.xml'               -- never seen a hack in an xml file
                                 AND filewithpath NOT LIKE '%.php_expire'        -- Expired cache file
                                 AND filewithpath NOT LIKE '%.jpa'               -- Akeeba backup files
-                                AND filewithpath NOT LIKE '%/akeeba_json.%'           -- Akeeba json state file
-                                AND filewithpath NOT LIKE '%/administrator/components/com_akeeba/backup/akeeba%'           -- Akeeba json state file
-                                AND filewithpath NOT LIKE '%/akeeba_backend.id%'           -- Akeeba json state file
-                                AND filewithpath NOT LIKE '%/akeeba_backend.php'           -- Akeeba json state file
-                                AND filewithpath NOT LIKE '%/akeeba_backend.log'           -- Akeeba json state file
-                                AND filewithpath NOT LIKE '%/akeeba_lazy.php'           -- Akeeba json state file
-                                AND filewithpath NOT LIKE '%/akeeba_frontend.php'           -- Akeeba json state file
+                                AND filewithpath NOT LIKE '%/administrator/components/com_akeeba/backup/ak%'           -- Akeeba json state file
                                 AND filewithpath NOT LIKE '%/cacert.pem'           -- cacert.pem
                                 AND filewithpath NOT LIKE '%/GeoIP.dat'          -- never seen a hack in an GeoIP.dat file but the one in RSFirewall/Admin Tools kills the audit :-(
                                 AND filewithpath NOT LIKE '%/ca-certificates.crt'          -- never seen a hack in an ca-certificates.crt file but the one in RSFirewall/Admin Tools kills the audit :-(
@@ -2283,7 +2296,9 @@ final class bfAudit
                             if (!$isHacked) {
                                 // Test if suspect
                                 bfLog::log('Auditing File: '.$file_to_scan->filewithpath.' - '.$file_to_scan->size.' bytes');
+                                file_put_contents(dirname(__FILE__).'/tmp/currentlyAuditingFile.php', '<?php die(); ?>'.date('Y-m-d H:i:s').'||'.$file_to_scan->filewithpath);
                                 $isSuspect = (preg_match('/'.$pattern.'/ism', $chunk) ? true : false);
+                                @unlink(dirname(__FILE__).'/tmp/currentlyAuditingFile.php');
                             }
 
                             // Test If encrypted
@@ -2804,6 +2819,9 @@ filewithpath like '%utf8\-%'
 
         $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE size = 0');
         $this->zerobytes = $this->db->LoadResult();
+
+        $this->db->setQuery('SELECT COUNT(*) FROM bf_files WHERE skipped = 1');
+        $this->skipped = $this->db->LoadResult();
 
         // Report count of all folders with 777 permissions
         $this->db->setQuery('SELECT COUNT(*) FROM bf_folders WHERE folderinfo LIKE "%777%"');

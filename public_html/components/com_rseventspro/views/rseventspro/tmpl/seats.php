@@ -54,7 +54,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			
 			jQuery('#draggable<?php echo $ticket->id; ?>').resizable({
 				minHeight: 90, 
-				minWidth: 90,
+				minWidth: 40,
 				containment: 'parent',
 				handles: 'e,s',
 				stop: function(event, ui) {
@@ -75,7 +75,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <div id="rsepro_wrapper">
 	<?php $left = 10; $top = 10; ?>
 	<?php foreach ($this->tickets as $ticket) { ?>
-	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px;' : rseventsproHelper::parseStyle($ticket->position); ?>
+	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px; width: 90px;' : rseventsproHelper::parseStyle($ticket->position); ?>
 	<div id="draggable<?php echo $ticket->id; ?>" class="draggable ui-widget-content" style="<?php echo $style; ?>">
 		<div class="rsepro_ticket_container">
 			<div class="rsepro_ticket_name">
@@ -93,15 +93,15 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<?php } ?>
 		</div>
 	</div>
-	<?php $left += 270; ?>
+	<?php $left += 200; ?>
 	<?php } ?>
 </div>
 
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro'); ?>" method="post" id="adminForm" name="adminForm">
 	<div style="text-align: center;">
 		<button type="submit" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-		<button type="button" class="btn" onclick="<?php echo rseventsproHelper::modalClose(false, true); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
-		<button type="button" class="btn" onclick="rsepro_reset_positions();"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
+		<button type="button" class="btn btn-danger" onclick="<?php echo rseventsproHelper::modalClose(false, true); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+		<button type="button" class="btn btn-danger" onclick="rsepro_reset_positions();"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
 	</div>
 	
 	<input type="hidden" name="task" value="rseventspro.tickets" />

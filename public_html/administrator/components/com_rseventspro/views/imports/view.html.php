@@ -7,12 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewImports extends JViewLegacy
-{
-	protected $items;
-	protected $offsets;
-	protected $sidebar;
-	protected $locations;
-	
+{	
 	public function display($tpl = null) {		
 		$this->items		= $this->get('Items');
 		$this->offsets		= $this->get('Offsets');
@@ -24,7 +19,5 @@ class RseventsproViewImports extends JViewLegacy
 	
 	protected function addToolBar() {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_IMPORT_EVENTS'),'rseventspro48');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

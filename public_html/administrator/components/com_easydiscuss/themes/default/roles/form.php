@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,62 +10,39 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
+
+// Fixed for the previous version
+$colorCodes = array(
+	'success' => '#39b54a',
+	'warning' => '#c77c11',
+	'danger' => '#d9534f',
+	'info' => '#5bc0de',
+	'default' => '#777777'
+);
+
+if (array_key_exists($role->colorcode, $colorCodes)) {
+	$role->colorcode = $colorCodes[$role->colorcode];
+}
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm">
-	<div class="row-fluid">
-		<div class="span6">
+	<div class="row">
+		<div class="col-md-6">
 			<div class="panel">
 				<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_ROLE_FORM_GENERAL'); ?>
 
 				<div class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ROLE_TITLE'); ?>
-							</div>
-							<div class="col-md-7">
-								<?php echo $this->html('form.textbox', 'title', $role->title); ?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ROLE_USERGROUP'); ?>
-							</div>
-							<div class="col-md-7">
-								<?php echo $this->html('form.dropdown', 'usergroup_id', $groups, $role->usergroup_id); ?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ROLE_LABEL_COLOUR'); ?>
-							</div>
-							<div class="col-md-7">
-								<?php echo $this->html('form.dropdown', 'colorcode', $colors, $role->colorcode); ?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ROLE_PUBLISHED'); ?>
-							</div>
-							<div class="col-md-7">
-								<?php echo $this->html('form.boolean', 'published', $role->published); ?>
-							</div>
-						</div>
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ROLE_CREATION_DATE'); ?>
-							</div>
-							<div class="col-md-7">
-								<input type="text" id="datepicker" class="form-control" name="created_time" value="<?php echo $role->created_time;?>" />
-							</div>
-						</div>
+					<div class="o-form-horizontal">
+						<?php echo $this->html('forms.textbox', 'title', 'COM_EASYDISCUSS_ROLE_TITLE', $role->title); ?>
+						<?php echo $this->html('forms.dropdown', 'usergroup_id', 'COM_EASYDISCUSS_ROLE_USERGROUP', $role->usergroup_id, $groups); ?>
+						<?php echo $this->html('forms.colorpicker', 'colorcode', 'COM_EASYDISCUSS_ROLE_LABEL_COLOUR', $role->colorcode, '#ffffff'); ?>
+						<?php echo $this->html('forms.toggle', 'published', 'COM_EASYDISCUSS_ROLE_PUBLISHED', $role->published); ?>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<?php echo $this->html('form.hidden', 'roles', 'save'); ?>
+	<?php echo $this->html('form.action', 'roles', 'save'); ?>
 	
 	<input type="hidden" name="role_id" value="<?php echo $role->id;?>" />
 	<input type="hidden" name="savenew" id="savenew" value="0" />

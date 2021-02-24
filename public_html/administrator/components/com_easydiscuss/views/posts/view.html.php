@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewPosts extends EasyDiscussAdminView
 {
@@ -22,7 +20,6 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->title('COM_EASYDISCUSS_BREADCRUMB_DISCUSSIONS');
 		$this->desc('COM_EASYDISCUSS_POSTS_DESC');
 
-		JToolbarHelper::addNew();
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
 
@@ -33,6 +30,8 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		JToolbarHelper::unpublishList('resetVotes', JText::_('COM_EASYDISCUSS_RESET_VOTES'));
 		JToolbarHelper::custom('lock', 'lock', '', JText::_('COM_EASYDISCUSS_LOCK'));
 		JToolbarHelper::custom('unlock', 'unlock', '', JText::_('COM_EASYDISCUSS_UNLOCK'));
+		JToolbarHelper::custom('updateAuthor', 'author', '', JText::_('COM_ED_UPDATE_AUTHOR_BUTTON'));
+		JToolbarHelper::custom('copy', 'copy', '', JText::_('COM_ED_COPY_BUTTON'));
 		JToolbarHelper::deleteList();
 
 		// Determines if the user is browsing to select a post
@@ -42,7 +41,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		// default to 'published' to speed up the query. #770
-		$filter = $this->getUserState('posts.filter_state', 'filter_state', 'published', 'word');
+		$filter = $this->getUserState('posts.filter_state', 'filter_state', '', 'word');
 
 		$search = $this->getUserState('posts.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
@@ -55,17 +54,17 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$categoryId = $this->getUserState('posts.category_id', 'category_id', 0, 'int');
 
 		// Get the dropdown for categories
-		$categoryFilter = ED::populateCategoryFilter('category_id', $categoryId, 'class="o-form-control" data-ed-table-filter');
+		$categoryFilter = ED::populateCategoryFilter('category_id', $categoryId, 'class="o-form-control" data-table-filter');
 
 		// Selected post status filter
-		$selectedPostStatus = $this->getUserState('posts.post_status', 'post_status', '', 'int');
+		$selectedPostLabel = $this->getUserState('posts.post_status', 'post_status', '', 'int');
 
 		// Get the dropdown for post status
-		$postStatusFilter = ED::populatePostStatusFilter('post_status', $selectedPostStatus);
+		$postLabelFilter = ED::populatePostLabelFilter('post_status', $selectedPostLabel);
 
 		// Fetch the list of posts
 		$model = ED::model('Threaded');
-		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $categoryId, 'search' => $search, 'poststatus' => $selectedPostStatus);
+		$options = array('stateKey' => 'posts', 'questions' => true, 'filter' => $filter, 'category' => $categoryId, 'search' => $search, 'postLabel' => $selectedPostLabel);
 
 		$options['loadPaginationCount'] = false;
 
@@ -84,7 +83,6 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 
 		// Format the posts
 		if ($rows) {
-
 			foreach ($rows as &$row) {
 
 				$post = ED::post($row);
@@ -96,8 +94,8 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 					$post->creatorName = $user->name;
 				}
 
-				// backend link
-				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
+				// Redirect the user to the frontend in order to edit it #1027
+				$post->editLink = EDR::getRoutedURL('view=ask&id=' . $post->id, false, true);
 
 				// Format the display date
 				$post->displayDate = ED::date($post->created)->display(JText::_('DATE_FORMAT_LC5'));
@@ -119,6 +117,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('browseFunction', $browseFunction);
 		$this->set('browse', $browse);
 		$this->set('filter', $filter);
+		$this->set('label', $selectedPostLabel);
 		$this->set('posts', $posts);
 		$this->set('pagination', $pagination);
 		$this->set('categoryFilter', $categoryFilter);
@@ -128,7 +127,7 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('orderDirection', $orderDirection);
 		$this->set('limit', $limit);
 		$this->set('limitstart', $limitstart);
-		$this->set('postStatusFilter', $postStatusFilter);
+		$this->set('postLabelFilter', $postLabelFilter);
 
 		parent::display('posts/default');
 	}
@@ -144,6 +143,9 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.posts');
 
 		$this->title('COM_EASYDISCUSS_SIDEBAR_REPLIES');
+
+		// Load frontend language
+		ED::loadLanguages();
 
 		// Display toolbars
 		JToolbarHelper::publishList();
@@ -176,7 +178,9 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		if ($result) {
 			foreach ($result as $row) {
 				$post = ED::post($row);
-				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id;
+
+				// Redirect the user to the frontend in order to edit it #1027
+				$post->editLink = EDR::getRoutedURL($post->getReplyPermalink(), false, true);
 
 				$posts[] = $post;
 			}
@@ -205,6 +209,9 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 
 		$this->title('COM_EASYDISCUSS_TITLE_PENDING_POSTS');
 
+		// Load frontend language
+		ED::loadLanguages();
+
 		// Display toolbars
 		JToolbarHelper::publishList('publish', JText::_('COM_EASYDISCUSS_BTN_APPROVE'));
 		JToolbarHelper::unpublishList('reject', JText::_('COM_EASYDISCUSS_BTN_REJECT'));
@@ -224,7 +231,15 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		if ($result) {
 			foreach ($result as $row) {
 				$post = ED::post($row);
-				$post->editLink = 'index.php?option=com_easydiscuss&view=post&layout=pending&id=' . $post->id;
+
+				// Redirect the user to the frontend in order to edit it #1027
+				if ($post->isQuestion()) {
+					$post->editLink = EDR::getRoutedURL('view=ask&id=' . $post->id, false, true);
+				}
+
+				if ($post->isReply()) {
+					$post->editLink = EDR::getRoutedURL($post->getReplyPermalink(), false, true);
+				}
 
 				$posts[] = $post;
 			}
@@ -233,7 +248,69 @@ class EasyDiscussViewPosts extends EasyDiscussAdminView
 		$this->set('search', $search);
 		$this->set('posts', $posts);
 		$this->set('pagination', $pagination);
+		$this->addHelpButton('/docs/easydiscuss/administrators/configuration/moderation-in-easydiscuss');
 
 		parent::display('posts/pending');
 	}
+
+	/**
+	 * Renders a list of pending posts
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function honeypot()
+	{
+		$this->checkAccess('discuss.manage.posts');
+
+		$this->title('COM_ED_TITLE_HONEYPOT_TRAPS');
+
+		JToolbarHelper::deleteList('COM_ED_CONFIRM_DELETE_HONEYPOT', 'removeHoneypotLog');
+		JToolbarHelper::custom('purge', '', '', JText::_('COM_ED_PURGE_LOGS'), false);
+
+		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
+
+		$model = ED::model('Honeypot');
+		$items = $model->getItems();
+		$pagination = $model->getPagination();
+
+		$this->set('limit', $limit);
+		$this->set('items', $items);
+		$this->set('pagination', $pagination);
+
+		parent::display('posts/honeypot');
+	}
+
+	/**
+	 * Redirect the post or reply to the frontend, for now only handle for the report view post
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function redirectPost()
+	{
+		$id = $this->input->get('id', 0, 'int');
+		$post = ED::post($id);
+
+		if (!$post->id) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_ID', ED_MSG_ERROR);
+			$redirection = EDR::getRoutedURL('view=index', false, true);
+			return $this->app->redirect($redirection);
+		}
+
+		// If this report someone reported from the question then we can just redirect to that question page without go through any process
+		if ($post->isQuestion()) {
+			$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
+			$redirection = EDR::getRoutedURL($url, false, true);
+			return $this->app->redirect($redirection);
+		}
+
+		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+
+		$redirection = $post->getReplyPermalink();
+		$redirection = EDR::getRoutedURL($redirection, false, true);
+
+		return $this->app->redirect($redirection);
+	}	
 }

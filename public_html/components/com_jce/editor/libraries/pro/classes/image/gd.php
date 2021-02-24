@@ -55,6 +55,7 @@ class WFImageGD
         // Determine which image types are supported by GD, but only once.
         if (!isset(self::$formats[IMAGETYPE_JPEG])) {
             $info = gd_info();
+            
             self::$formats[IMAGETYPE_JPEG] = ($info['JPEG Support']) ? true : false;
 
             if (self::$formats[IMAGETYPE_JPEG] === false) {
@@ -63,6 +64,7 @@ class WFImageGD
 
             self::$formats[IMAGETYPE_PNG] = ($info['PNG Support']) ? true : false;
             self::$formats[IMAGETYPE_GIF] = ($info['GIF Read Support']) ? true : false;
+            self::$formats[IMAGETYPE_WEBP] = ($info['WebP Support']) ? true : false;
         }
 
         // If the source input is a resource, set it as the image handle.
@@ -283,6 +285,22 @@ class WFImageGD
 
                 $this->handle = $handle;
                 break;
+
+            case 'image/webp':
+                    // Make sure the image type is supported.
+                    if (empty(self::$formats[IMAGETYPE_WEBP])) {
+                        throw new RuntimeException('Attempting to load an image of unsupported type WebP.');
+                    }
+    
+                    // Attempt to create the image handle.
+                    $handle = imagecreatefromwebp($path);
+    
+                    if (!is_resource($handle)) {
+                        throw new RuntimeException('Unable to process WebP image.');
+                    }
+    
+                    $this->handle = $handle;
+                    break;
 
             default:
                 throw new InvalidArgumentException('Attempting to load an image of unsupported type: ' . $properties->mime);
@@ -852,6 +870,10 @@ class WFImageGD
                 }
 
                 $result = imagepng($this->handle, $path, $quality);
+                break;
+
+            case IMAGETYPE_WEBP:
+                $result = imagewebp($this->handle, $path, (array_key_exists('quality', $options)) ? $options['quality'] : 75);
                 break;
 
             case IMAGETYPE_JPEG:

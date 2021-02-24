@@ -64,7 +64,7 @@ class EasyDiscussGitHub extends EasyDiscuss
 	 */
 	public function getVerifier()
 	{
-		$verifier = JRequest::getVar('code', '', 'default');
+		$verifier = $this->input->get('code', '', 'default');
 
 		return $verifier;
 	}

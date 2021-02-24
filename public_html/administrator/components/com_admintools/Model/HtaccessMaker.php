@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
@@ -307,6 +307,8 @@ class HtaccessMaker extends ServerConfigMaker
 		'custhead'            => '',
 		// At the bottom of the file
 		'custfoot'            => '',
+		// SVG script neutralization
+		'svgneutralise'       => 0,
 	];
 
 	/**
@@ -323,8 +325,10 @@ class HtaccessMaker extends ServerConfigMaker
 	 * @var  array
 	 */
 	protected $allowedCallersForSave = [
+		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::reset',
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::save',
+		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::reset',
 		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::save',
 		'Akeeba\AdminTools\Admin\Model\QuickStart::applyHtmaker',
@@ -519,63 +523,91 @@ END;
 <IfModule mod_expires.c>
 	# Enable expiration control
 	ExpiresActive On
+	
+	# No caching for specific resource types
+	## -- Application cache manifest
+	ExpiresByType text/cache-manifest "now"
+	## -- XML and JSON
+	ExpiresByType application/json "now"
+	ExpiresByType application/xml "now"
+	ExpiresByType text/xml "now"
+
+	## RSS and Atom feeds: 1 hour (hardcoded)
+	ExpiresByType application/atom+xml "now plus 1 hour"
+	ExpiresByType application/rss+xml "now plus 1 hour"
 
 	# CSS and JS expiration: $expWeek after request
 	ExpiresByType text/css "now plus $expWeek"
+	ExpiresByType text/javascript "now plus $expWeek"
 	ExpiresByType application/javascript "now plus $expWeek"
+	ExpiresByType application/ld+json "now plus $expWeek"
 	ExpiresByType application/x-javascript "now plus $expWeek"
 
 	# Image files expiration: $expMonth after request
+	ExpiresByType application/ico "now plus $expMonth"
+	ExpiresByType application/smil "now plus $expMonth"
+	ExpiresByType application/vnd.wap.wbxml "now plus $expMonth"
 	ExpiresByType image/bmp "now plus $expMonth"
 	ExpiresByType image/gif "now plus $expMonth"
-	ExpiresByType image/jpeg "now plus $expMonth"
+	ExpiresByType image/ico "now plus $expMonth"
+	ExpiresByType image/icon "now plus $expMonth"
 	ExpiresByType image/jp2 "now plus $expMonth"
+	ExpiresByType image/jpeg "now plus $expMonth"
+	ExpiresByType image/jpg "now plus $expMonth"
 	ExpiresByType image/pipeg "now plus $expMonth"
 	ExpiresByType image/png "now plus $expMonth"
 	ExpiresByType image/svg+xml "now plus $expMonth"
 	ExpiresByType image/tiff "now plus $expMonth"
 	ExpiresByType image/vnd.microsoft.icon "now plus $expMonth"
-	ExpiresByType image/x-icon "now plus $expMonth"
-	ExpiresByType image/ico "now plus $expMonth"
-	ExpiresByType image/icon "now plus $expMonth"
-	ExpiresByType text/ico "now plus $expMonth"
-	ExpiresByType application/ico "now plus $expMonth"
 	ExpiresByType image/vnd.wap.wbmp "now plus $expMonth"
-	ExpiresByType application/vnd.wap.wbxml "now plus $expMonth"
-	ExpiresByType application/smil "now plus $expMonth"
 	ExpiresByType image/webp "now plus $expMonth"
+	ExpiresByType image/x-icon "now plus $expMonth"
+	ExpiresByType text/ico "now plus $expMonth"
 	
 	# Font files expiration: $expWeek after request
+	ExpiresByType application/font-woff "now plus $expWeek"
+	ExpiresByType application/font-woff2 "now plus $expWeek"
 	ExpiresByType application/vnd.ms-fontobject "now plus $expWeek"
-	ExpiresByType application/x-font-ttf "now plus $expWeek"
 	ExpiresByType application/x-font-opentype "now plus $expWeek"
+	ExpiresByType application/x-font-ttf "now plus $expWeek"
 	ExpiresByType application/x-font-woff "now plus $expWeek"
+	ExpiresByType font/opentype "now plus $expWeek"
+	ExpiresByType font/otf "now plus $expWeek"
+	ExpiresByType font/ttf "now plus $expWeek"
 	ExpiresByType font/woff "now plus $expWeek"
 	ExpiresByType font/woff2 "now plus $expWeek"
-	ExpiresByType image/svg+xml "now plus $expWeek"
 
 	# Audio files expiration: $expMonth after request
-	ExpiresByType audio/ogg "now plus $expMonth"
 	ExpiresByType application/ogg "now plus $expMonth"
+	ExpiresByType audio/3gpp "now plus $expMonth"
+	ExpiresByType audio/3gpp2 "now plus $expMonth"
+	ExpiresByType audio/aac "now plus $expMonth"
 	ExpiresByType audio/basic "now plus $expMonth"
 	ExpiresByType audio/mid "now plus $expMonth"
 	ExpiresByType audio/midi "now plus $expMonth"
-	ExpiresByType audio/mpeg "now plus $expMonth"
 	ExpiresByType audio/mp3 "now plus $expMonth"
+	ExpiresByType audio/mpeg "now plus $expMonth"
+	ExpiresByType audio/ogg "now plus $expMonth"
+	ExpiresByType audio/opus "now plus $expMonth"
 	ExpiresByType audio/x-aiff "now plus $expMonth"
 	ExpiresByType audio/x-mpegurl "now plus $expMonth"
 	ExpiresByType audio/x-pn-realaudio "now plus $expMonth"
 	ExpiresByType audio/x-wav "now plus $expMonth"
+	ExpiresByType audio/wav "now plus $expMonth"
 
 	# Movie files expiration: $expMonth after request
 	ExpiresByType application/x-shockwave-flash "now plus $expMonth"
-	ExpiresByType x-world/x-vrml "now plus $expMonth"
-	ExpiresByType video/x-msvideo "now plus $expMonth"
-	ExpiresByType video/mpeg "now plus $expMonth"
+	ExpiresByType video/3gpp "now plus $expMonth"
+	ExpiresByType video/3gpp2 "now plus $expMonth"
 	ExpiresByType video/mp4 "now plus $expMonth"
+	ExpiresByType video/mpeg "now plus $expMonth"
+	ExpiresByType video/ogg "now plus $expMonth"
 	ExpiresByType video/quicktime "now plus $expMonth"
+	ExpiresByType video/webm "now plus $expMonth"
 	ExpiresByType video/x-la-asf "now plus $expMonth"
 	ExpiresByType video/x-ms-asf "now plus $expMonth"
+	ExpiresByType video/x-msvideo "now plus $expMonth"
+	ExpiresByType x-world/x-vrml "now plus $expMonth"
 </IfModule>
 
 # Disable caching of administrator/index.php
@@ -603,7 +635,7 @@ END;
 
 			foreach ($config->hoggeragents as $agent)
 			{
-				$htaccess .= "SetEnvIf user-agent \"$agent\" stayout=1\n";
+				$htaccess .= "SetEnvIf user-agent \"(?i:$agent)\" stayout=1\n";
 			}
 
 			$htaccess .= <<< HTACCESS
@@ -628,8 +660,33 @@ HTACCESS;
 			$apacheModuleForDeflate = version_compare($apacheVersion, '2.4', 'ge') ? 'mod_filter' : 'mod_deflate';
 			$htaccess               .= <<<HTACCESS
 ##### Automatic compression of resources -- BEGIN
-# Automatically serve .css.gz / .js.gz instead of the original file
+# Automatically serve .css.gz, .css.br, .js.gz or .js.br instead of the original file
+# These are versions of the files pre-compressed with GZip or Brotli, respectively
 <IfModule mod_headers.c>
+    # Serve Brotli compressed CSS files if they exist and the client accepts Brotli.
+    RewriteCond "%{HTTP:Accept-encoding}" "br"
+    RewriteCond "%{REQUEST_FILENAME}\.br" -s
+    RewriteRule "^(.*)\.css" "$1\.css\.br" [QSA]
+
+    # Serve Brotli compressed JS files if they exist and the client accepts Brotli.
+    RewriteCond "%{HTTP:Accept-encoding}" "br"
+    RewriteCond "%{REQUEST_FILENAME}\.br" -s
+    RewriteRule "^(.*)\.js" "$1\.js\.br" [QSA]
+    
+    # Serve correct content types, and prevent double compression.
+    RewriteRule "\.css\.br$" "-" [E=no-gzip:1]
+    RewriteRule "\.css\.br$" "-" [T=text/css,E=no-brotli:1,L]
+    RewriteRule "\.js\.br$" "-" [E=no-gzip:1]
+    RewriteRule "\.js\.br$"  "-" [T=text/javascript,E=no-brotli:1,L]
+    
+    <FilesMatch "(\.js\.br|\.css\.br)$">
+      # Serve correct encoding type.
+      Header append Content-Encoding br
+
+      # Force proxies to cache gzipped & non-gzipped css/js files separately.
+      Header append Vary Accept-Encoding
+    </FilesMatch>
+
     # Serve gzip compressed CSS files if they exist and the client accepts gzip.
     RewriteCond "%{HTTP:Accept-encoding}" "gzip"
     RewriteCond "%{REQUEST_FILENAME}\.gz" -s
@@ -642,7 +699,9 @@ HTACCESS;
 
     # Serve correct content types, and prevent $apacheModuleForDeflate double gzip.
     # Also set it as the last rule to prevent the Front- or Backend protection from preventing access to the .gz file.
+    RewriteRule "\.css\.gz$" "-" [E=no-brotli:1]
     RewriteRule "\.css\.gz$" "-" [T=text/css,E=no-gzip:1,L]
+    RewriteRule "\.js\.gz$" "-" [E=no-brotli:1]
     RewriteRule "\.js\.gz$" "-" [T=text/javascript,E=no-gzip:1,L]
 
     <FilesMatch "(\.js\.gz|\.css\.gz)$">
@@ -654,41 +713,51 @@ HTACCESS;
     </FilesMatch>
 </IfModule>
 
-## Automatically compress by MIME type using $apacheModuleForDeflate
-<IfModule {$apacheModuleForDeflate}.c>
-	AddOutputFilterByType DEFLATE text/plain text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript image/svg+xml
+## Automatically compress by MIME type using mod_brotli. Takes priority due to better compression ratio.
+<IfModule mod_brotli.c>
+	AddOutputFilterByType BROTLI_COMPRESS text/plain text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript text/javascript image/svg+xml
 </IfModule>
 
-## Fallback to mod_gzip when $apacheModuleForDeflate is not available
-<IfModule mod_gzip.c>
-	mod_gzip_on Yes
-	mod_gzip_dechunk Yes
-	mod_gzip_keep_workfiles No
-	mod_gzip_can_negotiate Yes
-	mod_gzip_add_header_count Yes
-	mod_gzip_send_vary Yes
-	mod_gzip_min_http 1000
-	mod_gzip_minimum_file_size 300
-	mod_gzip_maximum_file_size 512000
-	mod_gzip_maximum_inmem_size 60000
-	mod_gzip_handle_methods GET
-	mod_gzip_item_include file \.(html?|txt|css|js|php|pl|xml|rb|py|svg|scgz)$
-	mod_gzip_item_include mime ^text/plain$
-	mod_gzip_item_include mime ^text/xml$
-	mod_gzip_item_include mime ^text/css$
-	mod_gzip_item_include mime ^application/xml$
-	mod_gzip_item_include mime ^application/xhtml+xml$
-	mod_gzip_item_include mime ^application/rss+xml$
-	mod_gzip_item_include mime ^application/javascript$
-	mod_gzip_item_include mime ^application/x-javascript$
-	mod_gzip_item_include mime ^image/svg+xml$
-	mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
-	mod_gzip_item_include handler ^cgi-script$
-	mod_gzip_item_include handler ^server-status$
-	mod_gzip_item_include handler ^server-info$
-	mod_gzip_item_include handler ^application/x-httpd-php
-	mod_gzip_item_exclude mime ^image/.*
-</ifmodule>
+## Automatically compress by MIME type using {$apacheModuleForDeflate}.
+<IfModule {$apacheModuleForDeflate}.c>
+	AddOutputFilterByType DEFLATE text/plain text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript text/javascript image/svg+xml
+</IfModule>
+
+## Fallback to mod_gzip when neither mod_brotli nor $apacheModuleForDeflate is available
+<IfModule !mod_brotli.c>
+	<IfModule !{$apacheModuleForDeflate}.c>
+		<IfModule mod_gzip.c>
+			mod_gzip_on Yes
+			mod_gzip_dechunk Yes
+			mod_gzip_keep_workfiles No
+			mod_gzip_can_negotiate Yes
+			mod_gzip_add_header_count Yes
+			mod_gzip_send_vary Yes
+			mod_gzip_min_http 1000
+			mod_gzip_minimum_file_size 300
+			mod_gzip_maximum_file_size 512000
+			mod_gzip_maximum_inmem_size 60000
+			mod_gzip_handle_methods GET
+			mod_gzip_item_include file \.(html?|txt|css|js|php|pl|xml|rb|py|svg|scgz)$
+			mod_gzip_item_include mime ^text/javascript$
+			mod_gzip_item_include mime ^text/plain$
+			mod_gzip_item_include mime ^text/xml$
+			mod_gzip_item_include mime ^text/css$
+			mod_gzip_item_include mime ^application/xml$
+			mod_gzip_item_include mime ^application/xhtml+xml$
+			mod_gzip_item_include mime ^application/rss+xml$
+			mod_gzip_item_include mime ^application/javascript$
+			mod_gzip_item_include mime ^application/x-javascript$
+			mod_gzip_item_include mime ^image/svg+xml$
+			mod_gzip_item_exclude rspheader ^Content-Encoding:.*gzip.*
+			mod_gzip_item_include handler ^cgi-script$
+			mod_gzip_item_include handler ^server-status$
+			mod_gzip_item_include handler ^server-info$
+			mod_gzip_item_include handler ^application/x-httpd-php
+			mod_gzip_item_exclude mime ^image/.*
+		</ifmodule>
+	</IfModule>
+</IfModule>
 ##### Automatic compression of resources -- END
 
 HTACCESS;
@@ -754,8 +823,7 @@ HTACCESS;
 ##### Redirect index.php to / -- BEGIN
 RewriteCond %{THE_REQUEST} !^POST
 RewriteCond %{THE_REQUEST} ^[A-Z]{3,9}\ /index\.php\ HTTP/
-RewriteCond %{SERVER_PORT}>s ^(443>(s)|[0-9]+>s)$
-RewriteRule ^index\.php$ http%2://{$config->httphost}/ $redirCode
+RewriteRule ^index\.php$ / $redirCode
 ##### Redirect index.php to / -- END
 
 END;
@@ -1129,6 +1197,18 @@ Header set X-XSS-Protection "1; mode=block"
 		Header unset X-XSS-Protection
 	</FilesMatch>
 </IfModule>
+
+HTACCESS;
+		}
+
+		if ($config->svgneutralise) {
+			$htaccess .= <<< HTACCESS
+## Neutralize scripts in SVG files
+<FilesMatch "\.svg$">
+  <IfModule mod_headers.c>
+    Header always set Content-Security-Policy "script-src 'none'"
+  </IfModule>
+</FilesMatch>
 
 HTACCESS;
 		}

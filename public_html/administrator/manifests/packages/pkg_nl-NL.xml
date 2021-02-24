@@ -2,12 +2,12 @@
 <extension type="package" version="3.9" method="upgrade">
 	<name>Nederlands (nl-NL) taalpakket</name>
 	<packagename>nl-NL</packagename>
-	<version>3.9.21.1</version>
-	<creationDate>Augustus 2020</creationDate>
+	<version>3.9.24.1</version>
+	<creationDate>Januari 2021</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>https://joomlacommunity.nl</authorUrl>
-	<copyright>Copyright (C) 2005 - 2020 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2005 - 2021 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>https://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 	<url>https://github.com/joomla/joomla-cms</url>
 	<packager>Dutch Translation Team</packager>

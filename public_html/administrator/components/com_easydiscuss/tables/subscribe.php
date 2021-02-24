@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,12 +28,11 @@ class DiscussSubscribe extends EasyDiscussTable
 
 	public function __construct(&$db)
 	{
-		parent::__construct('#__discuss_subscription' , 'id' , $db );
+		parent::__construct('#__discuss_subscription', 'id', $db);
 	}
 
 	public function store($updateNulls = false)
 	{
-
 		if ($this->userid) {
 			$profile = ED::user($this->userid);
 
@@ -62,6 +61,6 @@ class DiscussSubscribe extends EasyDiscussTable
 			$this->sent_out = ED::date()->toSql();
 		}
 
-		return parent::store( $updateNulls );
+		return parent::store($updateNulls);
 	}
 }

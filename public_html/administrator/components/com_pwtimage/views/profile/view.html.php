@@ -8,10 +8,13 @@
  * @link       https://extensions.perfectwebteam.com
  */
 
+defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView;
-
-defined('_JEXEC') or die;
+use Joomla\CMS\Helper\ContentHelper;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
 /**
  * Profile view.
@@ -68,9 +71,9 @@ class PwtimageViewProfile extends HtmlView
 	 *
 	 * @return  mixed  A string if successful, otherwise a JError object.
 	 *
+	 * @throws  Exception
 	 * @since   1.1.0
 	 *
-	 * @throws  Exception
 	 */
 	public function display($tpl = null)
 	{
@@ -80,7 +83,12 @@ class PwtimageViewProfile extends HtmlView
 		$this->form       = $model->getForm();
 		$this->item       = $model->getItem();
 		$this->state      = $model->getState();
-		$this->canDo      = JHelperContent::getActions('com_pwtimage');
+		$this->canDo      = ContentHelper::getActions('com_pwtimage');
+
+		if (!$this->canDo->get('core.admin'))
+		{
+			Factory::$application->redirect('index.php?option=com_pwtimage');
+		}
 
 		// Add the toolbar
 		$this->addToolbar();
@@ -94,39 +102,39 @@ class PwtimageViewProfile extends HtmlView
 	 *
 	 * @return  void
 	 *
+	 * @throws  Exception
 	 * @since   1.1.0
 	 *
-	 * @throws  Exception
 	 */
 	private function addToolbar()
 	{
-		JFactory::getApplication()->input->set('hidemainmenu', true);
+		Factory::getApplication()->input->set('hidemainmenu', true);
 
-		JToolbarHelper::title(Text::_('COM_PWTIMAGE_PWTIMAGE_PROFILE'), 'pwtimage');
+		ToolbarHelper::title(Text::_('COM_PWTIMAGE_PWTIMAGE_PROFILE'), 'pwtimage');
 
 		if ($this->canDo->get('core.edit') || $this->canDo->get('core.create'))
 		{
-			JToolbarHelper::apply('profile.apply');
-			JToolbarHelper::save('profile.save');
+			ToolbarHelper::apply('profile.apply');
+			ToolbarHelper::save('profile.save');
 		}
 
 		if ($this->canDo->get('core.create') && $this->canDo->get('core.manage'))
 		{
-			JToolbarHelper::save2new('profile.save2new');
+			ToolbarHelper::save2new('profile.save2new');
 		}
 
 		if ($this->canDo->get('core.create'))
 		{
-			JToolbarHelper::save2copy('profile.save2copy');
+			ToolbarHelper::save2copy('profile.save2copy');
 		}
 
 		if (0 === $this->item->id)
 		{
-			JToolbarHelper::cancel('profile.cancel');
+			ToolbarHelper::cancel('profile.cancel');
 		}
 		else
 		{
-			JToolbarHelper::cancel('profile.cancel', 'JTOOLBAR_CLOSE');
+			ToolbarHelper::cancel('profile.cancel', 'JTOOLBAR_CLOSE');
 		}
 	}
 }

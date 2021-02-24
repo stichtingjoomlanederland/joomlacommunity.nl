@@ -1,4 +1,4 @@
-ed.require(['edq', 'site/src/toolbar', 'site/src/discuss', 'site/src/floatlabels'], function($, App, discuss) {
+ed.require(['edq', 'site/src/toolbar', 'site/src/floatlabels', 'site/vendors/mmenu'], function($, App) {
 
 	var toolbarSelector = '[data-ed-toolbar]';
 
@@ -9,6 +9,11 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/discuss', 'site/src/floatlabels
 			event.preventDefault();
 		});
 	}
+
+	// Close the subscribe popbox
+	$(document).on('click.unsubscribe.toolbar', '[data-ed-unsubscribe-toolbar]', function() {
+		$('[data-ed-subscriptions]').click();
+	});
 
 	// Prevent closing toolbar dropdown
 	$(document).on('click.toolbar', '[data-ed-toolbar-dropdown]', function(event) {
@@ -40,69 +45,58 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/discuss', 'site/src/floatlabels
 		}
 	});
 
-
-	$('[data-ed-toolbar-toggle]').on('click', function() {
-		// Get the menu contents
-		var contents = $('[data-ed-toolbar-menu]').html();
-
-		EasyDiscuss.dialog({
-			"title": "<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MENU_TITLE', true);?>",
-			"content": contents,
-			"width": '80%',
-			"height": '80%'
-		});
-	});
-
 	// We need to unbind the click for conflicts with pagespeed
 	$(document)
 		.off('click.search.toggle')
 		.on('click.search.toggle', '[data-ed-toolbar-search-toggle]', function() {
 			var searchBar = $('[data-toolbar-search]');
-			var esToolBar = $('[data-ed-toolbar]');
 
-			esToolBar.toggleClass('ed-toolbar--search-on');
+			$(toolbarSelector).toggleClass('ed-toolbar--search-on');
 	});
 
-	// Toggle sidebar for mobile view
-	var toggleSubmenu = $('[data-ed-navbar-submenu-toggle]');
-	var submenu = $('[data-ed-navbar-submenu]');
-
-	toggleSubmenu.on('click', function(event) {
-		if($(submenu).hasClass("is-open")) {
-			$(submenu).removeClass("is-open");
-		} else {
-			$(submenu).removeClass("is-open");
-			$(submenu).addClass("is-open");
-		}
-   });
-
-	<?php if ($this->config->get('main_responsive')) { ?>
-	$.responsive($(toolbarSelector), {
-		elementWidth: function() {
-			return $(toolbarSelector).outerWidth(true) - 80;
-		},
-		conditions: {
-			at: (function() {
-				var listWidth = 0;
-
-				$(toolbarSelector + ' .nav > li').each(function(i, element) {
-					listWidth += $(element).outerWidth(true);
-				});
-				return listWidth;
-
-			})(),
-			alsoSwitch: {
-				toolbarSelector: 'narrow'
+	<?php if ($showToolbar && $showNavigationMenu && $this->isMobile()) { ?>
+	if ($('#ed-canvas').length > 0) {
+		new Mmenu("#ed-canvas", {
+			"extensions": [
+				"pagedim-black",
+				"theme-dark",
+				"fullscreen",
+				"popup"
+			],
+			searchfield : {
+				panel: true,
+				placeholder: '<?php echo JText::_('COM_EASYDISCUSS_SEARCH', true);?>',
+				noResults: '<?php echo JText::_('COM_ED_NO_SEARCH_RESULTS', true);?>'
 			},
-			targetFunction: function() {
-				$(toolbarSelector).removeClass('wide');
-			},
-			reverseFunction: function() {
-				$(toolbarSelector).addClass('wide');
+			"navbars": [
+				{
+					"position": "top",
+					"content": [
+						"searchfield",
+						"close"
+					]
+				},
+				{
+					"position": "bottom",
+					"content": [
+						"<a class='fas fa-rss-square' href='<?php echo ED::feeds()->getFeedUrl('view=index');?>'></a>",
+						
+						<?php if ($isSubscribed) { ?>
+						"<a class='fas fa-at' href='javascript:void(0);' data-ed-unsubscribe data-type='site' data-cid=0 data-sid='<?php echo $isSubscribed->id;?>'></a>"
+						<?php } ?>
+
+						<?php if (!$isSubscribed) { ?>
+							"<a class='fas fa-at' href='javascript:void(0);' data-ed-subscribe data-type='site' data-cid=0></a>"
+						<?php } ?>
+					]
+				}
+
+			],
+			"navbar": {
+				"title": "<?php echo JText::_("COM_ED_MENU", true);?>"
 			}
-		}
-
-	});
+		
+		});
+	}
 	<?php } ?>
-
 });

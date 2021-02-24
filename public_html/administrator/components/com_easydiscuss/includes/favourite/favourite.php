@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,8 +20,6 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function unfavourite(EasyDiscussPost $post)
 	{
@@ -66,8 +64,6 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function favourite(EasyDiscussPost $post)
 	{
@@ -117,12 +113,10 @@ class EasyDiscussFavourite extends EasyDiscuss
 	}
 
 	/**
-	 * Generates the like button
+	 * Generates the favourite button
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function button(EasyDiscussPost $post)
 	{
@@ -133,17 +127,8 @@ class EasyDiscussFavourite extends EasyDiscuss
 			return;
 		}
 
-		// Load fav lib
-		$button->authors = $this->html($post->id, $this->my->id, 'post');
-
 		// Get the total like from the post
-		$model = ED::model('Favourites');
-		$button->total = $model->getFavouritesCount($post->id);
-
-		// If there are no authors, we need to set a default value
-		if (!$button->authors) {
-			$button->authors = JText::_('COM_EASYDISCUSS_BE_THE_FIRST_TO_FAVOURITE');
-		}
+		$total = $post->getTotalFavorites();
 
 		// By default, we treat all users as never fav the post before
 		$fav = false;
@@ -153,18 +138,8 @@ class EasyDiscussFavourite extends EasyDiscuss
 			$fav = $post->isFavBy($this->my->id);
 		}
 
-		if ($this->my->id && !$button->authors) {
-			$button->message = 'COM_EASYDISCUSS_MARK_AS_FAVOURITE';
-			$button->label = 'COM_EASYDISCUSS_FAVOURITE';
-
-			if ($fav) {
-				$button->message = 'COM_EASYDISCUSS_REMOVE_AS_FAVOURITE';
-				$button->label = 'COM_EASYDISCUSS_UNFAVOURITE';
-			}
-		}
-
 		$theme = ED::themes();
-		$theme->set('button', $button);
+		$theme->set('total', $total);
 		$theme->set('fav', $fav);
 		$theme->set('post', $post);
 
@@ -178,8 +153,6 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function addFav($contentId, $type, $userId = null)
 	{
@@ -221,8 +194,6 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function removeFav($contentId, $type = DISCUSS_ENTITY_TYPE_POST, $userId = null)
 	{
@@ -247,34 +218,33 @@ class EasyDiscussFavourite extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public static function getFavourite($contentId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)
+	public static function getFavourite($postId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)
 	{
-		static $loaded = array();
+		static $users = [];
 
-		if (is_null($userId)) {
-			$userId = ED::user()->id;
+		if (!isset($users[$postId])) {
+			$favourite = [];
+
+			if (is_null($userId)) {
+				$userId = ED::user()->id;
+			}
+
+			if (is_null($preloadedObj)) {
+				$model = ED::model('Favourites');
+				$lists = $model->getPostFavourites($postId, $type);
+			} else {
+				$lists = $preloadedObj;
+			}
+
+			foreach ($lists as $key => $list) {
+				$favourite[] = ED::user($list->user_id);
+			}
+
+			$users[$postId] = $favourite;
 		}
 
-		if (is_null($preloadedObj)) {
-			$model = ED::model('Favourites');
-			$lists = $model->getPostFavourites($contentId, $type);
-		} else {
-			$lists = $preloadedObj;
-		}
-
-		if (count($lists) <= 0) {
-			return '';
-		}
-
-		$user = array();
-		foreach ($lists as $key => $list) {
-			$user[] = ED::user($list->user_id);
-		}
-
-		return $user;
+		return $users[$postId];
 	}
 
 	public static function html($contentId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)

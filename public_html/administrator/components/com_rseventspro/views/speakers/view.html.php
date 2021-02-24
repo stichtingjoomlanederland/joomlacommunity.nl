@@ -25,7 +25,5 @@ class RseventsproViewSpeakers extends JViewLegacy
 		JToolBarHelper::deleteList('','speakers.delete');
 		JToolBarHelper::publishList('speakers.publish');
 		JToolBarHelper::unpublishList('speakers.unpublish');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

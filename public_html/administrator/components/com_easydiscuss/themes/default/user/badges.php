@@ -11,30 +11,31 @@
 */
 defined('_JEXEC') or die('Restricted access');
 
-JHTML::_('behavior.modal' , 'a.modal' );
+EDCompat::renderModalLibrary();
 ?>
-
 <div id="badges" class="tab-pane">
 	<div class="row">
-		<div class="col-md-8">
+		<div class="col-md-6">
 			<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_USER_BADGES'); ?>	
 				<div class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
+					<div class="o-form-horizontal">
+						<div class="o-form-group">
 							<div class="col-md-4 control-label">
-	                            <?php echo $this->html('form.label', 'COM_EASYDISCUSS_BADGES_TITLE'); ?>
-	                        </div>
-	                        <div class="col-md-8">
-								<ul class="user-badges unstyled badgeList">
-									<?php if ($badges){ ?>
-										<?php echo $this->output('admin/user/badge_item');?>
+								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_BADGES_TITLE'); ?>
+							</div>
+							<div class="col-md-8">
+								<div class="l-stack">
+									<?php if ($badges) { ?>
+										<?php foreach ($badges as $badge) { ?>
+											<?php echo $this->output('admin/user/badge_item', ['badge' => $badge]);?>
+										<?php } ?>
 									<?php } ?>
-									<li class="emptyList" style="display:<?php echo $badges ? 'none':'block';?>">
-										<img src="<?php echo JURI::root();?>/media/com_easydiscuss/badges/empty.png" width="48" />
-										<div class="small"><?php echo JText::_( 'COM_EASYDISCUSS_USER_NO_BADGES_YET' ); ?></div>
-									</li>
-								</ul>
+
+									<div class="<?php echo $badges ? 't-hidden' : '';?>">
+										<?php echo JText::_('COM_EASYDISCUSS_USER_NO_BADGES_YET');?>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>

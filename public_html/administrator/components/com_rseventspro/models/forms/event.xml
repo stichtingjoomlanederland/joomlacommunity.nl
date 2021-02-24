@@ -1,87 +1,193 @@
 <?xml version="1.0" encoding="utf-8"?>
 <form>
-	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields">
-		<field name="id" type="hidden" />
-		<field name="name" type="hidden" />
-		<field name="start" type="hidden" />
-		<field name="end" type="hidden" />
-		<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
-		<field name="small_description" type="hidden" />
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields" name="info">
+		<field name="name" type="text" label="COM_RSEVENTSPRO_EVENT_NAME" default="" />
+		<field name="published" type="list" label="COM_RSEVENTSPRO_PUBLISH_EVENT" default="1">
+			<option value="1">JPUBLISHED</option>
+			<option value="0">JUNPUBLISHED</option>
+			<option value="2">JARCHIVED</option>
+			<option value="3">COM_RSEVENTSPRO_CANCELED_STATUS</option>
+		</field>
+		<field name="featured" type="list" label="COM_RSEVENTSPRO_FEATURED" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="start" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_STARTING" class="form-control" />
+		<field name="end" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_ENDING" class="form-control" />
+		<field name="allday" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_ALL_DAY" />
 		<field name="location" type="hidden" />
-		<field name="owner" type="user" />
-		<field name="URL" type="hidden" />
-		<field name="email" type="hidden" />
-		<field name="phone" type="hidden" />
-		<field name="metaname" type="hidden" />
-		<field name="metakeywords" type="hidden" />
-		<field name="metadescription" type="hidden" />
-		<field name="recurring" type="hidden" />
-		<field name="registration" type="hidden" />
-		<field name="comments" type="hidden" />
-		<field name="repeat_interval" type="hidden" />
-		<field name="repeat_type" type="hidden" />
-		<field name="repeat_end" type="hidden" />
-		<field name="repeat_also" type="hidden" />
-		<field name="repeat_on_type" type="hidden" />
-		<field name="repeat_on_day" type="hidden" />
-		<field name="repeat_on_day_order" type="hidden" />
-		<field name="repeat_on_day_type" type="hidden" />
-		<field name="exclude_dates" type="hidden" />
-		<field name="start_registration" type="hidden" />
-		<field name="end_registration" type="hidden" />
-		<field name="unsubscribe_date" type="hidden" />
-		<field name="payments" type="hidden" />
-		<field name="max_tickets" type="hidden" />
-		<field name="max_tickets_amount" type="hidden" />
-		<field name="notify_me" type="hidden" />
-		<field name="notify_me_paid" type="hidden" />
-		<field name="notify_me_unsubscribe" type="hidden" />
-		<field name="overbooking" type="hidden" />
-		<field name="overbooking_amount" type="hidden" />
-		<field name="show_registered" type="hidden" />
-		<field name="automatically_approve" type="hidden" />
-		<field name="paypal_email" type="hidden" />
-		<field name="discounts" type="hidden" />
-		<field name="form" type="hidden" />
-		<field name="early_fee" type="hidden" />
-		<field name="early_fee_type" type="hidden" />
-		<field name="early_fee_end" type="hidden" />
-		<field name="late_fee" type="hidden" />
-		<field name="late_fee_type" type="hidden" />
-		<field name="late_fee_start" type="hidden" />
-		<field name="options" type="hidden" />
-		<field name="published" type="hidden" />
-		<field name="ticket_pdf" type="hidden" />
-		<field name="ticket_pdf_layout" type="editor" filter="JComponentHelper::filterText" buttons="true" />
-		<field name="gallery_tags" type="hidden" />
-		<field name="sync" type="hidden" />
-		<field name="allday" type="hidden" />
-		<field name="ticketsconfig" type="hidden" />
-		<field name="featured" type="hidden" />
-		<field name="itemid" type="hidden" />
-		<field name="rsvp" type="hidden" />
-		<field name="rsvp_quota" type="hidden" />
-		<field name="rsvp_guests" type="hidden" />
-		<field name="rsvp_start" type="hidden" />
-		<field name="rsvp_end" type="hidden" />
-		<field name="rsvp_going" type="hidden" />
-		<field name="rsvp_interested" type="hidden" />
-		<field name="rsvp_notgoing" type="hidden" />
-		<field name="event_ended" type="hidden" />
-		<field name="event_full" type="hidden" />
-		<field name="rsm_enable" type="hidden" />
-		<field name="rsm_when" type="hidden" />
-		<field name="rsm_lists" type="hidden" />
-		<field name="waitinglist" type="hidden" />
-		<field name="waitinglist_limit" type="hidden" />
-		<field name="waitinglist_time" type="hidden" />
-		<field name="waitinglist_user" type="hidden" />
-		<field name="waitinglist_admin" type="hidden" />
-		<field name="tickets_amount" type="hidden" />
-		<field name="invoice" type="hidden" />
-		<field name="invoice_attach" type="hidden" />
-		<field name="invoice_type" type="hidden" />
+		<field name="recurring" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_RECURRING" />
+		<field name="comments" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_ENABLE_COMMENTS" />
+		<field name="registration" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_ENABLE_REGISTRATION" />
+		<field name="rsvp" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_ENABLE_RSVP" />
+		<field name="itemid" type="text" label="COM_RSEVENTSPRO_EVENT_CUSTOM_ITEMID" description="COM_RSEVENTSPRO_EVENT_CUSTOM_ITEMID_DESC" default="" />
+		<field name="small_description" type="textarea" label="COM_RSEVENTSPRO_EVENT_SMALL_DESCRIPTION" rows="10" default="" />
+		<field name="description" type="editor" filter="JComponentHelper::filterText" buttons="true" />
+	</fieldset>
+	
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields" name="registration">
+		<field name="start_registration" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_FROM" class="form-control" />
+		<field name="end_registration" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_TO" class="form-control" />
+		<field name="unsubscribe_date" type="rscalendar" label="COM_RSEVENTSPRO_UNSUBSCRIPTION_DATE" description="COM_RSEVENTSPRO_UNSUBSCRIPTION_DATE_DESC" class="form-control" />
+		<field name="payments" type="rspayments" label="COM_RSEVENTSPRO_EVENT_PAYMENTS" multiple="multiple" shownone="false" />
+		<field name="tickets_amount" type="text" label="COM_RSEVENTSPRO_EVENT_TICKETS_AMOUNT" description="COM_RSEVENTSPRO_EVENT_TICKETS_AMOUNT_DESC" default="" />
+		<field name="overbooking" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_OVERBOOKING" />
+		<field name="overbooking_amount" type="text" label="COM_RSEVENTSPRO_EVENT_OVERBOOKING_AMOUNT" description="COM_RSEVENTSPRO_EVENT_OVERBOOKING_AMOUNT_DESC" default="" />
+		<field name="max_tickets" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_MAX_TICKETS" />
+		<field name="max_tickets_amount" type="text" label="COM_RSEVENTSPRO_MAX_TICKETS_AMOUNT" description="COM_RSEVENTSPRO_MAX_TICKETS_AMOUNT_DESC" default="" />
+		<field name="waitinglist" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_ENABLE_WAITINGLIST" />
+		<field name="waitinglist_limit" type="text" label="COM_RSEVENTSPRO_EVENT_WAITINGLIST_LIMIT" description="COM_RSEVENTSPRO_EVENT_WAITINGLIST_LIMIT_DESC" default="" />
+		<field name="waitinglist_time" type="rswaitinglisttime" label="COM_RSEVENTSPRO_EVENT_WAITINGLIST_TIME" description="COM_RSEVENTSPRO_EVENT_WAITINGLIST_TIME_DESC" default="" />
+		<field name="waitinglist_user" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_WAITINGLIST_USER" />
+		<field name="waitinglist_admin" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_WAITINGLIST_ADMIN" />
+		<field name="notify_me" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_NOTIFICATION" />
+		<field name="notify_me_paid" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_PAID_NOTIFICATION" />
+		<field name="notify_me_unsubscribe" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE_NOTIFICATION" />
+		<field name="show_registered" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_SHOW_GUESTS" />
+		<field name="automatically_approve" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_APPROVE" />
+		<field name="ticketsconfig" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_TICKETS_CONFIGURATION" />
+		<field name="discounts" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_DISCOUNTS" />
+		<field name="sync" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_SYNC" />
+		<field name="paypal_email" type="text" label="COM_RSEVENTSPRO_PAYPAL_EMAIL" default="" />
+	</fieldset>
+	
+	<fieldset name="contact">
+		<field name="owner" type="user" label="COM_RSEVENTSPRO_EVENT_THEOWNER" />
+		<field name="URL" type="text" label="COM_RSEVENTSPRO_EVENT_WEB" />
+		<field name="phone" type="text" label="COM_RSEVENTSPRO_EVENT_PHONE" />
+		<field name="email" type="text" label="COM_RSEVENTSPRO_EVENT_EMAIL" />
+	</fieldset>
+	
+	<fieldset name="meta">
+		<field name="metaname" type="text" label="COM_RSEVENTSPRO_EVENT_PAGE_TITLE" />
+		<field name="metakeywords" type="text" label="COM_RSEVENTSPRO_EVENT_PAGE_KEYWORDS" />
+		<field name="metadescription" type="textarea" rows="5" label="COM_RSEVENTSPRO_EVENT_PAGE_DESCRIPTION" />
+	</fieldset>
+	
+	<fields name="options">
+		<fieldset name="options1">
+			<field name="start_date" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_START_DATE" />
+			<field name="start_time" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_START_TIME" />
+			<field name="end_date" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_END_DATE" />
+			<field name="end_time" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_END_TIME" />
+			<field name="show_description" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_DESCRIPTION" />
+			<field name="show_location" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_LOCATION" />
+			<field name="show_categories" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_CATEGORIES" />
+			<field name="show_tags" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_TAGS" />
+			<field name="show_files" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_FILES" />
+			<field name="show_contact" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_CONTACT" />
+			<field name="show_map" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_MAP" />
+			<field name="show_export" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_EXPORT" />
+			<field name="show_invite" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_INVITE" />
+			<field name="show_postedby" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_POSTEDBY" />
+			<field name="show_repeats" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_REPEATS" />
+			<field name="show_active_child_events" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_ACTIVE_CHILD_EVENTS" />
+			<field name="show_hits" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_HITS" />
+			<field name="show_print" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_PRINT" />
+			<field name="show_counter" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_COUNTER" description="COM_RSEVENTSPRO_SHOW_COUNTER_DESC" />
+			<field name="counter_utc" type="rscheckbox" label="COM_RSEVENTSPRO_COUNTER_UTC" description="COM_RSEVENTSPRO_COUNTER_UTC_DESC" />
+			<field name="enable_rating" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_EVENT_RATING" />
+			<field name="enable_fb_like" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_FACEBOOK_LIKE" />
+			<field name="enable_twitter" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_TWITTER" />
+			<field name="enable_linkedin" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_LINKEDIN" />
+		</fieldset>
 		
+		<fieldset name="options2">
+			<field name="start_date_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_START_DATE" />
+			<field name="start_time_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_START_TIME" />
+			<field name="end_date_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_END_DATE" />
+			<field name="end_time_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_END_TIME" />
+			<field name="show_location_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_LOCATION" />
+			<field name="show_categories_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_CATEGORIES" />
+			<field name="show_tags_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_TAGS" />
+			<field name="show_icon_list" type="rscheckbox" label="COM_RSEVENTSPRO_SHOW_ICON" />
+		</fieldset>
+	</fields>
+	
+	<fieldset name="options3">
+		<field name="event_ended" type="textarea" rows="5" label="COM_RSEVENTSPRO_EVENT_ENDED" />
+		<field name="event_full" type="textarea" rows="5" label="COM_RSEVENTSPRO_EVENT_FULL" />
+	</fieldset>
+	
+	<fieldset name="rsmail">
+		<field name="rsm_enable" type="list" label="COM_RSEVENTSPRO_RSMAIL_ENABLE" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="rsm_when" type="list" label="COM_RSEVENTSPRO_RSMAIL_WHEN" default="0">
+			<option value="0">COM_RSEVENTSPRO_RSMAIL_WHEN_ON_REGISTRATION</option>
+			<option value="1">COM_RSEVENTSPRO_RSMAIL_WHEN_ON_CONFIRMATION</option>
+		</field>
+		<field name="rsm_lists" type="rsrsmail" label="COM_RSEVENTSPRO_RSMAIL_LISTS" multiple="multiple" />
+	</fieldset>
+	
+	<fieldset name="discounts">
+		<field name="early_fee" type="text" label="COM_RSEVENTSPRO_APPLY_DISCOUNT" />
+		<field name="early_fee_type" type="list" default="0">
+			<option value="0">COM_RSEVENTSPRO_DISCOUNT_TYPE_FIXED</option>
+			<option value="1">COM_RSEVENTSPRO_DISCOUNT_TYPE_PERCENT</option>
+		</field>
+		<field name="early_fee_end" type="rscalendar" label="COM_RSEVENTSPRO_BOOKINGS_MADE_UNTIL" class="form-control" />
+		<field name="late_fee" type="text" label="COM_RSEVENTSPRO_APPLY_FEE" />
+		<field name="late_fee_type" type="list" default="0">
+			<option value="0">COM_RSEVENTSPRO_DISCOUNT_TYPE_FIXED</option>
+			<option value="1">COM_RSEVENTSPRO_DISCOUNT_TYPE_PERCENT</option>
+		</field>
+		<field name="late_fee_start" type="rscalendar" label="COM_RSEVENTSPRO_BOOKINGS_MADE_AFTER" class="form-control" />
+	</fieldset>
+	
+	<fieldset name="recurring">
+		<field name="repeat_interval" type="text" label="COM_RSEVENTSPRO_REAPEAT_EVERY" />
+		<field name="repeat_type" type="list" default="1">
+			<option value="1">COM_RSEVENTSPRO_REPEAT_EVERY_DAY</option>
+			<option value="2">COM_RSEVENTSPRO_REPEAT_EVERY_WEEK</option>
+			<option value="3">COM_RSEVENTSPRO_REPEAT_EVERY_MONTH</option>
+			<option value="4">COM_RSEVENTSPRO_REPEAT_EVERY_YEAR</option>
+		</field>
+		<field name="repeat_end" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_END_REPEAT" class="form-control" allday="true" time="false" onchange="RSEventsPro.Event.repeats()" />
+		<field name="repeat_on_type" type="list" default="0">
+			<option value="0">COM_RSEVENTSPRO_REPEAT_ON_SAME_AS_START</option>
+			<option value="1">COM_RSEVENTSPRO_REPEAT_ON_SPECIFIC_DAY</option>
+			<option value="2">COM_RSEVENTSPRO_REPEAT_ON_SPECIFIC_INTERVAL</option>
+		</field>
+		<field name="repeat_on_day" type="text" />
+		<field name="repeat_on_day_order" type="list" default="0">
+			<option value="1">COM_RSEVENTSPRO_REPEAT_ON_FIRST</option>
+			<option value="2">COM_RSEVENTSPRO_REPEAT_ON_SECOND</option>
+			<option value="3">COM_RSEVENTSPRO_REPEAT_ON_THIRD</option>
+			<option value="4">COM_RSEVENTSPRO_REPEAT_ON_FOURTH</option>
+			<option value="5">COM_RSEVENTSPRO_REPEAT_ON_LAST</option>
+		</field>
+		<field name="repeat_on_day_type" type="list" default="0">
+			<option value="1">COM_RSEVENTSPRO_MONDAY</option>
+			<option value="2">COM_RSEVENTSPRO_TUESDAY</option>
+			<option value="3">COM_RSEVENTSPRO_WEDNESDAY</option>
+			<option value="4">COM_RSEVENTSPRO_THURSDAY</option>
+			<option value="5">COM_RSEVENTSPRO_FRIDAY</option>
+			<option value="6">COM_RSEVENTSPRO_SATURDAY</option>
+			<option value="0">COM_RSEVENTSPRO_SUNDAY</option>
+		</field>
+		<field name="repeat_also" type="recurring" multiple="multiple" />
+		<field name="exclude_dates" type="recurring" multiple="multiple" />
+	</fieldset>
+	
+	<fieldset name="rsvp">
+		<field name="rsvp_start" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_FROM" class="form-control" />
+		<field name="rsvp_end" type="rscalendar" label="COM_RSEVENTSPRO_EVENT_TO" class="form-control" />
+		<field name="rsvp_going" type="rscheckbox" label="COM_RSEVENTSPRO_RSVP_EVENT_RSVP_GOING_EMAIL" />
+		<field name="rsvp_interested" type="rscheckbox" label="COM_RSEVENTSPRO_RSVP_EVENT_RSVP_INTERESTED_EMAIL" />
+		<field name="rsvp_notgoing" type="rscheckbox" label="COM_RSEVENTSPRO_RSVP_EVENT_RSVP_NOTGOING_EMAIL" />
+		<field name="rsvp_guests" type="rscheckbox" label="COM_RSEVENTSPRO_RSVP_EVENT_GUESTS" />
+		<field name="rsvp_quota" type="text" label="COM_RSEVENTSPRO_RSVP_QUOTA" description="COM_RSEVENTSPRO_RSVP_QUOTA_DESC" />
+	</fieldset>
+	
+	<fieldset name="invoice">
+		<field name="invoice" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_INVOICE" />
+		<field name="invoice_attach" type="rscheckbox" label="COM_RSEVENTSPRO_INVOICE_ATTACH" />
+		<field name="invoice_type" type="list" default="1" label="COM_RSEVENTSPRO_INVOICE_TYPE">
+			<option value="1">COM_RSEVENTSPRO_INVOICE_TYPE_GLOBAL</option>
+			<option value="2">COM_RSEVENTSPRO_INVOICE_TYPE_CUSTOM</option>
+		</field>
 		<field name="invoice_font" type="font" default="times" label="COM_RSEVENTSPRO_CONF_INVOICE_FONT" description="COM_RSEVENTSPRO_CONF_INVOICE_FONT_DESC" />
 		<field name="invoice_orientation" type="list" default="portrait" label="COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION" description="COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_DESC">
 			<option value="portrait">COM_RSEVENTSPRO_CONF_INVOICE_ORIENTATION_PORTRAIT</option>
@@ -91,13 +197,19 @@
 		<field name="invoice_prefix" type="text" default="" label="COM_RSEVENTSPRO_CONF_INVOICE_PREFIX" description="COM_RSEVENTSPRO_CONF_INVOICE_PREFIX_DESC" size="10" />
 		<field name="invoice_title" type="text" default="" label="COM_RSEVENTSPRO_CONF_INVOICE_TITLE" description="COM_RSEVENTSPRO_CONF_INVOICE_TITLE_DESC" size="70" />
 		<field name="invoice_layout" type="editor" label="COM_RSEVENTSPRO_CONF_INVOICE_LAYOUT" description="COM_RSEVENTSPRO_CONF_INVOICE_LAYOUT_DESC" width="300" filter="safehtml" />
-		
-		<field name="created" type="hidden" filter="unset" />
-		<field name="icon" type="hidden" filter="unset" />
-		<field name="archived" type="hidden" filter="unset" />
-		<field name="completed" type="hidden" filter="unset" />
-		<field name="approved" type="hidden" filter="unset" />
-		<field name="properties" type="hidden" filter="unset" />
-		<field name="sid" type="hidden" filter="unset" />
 	</fieldset>
+	
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields" name="gallery">
+		<field name="gallery_tags" type="rsgallery" label="COM_RSEVENTSPRO_GALLERY_TAGS" multiple="multiple" />
+	</fieldset>
+	
+	<field name="form" type="hidden" />
+	<field name="created" type="hidden" filter="unset" />
+	<field name="icon" type="hidden" filter="unset" />
+	<field name="archived" type="hidden" filter="unset" />
+	<field name="completed" type="hidden" filter="unset" />
+	<field name="approved" type="hidden" filter="unset" />
+	<field name="properties" type="hidden" filter="unset" />
+	<field name="sid" type="hidden" filter="unset" />	
+	<field name="id" type="hidden" />
 </form>

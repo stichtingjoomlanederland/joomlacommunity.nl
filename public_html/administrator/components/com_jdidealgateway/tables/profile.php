@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -45,17 +45,17 @@ class TableProfile extends Table
 	 */
 	public function check(): bool
 	{
-		// Check that the alias is unique
 		$db    = $this->getDbo();
 		$query = $db->getQuery(true)
 			->select($db->quoteName('id'))
 			->from($db->quoteName($this->_tbl))
-			->where($db->quoteName('alias') . ' = ' . $db->quote($this->get('alias')));
+			->where($db->quoteName('alias') . ' = ' . $db->quote($this->get('alias')))
+			->where($db->quoteName('id') . ' <> ' . (int) $this->get('id'));
 		$db->setQuery($query);
 
 		$profileId = $db->loadResult();
 
-		if ($profileId > 0 && $profileId !== $this->get('id'))
+		if ($profileId > 0)
 		{
 			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_ALIAS_EXISTS'));
 		}

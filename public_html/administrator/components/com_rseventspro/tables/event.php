@@ -250,10 +250,6 @@ class RseventsproTableEvent extends JTable
 			$this->payments = (string) $registry;
 		} else $this->payments = '';
 		
-		if (isset($this->metakeywords) && is_array($this->metakeywords)) {
-			$this->metakeywords = implode(', ',$this->metakeywords);
-		} else $this->metakeywords = '';
-		
 		if (isset($this->gallery_tags) && is_array($this->gallery_tags)) {
 			$registry = new JRegistry;
 			$registry->loadArray($this->gallery_tags);
@@ -293,14 +289,15 @@ class RseventsproTableEvent extends JTable
 				$this->options = (string) $registry;
 			} else $this->options = '';
 		}
-		
-		if (!empty($this->metakeywords)) {
-			$this->metakeywords = rtrim($this->metakeywords,',');
-		}
 
 		$this->timezone = $tzoffset;
 		
 		if (empty($this->itemid)) $this->itemid = 0;
+		if (empty($this->max_tickets_amount)) $this->max_tickets_amount = 0;
+		if (empty($this->overbooking_amount)) $this->overbooking_amount = 0;
+		if (empty($this->waitinglist_limit)) $this->waitinglist_limit = 0;
+		if (empty($this->tickets_amount)) $this->tickets_amount = 0;
+		if (empty($this->rsvp_quota)) $this->rsvp_quota = 0;
 		
 		return true;
 	}

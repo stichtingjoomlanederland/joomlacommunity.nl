@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,10 +11,10 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussAup extends EasyDiscuss
+class EasyDiscussAup
 {
-	var $exists	= null;
-	var $rules	= array(
+	public $exists = null;
+	public $rules = array(
 					DISCUSS_POINTS_NEW_DISCUSSION => 'new_discussion',
 					DISCUSS_POINTS_DELETE_DISCUSSION => 'delete_discussion',
 					DISCUSS_POINTS_VIEW_DISCUSSION => 'view_discussion',
@@ -46,7 +46,8 @@ class EasyDiscussAup extends EasyDiscuss
 			jimport('joomla.filesystem.file');
 
 			$file = JPATH_ROOT . '/components/com_altauserpoints/helper.php';
-			$enabled = $this->config->get('integration_altauserpoints_enable');
+			$config = ED::config();
+			$enabled = $config->get('integration_altauserpoints_enable');
 
 			if (!JFile::exists($file) || !$enabled) {
 				$exists = false;

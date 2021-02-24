@@ -35,7 +35,7 @@ class DiscussCustomFieldsAcl extends EasyDiscussTable
 
 	public function getCustomFieldsAcl()
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query = 'SELECT * FROM ' . $db->nameQuote( '#__discuss_customfields_acl' )
 				. ' ORDER BY ' . $db->nameQuote( 'id' );

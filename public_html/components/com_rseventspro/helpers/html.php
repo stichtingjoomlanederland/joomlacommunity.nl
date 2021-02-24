@@ -161,14 +161,15 @@ abstract class JHTMLRSEventsPro
 			$thevalue = '';
 		}
 		
-		$html[] = '<div id="'.$id.'_datetimepicker" class="input-append" data-date-weekstart="'.intval(JText::_('COM_RSEVENTSPRO_CALENDAR_START_DAY')).'">';
+		$html[] = '<div id="'.$id.'_datetimepicker" class="input-'.(rseventsproHelper::isJ4() ? 'group' : 'append').'" data-date-weekstart="'.intval(JText::_('COM_RSEVENTSPRO_CALENDAR_START_DAY')).'" data-joomlaversion="'.(rseventsproHelper::isJ4() ? '4' : '3').'">';
 		$html[] = '<input type="text" name="'.$calendarname.'" id="'.$calendarid.'" value="'.$thevalue.'" '.$attribs.' />';
-		$html[] = '<button class="btn" type="button">';
+		
+		$html[] = '<button class="'.RSEventsproAdapterGrid::styles(array('btn')).'" type="button">';
 		$html[] = '<i class="icon-calendar"></i>';
 		$html[] = '</button>';
 		
 		if ($clear) {
-			$html[] = '<button class="btn" type="button">';
+			$html[] = '<button class="'.RSEventsproAdapterGrid::styles(array('btn')).'" type="button">';
 			$html[] = '<i class="icon-remove"></i>';
 			$html[] = '</button>';
 		}
@@ -204,13 +205,24 @@ abstract class JHTMLRSEventsPro
 	 * @param   int $value	The state value
 	 * @param   int $i
 	 */
-	public static function featured($value = 0, $i) {
+	public static function featured($value, $i) {
+		$featured	= rseventsproHelper::isJ4() ? 'icon-star icon-color-featured' : 'featured';
+		$unfeatured	= rseventsproHelper::isJ4() ? 'icon-star icon-color-unfeatured' : 'unfeatured';
+		
 		$states	= array(
-			0	=> array('featured',		'COM_RSEVENTSPRO_UNFEATURED',	'COM_RSEVENTSPRO_TOGGLE_TO_FEATURE',	true, 'featured', 'unfeatured'),
-			1	=> array('unfeatured',		'COM_RSEVENTSPRO_FEATURED',		'COM_RSEVENTSPRO_TOGGLE_TO_UNFEATURE',	true, 'unfeatured', 'featured')
+			0	=> array('featured',		'COM_RSEVENTSPRO_UNFEATURED',	'COM_RSEVENTSPRO_TOGGLE_TO_FEATURE',	true, $featured, $unfeatured),
+			1	=> array('unfeatured',		'COM_RSEVENTSPRO_FEATURED',		'COM_RSEVENTSPRO_TOGGLE_TO_UNFEATURE',	true, $unfeatured, $featured)
 		);
 		
 		return JHTML::_('jgrid.state', $states, $value, $i, 'events.');
+	}
+	
+	public static function preview($id) {
+		if (rseventsproHelper::isJ4()) {
+			return '<a class="tbody-icon active" href="'.JUri::root().'index.php?option=com_rseventspro&layout=show&id='.$id.'" target="_blank"><span class="fas fa-search-plus fa-check" aria-hidden="true"></span></a>';
+		} else {
+			return '<a class="btn btn-micro hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT').'" target="_blank" href="'.JUri::root().'index.php?option=com_rseventspro&layout=show&id='.$id.'"><span class="icon-zoom-in"></span></a>';
+		}
 	}
 	
 	public static function chosen($selector = '.rsepro-chosen', $options = array()) {
@@ -335,7 +347,7 @@ abstract class JHTMLRSEventsPro
 		$groups = array_merge($utc, $groups);
 		
 		return JHtml::_('select.groupedlist', $groups, $name, array(
-			'list.attr' => '', 'id' => $name, 'list.select' => rseventsproHelper::getTimezone(), 'group.items' => null, 'option.key.toHtml' => false,
+			'list.attr' => 'class="custom-select"', 'id' => $name, 'list.select' => rseventsproHelper::getTimezone(), 'group.items' => null, 'option.key.toHtml' => false,
 			'option.text.toHtml' => false
 		));
 	}

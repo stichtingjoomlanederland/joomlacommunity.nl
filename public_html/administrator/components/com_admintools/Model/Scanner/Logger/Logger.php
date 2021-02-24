@@ -1,18 +1,18 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model\Scanner\Logger;
 
+defined('_JEXEC') || die;
+
 use Akeeba\AdminTools\Admin\Model\Scanner\Mixin\Singleton;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Filesystem;
 use FOF30\Container\Container;
-
-defined('_JEXEC') or die;
 
 class Logger
 {
@@ -120,7 +120,7 @@ class Logger
 			return;
 		}
 
-		fputs($fp, '<?php die(); ?>' . "\n");
+		fwrite($fp, '<?php die(); ?>' . "\n");
 		@fclose($fp);
 	}
 

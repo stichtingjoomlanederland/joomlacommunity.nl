@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,19 +10,9 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-$prefix = JRequest::getCmd('prefix', '');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 
-	<?php if ($browse) { ?>
-	<div class="app-filter filter-bar form-inline">
-		<div class="form-group">
-			<h2><?php echo JText::_('COM_EASYDISCUSS_BADGES_TITLE');?></h2>
-			<?php echo JText::_('COM_EASYDISCUSS_BADGES_DESC');?>
-		</div>
-	</div>
-	<?php } else { ?>
 	<div class="app-filter-bar">
 		<div class="app-filter-bar__cell app-filter-bar__cell--search">
 			<?php echo $this->html('table.search', 'search', $search); ?>
@@ -34,7 +24,7 @@ $prefix = JRequest::getCmd('prefix', '');
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -42,7 +32,6 @@ $prefix = JRequest::getCmd('prefix', '');
 			</div>
 		</div>
 	</div>
-	<?php } ?>
 
 	<div class="panel-table">
 		<table class="app-table table" data-ed-table>
@@ -59,15 +48,15 @@ $prefix = JRequest::getCmd('prefix', '');
 				</th>
 
 				<?php if (!$browse) { ?>
-					<th width="1%" class="center">
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
 					</th>
-					<th width="1%" class="center">
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_ACHIEVERS'); ?>
 					</th>
 				<?php } ?>
 
-				<th width="10%" class="center">
+				<th width="15%" class="center">
 					<?php echo JText::_('COM_EASYDISCUSS_THUMBNAIL'); ?>
 				</th>
 
@@ -95,7 +84,11 @@ $prefix = JRequest::getCmd('prefix', '');
 					<?php } ?>
 
 					<td style="text-align:left;">
-						<a href="<?php echo $badge->editLink; ?>"><?php echo $badge->title; ?></a>
+						<?php if (!$browse) { ?>
+							<a href="<?php echo $badge->editLink; ?>"><?php echo $badge->title; ?></a>
+						<?php } else { ?>
+							<a href="javascript:void(0);" onclick="parent.<?php echo $browseFunction; ?>('<?php echo $badge->id;?>','<?php echo $userIds;?>');"><?php echo $badge->title;?></a>
+						<?php } ?>
 					</td>
 
 					<?php if (!$browse) { ?>
@@ -148,13 +141,12 @@ $prefix = JRequest::getCmd('prefix', '');
 		<input type="hidden" name="browse" value="1" />
 		<input type="hidden" name="browseFunction" value="<?php echo $browseFunction; ?>" />
 		<input type="hidden" name="tmpl" value="component" />
-		<input type="hidden" name="prefix" value="<?php echo $prefix; ?>" />
 		<?php } ?>
 
 		<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 		<input type="hidden" name="filter_order_Dir" value="" />
 
-		<?php echo $this->html('form.hidden', 'badges', 'badges'); ?>
+		<?php echo $this->html('form.action', 'badges', 'badges'); ?>
 
 	</div>
 </form>

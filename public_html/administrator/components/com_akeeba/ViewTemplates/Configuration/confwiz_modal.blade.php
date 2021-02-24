@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -19,17 +19,19 @@ if (defined('AKEEBA_VIEW_JAVASCRIPT_CONFWIZ_MODAL'))
 define('AKEEBA_VIEW_JAVASCRIPT_CONFWIZ_MODAL', 1);
 
 $js = <<< JS
-akeeba.System.documentReady(function(){
-	akeeba.System.addEventListener('comAkeebaConfigurationWizardModalClose', 'click', function() {
-	  akeeba.System.configurationWizardModal.close();
-	});
+akeeba.Loader.add('akeeba.System', function(){
+    akeeba.System.documentReady(function(){
+        akeeba.System.addEventListener('comAkeebaConfigurationWizardModalClose', 'click', function() {
+          akeeba.System.configurationWizardModal.close();
+        });
 
-	setTimeout(function() {
-	  akeeba.System.configurationWizardModal = akeeba.Modal.open({
-		inherit: '#akeeba-config-confwiz-bubble',
-		width: '80%'
-	});
-	}, 500);
+        setTimeout(function() {
+          akeeba.System.configurationWizardModal = akeeba.Modal.open({
+            inherit: '#akeeba-config-confwiz-bubble',
+            width: '80%'
+        });
+        }, 500);
+    });
 });
 
 JS;

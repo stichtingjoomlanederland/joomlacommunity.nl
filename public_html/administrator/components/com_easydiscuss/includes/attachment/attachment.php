@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -47,6 +47,8 @@ class EasyDiscussAttachment extends EasyDiscuss
 		if (isset($item->type)) {
 			$this->attachmentType = $this->getType();
 		}
+
+		$this->acl = ED::acl();
 	}
 
 	/**
@@ -66,6 +68,61 @@ class EasyDiscussAttachment extends EasyDiscuss
 		}
 
 		return $this->table->$key;
+	}
+
+	/**
+	 * Determines if this attachment can be deleted
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function canDelete()
+	{
+		// Guest user shouldn't have permisson to delete
+		if (!$this->my->id) {
+			return false;
+		}
+
+		// For super admin and moderators, we should allow this to happen
+		if (ED::isSiteAdmin()) {
+			return true;
+		}
+
+		if ($this->acl->allowed('delete_attachment')) {
+			return true;
+		}
+
+		// Get the post
+		$post = ED::post($this->table->uid);
+
+		if (ED::isModerator($post->category_id)) {
+			return true;
+		}
+
+		if ($post->user_id == $this->my->id) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Creates a thumbnail
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function createThumbnail($pathToImage)
+	{
+		// Generate a temporary file
+		$temp = dirname($pathToImage) . '/' . basename($pathToImage) . '_thumb';
+
+		$image = ED::simpleimage();
+		$image->load($pathToImage);
+		$image->resizeToFill(160, 120);
+		$image->save($temp, $image->image_type);
+
+		return $temp;
 	}
 
 	/**
@@ -238,7 +295,8 @@ class EasyDiscussAttachment extends EasyDiscuss
 			$task = 'downloadAmazon';
 		}
 
-		$link = EDR::getRoutedURL('index.php?option=com_easydiscuss&controller=attachment&task=' . $task . '&tmpl=component&id=' . $this->table->id, false, true);
+		$url = 'index.php?option=com_easydiscuss&controller=attachment&task=' . $task . '&tmpl=component&id=' . $this->table->id;
+		$link = rtrim(JURI::root(), '/') . '/' . $url;
 
 		return $link;
 	}
@@ -309,6 +367,64 @@ class EasyDiscussAttachment extends EasyDiscuss
 	}
 
 	/**
+	 * Optimize the attachment
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function optimize($providedPath = null)
+	{
+		if (!$this->isImage()) {
+			return;
+		}
+
+		$path = $this->getAbsolutePath();
+
+		// If provided path is given, this is probably optimize during upload
+		if ($providedPath) {
+			$path = $providedPath;
+		}
+
+		$optimizer = ED::imageoptimizer();
+
+		if (!$optimizer->enabled()) {
+			return;
+		}
+		
+		$exists = JFile::exists($path);
+			
+		$table = ED::table('Optimizer');
+		$table->attachment_id = $this->id;
+		$table->created = JFactory::getDate()->toSql();
+
+		if (!$exists) {
+			$table->status = ED_OPTIMIZER_FAILED;
+			$table->log = JText::_('File does not exist on the site');	
+			$table->store();
+			return false;
+		}
+
+		$state = $optimizer->optimize($path);
+
+		if ($state !== true) {
+			$table->status = ED_OPTIMIZER_FAILED;
+			$table->log = $state;
+		}
+
+		if ($state === true) {
+			$table->status = ED_OPTIMIZER_SUCCESS;
+		}
+
+		// Optimize the thumbnail as well
+		if (!$providedPath) {
+			$thumbnailPath = $this->getAbsolutePath(true);
+			$optimizer->optimize($thumbnailPath);
+		}
+
+		$table->store();
+	}
+
+	/**
 	 * Allows caller to upload a file
 	 *
 	 * @since	4.0
@@ -322,9 +438,8 @@ class EasyDiscussAttachment extends EasyDiscuss
 		// Get the extension
 		$extension = $this->getExtension($file);
 
-
 		if (!$extension || !in_array($extension, $allowed)) {
-			$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name']));
+			$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name'], $this->config->get('main_attachment_extension')));
 			return false;
 		}
 
@@ -337,6 +452,7 @@ class EasyDiscussAttachment extends EasyDiscuss
 			return false;
 		}
 
+
 		// @TODO: Ensure that the file doesn't contain any hacks.
 
 		// Generate a unique id
@@ -345,11 +461,12 @@ class EasyDiscussAttachment extends EasyDiscuss
 		// This determines which storage type to use
 		$storageType = $this->config->get('storage_attachments');
 
+		$this->table->type = '';
 		$this->table->path = $hash;
 		$this->table->title = $file['name'];
 		$this->table->uid = $post->id;
 		$this->table->created = ED::date()->toSql();
-		$this->table->published = true;
+		$this->table->published = 1;
 		$this->table->storage = $storageType;
 		$this->table->mime = $file['type'];
 		$this->table->size = $size;
@@ -367,6 +484,9 @@ class EasyDiscussAttachment extends EasyDiscuss
 
 		// Get the storage
 		$storage = ED::storage($this->table->storage);
+
+		// Optimize the image before we upload to the storage
+		$this->optimize($temporaryPath);
 
 		// If this is an image, create a thumb
 		if ($isImage) {
@@ -387,57 +507,58 @@ class EasyDiscussAttachment extends EasyDiscuss
 	}
 
 	/**
-	 * Determines if this attachment can be deleted
+	 * Duplicate the attachment
 	 *
-	 * @since   4.0
-	 * @access  public
-	 */
-	public function canDelete()
-	{
-		// Guest user shouldn't have permisson to delete
-		if (!$this->my->id) {
-			return false;
-		}
-
-		// For super admin and moderators, we should allow this to happen
-		if (ED::isSiteAdmin()) {
-			return true;
-		}
-
-		if ($this->acl->allowed('delete_attachment')) {
-			return true;
-		}
-
-		// Get the post
-		$post = ED::post($this->table->uid);
-
-		if (ED::isModerator($post->category_id)) {
-			return true;
-		}
-
-		if ($post->user_id == $this->my->id) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Creates a thumbnail
-	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
-	public function createThumbnail($pathToImage)
+	public function duplicate($newPostId)
 	{
-		// Generate a temporary file
-		$temp = dirname($pathToImage) . '/' . basename($pathToImage) . '_thumb';
+		$table = ED::table('Attachments');
 
-		$image = ED::simpleimage();
-		$image->load($pathToImage);
-		$image->resizeToFill(160, 120);
-		$image->save($temp, $image->image_type);
+		// Bind the current attachment data for a new record
+		$table->bind($this->table);
 
-		return $temp;
+		// Reset the id
+		$table->id = null;
+
+		// Update to the duplicated post id
+		$table->uid = $newPostId;
+
+		// Get the original hash first before update it
+		$oriHash = $table->path;
+
+		// Get the new hash for the duplicated file
+		$hash = ED::getHash($table->title . ED::date()->toSql() . uniqid());
+
+		// Update the path
+		$table->path = $hash;
+
+		// Store now to duplicate the attachment
+		$table->store();
+
+		// The storage path of the original file
+		$oriPath = $this->getStoragePath() . '/' . $oriHash;
+
+		// The new storage path for the duplicated file
+		$newPath = $this->getStoragePath() . '/' . $table->path;
+
+		// Get the storage
+		$storage = ED::storage($table->storage);
+
+		// Now duplicate the file
+		$storage->upload(basename($newPath), $oriPath, $newPath);
+
+		$isImage = ED::image()->isImage($oriPath);
+
+		// Duplicate its thumbnail as well if this is an image
+		if ($isImage) {
+			$oriPathThumb = $oriPath . '_thumb';
+			$newPathThumb = $newPath . '_thumb';
+
+			$storage->upload(basename($newPathThumb), $oriPathThumb, $newPathThumb);
+		}
+
+		return $table;
 	}
 }

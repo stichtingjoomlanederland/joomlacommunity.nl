@@ -1,6 +1,6 @@
 <?php
+
 defined('_JEXEC') or die('Restricted access');
-?><?php
 
 class plgSystemJceacym extends JPlugin
 {
@@ -15,4 +15,3 @@ class plgSystemJceacym extends JPlugin
         }
     }
 }
-

@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.filesystem.file');
 
-class EasyDiscussAssets extends EasyDiscuss
+class EasyDiscussAssets
 {
 	private $headers = array();
 
@@ -32,7 +32,7 @@ class EasyDiscussAssets extends EasyDiscuss
 
 			// Try to load the template from joomla cache since some 3rd party plugins can change the templates on the fly.
 			// This can also happen if joomla menu is associated with different template than the main templates. #155
-			if ($client == 'site' && $app->isSite()) {
+			if ($client == 'site' && !ED::isFromAdmin()) {
 				$template[$client] = $app->getTemplate();
 			} else {
 

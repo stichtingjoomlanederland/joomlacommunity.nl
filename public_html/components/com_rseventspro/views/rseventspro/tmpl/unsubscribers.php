@@ -18,12 +18,12 @@ function rs_clear() {
 	
 	<h1><?php echo JText::sprintf('COM_RSEVENTSPRO_UNSUBSCRIBERS_FOR',$this->row->name); ?></h1>
 	
-	<div class="input-append">
-		<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="<?php echo $this->filter_word; ?>" size="35" /> 
-		<button type="button" class="button btn" onclick="adminForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?></button> 
-		<button type="button" class="button btn" onclick="rs_clear();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR'); ?></button>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(12); ?>">
+			<?php echo RSEventsproAdapterGrid::inputGroup('<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="'.$this->filter_word.'" class="form-control" />', null, '<button type="button" class="btn btn-primary hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH').'" onclick="adminForm.submit();"><i class="fa fa-search"></i></button> <button type="button" class="btn btn-danger hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR').'" onclick="rs_clear();"><i class="fa fa-times"></i></button>'); ?>
+		</div>
 	</div>
-	<div class="rs_clear"></div>
+	
 	<br /><br />
 	
 	<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportunsubscribers&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_UNSUBSCRIBERS'); ?></a> <br />

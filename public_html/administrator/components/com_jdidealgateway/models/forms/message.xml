@@ -14,7 +14,7 @@
                description="COM_ROPAYMENTS_MESSAGE_PSP_DESC"
                required="true"
                size="1"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
         </field>
 
         <field name="orderstatus"
@@ -24,7 +24,7 @@
                required="true"
                size="1"
                default="OPEN"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
         </field>
 
         <field
@@ -40,8 +40,8 @@
                 name="language"
                 type="contentlanguage"
                 label="JFIELD_LANGUAGE_LABEL"
-                description="COM_CONTENT_FIELD_LANGUAGE_DESC"
-                class="advancedSelect"
+                description="COM_ROPAYMENTS_MESSAGE_LANGUAGE_DESC"
+                class="advancedSelect custom-select"
                 default="*"
         >
             <option value="*">JALL</option>
@@ -52,7 +52,7 @@
                default="0"
                label="COM_ROPAYMENTS_MESSAGE_TYPE_LABEL"
                description="COM_ROPAYMENTS_MESSAGE_TYPE_DESC"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
             <option value="0">COM_ROPAYMENTS_STATUS_TEXT</option>
             <option value="1">COM_ROPAYMENTS_STATUS_ARTICLE</option>
         </field>

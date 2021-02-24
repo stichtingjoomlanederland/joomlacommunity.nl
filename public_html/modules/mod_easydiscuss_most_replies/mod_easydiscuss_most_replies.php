@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,14 +20,15 @@ if (!JFile::exists($path)) {
 }
 
 require_once($path);
-require_once dirname(__FILE__) . '/helper.php';
+
+ED::init();
+$lib = ED::modules($module);
+$helper = $lib->getHelper(false);
 
 $lang = JFactory::getLanguage();
 $lang->load('mod_easydiscuss_most_replies', JPATH_ROOT);
 
 $config = ED::config();
-
-ED::init();
 
 // Get the list of posts
 $posts = modEasydiscussMostRepliesHelper::getData($params);

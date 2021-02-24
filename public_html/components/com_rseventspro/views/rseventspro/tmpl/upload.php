@@ -111,17 +111,14 @@ RSEventsPro.Crop = {
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro'); ?>" method="post" name="uploadForm" id="uploadForm" class="form-horizontal" enctype="multipart/form-data">
-	<div class="control-group">
-		<div class="control-label">
-			<label for="upload_file"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_IMAGE'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="file" id="upload_file" onchange="rsepro_upload_photo();" size="30" name="icon" class="input-medium" /> 
-			<span id="upload_loader" style="display:none;">
-				<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'vertical-align: middle;'), true); ?> 
-			</span>
-		</div>
-	</div>
+	<a class="btn btn-primary mb-3" style="position: relative;" href="javascript:void(0)">
+		<?php echo JText::_('COM_RSEVENTSPRO_SELECT_IMAGE'); ?>
+		<input type="file" id="upload_file" onchange="rsepro_upload_photo();" size="30" name="icon" /> 
+	</a>
+	<span id="upload_loader" style="display:none;">
+		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'vertical-align: middle;'), true); ?> 
+	</span>
+	
 	<?php if($this->item->icon) { ?>
 	<div class="rsepro-crop-container">
 		<div id="cropcontainer" style="display:none; width: <?php echo $this->divwidth; ?>px;">
@@ -147,10 +144,12 @@ RSEventsPro.Crop = {
 <script type="text/javascript">
 	var objImagePreloader = new Image();
 	objImagePreloader.onload = function() {
-		jQuery('#crop_loader').css('display','none');
-		jQuery('#cropcontainer').css('display','');
-		RSEventsPro.Crop.init();
-		objImagePreloader.onload=function(){};
+		setTimeout(function() {
+			jQuery('#crop_loader').css('display','none');
+			jQuery('#cropcontainer').css('display','');
+			RSEventsPro.Crop.init();
+			objImagePreloader.onload=function(){};
+		},500);
 	};
 	objImagePreloader.src = '<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/events/<?php echo $this->item->icon; ?>';
 </script>

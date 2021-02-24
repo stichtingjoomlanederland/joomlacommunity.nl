@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymhistoryClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class HistoryClass extends acymClass
 {
     var $table = 'history';
 
@@ -12,7 +14,7 @@ class acymhistoryClass extends acymClass
         if (!empty($currentUserid)) {
             $data[] = acym_translation('EXECUTED_BY').'::'.$currentUserid.' ( '.acym_currentUserName().' )';
         }
-        $history = new stdClass();
+        $history = new \stdClass();
         $history->user_id = intval($userId);
         $history->action = strip_tags($action);
         $history->data = implode("\n", $data);
@@ -73,4 +75,3 @@ class acymhistoryClass extends acymClass
         return acym_loadObjectList($query);
     }
 }
-

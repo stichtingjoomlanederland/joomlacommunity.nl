@@ -1,8 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymencodingHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Libraries\acymObject;
+use AcyMailing\Types\CharsetType;
+
+class EncodingHelper extends acymObject
 {
     public function change($data, $inputCharset, $outputCharset)
     {
@@ -35,9 +38,9 @@ class acymencodingHelper extends acymObject
             'ISO-8859-16',
         ];
         if (!in_array($inputCharset, $supportedEncodings)) {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_ENCODING_NOT_SUPPORTED_X', $inputCharset), 'error');
+            acym_enqueueMessage(acym_translationSprintf('ACYM_ENCODING_NOT_SUPPORTED_X', $inputCharset), 'error');
         } elseif (!in_array($outputCharset, $supportedEncodings)) {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_ENCODING_NOT_SUPPORTED_X', $outputCharset), 'error');
+            acym_enqueueMessage(acym_translationSprintf('ACYM_ENCODING_NOT_SUPPORTED_X', $outputCharset), 'error');
         }
 
         if ($inputCharset == $outputCharset) {
@@ -49,10 +52,10 @@ class acymencodingHelper extends acymObject
         }
 
         if (function_exists('iconv')) {
-            set_error_handler('acym_error_handler_encoding');
+            set_error_handler('AcyMailing\Helpers\acym_error_handler_encoding');
             $encodedData = iconv($inputCharset, $outputCharset.'//IGNORE', $data);
             restore_error_handler();
-            if (!empty($encodedData) && !acym_error_handler_encoding('result')) {
+            if (!empty($encodedData) && !acym_errorHandlerEncoding('result')) {
                 return $encodedData;
             }
         }
@@ -127,13 +130,13 @@ class acymencodingHelper extends acymObject
 
     public function charsetField($name, $selected, $attribs = null)
     {
-        $charsetType = acym_get('type.charset');
+        $charsetType = new CharsetType();
 
         return acym_select($charsetType->charsets, $name, $selected, $attribs, '', '');
     }
 }
 
-function acym_error_handler_encoding($errno, $errstr = '')
+function acym_errorHandlerEncoding($errno, $errstr = '')
 {
     static $error = false;
     if (is_string($errno) && $errno == 'result') {
@@ -147,3 +150,7 @@ function acym_error_handler_encoding($errno, $errstr = '')
     return true;
 }
 
+function acym_error_handler_encoding($errno, $errstr = '')
+{
+    return acym_errorHandlerEncoding($errno, $errstr = '');
+}

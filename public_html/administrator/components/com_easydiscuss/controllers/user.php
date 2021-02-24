@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -24,10 +24,7 @@ class EasyDiscussControllerUser extends EasyDiscussController
 
 	public function apply()
 	{
-		// Check for request forgeries
 		ED::checkToken();
-
-		$db	= ED::db();
 
 		$userId = $this->input->get('id', 0, 'post', 'int');
 
@@ -39,7 +36,7 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		$user->name	= $post['fullname'];
 
 		// this is so that we can get com_users jform data for custom fields.
-		$profileExModel = new EasyDiscussModelProfileEx();
+		$profileExModel = new EDUsersModelRegistration();
 		$form = $profileExModel->getForm();
 
 		// here we need to get the custom fiels data and simulate the form post data.
@@ -62,20 +59,20 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		}
 
 		if (!$user->bind($post)) {
-			ED::setMessage($user->getError(), 'error');
+			ED::setMessage($user->getError(), ED_MSG_ERROR);
 			$this->_saveError($user->id);
 		}
 
 		if( $user->get('id') == $this->my->get('id') && $user->get('block') == 1) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_BLOCK_YOURSELF'), 'error');
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_BLOCK_YOURSELF'), ED_MSG_ERROR);
 			$this->_saveError($user->id);
 
 		} else if (($user->authorise('core.admin')) && $user->get('block') == 1) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_BLOCK_SUPERUSER'), 'error');
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_BLOCK_SUPERUSER'), ED_MSG_ERROR);
 			$this->_saveError($user->id);
 
 		} else if (($user->authorise('core.admin')) && !($this->my->authorise('core.admin'))) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_EDIT_SUPERUSER'), 'error');
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_EDIT_SUPERUSER'), ED_MSG_ERROR);
 			$this->_saveError($user->id);
 		}
 
@@ -91,16 +88,12 @@ class EasyDiscussControllerUser extends EasyDiscussController
 			}
 		}
 
-
-
 		// Are we dealing with a new user which we need to create?
 		$isNew = ($user->get('id') < 1);
 
-		/*
-		 * Lets save the JUser object
-		 */
+		// Lets save the JUser object
 		if (!$user->save()) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_SAVE_THE_USER_INFORMATION'), 'error');
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CANNOT_SAVE_THE_USER_INFORMATION'), ED_MSG_ERROR);
 			return $this->execute('edit');
 		}
 
@@ -115,13 +108,12 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		$profile = ED::table('Profile');
 		$profile->load($user->id);
 
-		$file = JRequest::getVar('Filedata', '', 'files', 'array');
+		$file = $this->input->files->get('Filedata', '');
 		$post['signature'] = $this->input->get('signature', '', 'raw');
 		$post['description'] = $this->input->get('description', '', 'raw');
 
 		if (!empty($file['name'])) {
-			$newAvatar = ED::uploadAvatar($profile, true);
-			$profile->avatar = $newAvatar;
+			$profile->bindAvatar($file);
 		}
 
 		if (isset($post['address']) && !empty($post['address'])) {
@@ -209,8 +201,18 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		if (isset($post['optional'])) {
 			$siteDetails->set('optional', $post['optional']);
 		}
+
 		$profile->site	= $siteDetails->toString();
 		$profile->store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+        $actionlogUserPermalink = $actionlog->normalizeActionLogUserPermalink($user->id);
+
+		$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_UPDATED', 'user', array(
+			'authorLink' => $actionlogUserPermalink,
+			'authorName' => $user->username
+		));
 
 		// Update points
 		ED::ranks()->assignRank($profile->id, 'points');
@@ -219,20 +221,19 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		$url = $task == 'apply' ? 'index.php?option=com_easydiscuss&view=users&layout=form&id=' . $profile->id : 'index.php?option=com_easydiscuss&view=users';
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_USER_INFORMATION_SAVED'), 'success');
-
-		$this->app->redirect($url);
+		ED::redirect($url);
 	}
 
 	function _saveError($id = '')
 	{
 		$url = $this->getTask() == 'apply' ? 'index.php?option=com_easydiscuss&view=users&layout=form&id=' . $profile->id : 'index.php?option=com_easydiscuss&view=users';
 
-		$this->app->redirect($url);
+		ED::redirect($url);
 	}
 
 	function cancel()
 	{
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=users');
+		return ED::redirect('index.php?option=com_easydiscuss&view=users');
 	}
 
 	public function remove()
@@ -240,11 +241,13 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
-		$cid = $this->input->get('cid', array(), '', 'array');
-		JArrayHelper::toInteger($cid);
+		$cid = $this->input->get('cid', array(), 'array');
+		EDArrayHelper::toInteger($cid);
 
-		if (count( $cid ) < 1) {
-			JError::raiseError(500, JText::_( 'COM_EASYDISCUSS_SELECT_USER_TO_DELETE', true));
+		if (count($cid) < 1) {
+			ED::setMessage('COM_EASYDISCUSS_SELECT_USER_TO_DELETE', ED_MSG_ERROR);
+
+			return ED::redirect('index.php?option=com_easydiscuss&view=users');
 		}
 
 		$result = null;
@@ -260,13 +263,13 @@ class EasyDiscussControllerUser extends EasyDiscussController
 			}
 
 			if (!$result['success']) {
-				ED::setMessage($result['msg'] , 'error');
-				$this->app->redirect( 'index.php?option=com_easydiscuss&view=users', $result['msg']);
+				ED::setMessage($result['msg'] , ED_MSG_ERROR);
+				ED::redirect('index.php?option=com_easydiscuss&view=users');
 			}
 		}
 
 		ED::setMessage($result['msg'], 'success');
-		$this->app->redirect('index.php?option=com_easydiscuss&view=users', $result['msg']);
+		ED::redirect('index.php?option=com_easydiscuss&view=users');
 	}
 
 	private function logout()
@@ -280,10 +283,10 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		$client = $this->input->get('client', 0, '', 'int');
 		$id = $this->input->get('id', 0 , '', 'int');
 
-		JArrayHelper::toInteger($cids);
+		EDArrayHelper::toInteger($cids);
 
 		if (count($cids) < 1) {
-			$this->app->redirect('index.php?option=com_easydiscuss&view=users', JText::_('COM_EASYDISCUSS_USER_DELETED'));
+			ED::redirect('index.php?option=com_easydiscuss&view=users', JText::_('COM_EASYDISCUSS_USER_DELETED'));
 			return false;
 		}
 
@@ -305,7 +308,7 @@ class EasyDiscussControllerUser extends EasyDiscussController
 
 		switch ($task) {
 			case 'flogout':
-				$this->app->redirect('index.php', $msg);
+				ED::redirect('index.php', $msg);
 				break;
 
 			case 'remove':
@@ -314,7 +317,7 @@ class EasyDiscussControllerUser extends EasyDiscussController
 				break;
 
 			default:
-				$this->app->redirect('index.php?option=com_easydiscuss&view=users', $msg);
+				ED::redirect('index.php?option=com_easydiscuss&view=users', $msg);
 				break;
 		}
 	}
@@ -445,11 +448,12 @@ class EasyDiscussControllerUser extends EasyDiscussController
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_USER_AVATAR_REMOVED'), 'success');
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=users&layout=form&id=' . $user->id);
+		return ED::redirect('index.php?option=com_easydiscuss&view=users&layout=form&id=' . $user->id);
 	}
 
 	/**
 	 * Delete user download request
+	 *
 	 * @since	4.1
 	 * @access	public
 	 */
@@ -461,12 +465,21 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		$model = ED::model('Download');
 		$model->purgeRequests();
 
+		$redirection = 'index.php?option=com_easydiscuss&view=users&layout=downloads';
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_PURGED_GDPR_DOWNLOADS', 'user', array(
+			'link' => $redirection
+		));
+
 		ED::setMessage('COM_ED_USER_DOWNLOAD_PURGE_ALL_SUCCESS', 'success');
-		$this->app->redirect('index.php?option=com_easydiscuss&view=users&layout=downloads');
+		ED::redirect($redirection);
 	}
 
 	/**
 	 * Delete user download request
+	 *
 	 * @since	4.1
 	 * @access	public
 	 */
@@ -476,82 +489,104 @@ class EasyDiscussControllerUser extends EasyDiscussController
 		ED::checkToken();
 
 		$cid = $this->input->get('cid', array(), '', 'array');
-		JArrayHelper::toInteger($cid);
+		EDArrayHelper::toInteger($cid);
 
 		if (count( $cid ) < 1) {
-			JError::raiseError(500, JText::_( 'COM_EASYDISCUSS_INVALID_ID', true));
+			throw ED::exception('COM_EASYDISCUSS_INVALID_ID', ED_MSG_ERROR);
 		}
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
 		$result = null;
+		$redirection = 'index.php?option=com_easydiscuss&view=users&layout=downloads';
 
 		foreach ($cid as $id) {
 
 			$table = ED::table('Download');
 			$table->load($id);
 
-			$table->delete();
+			// Retrieve the requester user id
+			$author = ED::user($table->userid);
+
+			// delete the request download data now
+			$state = $table->delete();
+
+			if ($state) {
+				$actionlogUserPermalink = $actionlog->normalizeActionLogUserPermalink($author->id);
+
+				$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_DELETED_GDPR_DOWNLOAD', 'user', array(
+					'authorLink' => $actionlogUserPermalink,
+					'authorName' => $author->getUsername()
+				));	
+			}
 		}
 
 		ED::setMessage('COM_ED_USER_DOWNLOAD_DELETE_SUCCESS', 'success');
-		$this->app->redirect('index.php?option=com_easydiscuss&view=users&layout=downloads');
-	}
-}
-
-
-require_once(JPATH_ADMINISTRATOR .'/components/com_users/models/user.php');
-class EasyDiscussModelProfileEx extends UsersModelUser
-{
-	/**
-	 * @since	4.0
-	 * @access	public
-	 */
-	protected $data;
-
-	/**
-	 * Checks if an alias is valid
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function __construct($config = array())
-	{
-		parent::__construct($config);
+		ED::redirect($redirection);
 	}
 
 	/**
-	 * Get user custom fields if available
-	 * @since	4.0
+	 * Assign badge for the user
+	 *
+	 * @since	5.0
 	 * @access	public
 	 */
-	public function getForm($data = array(), $loadData = true)
+	public function assignBadge()
 	{
-		if (! $this->isEnabled()) {
-			return false;
+		ED::checkToken();
+
+		$badgeId = $this->input->get('badgeId', '', 'int');
+		$userIds = $this->input->get('userIds', '', 'default');
+
+		$redirectURL = 'index.php?option=com_easydiscuss&view=users';
+
+		$userIds = base64_decode($userIds);
+		$userIds = explode(',', $userIds);
+
+		if (!$badgeId || !$userIds) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_ID', ED_MSG_ERROR);
+ 			return $this->ajax->reject($redirectURL);
 		}
 
-		// add com_users forms and fields path
-		JForm::addFormPath(JPATH_ADMINISTRATOR . '/components/com_users/models/forms');
-		JForm::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_users//models/fields');
-		JForm::addFormPath(JPATH_ADMINISTRATOR . '/components/com_users//model/form');
-		JForm::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_users//model/field');
+		$badgeTbl = ED::table('badges');
+		$badgeTbl->load($badgeId);
 
-		$form = parent::getForm($data, $loadData);
-		return $form;
-	}
-
-	/**
-	 * Checks if custom fields supported or not.
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function isEnabled()
-	{
-		JLoader::register('FieldsHelper', JPATH_ADMINISTRATOR . '/components/com_fields/helpers/fields.php');
-
-		// Only joomla 3.7.x and above have custom fields
-		if (!class_exists('FieldsHelper')) {
-			return false;
+		if (!$badgeTbl->id) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_ID', ED_MSG_ERROR);
+ 			return $this->ajax->reject($redirectURL);
 		}
 
-		return true;
-	}
+		$dateAchieved = ED::date()->toSql();
+		$badgeUser = ED::table('BadgesUsers');
+		$badges = ED::badges();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		foreach ($userIds as $userId) {
+
+			$hasAchieved = $badgeUser->loadByUser($userId, $badgeId);
+
+			// Skip this if this badge user already achieve
+			if ($hasAchieved) {
+				continue;
+			}
+
+			$badges->create($userId, $badgeId, $dateAchieved);
+
+       		$author = ED::user($userId);
+	        $actionlogUserPermalink = $actionlog->normalizeActionLogUserPermalink($userId);
+			$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_ASSIGN_BADGE', 'user', array(
+				'authorLink' => $actionlogUserPermalink,
+				'authorName' => $author->getUsername(),
+				'badgeTitle' => $badgeTbl->title,
+				'badgeLink' => 'index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $badgeId
+			));
+		}
+
+		ED::setMessage('COM_ED_ASSIGN_BADGE_SUCCESS', 'success');
+
+ 		return $this->ajax->resolve($redirectURL);
+	}	
 }

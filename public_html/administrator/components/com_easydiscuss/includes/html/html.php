@@ -91,7 +91,7 @@ class EasyDiscussHoneypot extends EasyDiscuss
 	{
 		if( empty( $this->ip ) )
 		{
-			$this->ip = JRequest::getVar('REMOTE_ADDR', '', 'SERVER');
+			$this->ip = @$_SERVER['REMOTE_ADDR'];
 		}
 
 		return $this->ip;
@@ -111,7 +111,7 @@ class EasyDiscussHoneypot extends EasyDiscuss
 	{
 		if( empty( $this->config ) )
 		{
-			$this->config = DiscussHelper::getConfig();
+			$this->config = ED::config();
 		}
 
 		return $this->config;

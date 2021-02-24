@@ -37,20 +37,48 @@ class EasyDiscussSharer extends EasyDiscuss
 		return $buttons;
 	}
 
-	public function buttons()
+	public function buttons($type = 'default')
 	{
-		$folder = __DIR__ . '/buttons';
+		// Get the default social buttons
+		if ($type == 'default') {
+			$folder = __DIR__ . '/buttons';
 
-		$files = JFolder::files($folder, '.', false, true, array('index.html'));
+			$files = JFolder::files($folder, '.', false, true, array('index.html'));
+			$buttons = $this->initButtons($files);
 
-		$buttons = $this->initButtons($files);
+			return $buttons;
+		}
 
-		return $buttons;
+		// Get the AddThis social buttons
+		if ($type == 'addthis' && $this->config->get('addthis_pub_id')) {
+			// Add the addthis script into the page
+			$script = '<script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=' . $this->config->get('addthis_pub_id') . '"></script>';
+			$this->doc->addCustomTag($script);
+
+			$file = __DIR__ . '/buttons/addthis.php';
+			$buttons = $this->initButtons([$file]);
+
+			return $buttons;
+		}
+
+		if ($type == 'sharethis' && $this->config->get('sharethis_prop_id')) {
+			// Add the sharethis script into the page
+			$script = '<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=' . $this->config->get('sharethis_prop_id') . '&product=inline-share-buttons" async="async"></script>';
+
+			$this->doc->addCustomTag($script);
+
+			$file = __DIR__ . '/buttons/sharethis.php';
+			$buttons = $this->initButtons([$file]);
+
+			return $buttons;
+		}
+
+		return false;
 	}
 
 	public function html($post, $position = 'vertical')
 	{
-		$buttons = $this->buttons();
+		$buttons = $this->buttons($this->config->get('social_buttons_type'));
 
 		if (!$buttons) {
 			return false;

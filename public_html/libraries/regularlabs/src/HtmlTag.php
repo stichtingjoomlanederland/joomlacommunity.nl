@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -156,14 +156,32 @@ class HtmlTag
 	 *
 	 * @return string
 	 */
-	public static function flattenAttributes($attributes)
+	public static function flattenAttributes($attributes, $prefix = '')
 	{
-		foreach ($attributes as $key => &$val)
+		$output = [];
+
+		foreach ($attributes as $key => $val)
 		{
+			if (is_null($val) || $val === '')
+			{
+				continue;
+			}
+
+			if ($val === false)
+			{
+				$val = 'false';
+			}
+
+			if ($val === true)
+			{
+				$val = 'true';
+			}
+
 			$val = str_replace('"', '&quot;', $val);
-			$val = $key . '="' . $val . '"';
+
+			$output[] = $prefix . $key . '="' . $val . '"';
 		}
 
-		return implode(' ', (array) $attributes);
+		return implode(' ', $output);
 	}
 }

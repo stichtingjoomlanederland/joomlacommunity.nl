@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,16 +14,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MAIN_WORK_SCHEDULE'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_MAIN_WORK_SCHEDULE', '', '/docs/easydiscuss/administrators/configuration/setting-up-work-schedule-and-holiday'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<?php echo $this->html('panel.info', JText::sprintf('COM_EASYDISCUSS_WORK_NOTES', JURI::root() . 'administrator/index.php?option=com_config')); ?>
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_work_schedule', 'COM_EASYDISCUSS_ENABLE_WORK_SCHECULE'); ?>
 
 					<?php echo $this->html('settings.toggle', 'main_work_displaytimediff', 'COM_ED_WORK_DISPLAY_TIME_DIFF'); ?>
 
-					<div class="form-group">
-						<div class="col-md-5 control-label">
+					<div class="o-form-group">
+						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_WORK_DAYS'); ?>
 						</div>
 						<div class="col-md-7">
@@ -40,8 +41,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php } ?>
 						</div>
 					</div>
-					<div class="form-group">
-						<div class="col-md-5 control-label">
+					<div class="o-form-group">
+						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_WORK_HOURS'); ?>
 						</div>
 
@@ -104,8 +105,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 					</div>
 
-					<div class="form-group">
-						<div class="col-md-5 control-label">
+					<div class="o-form-group">
+						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_WORK_HOUR_DISPLAY_FORMAT'); ?>
 						</div>
 						<div class="col-md-7">
@@ -123,26 +124,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 									<?php echo JText::_('COM_EASYDISCUSS_WORK_24H'); ?>
 								</label>
 							</div>
-
 						</div>
 					</div>
-
-					<div class="form-group">
-						<div class="col-md-12">&nbsp;</div>
-						<div class="col-md-12 ml">
-							<div class="o-alert o-alert--info">
-								<?php echo JText::_('COM_EASYDISCUSS_WORK_NOTES');?>
-							</div>
-						</div>
-					</div>
-
-					<!-- end -->
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<div class="col-md-6">
-
 	</div>
 </div>

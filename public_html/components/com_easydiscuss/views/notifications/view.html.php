@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussViewNotifications extends EasyDiscussView
 {
@@ -39,7 +37,7 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 
 		if (!$my->id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_PLEASE_LOGIN_FIRST'), 'error');
-			$this->app->redirect(EDR::getRoutedURL('index.php?option=com_easydiscuss', false, false));
+			ED::redirect(EDR::getRoutedURL('index.php?option=com_easydiscuss', false, false));
 		}
 
 		ED::setPageTitle('COM_EASYDISCUSS_TITLE_NOTIFICATIONS');
@@ -56,7 +54,7 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 		// Get the total unread notifications
 		$totalNotifications = $model->getTotalNotifications($my->id);
 
-		ED::Notifications()->format($notifications, true);
+		ED::notifications()->format($notifications, true);
 
 		// Get pagination
 		$pagination = $model->getPagination();
@@ -66,6 +64,6 @@ class EasyDiscussViewNotifications extends EasyDiscussView
 		$this->set('totalNotifications', $totalNotifications);
 		$this->set('pagination', $pagination);
 
-		parent::display('notifications/default');
+		parent::display('notifications/listings/default');
 	}
 }

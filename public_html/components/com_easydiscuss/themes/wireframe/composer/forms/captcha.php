@@ -1,0 +1,29 @@
+<?php
+/**
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
+?>
+<?php if ($captcha->hasOutput()) { ?>
+<div class="ed-editor-widget" data-ed-captcha-form>
+	<?php if (!$captcha->isInvisible()) { ?>
+	<div class="ed-editor-widget__title">
+		<?php echo JText::_('COM_EASYDISCUSS_CAPTCHA_TITLE'); ?>
+	</div>
+	<div class="ed-editor-widget__note">
+		<?php echo JText::_('COM_EASYDISCUSS_CAPTCHA_INFO'); ?>
+	</div>
+	<?php } ?>
+	
+	<?php echo $captcha->html();?>
+</div>
+<?php } else { ?>
+	<?php echo $captcha->html();?>
+<?php } ?>

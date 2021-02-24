@@ -1,30 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <metadata>
-    <layout title="COM_EASYDISCUSS_MENU_FORUMS_LAYOUT">
-        <message><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT_DESC]]></message>
-        <view>forums</view>
-    </layout>
-    <state>
-        <name><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT]]></name>
-        <description><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT_DESC]]></description>
-    </state>
+	<layout title="COM_EASYDISCUSS_MENU_FORUMS_LAYOUT">
+		<message><![CDATA[COM_EASYDISCUSS_MENU_FORUMS_LAYOUT_DESC]]></message>
+	</layout>
 
-    <fields name="request">
-        <fieldset name="request"
-            addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
-
-            <field name="category_id" type="modal_categories"
-                label="Category"
-                required="false"
-                description="Choose a category..."
-            />
-        </fieldset>
-    </fields>
+	<fields name="request">
+		<fieldset name="request" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+			<field name="category_id" type="modal_categories"
+				label="Category"
+				required="false"
+				description="Choose a category..."
+			/>
+		</fieldset>
+	</fields>
 
 
-    <!-- fields name="params">
-        <fieldset name="basic" label="Filters" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
-            <field name="category_id" type="modal_categories" default="Please select" label="Category container" description="Renders and display forums from this category. This category must be a container." containersonly="true" />
-        </fieldset>
-    </fields -->
+	<fields name="params">
+		<fieldset name="basic" label="Forum Options" addfieldpath="/administrator/components/com_easydiscuss/elements/fields">
+			
+			<field name="show_empty" type="radio" default="0" class="btn-group" label="COM_EASYDISCUSS_FORUMS_SHOW_EMPTY_POST_CATEGORIES" description="COM_EASYDISCUSS_FORUMS_SHOW_EMPTY_POST_CATEGORIES_DESC">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+
+			<field name="categories_limit" default="5" type="text" class="form-control input-mini text-center" label="COM_EASYDISCUSS_CATEGORIES_LIMIT" description="COM_EASYDISCUSS_CATEGORIES_LIMIT_DESC" />
+
+			<field name="posts_limit" default="10" type="text" class="form-control input-mini text-center" label="COM_EASYDISCUSS_POST_CATEGORY_LIMIT" description="COM_EASYDISCUSS_POST_CATEGORY_LIMIT_DESC" />
+
+		</fieldset>
+	</fields>
 </metadata>

@@ -12,5 +12,7 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($this->config->get('layout_profile_roles') && $user->getRole()) { ?>
-<div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $user->getRoleLabelClassname()?>"><?php echo $user->getRole(); ?></div>
+<div class="ed-user-rank t-lg-mb--sm o-label" style="background-color: <?php echo $user->getRoleLabelColour();?> !important;">
+	<?php echo $user->getRole(); ?>
+</div>
 <?php } ?>

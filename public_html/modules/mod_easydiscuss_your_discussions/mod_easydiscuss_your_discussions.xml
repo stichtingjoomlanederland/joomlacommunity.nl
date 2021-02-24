@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Your Discussions</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>6th August 2020</creationDate>
+	<creationDate>22nd February 2021</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.19</version>
+	<version>5.0.1</version>
 	<description><![CDATA[This module will display all the discussion that the current logged in user has posted.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_your_discussions.ini</language>

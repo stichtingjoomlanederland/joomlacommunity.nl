@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,20 +12,31 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="text-center">
-	<div style="margin-top: 80px;">
-		<i class="eb-complete-icon icon-checkmark"></i>
+
+	<p class="mb-5"><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_COMPLETED_DESC');?></p>
+
+	<div id="svg__ani" class="lottie"></div>
+
+	<div class="d-flex justify-content--c mt-5 mb-3">
+		<div class="pr-3">
+			<a href="<?php echo JURI::root();?>index.php?option=<?php echo SI_IDENTIFIER;?>" class="btn btn-outline-secondary" target="_blank">
+				Launch Frontend
+			</a>
+		</div>
+		<div class="pl-3">
+			<a href="<?php echo JURI::root();?>administrator/index.php?option=<?php echo SI_IDENTIFIER;?>" class="btn btn-outline-secondary">
+				Launch Backend
+			</a>
+		</div>
 	</div>
-
-	<br />
-
-	<p><?php echo JText::_('COM_EASYDISCUSS_INSTALLATION_COMPLETED_DESC');?></p>
-
-	<br /><br /><br />
-
-	<p>Check us out on our social media for upates and news:</p>
-
-	<a class="btn btn-social facebook" href="https://facebook.com/StackIdeas" target="_blank"></a>
-
-	<a class="btn btn-social twitter" href="https://twitter.com/Stackideas" target="_blank"></a>
-
 </div>
+
+<script>
+var animationRemote = bodymovin.loadAnimation({
+	container: document.getElementById('svg__ani'),
+	path: '/administrator/components/com_easydiscuss/setup/assets/images/success.json',
+	autoplay: true,
+	renderer: 'svg',
+	loop: false
+});
+</script>

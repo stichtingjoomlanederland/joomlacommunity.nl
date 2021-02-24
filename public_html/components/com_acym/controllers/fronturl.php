@@ -1,8 +1,15 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class FrontUrlController extends acymController
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Classes\MailClass;
+use AcyMailing\Classes\MailStatClass;
+use AcyMailing\Classes\UrlClass;
+use AcyMailing\Classes\UrlClickClass;
+use AcyMailing\Classes\UserStatClass;
+use AcyMailing\Libraries\acymController;
+
+class FronturlController extends acymController
 {
     public function __construct()
     {
@@ -16,16 +23,16 @@ class FrontUrlController extends acymController
         $mailid = acym_getVar('int', 'mailid');
         $userid = acym_getVar('int', 'userid');
 
-        $mailStatClass = acym_get('class.mailstat');
-        $userStatClass = acym_get('class.userstat');
-        $urlClass = acym_get('class.url');
+        $mailStatClass = new MailStatClass();
+        $userStatClass = new UserStatClass();
+        $urlClass = new UrlClass();
         $urlObject = $urlClass->getOneUrlById($urlid);
 
         if (empty($urlObject->id)) {
-            return acym_raiseError(E_ERROR, 404, acym_translation('Page not found'));
+            return acym_raiseError(E_ERROR, 404, acym_translation('ACYM_PAGE_NOT_FOUND'));
         }
 
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
         $mail = $mailClass->getOneById($mailid);
         if (empty($mail)) {
             $urlObject->url = preg_replace(
@@ -40,7 +47,7 @@ class FrontUrlController extends acymController
             acym_redirect($urlObject->url);
         }
 
-        $urlClickClass = acym_get('class.urlclick');
+        $urlClickClass = new UrlClickClass();
         if (!acym_isRobot()) {
             $urlClick = [
                 'mail_id' => $mailid,
@@ -70,4 +77,3 @@ class FrontUrlController extends acymController
         acym_redirect($urlObject->url);
     }
 }
-

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,18 +11,11 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussViewParent extends JViewLegacy
-{
-	public function __construct($config = array())
-	{
-		return parent::__construct($config);
-	}
-}
-
-class EasyDiscussAdminView extends EasyDiscussViewParent
+class EasyDiscussAdminView extends JViewLegacy
 {
 	public $panelTitle = '';
 	public $panelDescription = '';
+	public $help = '';
 
 	public function __construct()
 	{
@@ -35,10 +28,25 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 		$this->jconfig = ED::jconfig();
 		$this->input = ED::request();
 		$this->theme = ED::themes();
+		$this->showSidebar = true;
 
 		if ($this->doc->getType() != 'html') {
 			$this->ajax = ED::ajax();
 		}
+	}
+
+
+	/**
+	 * Adds a new help button
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function addHelpButton($url)
+	{
+		$url = 'https://stackideas.com' . $url;
+
+		$this->help = $url;
 	}
 
 	/**
@@ -78,8 +86,8 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	public function checkAccess($rule)
 	{
 		if (!$this->my->authorise($rule , 'com_easydiscuss')) {
-			ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss');
+			ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), ED_MSG_ERROR);
+			return ED::redirect('index.php?option=com_easydiscuss');
 		}
 	}
 
@@ -92,20 +100,14 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 		$tpl = 'admin/' . $tpl;
 
 		if ($this->doc->getType() == 'html') {
-
-			// Initialize whatever that is necessary
-			JHTML::_('behavior.framework', true);
-
+			EDCompat::renderJQueryFramework();
 			ED::init('admin');
-
-			// get the bbcode settings
-			$bbcodeSettings = $this->theme->output('admin/structure/settings');
 
 			// Get the contents of the view.
 			$contents = $this->theme->output($tpl);
 
 			// attached bbcode settings
-			$contents = $bbcodeSettings . $contents;
+			$contents = $contents;
 
 			// We need to output the structure
 			$theme = ED::themes();
@@ -119,7 +121,6 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 			$sidebar = $this->getSidebar();
 
 			$message = ED::getMessageQueue();
-			$version = ED::getLocalVersion();
 
 			$postOutOfSync = false;
 
@@ -128,7 +129,7 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 				$postOutOfSync = $model->getTotalSyncRequest();
 			}
 			
-			$theme->set('version', $version);
+            $theme->set('help', $this->help);
 			$theme->set('title', $this->panelTitle);
 			$theme->set('desc', $this->panelDescription);
 			$theme->set('message', $message);
@@ -144,9 +145,9 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 
 			// Get the scripts
 			$scripts = ED::scripts()->getScripts();
+			$this->doc->addCustomTag($scripts);
 
 			echo $output;
-			echo $scripts;
 
 			// If the toolbar registration exists, load it up
 			if (method_exists($this, 'registerToolbar')) {
@@ -160,97 +161,38 @@ class EasyDiscussAdminView extends EasyDiscussViewParent
 	/**
 	 * Prepares the sidebar
 	 *
-	 * @since	1.2
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function getSidebar()
 	{
-		$file = JPATH_COMPONENT . '/defaults/menus.json';
-		$contents = JFile::read($file);
-
-		$view = $this->input->get('view', '', 'cmd');
-		$layout = $this->input->get('layout', '', 'cmd');
-		$result = json_decode($contents);
-		$menus = array();
-
-		foreach ($result as &$row) {
-
-			// Check if the user is allowed to view this sidebar
-			if (isset($row->access) && $row->access) {
-				if (!$this->my->authorise($row->access, 'com_easydiscuss')) {
-					continue;
-				}
-			}
-
-			if (!isset($row->view)) {
-				$row->link = 'index.php?option=com_easydiscuss';
-				$row->view = '';
-			}
-
-			if (isset($row->counter)) {
-				$row->counter = $this->getCounter($row->counter);
-			}
-
-			if (!isset($row->link)) {
-				$row->link = 'index.php?option=com_easydiscuss&view=' . $row->view;
-			}
-
-			// Translate the sidebar title
-			$row->title = JText::_($row->title);
-
-			// Default properties of each menu
-			$row->class = $view == $row->view ? ' active ' : '';
-
-			if (isset($row->childs) && $row->childs) {
-
-				foreach ($row->childs as &$child) {
-
-					// Update the child's link
-					$child->link = 'index.php?option=com_easydiscuss&view=' . $row->view;
-
-					if ($child->url) {
-
-						foreach ($child->url as $key => $value) {
-							if (!empty($value)) {
-								$child->link .= '&' . $key . '=' . $value;
-							}
-
-							// Determines if the child is active
-							$child->class = '';
-
-							if ($key == 'layout' && $layout == $value) {
-								$child->class = 'active';
-							}
-						}
-
-					}
-
-					$child->title = JText::_($child->title);
-
-
-					// If it has a "counter" property, we need to execute it here
-					if (isset($child->counter)) {
-						list($modelName, $methodName) = explode('/', $child->counter);
-						
-						$model = ED::model($modelName);
-						$child->counter = $model->$methodName();
-					}
-				}
-			} else {
-				$row->childs = array();
-			}
-
-			$menus[] = $row;
+		if (!$this->showSidebar) {
+			return;
 		}
 
-		$theme = ED::themes();
-		$theme->set('layout', $layout);
-		$theme->set('view', $view);
-		$theme->set('menus', $menus);
+		$showSidebar = $this->input->get('sidebar', 1, 'int');
+		$showSidebar = $showSidebar == 1 ? true : false;
 
-		$output = $theme->output('admin/structure/sidebar');
+		if (!$showSidebar) {
+			return;
+		}
 
+		$sidebar = ED::sidebar();
+
+		$view = $this->input->get('view', 'easydiscuss', 'cmd');
+		$output = $sidebar->render($view);
 		return $output;
+	}
+
+	/**
+	 * Allows childs to hide the sidebar
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function hideSidebar()
+	{
+		$this->showSidebar = false;
 	}
 
 	/**

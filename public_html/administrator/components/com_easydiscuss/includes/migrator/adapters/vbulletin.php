@@ -264,7 +264,7 @@ class EasyDiscussMigratorVbulletin extends EasyDiscussMigratorBase
 					if (strpos($post->post->content, $pattern) !== false) {
 
 						$newString = '[attachment]' . $filename . '[/attachment]';
-						$post->post->content = JString::str_ireplace($pattern, $newString, $post->post->content);
+						$post->post->content = EDJString::str_ireplace($pattern, $newString, $post->post->content);
 
 						$rebuildPreview = true;
 					}

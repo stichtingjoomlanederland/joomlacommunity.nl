@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once(__DIR__ . '/model.php');
 
 class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 {
@@ -70,7 +70,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	public function _buildQuery()
 	{
 
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 		$mainframe	= JFactory::getApplication();
 
 		$filter		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.subscription.filter', 'filter', 'site', 'word' );
@@ -119,10 +119,10 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	public function _buildQueryWhere()
 	{
 		$mainframe	= JFactory::getApplication();
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 
 		$search 	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.subscription.search', 'search', '', 'string' );
-		$search 	= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$search 	= $db->getEscaped( trim(EDJString::strtolower( $search ) ) );
 
 		$where = array();
 
@@ -278,7 +278,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 			return false;
 		}
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query  = 'SELECT * FROM `#__discuss_subscription` '
 				. ' WHERE `type` = ' . $db->Quote('tag')
@@ -326,7 +326,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function isMySubscription( $userid, $type, $subId )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query  = 'SELECT `id` FROM `#__discuss_subscription`';
 		$query  .= ' WHERE `type` = ' . $db->Quote( $type );
@@ -346,7 +346,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 		$my		= JFactory::getUser();
 		$userid	= $my->id;
 
-		$email	= JRequest::getVar('email');
+		$email	= $this->input->get('email', '', 'default');
 		$extra	= $email ? ' AND s.`email` = ' . $db->quote($email) : '';
 
 		$query	= 'SELECT DATEDIFF('. $db->Quote($date->toMySQL()) . ', s.`created` ) AS `noofdays`,'
@@ -395,12 +395,12 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 		}
 
 		// get category id
-		$table = DiscussHelper::getTable( 'post' );
+		$table = ED::table( 'post' );
 		$table->load( $postid );
 
 		$categoryid = $table->category_id;
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query  = 'SELECT * FROM `#__discuss_subscription` '
 				. ' WHERE `type` = ' . $db->Quote('category')
@@ -462,27 +462,29 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	public function addSubscription($subscription_info)
 	{
 		$config = ED::config();
-		$my = JFactory::getUser();
 
-		if ($config->get('main_allowguestsubscribe') || ($my->id && !$config->get('main_allowguestsubscribe'))) {
-			$date = ED::date();
-			$now = $date->toMySQL();
-			$subscriber	= ED::table('Subscribe');
+		$canGuestSubscribe = $config->get('main_allowguestsubscribe') ? true : false;
+		$userId = isset($subscription_info['userid']) && $subscription_info['userid'] ? $subscription_info['userid'] : 0;
 
-			$subscriber->userid = $subscription_info['userid'];
-			$subscriber->member = $subscription_info['member'];
-			$subscriber->type = $subscription_info['type'];
-			$subscriber->cid = $subscription_info['cid'];
-			$subscriber->email = $subscription_info['email'];
-			$subscriber->fullname = $subscription_info['name'];
-			$subscriber->interval = $subscription_info['interval'];
-			$subscriber->created = $now;
-			$subscriber->sent_out = $now;
-
-			return $subscriber->store();
+		if (!$userId && !$config->get('main_allowguestsubscribe')) {
+			return false;
 		}
 
-		return false;
+		$date = ED::date();
+		$now = $date->toMySQL();
+		$subscriber	= ED::table('Subscribe');
+
+		$subscriber->userid = $subscription_info['userid'];
+		$subscriber->member = $subscription_info['member'];
+		$subscriber->type = $subscription_info['type'];
+		$subscriber->cid = $subscription_info['cid'];
+		$subscriber->email = $subscription_info['email'];
+		$subscriber->fullname = $subscription_info['name'];
+		$subscriber->interval = $subscription_info['interval'];
+		$subscriber->created = $now;
+		$subscriber->sent_out = $now;
+
+		return $subscriber->store();
 	}
 
 	/**
@@ -493,13 +495,13 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	 */
 	public function updateSiteSubscription( $subscriptionId , $data = array() )
 	{
-		$config = DiscussHelper::getConfig();
+		$config = ED::config();
 		$my = JFactory::getUser();
 
 		if($config->get('main_allowguestsubscribe') || ($my->id && !$config->get('main_allowguestsubscribe')))
 		{
 			$date = ED::date();
-			$subscriber	= DiscussHelper::getTable( 'Subscribe' );
+			$subscriber	= ED::table( 'Subscribe' );
 
 			$subscriber->load($subscriptionId);
 			$subscriber->userid		= $data['userid'];
@@ -516,12 +518,12 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function updatePostSubscription($sid, $subscription_info)
 	{
-		$config = DiscussHelper::getConfig();
+		$config = ED::config();
 		$my = JFactory::getUser();
 
 		if($config->get('main_allowguestsubscribe') || ($my->id && !$config->get('main_allowguestsubscribe')))
 		{
-			$db	= DiscussHelper::getDBO();
+			$db	= ED::db();
 
 			$query  = 'DELETE FROM `#__discuss_subscription` '
 					. ' WHERE `type` = ' . $db->Quote('post')
@@ -534,7 +536,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 			if ($result) {
 				$date = ED::date();
-				$subscriber	= DiscussHelper::getTable( 'Subscribe' );
+				$subscriber	= ED::table( 'Subscribe' );
 
 				$subscriber->load($sid);
 				$subscriber->userid		= $subscription_info['userid'];
@@ -553,7 +555,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function isPostSubscribedEmail($subscription_info)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query  = 'SELECT `id` FROM `#__discuss_subscription`';
 		$query  .= ' WHERE `type` = ' . $db->Quote('post');
@@ -568,7 +570,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function isPostSubscribedUser($subscription_info)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query  = 'SELECT `id` FROM `#__discuss_subscription`';
 		$query  .= ' WHERE `type` = ' . $db->Quote('post');
@@ -586,7 +588,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	{
 		if( !$isNew )
 		{
-			$db = DiscussHelper::getDBO();
+			$db = ED::db();
 			$query = 'UPDATE ' . $db->nameQuote( '#__discuss_subscription' )
 					. ' SET ' . $db->nameQuote( 'email' ) . '=' . $db->quote( $data['email'] )
 					. ' WHERE ' . $db->nameQuote( 'userid' ) . '=' . $db->Quote( $data['id'] );
@@ -602,7 +604,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function isTagSubscribedUser($subscription_info)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query  = 'SELECT `id` FROM `#__discuss_subscription`';
 		$query  .= ' WHERE `type` = ' . $db->Quote('tag');
@@ -617,7 +619,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function isTagSubscribedEmail($subscription_info)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query  = 'SELECT `id` FROM `#__discuss_subscription`';
 		$query  .= ' WHERE `type` = ' . $db->Quote('tag');
@@ -632,7 +634,7 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 
 	public function isSubscribed( $userid, $cid, $type = 'post' )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT `id` FROM `#__discuss_subscription`'
 				. ' WHERE `type` = ' . $db->quote( $type )
 				. ' AND `userid` = ' . $db->quote( $userid )
@@ -642,14 +644,14 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 		return $db->loadResult();
 	}
 
-	public function isSiteSubscribed( $type , $email , $cid )
+	public function isSiteSubscribed($type, $email, $cid)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query  = 'SELECT * FROM `#__discuss_subscription`';
-		$query  .= ' WHERE `type` = ' . $db->Quote( $type );
-		$query  .= ' AND `email` = ' . $db->Quote( $email );
-		$query	.= ' AND `cid` = ' . $db->quote( $cid );
+		$query  .= ' WHERE `type` = ' . $db->Quote($type);
+		$query  .= ' AND `email` = ' . $db->Quote($email);
+		$query	.= ' AND `cid` = ' . $db->quote($cid);
 
 		$db->setQuery($query);
 
@@ -891,6 +893,12 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 		return true;
 	}
 
+	/**
+	 * Toggles subscription of a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function subscribeToggle($userId)
 	{
 		$db = ED::db();
@@ -913,8 +921,6 @@ class EasyDiscussModelSubscribe extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getDigestSubscribers($now, $limit = 5)
 	{

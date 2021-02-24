@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -94,8 +94,12 @@ class QuickPage
 
 		header('Content-Type: ' . $format . '; charset=utf-8');
 		JHtml::_('bootstrap.framework');
-		JFactory::getDocument()->addScript(JUri::root(true) . '/administrator/templates/isis/js/template.js');
-		JFactory::getDocument()->addStylesheet(JUri::root(true) . '/administrator/templates/isis/css/template.css');
+		JFactory::getDocument()->addScript(
+			JUri::root(true) . '/administrator/templates/isis/js/template.js'
+		);
+		JFactory::getDocument()->addStylesheet(
+			JUri::root(true) . '/administrator/templates/isis/css/template' . (JFactory::getDocument()->direction === 'rtl' ? '-rtl' : '') . '.css'
+		);
 
 		RL_Document::style('regularlabs/popup.min.css');
 

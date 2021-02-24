@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once dirname( __FILE__ ) . '/model.php';
 
@@ -17,7 +17,7 @@ class EasyDiscussModelRanks extends EasyDiscussAdminModel
 {
 	var $_data = null;
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 	}
@@ -41,23 +41,28 @@ class EasyDiscussModelRanks extends EasyDiscussAdminModel
 	 */
 	public function removeRanks($ids)
 	{
-		$db = ED::db();
-		$idStr	= '';
-
-		if (is_array($ids)) {
-			
-			for($i = 0; $i < count($ids); $i++) {
-				
-				$id	= $ids[$i];
-				$idStr = (empty($idStr)) ? $db->Quote($id) : $idStr . ',' . $db->Quote($id);
-			}
-
-		} else {
-			$idStr = $db->Quote($ids);
+		if (!$ids) {
+			return;
 		}
 
-		$query = 'DELETE FROM `#__discuss_ranks` WHERE `id` IN ('.$idStr.')';
-		$db->setQuery($query);
-		$db->query();
+		$table = ED::table('Ranks');
+
+		foreach ($ids as $id) {
+			$table->load($id);
+
+			if (!$table->id) {
+				continue;
+			}
+
+			$rankTitle = $table->title;
+
+			$state = $table->delete();
+
+			// log the current action into database.
+			$actionlog = ED::actionlog();
+			$actionlog->log('COM_ED_ACTIONLOGS_RANKS_DELETED', 'rank', array(
+				'rankTitle' => JText::_($rankTitle)
+			));
+		}		
 	}
 }

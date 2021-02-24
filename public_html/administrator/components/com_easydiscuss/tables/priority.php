@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-ED::import('admin:/tables/table');
 
 class DiscussPriority extends EasyDiscussTable
 {
@@ -35,8 +33,8 @@ class DiscussPriority extends EasyDiscussTable
 	{
 		$db = ED::db();
 
-		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'priority' ) . '=' . $db->Quote( $this->id );
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_posts') . ' '
+				. 'WHERE ' . $db->nameQuote('priority') . '=' . $db->Quote($this->id);
 
 		$db->setQuery($query);
 		$count = $db->loadResult();
@@ -44,6 +42,12 @@ class DiscussPriority extends EasyDiscussTable
 		if ($count > 0) {
 			return false;
 		}
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_DELETED_PRIORITIES', 'priority', array(
+			'priorityTitle' => $this->title
+		));
 
 		return parent::delete();
 	}

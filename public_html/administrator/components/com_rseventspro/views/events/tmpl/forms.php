@@ -15,7 +15,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=events&layout=forms&tmpl=component'); ?>" method="post" name="adminForm" id="adminForm">
-	<table class="table table-striped adminlist">
+	<table class="table table-striped">
 		<thead>
 			<tr>
 				<th width="5">#</th>

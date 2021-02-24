@@ -6,9 +6,5 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-echo JHtml::_('rsfieldset.start', 'adminform');
-foreach ($this->form->getFieldset('invoice') as $field) {
-	echo JHtml::_('rsfieldset.element', $field->label, $field->input);
-}
-echo JHtml::_('rsfieldset.element', '', '<div class="alert alert-info">'.JText::_('COM_RSEVENTSPRO_INVOICE_PLACEHOLDERS').'</div>');
-echo JHtml::_('rsfieldset.end'); ?>
+echo $this->form->renderFieldset('invoice');
+echo '<div class="alert alert-info">'.JText::_('COM_RSEVENTSPRO_INVOICE_PLACEHOLDERS').'</div>';

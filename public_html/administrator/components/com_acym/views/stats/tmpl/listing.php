@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="acym__content acym__content__tab" id="acym_stats">
 		<div class="cell grid-x acym_vcenter" id="acym_stats__select">
 			<div class="cell grid-x acym_vcenter">
@@ -19,29 +17,29 @@ defined('_JEXEC') or die('Restricted access');
         $textFirstTab = acym_translation(empty($data['selectedMailid']) ? 'ACYM_GLOBAL_STATISTICS' : 'ACYM_OVERVIEW');
 
         $data['tab']->startTab($textFirstTab);
-        include dirname(__FILE__).DS.'global_stats.php';
+        include acym_getView('stats', 'global_stats');
         $data['tab']->endTab();
 
         $data['tab']->startTab(acym_translation('ACYM_DETAILED_STATS'));
         if (acym_level(1)) {
-            include dirname(__FILE__).DS.'detailed_stats.php';
+            include acym_getView('stats', 'detailed_stats');
         }
 
         if (!acym_level(1)) {
             $data['version'] = 'essential';
-            include ACYM_VIEW.'dashboard'.DS.'tmpl'.DS.'upgrade.php';
+            include acym_getView('dashboard', 'upgrade');
         }
         $data['tab']->endTab();
 
         if (!empty($data['selectedMailid'])) {
             $data['tab']->startTab(acym_translation('ACYM_CLICK_MAP'));
             if (acym_level(1)) {
-                include dirname(__FILE__).DS.'click_map.php';
+                include acym_getView('stats', 'click_map');
             }
 
             if (!acym_level(1)) {
                 $data['version'] = 'essential';
-                include ACYM_VIEW.'dashboard'.DS.'tmpl'.DS.'upgrade.php';
+                include acym_getView('dashboard', 'upgrade');
             }
             $data['tab']->endTab();
         }

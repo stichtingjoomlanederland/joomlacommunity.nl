@@ -326,7 +326,10 @@ class Image
 		}
 
 		// Remove the original file as we are done processing
-		File::delete($originalFile);
+		if ($filename !== basename($originalFile))
+		{
+			File::delete($originalFile);
+		}
 
 		return implode(', ', $filePaths);
 	}
@@ -356,7 +359,7 @@ class Image
 
 		// Replace the name
 		$extension = File::getExt($originalName);
-		$filename  = str_replace('{name}', basename($originalName, $extension), $format);
+		$filename  = str_replace('{name}', basename($originalName, '.' . $extension), $format);
 
 		// Replace random
 		$prefix   = substr(str_shuffle(md5(time())), 0, 10);

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,66 +12,83 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" autocomplete="off">
-	<div class="app-tabs">
-	    <ul class="app-tabs-list g-list-unstyled">
-	    	<?php $i = 0; ?>
+<div class="wrapper accordion">
+	<div class="tab-box tab-box-alt">
+		<div class="tabbable">
+			<ul class="nav nav-tabs nav-tabs-icons">
+				<?php $i = 0; ?>
 
-	    	<?php foreach ($tabs as $tab) { ?>
-		        <li class="tabItem <?php echo $i == 0 ? ' active' : '';?>">
-		            <a href="#ed-<?php echo $tab->id;?>" data-ed-toggle="tab" data-ed-tab data-id="ed-<?php echo $tab->id;?>"><?php echo $tab->title;?></a>
-		        </li>
-		        <?php $i++; ?>
-	        <?php } ?>
-	    </ul>
-	</div>
+				<?php foreach ($tabs as $tab) { ?>
+					<li class="tabItem <?php echo $i == 0 ? ' active' : '';?>">
+						<a href="#ed-<?php echo $tab->id;?>" data-ed-toggle="tab" data-ed-tab data-id="ed-<?php echo $tab->id;?>"><?php echo $tab->title;?></a>
+					</li>
+					<?php $i++; ?>
+				<?php } ?>
+			</ul>
 
-    <div class="tab-content">
-        <?php $i = 0; ?>
-        <?php foreach ($tabs as $tab) { ?>
-        <div id="ed-<?php echo $tab->id;?>" class="tab-pane<?php echo ($i == 0) ? ' active in' : '';?>">
-			<div class="row">
-				<div class="col-md-8">
-					<div class="panel">
-			            <?php echo $this->html('panel.head', 'COM_EASYDISCUSS_ACL_RULE_SET_' . strtoupper($tab->id)); ?>
+			<div class="tab-content">
+				<?php $i = 0; ?>
+				<?php foreach ($tabs as $tab) { ?>
+				<div id="ed-<?php echo $tab->id;?>" class="tab-pane<?php echo ($i == 0) ? ' active in' : '';?>" data-tab-item>
+					<div class="row">
+						<div class="col-md-8">
+							<div class="panel">
+								<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_ACL_RULE_SET_' . strtoupper($tab->id)); ?>
 
-						<div class="panel-body">
-							<div class="form-horizontal">
-								<?php foreach ($ruleset->rules[$tab->id] as $rule) { ?>
-								<div class="form-group">
-				                    <div class="col-md-4 control-label">
-				                        <?php echo $this->html('form.label', 'COM_EASYDISCUSS_ACL_OPTION_' . strtoupper($rule->action)); ?>
-				                    </div>
+								<div class="panel-body">
+									<div class="o-form-horizontal">
+										<div class="o-form-group">
+											<ol class="g-list-inline g-list-inline--dashed t-ml--md">
+												<li>
+													<?php echo JText::_('Enable');?>:
+												</li>
+												<li style="border-left: 0;">
+													<a href="javascript:void(0);" data-select-all>All</a>
+												</li>
+												<li>
+													<a href="javascript:void(0);" data-select-none>None</a>
+												</li>
+											</ol>
+										</div>
 
-				                    <div class="col-md-8" data-ed-acl-option>
-				                        <?php echo $this->html('form.boolean', $rule->action, $rule->value, '', 'data-ed-acl-rule'); ?>
+										<?php foreach ($ruleset->rules[$tab->id] as $rule) { ?>
+										<div class="o-form-group">
+											<div class="col-md-4 o-form-label">
+												<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ACL_OPTION_' . strtoupper($rule->action)); ?>
+											</div>
 
-                                        <span style="margin-left: 10px;">
-                                            <span class="acl-result-yes text-success <?php echo $rule->value ? '' : 't-hidden';?>" data-ed-acl-allowed>
-                                                <i class="fa fa-check-circle"></i>&nbsp; 
-                                                <?php echo JText::_('COM_EASYDISCUSS_ACL_OPTION_' . strtoupper($rule->action) . '_RESULT_YES'); ?>
-                                            </span>
-                                            <span class="acl-result-no text-danger <?php echo !$rule->value ? '' : 't-hidden';?>" data-ed-acl-disallowed>
-                                                <i class="fa fa-times-circle"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_ACL_OPTION_' . strtoupper($rule->action) . '_RESULT_NO'); ?>
-                                            </span>
-                                        </span>
-				                    </div>
+											<div class="col-md-8" data-ed-acl-option>
+												<?php echo $this->html('form.boolean', $rule->action, $rule->value, '', 'data-ed-acl-rule'); ?>
+
+												<div class="t-mt--md">
+													<span class="acl-result-yes text-success <?php echo $rule->value ? '' : 't-hidden';?>" data-ed-acl-allowed>
+														<i class="fa fa-check-circle"></i>&nbsp; 
+														<?php echo JText::_('COM_EASYDISCUSS_ACL_OPTION_' . strtoupper($rule->action) . '_RESULT_YES'); ?>
+													</span>
+													<span class="acl-result-no t-text--danger <?php echo !$rule->value ? '' : 't-hidden';?>" data-ed-acl-disallowed>
+														<i class="fa fa-times-circle"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_ACL_OPTION_' . strtoupper($rule->action) . '_RESULT_NO'); ?>
+													</span>
+												</div>
+											</div>
+										</div>
+										<?php } ?>
+									</div>
 								</div>
-								<?php } ?>
 							</div>
+						</div>
+
+						<div class="col-md-4">
 						</div>
 					</div>
 				</div>
-
-				<div class="col-md-4">
-				</div>
+				<?php $i++;?>
+				<?php } ?>
 			</div>
-        </div>
-        <?php $i++;?>
-        <?php } ?>
-    </div>
+		</div>
+	</div>
 
-
-	<?php echo $this->html('form.hidden', 'acl', ''); ?>
+	<?php echo $this->html('form.action', 'acl', ''); ?>
 	<input type="hidden" name="cid" id="cid" value="<?php echo isset($ruleset->id) && !is_null($ruleset->id) ? $ruleset->id : '';?>" />
 	<input type="hidden" name="name" value="<?php echo $ruleset->name ? $ruleset->name : ''; ?>" />
+</div>
 </form>

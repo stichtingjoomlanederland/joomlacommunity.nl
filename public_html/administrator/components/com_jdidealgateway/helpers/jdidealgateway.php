@@ -3,14 +3,14 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
-use Joomla\CMS\Language\Text;
-
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Language\Text;
 
 /**
  * RO Payments helper.
@@ -26,49 +26,67 @@ class JdidealGatewayHelper
 	 *
 	 * @param   string  $vName  The name of the current view.
 	 *
-	 * @return  void.
-	 *
-	 * @throws  Exception
+	 * @return  void
 	 *
 	 * @since   2.8.0
+	 * @throws  Exception
 	 */
-	public function addSubmenu($vName)
+	public function addSubmenu(string $vName): void
 	{
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_DASHBOARD'), 'index.php?option=com_jdidealgateway&view=jdidealgateway', $vName === 'jdidealgateway'
+			Text::_('COM_ROPAYMENTS_DASHBOARD'),
+			'index.php?option=com_jdidealgateway&view=jdidealgateway',
+			$vName === 'jdidealgateway'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_LOGS'), 'index.php?option=com_jdidealgateway&view=logs', $vName === 'logs'
+			Text::_('COM_ROPAYMENTS_LOGS'),
+			'index.php?option=com_jdidealgateway&view=logs', $vName === 'logs'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_PROFILES'), 'index.php?option=com_jdidealgateway&view=profiles', $vName === 'profiles'
+			Text::_('COM_ROPAYMENTS_PROFILES'),
+			'index.php?option=com_jdidealgateway&view=profiles',
+			$vName === 'profiles'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_STATUSES'), 'index.php?option=com_jdidealgateway&view=statuses', $vName === 'statuses'
+			Text::_('COM_ROPAYMENTS_STATUSES'),
+			'index.php?option=com_jdidealgateway&view=statuses',
+			$vName === 'statuses'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_MESSAGES'), 'index.php?option=com_jdidealgateway&view=messages', $vName === 'messages'
+			Text::_('COM_ROPAYMENTS_MESSAGES'),
+			'index.php?option=com_jdidealgateway&view=messages',
+			$vName === 'messages'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_EMAILS'), 'index.php?option=com_jdidealgateway&view=emails', $vName === 'emails'
+			Text::_('COM_ROPAYMENTS_EMAILS'),
+			'index.php?option=com_jdidealgateway&view=emails',
+			$vName === 'emails'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_PAYMENTS'), 'index.php?option=com_jdidealgateway&view=pays', $vName === 'pays'
+			Text::_('COM_ROPAYMENTS_PAYMENTS'),
+			'index.php?option=com_jdidealgateway&view=pays', $vName === 'pays'
 		);
 		JHtmlSidebar::addEntry(
 			'<hr />', false
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_CUSTOMERS'), 'index.php?option=com_jdidealgateway&view=customers', $vName === 'customers'
+			Text::_('COM_ROPAYMENTS_CUSTOMERS'),
+			'index.php?option=com_jdidealgateway&view=customers',
+			$vName === 'customers'
 		);
 		JHtmlSidebar::addEntry(
-			Text::_('COM_ROPAYMENTS_SUBSCRIPTIONS'), 'index.php?option=com_jdidealgateway&view=subscriptions', $vName === 'subscriptions'
+			Text::_('COM_ROPAYMENTS_SUBSCRIPTIONS'),
+			'index.php?option=com_jdidealgateway&view=subscriptions',
+			$vName === 'subscriptions'
 		);
 		JHtmlSidebar::addEntry(
 			'<hr />', '', false
 		);
 		JHtmlSidebar::addEntry(
-			date(Text::_('DATE_FORMAT_LC2'), (new DateTime('now', new DateTimeZone("UTC")))->getTimestamp()), '', false
+			date(
+				Text::_('DATE_FORMAT_LC2'),
+				(new DateTime('now', new DateTimeZone("UTC")))->getTimestamp()
+			), '', false
 		);
 	}
 }

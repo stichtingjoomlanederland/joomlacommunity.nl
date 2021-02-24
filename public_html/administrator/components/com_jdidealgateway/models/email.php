@@ -3,16 +3,17 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
+defined('_JEXEC') or die;
+
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
-
-defined('_JEXEC') or die;
+use Joomla\CMS\Table\Table;
 
 /**
  * Email model.
@@ -30,9 +31,9 @@ class JdidealgatewayModelEmail extends AdminModel
 	 *
 	 * @return  mixed  A JForm object on success | False on failure.
 	 *
+	 * @since   2.0.0
 	 * @throws  Exception
 	 *
-	 * @since   2.0.0
 	 */
 	public function getForm($data = array(), $loadData = true)
 	{
@@ -54,66 +55,55 @@ class JdidealgatewayModelEmail extends AdminModel
 	/**
 	 * Send out a test e-mail.
 	 *
+	 * @param   int     $emailId  The email ID to send
+	 * @param   string  $email    The email address to send to
+	 *
 	 * @return  array  Contains message and status.
 	 *
-	 * @throws  Exception
-	 * @throws  RuntimeException
-	 *
 	 * @since   2.8.2
+	 * @throws \PHPMailer\PHPMailer\Exception
 	 */
-	public function testEmail(): array
+	public function testEmail(int $emailId, string $email): array
 	{
 		$config   = Factory::getConfig();
 		$from     = $config->get('mailfrom');
 		$fromName = $config->get('fromname');
 		$mail     = Factory::getMailer();
-		$input    = Factory::getApplication()->input;
 
-		$cids            = $input->get('cid', array(), 'array');
-		$email           = $input->get('email', null, '');
-		$result          = array();
+		$result          = [];
 		$result['msg']   = '';
 		$result['state'] = 'error';
 
-		if ($cids && $email)
-		{
-			$db    = $this->getDbo();
-			$query = $db->getQuery(true)
-				->select(
-					array(
-						$db->quoteName('subject'),
-						$db->quoteName('body')
-					)
-				)
-				->from($db->quoteName('#__jdidealgateway_emails'));
-
-			foreach ($cids as $cid)
-			{
-				$query->clear('where')
-					->where($db->quoteName('id') . ' = ' . (int) $cid);
-				$db->setQuery($query);
-				$details = $db->loadObject();
-
-				if ($details->body)
-				{
-					$mail->clearAddresses();
-
-					if ($mail->sendMail($from, $fromName, $email, $details->subject, $details->body, true))
-					{
-						$result['msg']   = Text::_('COM_ROPAYMENTS_TESTEMAIL_SENT');
-						$result['state'] = '';
-					}
-				}
-			}
-		}
-		else
+		if (!$emailId || !$email)
 		{
 			$result['msg'] = Text::_('COM_ROPAYMENTS_NO_EMAILS_FOUND');
 
 			if (!$email)
 			{
-				$result['msg'] = Text::_('COM_ROPAYMENTS_MISSING_EMAIL_ADDRESS');
+				$result['msg'] = Text::_(
+					'COM_ROPAYMENTS_MISSING_EMAIL_ADDRESS'
+				);
 			}
+
+			return $result;
+		}
+
+
+		$emailTable = Table::getInstance('Email', 'Table');
+		$emailTable->load($emailId);
+
+		if (($body = $emailTable->get('body'))
+			&& $mail->sendMail(
+				$from,
+				$fromName,
+				$email,
+				$emailTable->get('subject'),
+				$body,
+				true
+			))
+		{
+			$result['msg']   = Text::_('COM_ROPAYMENTS_TESTEMAIL_SENT');
+			$result['state'] = '';
 		}
 
 		return $result;
@@ -124,14 +114,14 @@ class JdidealgatewayModelEmail extends AdminModel
 	 *
 	 * @return  array  The data for the form.
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   2.0.0
+	 * @throws  Exception
 	 */
 	protected function loadFormData()
 	{
-		// Check the session for previously entered form data.
-		$data = Factory::getApplication()->getUserState('com_jdidealgateway.edit.email.data', array());
+		$data = Factory::getApplication()->getUserState(
+			'com_jdidealgateway.edit.email.data', array()
+		);
 
 		if (0 === count($data))
 		{

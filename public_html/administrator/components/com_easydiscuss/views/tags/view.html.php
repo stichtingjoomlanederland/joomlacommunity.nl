@@ -51,8 +51,8 @@ class EasyDiscussViewTags extends EasyDiscussAdminView
 
 		foreach ($tags as $tag) {
 			$tag->count = $model->getUsedCount($tag->id);
-			$tag->title	= JString::trim($tag->title);
-			$tag->alias	= JString::trim($tag->alias);
+			$tag->title	= EDJString::trim($tag->title);
+			$tag->alias	= EDJString::trim($tag->alias);
 			$tag->user = JFactory::getUser($tag->user_id);
 		}
 
@@ -94,8 +94,8 @@ class EasyDiscussViewTags extends EasyDiscussAdminView
 			$this->title('COM_EASYDISCUSS_ADD_NEW_TAG');
 		}
 
-		$tag->title	= JString::trim($tag->title);
-		$tag->alias	= JString::trim($tag->alias);
+		$tag->title	= EDJString::trim($tag->title);
+		$tag->alias	= EDJString::trim($tag->alias);
 
 		// Generate All tags for merging selections
 		$model = ED::model('Tags', true);

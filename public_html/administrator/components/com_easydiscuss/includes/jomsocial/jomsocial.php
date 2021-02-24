@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.filesystem.file');
 
-class EasyDiscussJomSocial extends EasyDiscuss
+class EasyDiscussJomSocial
 {
 	private $_access = array();
 
@@ -84,20 +84,20 @@ class EasyDiscussJomSocial extends EasyDiscuss
 
 	private function getActivityTitle( $title )
 	{
-		$config = DiscussHelper::getConfig();
+		$config = ED::config();
 
 		if( $config->get( 'integration_jomsocial_activity_title_length' ) == 0 )
 		{
 			return $title;
 		}
 
-		return JString::substr( $title , 0 , $config->get( 'integration_jomsocial_activity_title_length' ) ) . '...';
+		return EDJString::substr( $title , 0 , $config->get( 'integration_jomsocial_activity_title_length' ) ) . '...';
 	}
 
 	public function addActivityQuestion( $post )
 	{
 		$core	= JPATH_ROOT . '/components/com_community/libraries/core.php';
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 
 		if( !JFile::exists( $core ) )
 		{
@@ -117,8 +117,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$lang->load( 'com_easydiscuss' , JPATH_ROOT );
 
 		// We do not want to add activities if new blog activity is disabled.
-		if( !$config->get( 'integration_jomsocial_activity_new_question' ) )
-		{
+		if (!$config->get('integration_jomsocial_stream')) {
 			return false;
 		}
 
@@ -127,48 +126,46 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$title		= $this->getActivityTitle( $post->title );
 		$content	= '';
 
-		if( $config->get( 'integration_jomsocial_activity_new_question_content' ) )
+
+		$content	= $post->content;
+
+		$pattern	= '#<img[^>]*>#i';
+		preg_match_all( $pattern , $content , $matches );
+
+		$imgTag = '';
+
+		if( $matches && count( $matches[0] ) > 0 )
 		{
-			$content	= $post->content;
-
-			$pattern	= '#<img[^>]*>#i';
-			preg_match_all( $pattern , $content , $matches );
-
-			$imgTag = '';
-
-			if( $matches && count( $matches[0] ) > 0 )
+			foreach( $matches[0] as $match )
 			{
-				foreach( $matches[0] as $match )
+				// exclude bbcodes from markitup
+				if( stristr($match, '/markitup/') === false )
 				{
-					// exclude bbcodes from markitup
-					if( stristr($match, '/markitup/') === false )
-					{
-						$imgTag = $match;
-						break;
-					}
+					$imgTag = $match;
+					break;
 				}
 			}
-
-			//Parse the bbcode first if using bbcode editor
-			if($config->get('layout_editor') == 'bbcode')
-			{
-				$content = ED::parser()->bbcode($content);
-			}
-
-			$content = strip_tags($content);
-			$content = JString::substr($content , 0 , $config->get('integration_jomsocial_activity_content_length')) . '...';
-
-			if( $imgTag )
-			{
-				$imgTag		= JString::str_ireplace( 'img ' , 'img style="margin: 0 5px 5px 0;float:left;height:auto;width: 120px !important;"' , $imgTag );
-				$content	= $imgTag . $content . '<div style="clear:both;"></div>';
-			}
-
-			$content	.= '<div style="text-align: right;"><a href="' . $link . '">' . JText::_( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_NEW_QUESTION_REPLY_QUESTION' ) . '</a></div>';
 		}
 
+		//Parse the bbcode first if using bbcode editor
+		if($config->get('layout_editor') == 'bbcode')
+		{
+			$content = ED::parser()->bbcode($content);
+		}
+
+		$content = strip_tags($content);
+		$content = EDJString::substr($content , 0 , $config->get('integration_jomsocial_activity_content_length')) . '...';
+
+		if( $imgTag )
+		{
+			$imgTag		= EDJString::str_ireplace( 'img ' , 'img style="margin: 0 5px 5px 0;float:left;height:auto;width: 120px !important;"' , $imgTag );
+			$content	= $imgTag . $content . '<div style="clear:both;"></div>';
+		}
+
+		$content	.= '<div style="text-align: right;"><a href="' . $link . '">' . JText::_( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_NEW_QUESTION_REPLY_QUESTION' ) . '</a></div>';
+
 		//get category privacy.
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category	= ED::table( 'Category' );
 		$category->load( $post->category_id );
 
 		$obj				= new stdClass();
@@ -194,7 +191,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	public function addActivityReply( $post )
 	{
 		$core	= JPATH_ROOT . '/components/com_community/libraries/core.php';
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 
 		if( !JFile::exists( $core ) )
 		{
@@ -214,69 +211,66 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$lang->load( 'com_easydiscuss' , JPATH_ROOT );
 
 		// We do not want to add activities if new blog activity is disabled.
-		if( !$config->get( 'integration_jomsocial_activity_reply_question' ) )
-		{
+		if (!$config->get('integration_jomsocial_stream')) {
 			return false;
 		}
 
 		$link		= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id , false , true );
 		$replyLink  = $link . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
 
-		$parent		= DiscussHelper::getTable( 'Post' );
+		$parent		= ED::table( 'Post' );
 		$parent->load( $post->parent_id );
 
 		$title		= $this->getActivityTitle( $parent->title );
 		$content	= '';
 
-		if( $config->get( 'integration_jomsocial_activity_reply_question_content' ) )
+
+		$content	= $post->content;
+
+		$pattern	= '#<img[^>]*>#i';
+		preg_match_all( $pattern , $content , $matches );
+
+		$imgTag = '';
+
+		if( $matches && count( $matches[0] ) > 0 )
 		{
-			$content	= $post->content;
-
-			$pattern	= '#<img[^>]*>#i';
-			preg_match_all( $pattern , $content , $matches );
-
-			$imgTag = '';
-
-			if( $matches && count( $matches[0] ) > 0 )
+			foreach( $matches[0] as $match )
 			{
-				foreach( $matches[0] as $match )
+				// exclude bbcodes from markitup
+				if( stristr($match, '/markitup/') === false )
 				{
-					// exclude bbcodes from markitup
-					if( stristr($match, '/markitup/') === false )
-					{
-						$imgTag = $match;
-						break;
-					}
+					$imgTag = $match;
+					break;
 				}
 			}
-
-			//Parse the bbcode first if using bbcode editor
-			if($config->get('layout_editor') == 'bbcode')
-			{
-				$content = ED::parser()->bbcode($content);
-			}
-
-			$content = html_entity_decode(strip_tags($content));
-			$content = JString::substr($content , 0 , $config->get('integration_jomsocial_activity_content_length')) . '...';
-
-			if( $imgTag )
-			{
-				$imgTag		= JString::str_ireplace( 'img ' , 'img style="margin: 0 5px 5px 0;float:left;height:auto;width: 120px !important;"' , $imgTag );
-				$content	= $imgTag . $content . '<div style="clear:both;"></div>';
-			}
-			$content	.= '<div style="text-align: right;"><a href="' . $link . '">' . JText::_( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_REPLY_QUESTION_PARTICIPATE' ) . '</a></div>';
 		}
+
+		//Parse the bbcode first if using bbcode editor
+		if($config->get('layout_editor') == 'bbcode')
+		{
+			$content = ED::parser()->bbcode($content);
+		}
+
+		$content = html_entity_decode(strip_tags($content));
+		$content = EDJString::substr($content , 0 , $config->get('integration_jomsocial_activity_content_length')) . '...';
+
+		if( $imgTag )
+		{
+			$imgTag		= EDJString::str_ireplace( 'img ' , 'img style="margin: 0 5px 5px 0;float:left;height:auto;width: 120px !important;"' , $imgTag );
+			$content	= $imgTag . $content . '<div style="clear:both;"></div>';
+		}
+		$content	.= '<div style="text-align: right;"><a href="' . $link . '">' . JText::_( 'COM_EASYDISCUSS_JOMSOCIAL_ACTIVITY_REPLY_QUESTION_PARTICIPATE' ) . '</a></div>';
 
 		//get category privacy.
 		$category_id = $post->category_id;
 		if( !$post->category_id && $post->parent_id )
 		{
-			$postTable = DiscussHelper::getTable( 'Posts' );
+			$postTable = ED::table( 'Posts' );
 			$postTable->load( $post->parent_id );
 			$category_id = $postTable->category_id;
 		}
 
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category	= ED::table( 'Category' );
 		$category->load( $category_id );
 
 		$obj				= new stdClass();
@@ -301,7 +295,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	public function addActivityLikes($post, $question)
 	{
 		$core = JPATH_ROOT . '/components/com_community/libraries/core.php';
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$my	= JFactory::getUser();
 
 		if (!JFile::exists($core)) {
@@ -321,13 +315,12 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$lang->load( 'com_easydiscuss' , JPATH_ROOT );
 
 		// We do not want to add activities if new blog activity is disabled.
-		if( !$config->get( 'integration_jomsocial_activity_likes' ) )
-		{
+		if (!$config->get('integration_jomsocial_stream')) {
 			return false;
 		}
 
 		//get category privacy.
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category	= ED::table( 'Category' );
 		$category->load( $question->category_id );
 
 		$link = DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id , false , true );
@@ -374,7 +367,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	public function addActivityComment( $post , $question )
 	{
 		$core	= JPATH_ROOT . '/components/com_community/libraries/core.php';
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$my		= JFactory::getUser();
 
 		if( !JFile::exists( $core ) )
@@ -388,13 +381,12 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$lang->load( 'com_easydiscuss' , JPATH_ROOT );
 
 		// We do not want to add activities if new comment activity is disabled.
-		if( !$config->get( 'integration_jomsocial_activity_comment' ) )
-		{
+		if (!$config->get('integration_jomsocial_stream')) {
 			return false;
 		}
 
 		//get category privacy.
-		$category	= DiscussHelper::getTable( 'Category' );
+		$category	= ED::table( 'Category' );
 		$category->load( $question->category_id );
 
 		$link				= DiscussRouter::getRoutedURL( 'index.php?option=com_easydiscuss&view=post&id=' . $question->id , false , true );
@@ -447,7 +439,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$lang->load('com_easydiscuss', JPATH_ROOT);
 
 		// We do not want to add activities if new badges activity is disabled.
-		if (!$config->get('integration_jomsocial_activity_badges', 0)) {
+		if (!$config->get('integration_jomsocial_stream', 0)) {
 			return false;
 		}
 
@@ -476,7 +468,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	public function addActivityRanks( $userRanks )
 	{
 		$core	= JPATH_ROOT . '/components/com_community/libraries/core.php';
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$my		= JFactory::getUser();
 
 		if( !JFile::exists( $core ) )
@@ -490,8 +482,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 		$lang->load( 'com_easydiscuss' , JPATH_ROOT );
 
 		// We do not want to add activities if ranking activity is disabled.
-		if( !$config->get( 'integration_jomsocial_activity_ranks', 0 ) )
-		{
+		if (!$config->get('integration_jomsocial_stream', 0)) {
 			return false;
 		}
 
@@ -515,67 +506,10 @@ class EasyDiscussJomSocial extends EasyDiscuss
 	}
 
 	/**
-	 * Displays the toolbar of JomSocial
-	 *
-	 * @since   4.0
-	 * @access  public
-	 * @param   string
-	 * @return
-	 */
-	public function getToolbar()
-	{
-		if (!$this->config->get('integration_jomsocial_toolbar')) {
-			return;
-		}
-
-		// Allow third party to control the toolbar
-		$displayToolbar = $this->input->get('showJomsocialToolbar', true);
-		$format = $this->input->get('format', '', 'word');
-		$tmpl = $this->input->get('tmpl', '', 'word');
-
-		if ($tmpl == 'component' || !$displayToolbar) {
-			return;
-		}
-
-		// Ensure that JomSocial exists
-		if (!$this->exists()) {
-			return;
-		}
-
-		// Ensure the library really exists on the site.
-		if (!class_exists('CToolbarLibrary') || !method_exists('CToolbarLibrary', 'getInstance')) {
-			return;
-		}
-
-		$svg = '';
-
-		if (method_exists('CFactory', 'getPath')) {
-			$svg = CFactory::getPath('template://assets/icon/joms-icon.svg');
-		}
-
-		// Load up the apps
-		$appsLib = CAppPlugins::getInstance();
-		$appsLib->loadApplications();
-		$appsLib->triggerEvent('onSystemStart', array());
-
-		// Get the toolbar library
-		$toolbar = CToolbarLibrary::getInstance();
-
-		$theme = ED::themes();
-		$theme->set('svg', $svg);
-		$theme->set('toolbar', $toolbar);
-		$contents = $theme->output('site/toolbar/toolbar.jomsocial');
-
-		return $contents;
-	}
-
-	/**
 	 * Retrieve the PM button
 	 *
 	 * @since   4.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getPmHtml($targetId, $layout = 'list')
 	{
@@ -632,7 +566,7 @@ class EasyDiscussJomSocial extends EasyDiscuss
 			return false;
 		}
 
-		$isAdmin = JFactory::getApplication()->isAdmin();
+		$isAdmin = ED::isFromAdmin();
 
 		// If the delete discussion post from backend, we need to manually delete it from database.
 		// This is because jomsocial's activity model file in backend doesn't has removeActivity() function.

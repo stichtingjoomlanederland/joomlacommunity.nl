@@ -33,19 +33,11 @@ class RseventsproModelEvent extends JModelAdmin
 	public function getItem($pk = null) {
 		if ($item = parent::getItem($pk)) {
 			$db = JFactory::getDbo();
-			$query = $db->getQuery(true);
 			
 			if (empty($item->location))
 				$item->location = 0;
 			
-			$query->clear()
-				->select($db->qn('id'))
-				->select($db->qn('name'))
-				->from($db->qn('#__rseventspro_locations'))
-				->where($db->qn('id').' = '.$item->location);
-			$db->setQuery($query);
-			$location = $db->loadObject();
-			$item->locationname = isset($location->name) ? $location->name : '';
+			$item->locationname = $this->getLocationName($item->location);
 			
 			// Convert image properties
 			try {
@@ -124,6 +116,12 @@ class RseventsproModelEvent extends JModelAdmin
 			if (empty($item->tickets_amount))
 				$item->tickets_amount = '';
 			
+			if (empty($item->overbooking_amount))
+				$item->overbooking_amount = '';
+			
+			if (empty($item->max_tickets_amount))
+				$item->max_tickets_amount = '';
+			
 			if (!empty($item->rsm_lists)) {
 				try {
 					$registry = new JRegistry;
@@ -133,6 +131,31 @@ class RseventsproModelEvent extends JModelAdmin
 					$item->rsm_lists = array();
 				}
 			}
+			
+			if (!empty($item->repeat_also)) {
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($item->repeat_also);
+					$item->repeat_also = $registry->toArray();
+				} catch (Exception $e) {
+					$item->repeat_also = array();
+				}
+			}
+			
+			if (!empty($item->exclude_dates)) {
+				try {
+					$registry = new JRegistry;
+					$registry->loadString($item->exclude_dates);
+					$item->exclude_dates = $registry->toArray();
+				} catch (Exception $e) {
+					$item->exclude_dates = array();
+				}
+			}
+			
+			require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+			$event	= RSEvent::getInstance($item->id);
+			
+			$item->options = $event->getEventOptions();
 		}
 		
 		return $item;
@@ -149,11 +172,83 @@ class RseventsproModelEvent extends JModelAdmin
 	 */
 	public function getForm($data = array(), $loadData = true) {
 		// Get the form.
-		$form = $this->loadForm('com_rseventspro.event', 'event', array('control' => 'jform', 'load_data' => $loadData));
+		$form = $this->loadForm('com_rseventspro.event', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/event.xml', array('control' => 'jform', 'load_data' => $loadData));
 		if (empty($form))
 			return false;
 		
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('payments', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('rsm_lists', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('gallery_tags', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('repeat_also', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('repeat_also', 'class', 'repeat_also_fancy');
+			$form->setFieldAttribute('exclude_dates', 'layout', 'joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('exclude_dates', 'class', 'exclude_dates_fancy');
+		} else {
+			$form->setFieldAttribute('name', 'class', 'span10');
+			$form->setFieldAttribute('small_description', 'class', 'span10');
+			$form->setFieldAttribute('URL', 'class', 'span10');
+			$form->setFieldAttribute('phone', 'class', 'span10');
+			$form->setFieldAttribute('email', 'class', 'span10');
+			$form->setFieldAttribute('metaname', 'class', 'span10');
+			$form->setFieldAttribute('metakeywords', 'class', 'span10');
+			$form->setFieldAttribute('metadescription', 'class', 'span10');
+			$form->setFieldAttribute('event_ended', 'class', 'span10');
+			$form->setFieldAttribute('event_full', 'class', 'span10');
+			$form->setFieldAttribute('repeat_on_day_order', 'class', 'input-small');
+			$form->setFieldAttribute('repeat_on_day_type', 'class', 'input-small');
+			$form->setFieldAttribute('repeat_interval', 'class', 'input-small');
+			$form->setFieldAttribute('repeat_type', 'class', 'input-small');
+			$form->setFieldAttribute('repeat_on_day', 'class', 'input-small');
+			$form->setFieldAttribute('early_fee', 'class', 'input-small');
+			$form->setFieldAttribute('early_fee_type', 'class', 'input-small');
+			$form->setFieldAttribute('late_fee', 'class', 'input-small');
+			$form->setFieldAttribute('late_fee_type', 'class', 'input-small');
+		}
+		
+		if ($form->getValue('allday') == 1) {
+			$form->setFieldAttribute('start', 'allday', 'true');
+			$form->setFieldAttribute('end', 'allday', 'true');
+		}
+		
+		if ($form->getValue('rsvp') == 1) {
+			$form->setFieldAttribute('registration', 'muted', 'true');
+			$form->setFieldAttribute('registration', 'disabled', 'true');
+		}
+		
+		if ($form->getValue('registration') == 1) {
+			$form->setFieldAttribute('rsvp', 'muted', 'true');
+			$form->setFieldAttribute('rsvp', 'disabled', 'true');
+		}
+		
 		return $form;
+	}
+	
+	public function getFormDependencies() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+		
+		$id		= JFactory::getApplication()->input->getInt('id',0);
+		$event	= RSEvent::getInstance($id);
+		
+		return $event->getEventFormDependencies();
+	}
+	
+	public function getFormTickets($id = null) {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+		
+		$id		= is_null($id) ? JFactory::getApplication()->input->getInt('id',0) : $id;
+		$event	= RSEvent::getInstance($id);
+		
+		return $event->getEventFormTickets();
+	}
+	
+	public function getFormCoupons() {
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
+		
+		$id		= JFactory::getApplication()->input->getInt('id',0);
+		$event	= RSEvent::getInstance($id);
+		
+		return $event->getEventFormCoupons();
 	}
 	
 	/**
@@ -215,7 +310,7 @@ class RseventsproModelEvent extends JModelAdmin
 			return false;
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_beforeEventStore',array(array('data'=>&$table)));
+		JFactory::getApplication()->triggerEvent('onrsepro_beforeEventStore',array(array('data'=>&$table)));
 		
 		// Store the data.
 		if (!$table->store()) {
@@ -228,7 +323,7 @@ class RseventsproModelEvent extends JModelAdmin
 		$event = RSEvent::getInstance($table->id);
 		$event->save($table, $isNew);
 		
-		JFactory::getApplication()->triggerEvent('rsepro_afterEventStore',array(array('data'=>&$table, 'event' => $event)));
+		JFactory::getApplication()->triggerEvent('onrsepro_afterEventStore',array(array('data'=>&$table, 'event' => $event)));
 		
 		// Check for cancel event, and send emails
 		if ($status !== false) {
@@ -379,7 +474,7 @@ class RseventsproModelEvent extends JModelAdmin
 		$response = $db->execute();
 		
 		if ($response)
-			JFactory::getApplication()->triggerEvent('rsepro_afterDeleteTicket', array(array('id' => $id)));
+			JFactory::getApplication()->triggerEvent('onrsepro_afterDeleteTicket', array(array('id' => $id)));
 		
 		return $response;
 	}
@@ -820,7 +915,7 @@ class RseventsproModelEvent extends JModelAdmin
 		
 		$categories	= isset($batch['categories']) ? $batch['categories'] : array();
 		$tags		= isset($batch['tags']) ? $batch['tags'] : array();
-		$location	= isset($batch['location']) ? $batch['location'] : 0;
+		$location	= isset($batch['locations']) ? $batch['locations'] : 0;
 		$itemid		= isset($batch['itemid']) ? $batch['itemid'] : '';
 		$type		= isset($batch['type']) ? $batch['type'] : 'r';
 		
@@ -1152,7 +1247,7 @@ class RseventsproModelEvent extends JModelAdmin
 				$query->where($db->qn('u.state').' IN ('.implode(',', $status).')');
 			}
 			
-			$app->triggerEvent('rsepro_subscriptionsQuery',array(array('query'=>&$query, 'rule' => 'u.ide')));
+			$app->triggerEvent('onrsepro_subscriptionsQuery',array(array('query'=>&$query, 'rule' => 'u.ide')));
 			
 			$db->setQuery($query);
 			if ($subscribers = $db->loadObjectList()) {
@@ -1211,7 +1306,7 @@ class RseventsproModelEvent extends JModelAdmin
 		// Save ticket
 		$db->insertObject('#__rseventspro_tickets', $ticket, 'id');
 		
-		$app->triggerEvent('rsepro_isCart',array(array('cart'=>&$cart)));
+		$app->triggerEvent('onrsepro_isCart',array(array('cart'=>&$cart)));
 		
 		if ($cart) {
 			$query->clear()
@@ -1240,8 +1335,9 @@ class RseventsproModelEvent extends JModelAdmin
 			'base_path' => JPATH_ADMINISTRATOR.'/components/com_rseventspro'
 		));
 		
-		$view->eventClass = $eventClass;
-		$view->tickets = $eventClass->getTickets($ticket->id);
+		$view->eventClass 	= $eventClass;
+		$view->tickets 		= $eventClass->getTickets($ticket->id);
+		$view->ticketsform	= $this->getFormTickets($ticket->ide);
 		
 		$response = new stdClass();
 		$response->id = $ticket->id;
@@ -1278,5 +1374,23 @@ class RseventsproModelEvent extends JModelAdmin
 		}
 		
 		return true;
+	}
+	
+	protected function getLocationName($id) {
+		static $locations = array();
+		
+		if (!isset($locations[$id])) {
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			
+			$query->clear()
+				->select($db->qn('name'))
+				->from($db->qn('#__rseventspro_locations'))
+				->where($db->qn('id').' = '.$id);
+			$db->setQuery($query);
+			$locations[$id] = $db->loadResult();
+		}
+		
+		return $locations[$id];
 	}
 }

@@ -6,160 +6,239 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
-<p><?php echo JText::_('COM_RSEVENTSPRO_BATCH_OPTIONS_INFO'); ?></p>
-<div class="row-fluid">
-	<p style="text-align: center;">
-		<input type="checkbox" name="batch[enable_options]" id="enable_options" value="1" />
-		<label for="enable_options" class="checkbox inline"><b><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_BATCH_OPTIONS'); ?></b></label>
-	</p>
-</div>
+<div class="alert alert-info"><?php echo JText::_('COM_RSEVENTSPRO_BATCH_OPTIONS_INFO'); ?></div>
+<p style="text-align: center;">
+	<label for="enable_options" class="checkbox inline">
+		<input type="checkbox" name="batch[enable_options]" id="enable_options" value="1" /> 
+		<b><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_BATCH_OPTIONS'); ?></b>
+	</label>
+</p>
 
-<div class="row-fluid">
-	<fieldset class="span4 rswidth-30 rsfltlft" id="sharing">
-		<legend><?php echo JText::_('COM_RSEVENTSPRO_SHARING_OPTIONS'); ?></legend>
-		<p>
-			<input type="checkbox" name="sharing_all" id="sharing_all" value="1" onclick="rsepro_select_all('sharing_all','sharing')" />
-			<label for="sharing_all" class="checkbox inline"><b><?php echo JText::_('COM_RSEVENTSPRO_SELECT_DESELECT_ALL'); ?></b></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][enable_rating]" id="enable_rating" value="1" />
-			<label for="enable_rating" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_EVENT_RATING'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][enable_fb_like]" id="enable_facebook_like" value="1" />
-			<label for="enable_facebook_like" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_FACEBOOK_LIKE'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][enable_twitter]" id="enable_twitter" value="1" />
-			<label for="enable_twitter" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_TWITTER'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][enable_linkedin]" id="enable_linkedin" value="1" />
-			<label for="enable_linkedin" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_ENABLE_LINKEDIN'); ?></label>
-		</p>
-	</fieldset>
-	
-	<fieldset class="span4 rswidth-30 rsfltlft" id="details">
-		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_DETAIL'); ?></legend>
-		<p>
-			<input type="checkbox" name="details_all" id="details_all" value="1" onclick="rsepro_select_all('details_all','details')" />
-			<label for="details_all" class="checkbox inline"><b><?php echo JText::_('COM_RSEVENTSPRO_SELECT_DESELECT_ALL'); ?></b></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][start_date]" id="start_date" value="1" />
-			<label for="start_date" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_DATE'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][start_time]" id="start_time" value="1" />
-			<label for="start_time" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_TIME'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][end_date]" id="end_date" value="1" />
-			<label for="end_date" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_DATE'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][end_time]" id="end_time" value="1" />
-			<label for="end_time" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_TIME'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_description]" id="show_description" value="1" />
-			<label for="show_description" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_DESCRIPTION'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_location]" id="show_location" value="1" />
-			<label for="show_location" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_LOCATION'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_categories]" id="show_categories" value="1" />
-			<label for="show_categories" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_CATEGORIES'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_tags]" id="show_tags" value="1" />
-			<label for="show_tags" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_TAGS'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_files]" id="show_files" value="1" />
-			<label for="show_files" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_FILES'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_contact]" id="show_contact" value="1" />
-			<label for="show_contact" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_CONTACT'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_map]" id="show_map" value="1" />
-			<label for="show_map" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_MAP'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_export]" id="show_export" value="1" />
-			<label for="show_export" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_EXPORT'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_invite]" id="show_invite" value="1" />
-			<label for="show_invite" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_INVITE'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_postedby]" id="show_postedby" value="1" />
-			<label for="show_postedby" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_POSTEDBY'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_repeats]" id="show_repeats" value="1" />
-			<label for="show_repeats" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_REPEATS'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_hits]" id="show_hits" value="1" />
-			<label for="show_hits" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_HITS'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_print]" id="show_print" value="1" />
-			<label for="show_print" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_PRINT'); ?></label>
-		</p>
-		
-		<p>
-			<input type="checkbox" name="batch[options][show_counter]" id="show_counter" value="1" />
-			<label for="show_counter" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][counter_utc]" id="counter_utc" value="1" />
-			<label for="counter_utc" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC'); ?></label>
-		</p>
-	</fieldset>
-	<fieldset class="span4 rswidth-30 rsfltlft" id="list">
-		<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_LISTINGS'); ?></legend>
-		<p>
-			<input type="checkbox" name="list_all" id="list_all" value="1" onclick="rsepro_select_all('list_all','list')" />
-			<label for="list_all" class="checkbox inline"><b><?php echo JText::_('COM_RSEVENTSPRO_SELECT_DESELECT_ALL'); ?></b></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][start_date_list]" id="start_date_list" value="1" />
-			<label for="start_date_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_DATE'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][start_time_list]" id="start_time_list" value="1" />
-			<label for="start_time_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_TIME'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][end_date_list]" id="end_date_list" value="1" />
-			<label for="end_date_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_DATE'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][end_time_list]" id="end_time_list" value="1" />
-			<label for="end_time_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_TIME'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_location_list]" id="show_location_list" value="1" />
-			<label for="show_location_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_LOCATION'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_categories_list]" id="show_categories_list" value="1" />
-			<label for="show_categories_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_CATEGORIES'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_tags_list]" id="show_tags_list" value="1" />
-			<label for="show_tags_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_TAGS'); ?></label>
-		</p>
-		<p>
-			<input type="checkbox" name="batch[options][show_icon_list]" id="show_icon_list" value="1" />
-			<label for="show_icon_list" class="checkbox inline"><?php echo JText::_('COM_RSEVENTSPRO_SHOW_ICON'); ?></label>
-		</p>
-	</fieldset>
+<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+	<div class="<?php echo RSEventsproAdapterGrid::column(4); ?>">
+		<fieldset class="options-form" id="sharing">
+			<legend><?php echo JText::_('COM_RSEVENTSPRO_SHARING_OPTIONS'); ?></legend>
+			<p>
+				<label for="sharing_all" class="checkbox inline">
+					<input type="checkbox" name="sharing_all" id="sharing_all" value="1" onclick="rsepro_select_all('sharing_all','sharing')" />
+					<b><?php echo JText::_('COM_RSEVENTSPRO_SELECT_DESELECT_ALL'); ?></b>
+				</label>
+			</p>
+			<p>
+				<label for="enable_rating" class="checkbox inline">
+					<input type="checkbox" name="batch[options][enable_rating]" id="enable_rating" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_EVENT_RATING'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="enable_facebook_like" class="checkbox inline">
+					<input type="checkbox" name="batch[options][enable_fb_like]" id="enable_facebook_like" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_FACEBOOK_LIKE'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="enable_twitter" class="checkbox inline">
+					<input type="checkbox" name="batch[options][enable_twitter]" id="enable_twitter" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_TWITTER'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="enable_linkedin" class="checkbox inline">
+					<input type="checkbox" name="batch[options][enable_linkedin]" id="enable_linkedin" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_ENABLE_LINKEDIN'); ?>
+				</label>
+			</p>
+		</fieldset>
+	</div>
+	<div class="<?php echo RSEventsproAdapterGrid::column(4); ?>">
+		<fieldset class="options-form" id="details">
+			<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_DETAIL'); ?></legend>
+			<p>
+				<label for="details_all" class="checkbox inline">
+					<input type="checkbox" name="details_all" id="details_all" value="1" onclick="rsepro_select_all('details_all','details')" />
+					<b><?php echo JText::_('COM_RSEVENTSPRO_SELECT_DESELECT_ALL'); ?></b>
+				</label>
+			</p>
+			<p>
+				<label for="start_date" class="checkbox inline">
+					<input type="checkbox" name="batch[options][start_date]" id="start_date" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_DATE'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="start_time" class="checkbox inline">
+					<input type="checkbox" name="batch[options][start_time]" id="start_time" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_TIME'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="end_date" class="checkbox inline">
+					<input type="checkbox" name="batch[options][end_date]" id="end_date" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_DATE'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="end_time" class="checkbox inline">
+					<input type="checkbox" name="batch[options][end_time]" id="end_time" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_TIME'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_description" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_description]" id="show_description" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_DESCRIPTION'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_location" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_location]" id="show_location" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_LOCATION'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_categories" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_categories]" id="show_categories" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_CATEGORIES'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_tags" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_tags]" id="show_tags" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_TAGS'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_files" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_files]" id="show_files" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_FILES'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_contact" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_contact]" id="show_contact" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_CONTACT'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_map" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_map]" id="show_map" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_MAP'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_export" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_export]" id="show_export" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_EXPORT'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_invite" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_invite]" id="show_invite" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_INVITE'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_postedby" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_postedby]" id="show_postedby" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_POSTEDBY'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_repeats" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_repeats]" id="show_repeats" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_REPEATS'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_active_child_events" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_active_child_events]" id="show_active_child_events" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_ACTIVE_CHILD_EVENTS'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_hits" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_hits]" id="show_hits" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_HITS'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_print" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_print]" id="show_print" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_PRINT'); ?>
+				</label>
+			</p>
+			
+			<p>
+				<label for="show_counter" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_counter]" id="show_counter" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_COUNTER'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="counter_utc" class="checkbox inline">
+					<input type="checkbox" name="batch[options][counter_utc]" id="counter_utc" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_COUNTER_UTC'); ?>
+				</label>
+			</p>
+		</fieldset>
+	</div>
+	<div class="<?php echo RSEventsproAdapterGrid::column(4); ?>">
+		<fieldset class="options-form" id="list">
+			<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_OPTIONS_LISTINGS'); ?></legend>
+			<p>
+				<label for="list_all" class="checkbox inline">
+					<input type="checkbox" name="list_all" id="list_all" value="1" onclick="rsepro_select_all('list_all','list')" />
+					<b><?php echo JText::_('COM_RSEVENTSPRO_SELECT_DESELECT_ALL'); ?></b>
+				</label>
+			</p>
+			<p>
+				<label for="start_date_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][start_date_list]" id="start_date_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_DATE'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="start_time_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][start_time_list]" id="start_time_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_START_TIME'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="end_date_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][end_date_list]" id="end_date_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_DATE'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="end_time_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][end_time_list]" id="end_time_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_END_TIME'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_location_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_location_list]" id="show_location_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_LOCATION'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_categories_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_categories_list]" id="show_categories_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_CATEGORIES'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_tags_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_tags_list]" id="show_tags_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_TAGS'); ?>
+				</label>
+			</p>
+			<p>
+				<label for="show_icon_list" class="checkbox inline">
+					<input type="checkbox" name="batch[options][show_icon_list]" id="show_icon_list" value="1" />
+					<?php echo JText::_('COM_RSEVENTSPRO_SHOW_ICON'); ?>
+				</label>
+			</p>
+		</fieldset>
+	</div>
 </div>

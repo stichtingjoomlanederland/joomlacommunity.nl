@@ -1,6 +1,6 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Classes\ListClass;
 
 class JFormFieldLists extends JFormField
 {
@@ -8,12 +8,15 @@ class JFormFieldLists extends JFormField
 
     public function getInput()
     {
-        if ('Joomla' == 'Joomla' && !include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
+        if ('Joomla' === 'Joomla' && !include_once(rtrim(
+                    JPATH_ADMINISTRATOR,
+                    DIRECTORY_SEPARATOR
+                ).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
             echo 'This extension cannot work without AcyMailing';
         }
 
-        $listClass = acym_get('class.list');
-        $lists = $listClass->getAllWIthoutManagement();
+        $listClass = new ListClass();
+        $lists = $listClass->getAllWithoutManagement();
         foreach ($lists as $i => $oneList) {
             if ($oneList->active == 0) {
                 unset($lists[$i]);
@@ -41,4 +44,3 @@ class JFormFieldLists extends JFormField
         return acym_selectMultiple($lists, $this->name, $this->value, ['id' => $this->name], 'id', 'name');
     }
 }
-

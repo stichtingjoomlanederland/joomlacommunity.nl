@@ -1,0 +1,22 @@
+// Core variables and mixins without output available outside .k-ui-namespace scope
+@import "../../../../../kodekit-ui/src/scss/sass-twitter-bootstrap/variables";
+@import "../../../../../kodekit-ui/src/scss/sass-twitter-bootstrap/mixins";
+
+// Costom variables and mixins
+@import "generic/variables";
+@import "generic/mixins";
+
+// Import user interface
+@import "../../../../../kodekit-ui/src/scss/site";
+
+// Namespacing with Koowa
+.k-ui-namespace .mod_docman {
+
+  // From site
+  @import "site/gallery";
+
+  // Module specific
+  @import "module/documents";
+
+}
+

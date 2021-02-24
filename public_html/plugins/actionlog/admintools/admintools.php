@@ -1,11 +1,11 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 use Akeeba\AdminTools\Admin\Controller\AdminPassword;
 use Akeeba\AdminTools\Admin\Controller\AutoBannedAddresses;
@@ -41,7 +41,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 
 // PHP version check
-if (!version_compare(PHP_VERSION, '7.1.0', '>='))
+if (!version_compare(PHP_VERSION, '7.2.0', '>='))
 {
 	return;
 }
@@ -389,9 +389,10 @@ class plgActionlogAdmintools extends CMSPlugin
 		/** @var \Akeeba\AdminTools\Admin\Model\WAFBlacklistedRequests $model */
 		$model = $controller->getModel();
 
+		$parts = (array) $parts;
 		$parts[] = $model->option ? $model->option : '(All)';
-		$parts[] = $model->view ? $model->view : '(All)';
-		$parts[] = $model->query ? $model->query : '(All)';
+		$parts[] = $model->view ?: '(All)';
+		$parts[] = $model->query ?: '(All)';
 
 		$link = '<a href="index.php?option=com_admintools&view=WAFBlacklistedRequests&task=edit&id=' . $model->id . '">' . implode(' ', $parts) . '</a>';
 
@@ -416,9 +417,9 @@ class plgActionlogAdmintools extends CMSPlugin
 
 		foreach ($rows as $row)
 		{
-			$parts[] = $row->option ? $row->option : '(All)';
-			$parts[] = $row->view ? $row->view : '(All)';
-			$parts[] = $row->query ? $row->query : '(All)';
+			$parts[] = $row->option ?: '(All)';
+			$parts[] = $row->view ?: '(All)';
+			$parts[] = $row->query ?: '(All)';
 
 			$this->container->platform->logUserAction(implode(' ', $parts), 'COM_ADMINTOOLS_LOGS_WAFBLACKLIST_PUBLISH', 'com_admintools');
 		}
@@ -442,9 +443,9 @@ class plgActionlogAdmintools extends CMSPlugin
 
 		foreach ($rows as $row)
 		{
-			$parts[] = $row->option ? $row->option : '(All)';
-			$parts[] = $row->view ? $row->view : '(All)';
-			$parts[] = $row->query ? $row->query : '(All)';
+			$parts[] = $row->option ?: '(All)';
+			$parts[] = $row->view ?: '(All)';
+			$parts[] = $row->query ?: '(All)';
 
 			$this->container->platform->logUserAction(implode(' ', $parts), 'COM_ADMINTOOLS_LOGS_WAFBLACKLIST_UNPUBLISH', 'com_admintools');
 		}
@@ -468,9 +469,9 @@ class plgActionlogAdmintools extends CMSPlugin
 
 		foreach ($rows as $row)
 		{
-			$parts[] = $row->option ? $row->option : '(All)';
-			$parts[] = $row->view ? $row->view : '(All)';
-			$parts[] = $row->query ? $row->query : '(All)';
+			$parts[] = $row->option ?: '(All)';
+			$parts[] = $row->view ?: '(All)';
+			$parts[] = $row->query ?: '(All)';
 
 			$this->container->platform->logUserAction(implode(' ', $parts), 'COM_ADMINTOOLS_LOGS_WAFBLACKLIST_DELETE', 'com_admintools');
 		}
@@ -484,9 +485,10 @@ class plgActionlogAdmintools extends CMSPlugin
 		/** @var \Akeeba\AdminTools\Admin\Model\ExceptionsFromWAF $model */
 		$model = $controller->getModel();
 
+		$parts = (array) $parts;
 		$parts[] = $model->option ? $model->option : '(All)';
-		$parts[] = $model->view ? $model->view : '(All)';
-		$parts[] = $model->query ? $model->query : '(All)';
+		$parts[] = $model->view ?: '(All)';
+		$parts[] = $model->query ?: '(All)';
 
 		$link = '<a href="index.php?option=com_admintools&view=ExceptionsFromWAF&task=edit&id=' . $model->id . '">' . implode(' ', $parts) . '</a>';
 
@@ -511,9 +513,9 @@ class plgActionlogAdmintools extends CMSPlugin
 
 		foreach ($rows as $row)
 		{
-			$parts[] = $row->option ? $row->option : '(All)';
-			$parts[] = $row->view ? $row->view : '(All)';
-			$parts[] = $row->query ? $row->query : '(All)';
+			$parts[] = $row->option ?: '(All)';
+			$parts[] = $row->view ?: '(All)';
+			$parts[] = $row->query ?: '(All)';
 
 			$this->container->platform->logUserAction(implode(' ', $parts), 'COM_ADMINTOOLS_LOGS_WAFEXCEPTIONS_DELETE', 'com_admintools');
 		}

@@ -205,9 +205,21 @@
 
 		<field
 			name="showRotationTools"
-			type="radio"
+			type="list"
 			label="COM_PWTIMAGE_CONFIG_SHOWROTATIONTOOLS_LABEL"
 			description="COM_PWTIMAGE_CONFIG_SHOWROTATIONTOOLS_DESC"
+			class="advancedSelect"
+			multiple="true"
+		>
+			<option value="90">90</option>
+			<option value="45">45</option>
+			<option value="30">30</option>
+		</field>
+
+		<field
+			name="showAspectRatioTools"
+			type="radio"
+			label="COM_PWTIMAGE_CONFIG_SHOWASPECTRADIOTOOLS_LABEL"
 			default="1"
 			class="btn-group btn-group-yesno"
 		>

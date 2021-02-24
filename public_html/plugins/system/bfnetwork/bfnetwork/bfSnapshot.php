@@ -147,7 +147,54 @@ final class bfSnapshot
             'extensionsjson'             => $this->getExtensions(),
             'hasrootuser'             	  => $this->config->getCfg('root_user') ? 1 : 0,
             'debuglanguage'              => $this->config->getCfg('debug_lang') ? 1 : 0,
+            'postinstallmsgcount'        => count($this->getPostInstallMessages()),
+            'sendcopytosubmitter'        => $this->getSendcopytosubmitter(),
         );
+    }
+
+    public function getSendcopytosubmitter()
+    {
+        if (!class_exists('\Joomla\CMS\Component\ComponentHelper')) {
+            return 0;
+        }
+        $params = \Joomla\CMS\Component\ComponentHelper::getComponent('com_contact')->getParams();
+
+        return (int) $params->get('show_email_copy', 0);
+    }
+
+    /**
+     * Get the post install messages from a Joomla 3+ site.
+     */
+    public function getPostInstallMessages()
+    {
+        // bail early if we cannot
+        if (!file_exists(JPATH_LIBRARIES.'/fof/include.php')) {
+            return array();
+        }
+
+        // fire up RAD/fof
+        require_once JPATH_LIBRARIES.'/fof/include.php';
+        $model = FOFModel::getTmpInstance('Messages', 'PostinstallModel');
+        $items = $model->getItemList();
+
+        // load language layer to translate strings
+        $lang = JFactory::getLanguage();
+
+        // ensure we only show valid messages
+        $model->onProcessList($items);
+
+        $messages = array();
+
+        // translate and compile the messages
+        foreach ($items as $item) {
+            $lang->load($item->language_extension, JPATH_ADMINISTRATOR, 'en-GB', true);
+            $messages[] = array(
+                'title' => JText::_($item->title_key),
+                'desc'  => JText::_($item->description_key),
+            );
+        }
+
+        return $messages;
     }
 
     private function logSnapshot()

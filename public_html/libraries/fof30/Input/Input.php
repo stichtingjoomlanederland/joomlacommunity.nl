@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -104,6 +104,24 @@ class Input extends JInput
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Remove a key from the input data.
+	 *
+	 * @param   string  $name  The key name to remove from the input data.
+	 *
+	 * @return  void
+	 * @since   3.6.3
+	 */
+	public function remove($name)
+	{
+		if (!isset($this->data[$name]))
+		{
+			return;
+		}
+
+		unset($this->data[$name]);
 	}
 
 	/**

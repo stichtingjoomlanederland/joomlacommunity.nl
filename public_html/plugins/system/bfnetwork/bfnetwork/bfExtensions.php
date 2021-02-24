@@ -418,7 +418,8 @@ final class bfExtensions
             $shortName = str_replace($prefixes, '', strtolower($ext->option));
         }
 
-        $try = array();
+        $try = array(); // need to support PHP 5.3 :-(
+        $last = array(); // need to support PHP 5.3 :-(
 
         // Let the UGLY code begin
         switch ($ext->type) {

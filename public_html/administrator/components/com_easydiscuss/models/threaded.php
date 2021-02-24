@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(dirname( __FILE__ ) . '/model.php');
 
 class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 {
@@ -23,7 +21,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		// Get the posts limit
 		$limit = $this->app->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $this->app->getCfg('list_limit') , 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -56,7 +54,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		$filter = isset($options['filter']) ? $options['filter'] : '';
 		$category = isset($options['category']) ? $options['category'] : '';
-		$postStatus = isset($options['poststatus']) ? $options['poststatus'] : '';
+		$postLabel = isset($options['postLabel']) ? $options['postLabel'] : '';
 
 		$where = array();
 
@@ -97,13 +95,14 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 			$where[] = $tblAlias . $db->qn('published') . '=' . $db->Quote('0');
 		}
 
-		if ($postStatus) {
-			$where[] = $tblAlias . $db->qn('post_status') . '=' . $db->Quote($postStatus);
+		// NOTE: post_status will be post label id in ED 5 onwards
+		if ($postLabel) {
+			$where[] = $tblAlias . $db->qn('post_status') . '=' . $db->Quote($postLabel);
 		}
 
 		// Search queries
 		$search = isset($options['search']) ? $options['search'] : '';
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		// Try to see if we are trying search for specific sections
 		$search = $this->getSearchFragments($search);
@@ -215,6 +214,7 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 
 		$filter = isset($options['filter']) ? $options['filter'] : '';
 		$category = isset($options['category']) ? $options['category'] : '';
+		$postLabel = isset($options['postLabel']) ? $options['postLabel'] : '';
 
 		$where = array();
 
@@ -245,9 +245,14 @@ class EasyDiscussModelThreaded extends EasyDiscussAdminModel
 			$where[] = $db->qn('a.published') . '=' . $db->Quote('0');
 		}
 
+		// Filter posts by post label
+		if ($postLabel) {
+			$where[] = $db->qn('a.post_status') . '=' . $db->Quote($postLabel);
+		}
+
 		// Search queries
 		$search = isset($options['search']) ? $options['search'] : '';
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		// Try to see if we are trying search for specific sections
 		$search = $this->getSearchFragments($search);

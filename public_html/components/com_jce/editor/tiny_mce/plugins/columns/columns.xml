@@ -24,6 +24,12 @@
 				<option value="medium">WF_COLUMNS_STACK_MEDIUM</option>
 				<option value="large">WF_COLUMNS_STACK_LARGE</option>
 			</field>
+			<field name="gap" type="list" default="medium" label="WF_COLUMNS_GAP" description="WF_COLUMNS_GAP_DESC">
+				<option value="">WF_COLUMNS_GAP_NONE</option>
+				<option value="small">WF_COLUMNS_GAP_SMALL</option>
+				<option value="medium">WF_COLUMNS_GAP_MEDIUM</option>
+				<option value="large">WF_COLUMNS_GAP_LARGE</option>
+			</field>
 		</fieldset>
 	</fields>
 	<languages></languages>

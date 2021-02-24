@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewConversation extends EasyDiscussView
 {
 	/**
@@ -20,8 +18,6 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getConversations()
 	{
@@ -30,11 +26,14 @@ class EasyDiscussViewConversation extends EasyDiscussView
 
 		// Get the conversation type
 		$type = $this->input->get('type', '', 'word');
+		$filter = 'archive';
 
 		$options = array();
 
 		if ($type == 'archives') {
 			$options['archives'] = true;
+
+			$filter = 'unarchive';
 		}
 
 		// Retrieve a list of conversations
@@ -54,6 +53,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		}
 
 		$theme = ED::themes();
+		$theme->set('type', $filter);
 		$theme->set('lists', $lists);
 		$theme->set('activeConversation', $activeConversation);
 
@@ -68,8 +68,6 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getConversation()
 	{
@@ -100,8 +98,6 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function popbox()
 	{
@@ -116,7 +112,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		// Show only x amount of items
 		// Get a list of conversations to be displayed in the drop down.
 		$model = ED::model('Conversation');
-		$conversations = $model->getConversations($this->my->id, array('limit' => $this->config->get('main_conversations_notification_items')));
+		$conversations = $model->getConversations($this->my->id, array('limit' => $this->config->get('main_conversations_notification_items'), 'filter' => 'unread'));
 
 		$theme = ED::themes();
 		$theme->set('conversations', $conversations);
@@ -149,8 +145,6 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function confirmDelete()
 	{
@@ -171,22 +165,24 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	}
 
 	/**
-	 * Confirm deletion of a message.
+	 * Toggling archive of a message.
 	 *
-	 * @since	4.0
+	 * @since	5.0
 	 * @access	public
 	 */
-	public function confirmArchive()
+	public function toggleArchive()
 	{
 		// Ensure that the user is logged in.
 		ED::requireLogin();
 
 		// Get the conversation id from the REQUEST data
 		$id = $this->input->get('id', 0, 'int');
+		$type = $this->input->get('type', 'archive', 'string');
 
 		$theme = ED::themes();
 		$theme->set('id', $id);
-		$contents = $theme->output('site/conversations/dialogs/archive');
+		$theme->set('type', $type);
+		$contents = $theme->output('site/conversations/dialogs/togglearchive');
 
 		return $this->ajax->resolve($contents);
 	}
@@ -196,8 +192,6 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function compose()
 	{
@@ -205,7 +199,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		ED::requireLogin();
 
 		if (!$this->config->get('main_conversations')) {
-			return JError::raiseError(500);
+			return $this->ajax->fail('COM_EASYDISCUSS_FEATURE_IS_NOT_ENABLED');
 		}
 
 		// Get the recipient id
@@ -241,7 +235,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		ED::requireLogin();
 
 		if (!$this->config->get('main_conversations')) {
-			return JError::raiseError(500);
+			return $this->ajax->fail('COM_EASYDISCUSS_FEATURE_IS_NOT_ENABLED');
 		}
 
 		$userId = $this->input->get('id', 0, 'int');
@@ -260,26 +254,23 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function unread()
 	{
 		ED::requireLogin();
 		ED::checkToken();
 
-
 		// Get the conversation object
 		$id = $this->input->get('id', 0, 'int');
 		$conversation = ED::conversation($id);
 
 		if (!$id || !$conversation->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+			return $this->ajax->fail('COM_EASYDISCUSS_SYSTEM_INVALID_ID');
 		}
 
 		// Test if user has access
 		if (!$conversation->canAccess()) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			return $this->ajax->fail('COM_EASYDISCUSS_NOT_ALLOWED');
 		}
 
 		// Mark it as unread
@@ -293,8 +284,6 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	 *
 	 * @since	4.1.8
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function read()
 	{
@@ -307,12 +296,12 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		$conversation = ED::conversation($id);
 
 		if (!$id || !$conversation->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+			return $this->ajax->fail('COM_EASYDISCUSS_SYSTEM_INVALID_ID');
 		}
 
 		// Test if user has the access for it
 		if (!$conversation->canAccess()) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			return $this->ajax->fail('COM_EASYDISCUSS_NOT_ALLOWED');
 		}
 
 		// Mark it as read

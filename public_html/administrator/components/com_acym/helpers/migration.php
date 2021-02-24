@@ -1,8 +1,13 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymmigrationHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Classes\CampaignClass;
+use AcyMailing\Classes\FieldClass;
+use AcyMailing\Classes\MailClass;
+use AcyMailing\Libraries\acymObject;
+
+class MigrationHelper extends acymObject
 {
     private $errors = [];
 
@@ -137,7 +142,6 @@ class acymmigrationHelper extends acymObject
             'smtp_secured' => 'smtp_secured',
             'smtp_username' => 'smtp_username',
             'special_chars' => 'special_chars',
-            'ssl_links' => 'use_https',
         ];
 
         $fieldsMatchQueueProcess = [
@@ -218,9 +222,20 @@ class acymmigrationHelper extends acymObject
             'bounce_action_lists_maxtry' => 'bounce_action_lists_maxtry',
         ];
 
-        $fieldsMatch = array_merge($fieldsMatchMailSettings, $fieldsMatchQueueProcess, $fieldsMatchSubscription, $fieldsMatchFeatures, $fieldsMatchSecurity, $fieldsMatchLanguages, $fieldsMatchNotUsed, $fieldsMatchBounce);
+        $fieldsMatch = array_merge(
+            $fieldsMatchMailSettings,
+            $fieldsMatchQueueProcess,
+            $fieldsMatchSubscription,
+            $fieldsMatchFeatures,
+            $fieldsMatchSecurity,
+            $fieldsMatchLanguages,
+            $fieldsMatchNotUsed,
+            $fieldsMatchBounce
+        );
 
-        $queryGetValuesPreviousVersion = 'SELECT `namekey`, `value` FROM #__acymailing_config WHERE `namekey` IN ("'.implode('","', array_keys($fieldsMatch)).'") LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']);
+        $queryGetValuesPreviousVersion = 'SELECT `namekey`, `value` FROM #__acymailing_config WHERE `namekey` IN ("'.implode('","', array_keys($fieldsMatch)).'") LIMIT '.intval(
+                $params['currentElement']
+            ).', '.intval($params['insertPerCalls']);
 
         $dataPrevious = acym_loadObjectList($queryGetValuesPreviousVersion);
 
@@ -258,7 +273,7 @@ class acymmigrationHelper extends acymObject
 
         try {
             $result = acym_query($query);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->errors[] = acym_getDBError();
 
             return false;
@@ -277,7 +292,7 @@ class acymmigrationHelper extends acymObject
     {
         try {
             $resultQuery = acym_query($queryInsert);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->errors[] = acym_getDBError();
 
             return false;
@@ -296,10 +311,12 @@ class acymmigrationHelper extends acymObject
 
     public function migrateTemplates($params = [])
     {
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
         $result = 0;
 
-        $queryGetTemplates = 'SELECT `tempid`, `name`, `body`, `styles`, `subject`, `stylesheet`, `fromname`, `fromemail`, `replyname`, `replyemail` FROM #__acymailing_template LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']);
+        $queryGetTemplates = 'SELECT `tempid`, `name`, `body`, `styles`, `subject`, `stylesheet`, `fromname`, `fromemail`, `replyname`, `replyemail` FROM #__acymailing_template LIMIT '.intval(
+                $params['currentElement']
+            ).', '.intval($params['insertPerCalls']);
 
         $templates = acym_loadObjectList($queryGetTemplates);
         if (empty($templates)) return true;
@@ -331,10 +348,9 @@ class acymmigrationHelper extends acymObject
                         acym_escapeDB(acym_date('now', 'Y-m-d H:i:s', false)),
                         '0',
                         '0',
-                        acym_escapeDB('standard'),
+                        acym_escapeDB($mailClass::TYPE_TEMPLATE),
                         acym_escapeDB(empty($oneTemplate->body) ? '' : $oneTemplate->body),
                         acym_escapeDB($oneTemplate->subject),
-                        '1',
                         acym_escapeDB($oneTemplate->fromname),
                         acym_escapeDB($oneTemplate->fromemail),
                         acym_escapeDB($oneTemplate->replyname),
@@ -349,7 +365,10 @@ class acymmigrationHelper extends acymObject
             return true;
         }
 
-        $queryInsert = 'INSERT INTO #__acym_mail (`name`, `creation_date`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `stylesheet`, `creator_id`) VALUES '.implode(',', $valuesToInsert).';';
+        $queryInsert = 'INSERT INTO #__acym_mail (`name`, `creation_date`, `drag_editor`, `library`, `type`, `body`, `subject`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `stylesheet`, `creator_id`) VALUES '.implode(
+                ',',
+                $valuesToInsert
+            ).';';
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -378,7 +397,12 @@ class acymmigrationHelper extends acymObject
 
         $fieldsKeyV5 = array_keys($fieldsV5);
 
-        $usersFieldsValuesV5 = acym_loadObjectList('SELECT `subid`, `'.implode('`, `', $fieldsKeyV5).'` FROM #__acymailing_subscriber LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']));
+        $whereUserField = '`'.implode('` IS NOT NULL OR `', $fieldsKeyV5);
+        if (!empty($fieldsKeyV5)) $whereUserField .= '` IS NOT NULL';
+        $query = 'SELECT `subid`, `'.implode('`, `', $fieldsKeyV5).'` FROM #__acymailing_subscriber WHERE '.$whereUserField.' LIMIT '.intval($params['currentElement']).', '.intval(
+                $params['insertPerCalls']
+            );
+        $usersFieldsValuesV5 = acym_loadObjectList($query);
 
         $fieldImported = acym_loadObjectList('SELECT `id`, `namekey`, `option`, `type` FROM #__acym_field WHERE `namekey` IN ("'.implode('", "', $fieldsKeyV5).'")', 'namekey');
 
@@ -423,7 +447,7 @@ class acymmigrationHelper extends acymObject
     public function migrateFields($params = [])
     {
 
-        $fieldClass = acym_get('class.field');
+        $fieldClass = new FieldClass();
 
         $columnConnection = [
             'namekey' => 'namekey',
@@ -479,12 +503,16 @@ class acymmigrationHelper extends acymObject
             'customtext' => 'custom_text',
         ];
 
-        $fieldsFromV5 = acym_loadObjectList('SELECT * FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("gravatar", "category")  LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']));
+        $fieldsFromV5 = acym_loadObjectList(
+            'SELECT * FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("gravatar", "category")  LIMIT '.intval(
+                $params['currentElement']
+            ).', '.intval($params['insertPerCalls'])
+        );
 
         $insertedFields = [];
 
         foreach ($fieldsFromV5 as $oneField) {
-            $newField = new stdClass();
+            $newField = new \stdClass();
             foreach ($oneField as $key => $value) {
                 if (!array_key_exists($key, $columnConnection)) continue;
                 if ('type' == $columnConnection[$key]) {
@@ -502,7 +530,7 @@ class acymmigrationHelper extends acymObject
                         $var = empty($line[0]) ? '' : $line[0];
                         $val = empty($line[1]) ? '' : $line[1];
 
-                        $obj = new stdClass();
+                        $obj = new \stdClass();
                         $obj->value = $var;
                         $obj->title = $val;
                         if (!empty($line[2])) {
@@ -516,7 +544,7 @@ class acymmigrationHelper extends acymObject
                 }
                 if ('option' == $columnConnection[$key]) {
                     $options = unserialize($value);
-                    $newOption = new stdClass();
+                    $newOption = new \stdClass();
                     foreach ($options as $keyOption => $option) {
                         if (!array_key_exists($keyOption, $optionConnection)) continue;
                         if ('authorized_content' == $optionConnection[$keyOption]) {
@@ -565,8 +593,8 @@ class acymmigrationHelper extends acymObject
 
     public function migrateMails($params = [])
     {
-        $campaignClass = acym_get('class.campaign');
-        $mailClass = acym_get('class.mail');
+        $campaignClass = new CampaignClass();
+        $mailClass = new MailClass();
 
         $result = 0;
         $idsMigratedMails = [];
@@ -607,14 +635,14 @@ class acymmigrationHelper extends acymObject
 
             switch ($oneMail->type) {
                 case 'welcome':
-                    $mailType = 'welcome';
+                    $mailType = $mailClass::TYPE_WELCOME;
                     break;
                 case 'unsub':
-                    $mailType = 'unsubscribe';
+                    $mailType = $mailClass::TYPE_UNSUBSCRIBE;
                     break;
                 case 'news':
                 case 'followup':
-                    $mailType = 'standard';
+                    $mailType = $mailClass::TYPE_STANDARD;
                     break;
                 default:
                     $mailType = 'invalid';
@@ -652,7 +680,6 @@ class acymmigrationHelper extends acymObject
                 'type' => acym_escapeDB($mailType),
                 'body' => acym_escapeDB($oneMail->body),
                 'subject' => acym_escapeDB($oneMail->subject),
-                'template' => $mailType == 'welcome' || $mailType == 'unsubscribe' ? 1 : 0,
                 'from_name' => acym_escapeDB($oneMail->fromname),
                 'from_email' => acym_escapeDB($oneMail->fromemail),
                 'reply_to_name' => acym_escapeDB($oneMail->replyname),
@@ -664,7 +691,7 @@ class acymmigrationHelper extends acymObject
 
             $mail = $mailClass->encode([$mail])[0];
 
-            if ($mailType == 'standard') {
+            if ($mailType == $mailClass::TYPE_STANDARD) {
                 $stats = acym_loadResult('SELECT COUNT(mailid) FROM #__acymailing_stats WHERE mailid = '.intval($oneMail->mailid));
                 $isSent = !empty($stats);
 
@@ -692,11 +719,14 @@ class acymmigrationHelper extends acymObject
             return true;
         }
 
-        $queryMailsInsert = 'INSERT INTO #__acym_mail (`id`, `name`, `creation_date`, `drag_editor`, `library`, `type`, `body`, `subject`, `template`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `stylesheet`, `creator_id`) VALUES '.implode(',', $mailsToInsert).';';
+        $queryMailsInsert = 'INSERT INTO #__acym_mail (`id`, `name`, `creation_date`, `drag_editor`, `library`, `type`, `body`, `subject`, `from_name`, `from_email`, `reply_to_name`, `reply_to_email`, `bcc`, `stylesheet`, `creator_id`) VALUES '.implode(
+                ',',
+                $mailsToInsert
+            ).';';
 
         try {
             $resultMail = acym_query($queryMailsInsert);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             $this->errors[] = acym_getDBError();
 
             return false;
@@ -711,11 +741,14 @@ class acymmigrationHelper extends acymObject
         }
 
         if (!empty($campaignsToInsert)) {
-            $queryCampaignInsert = 'INSERT IGNORE INTO #__acym_campaign (`sending_date`, `draft`, `active`, `mail_id`, `sending_type`, `sent`) VALUES '.implode(',', $campaignsToInsert).';';
+            $queryCampaignInsert = 'INSERT IGNORE INTO #__acym_campaign (`sending_date`, `draft`, `active`, `mail_id`, `sending_type`, `sent`) VALUES '.implode(
+                    ',',
+                    $campaignsToInsert
+                ).';';
 
             try {
                 $resultCampaign = acym_query($queryCampaignInsert);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $this->errors[] = acym_getDBError();
 
                 return false;
@@ -735,7 +768,9 @@ class acymmigrationHelper extends acymObject
     {
         $result = 0;
 
-        $queryGetLists = 'SELECT `listid`, `name`, `published`, `visible`, `color`, `userid` FROM #__acymailing_list LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']);
+        $queryGetLists = 'SELECT `listid`, `name`, `published`, `visible`, `color`, `userid` FROM #__acymailing_list LIMIT '.intval($params['currentElement']).', '.intval(
+                $params['insertPerCalls']
+            );
 
         $lists = acym_loadObjectList($queryGetLists);
 
@@ -773,7 +808,9 @@ class acymmigrationHelper extends acymObject
     {
         $result = 0;
 
-        $queryGetUsers = 'SELECT `subid`, `name`, `email`, `created`, `enabled`, `userid`, `source`, `confirmed`, `key` FROM #__acymailing_subscriber LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']);
+        $queryGetUsers = 'SELECT `subid`, `name`, `email`, `created`, `enabled`, `userid`, `source`, `confirmed`, `key` FROM #__acymailing_subscriber LIMIT '.intval(
+                $params['currentElement']
+            ).', '.intval($params['insertPerCalls']);
 
         $users = acym_loadObjectList($queryGetUsers, 'subid');
 
@@ -803,7 +840,10 @@ class acymmigrationHelper extends acymObject
             return true;
         }
 
-        $queryInsert = 'INSERT INTO #__acym_user (`id`, `name`, `email`, `creation_date`, `active`, `cms_id`, `source`, `confirmed`, `key`) VALUES '.implode(', ', $usersToInsert).';';
+        $queryInsert = 'INSERT INTO #__acym_user (`id`, `name`, `email`, `creation_date`, `active`, `cms_id`, `source`, `confirmed`, `key`) VALUES '.implode(
+                ', ',
+                $usersToInsert
+            ).';';
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -874,13 +914,14 @@ class acymmigrationHelper extends acymObject
 
         if (empty($migratedRules)) return true;
 
-        $queryInsert = 'INSERT INTO #__acym_rule (`id`, `name`, `active`, `ordering`, `regex`, `executed_on`, `execute_action_after`, `increment_stats`, `action_user`, `action_message`) VALUES '.implode(', ', $migratedRules);
+        $queryInsert = 'INSERT INTO #__acym_rule (`id`, `name`, `active`, `ordering`, `regex`, `executed_on`, `execute_action_after`, `increment_stats`, `action_user`, `action_message`) VALUES '.implode(
+                ', ',
+                $migratedRules
+            );
 
         try {
-            $resultQuery = acym_query($queryInsert);
-
-            return $resultQuery;
-        } catch (Exception $e) {
+            return acym_query($queryInsert);
+        } catch (\Exception $e) {
             $this->errors[] = acym_getDBError();
 
             return false;
@@ -891,7 +932,9 @@ class acymmigrationHelper extends acymObject
     {
         $result = 0;
 
-        $queryGetSubscriptions = 'SELECT `listid`, `subid`, `subdate`, `unsubdate`, `status` FROM #__acymailing_listsub LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']);
+        $queryGetSubscriptions = 'SELECT `listid`, `subid`, `subdate`, `unsubdate`, `status` FROM #__acymailing_listsub LIMIT '.intval($params['currentElement']).', '.intval(
+                $params['insertPerCalls']
+            );
 
         $subscriptions = acym_loadObjectList($queryGetSubscriptions);
 
@@ -921,7 +964,10 @@ class acymmigrationHelper extends acymObject
             return true;
         }
 
-        $queryInsert = 'INSERT IGNORE INTO #__acym_user_has_list (`user_id`, `list_id`, `status`, `subscription_date`, `unsubscribe_date`) VALUES '.implode(', ', $subscriptionsToInsert).';';
+        $queryInsert = 'INSERT IGNORE INTO #__acym_user_has_list (`user_id`, `list_id`, `status`, `subscription_date`, `unsubscribe_date`) VALUES '.implode(
+                ', ',
+                $subscriptionsToInsert
+            ).';';
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -962,7 +1008,9 @@ class acymmigrationHelper extends acymObject
     {
         $result = 0;
 
-        $queryGetStats = 'SELECT `mailid`, `senthtml`, `senttext`, `senddate`, `fail`, `openunique`, `opentotal` FROM #__acymailing_stats LIMIT '.intval($params['currentElement']).', '.intval($params['insertPerCalls']);
+        $queryGetStats = 'SELECT `mailid`, `senthtml`, `senttext`, `senddate`, `fail`, `openunique`, `opentotal` FROM #__acymailing_stats LIMIT '.intval(
+                $params['currentElement']
+            ).', '.intval($params['insertPerCalls']);
 
         $stats = acym_loadObjectList($queryGetStats);
         if (empty($stats)) return true;
@@ -994,7 +1042,10 @@ class acymmigrationHelper extends acymObject
             return true;
         }
 
-        $queryInsert = 'INSERT IGNORE INTO #__acym_mail_stat (`mail_id`, `total_subscribers`, `sent`, `send_date`, `fail`, `open_unique`, `open_total`) VALUES '.implode(',', $statsToInsert).';';
+        $queryInsert = 'INSERT IGNORE INTO #__acym_mail_stat (`mail_id`, `total_subscribers`, `sent`, `send_date`, `fail`, `open_unique`, `open_total`) VALUES '.implode(
+                ',',
+                $statsToInsert
+            ).';';
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -1012,17 +1063,17 @@ class acymmigrationHelper extends acymObject
         $idsToInsert = [];
 
         foreach ($ids as $oneId) {
-            if (empty($oneId->listid) || empty($oneId->welmailid) || empty($oneId->unsubmailid)) {
+            if (empty($oneId->listid) || (empty($oneId->welmailid) && empty($oneId->unsubmailid))) {
                 continue;
             }
 
-            $welId = empty($oneId->welmailid) ? 'NULL' : $oneId->welmailid;
-            $unsId = empty($oneId->unsubmailid) ? 'NULL' : $oneId->unsubmailid;
+            $welId = empty($oneId->welmailid) ? 'NULL' : intval($oneId->welmailid);
+            $unsId = empty($oneId->unsubmailid) ? 'NULL' : intval($oneId->unsubmailid);
 
             $id = [
                 'id' => intval($oneId->listid),
-                'welcome_id' => intval($welId),
-                'unsubscribe_id' => intval($unsId),
+                'welcome_id' => $welId,
+                'unsubscribe_id' => $unsId,
             ];
 
             $idsToInsert[] = '('.implode(', ', $id).')';
@@ -1032,7 +1083,10 @@ class acymmigrationHelper extends acymObject
             return true;
         }
 
-        $queryInsert = 'INSERT IGNORE INTO #__acym_list(`id`, `welcome_id`, `unsubscribe_id`) VALUES '.implode(',', $idsToInsert).' ON DUPLICATE KEY UPDATE `welcome_id` = VALUES(`welcome_id`), `unsubscribe_id` = VALUES(`unsubscribe_id`)';
+        $queryInsert = 'INSERT IGNORE INTO #__acym_list(`id`, `welcome_id`, `unsubscribe_id`) VALUES '.implode(
+                ',',
+                $idsToInsert
+            ).' ON DUPLICATE KEY UPDATE `welcome_id` = VALUES(`welcome_id`), `unsubscribe_id` = VALUES(`unsubscribe_id`)';
 
         return $this->_insertQuery($queryInsert, $result);
     }
@@ -1075,7 +1129,11 @@ class acymmigrationHelper extends acymObject
         $queryClean = [
             'UPDATE #__acym_list SET `unsubscribe_id` = NULL',
             'UPDATE #__acym_list SET `welcome_id` = NULL',
+            'UPDATE #__acym_mail SET `parent_id` = NULL',
+            'DELETE FROM #__acym_followup_has_mail',
+            'DELETE FROM #__acym_followup',
             'DELETE FROM #__acym_tag WHERE `type` = "mail"',
+            'DELETE FROM #__acym_mail_override',
             'DELETE FROM #__acym_campaign WHERE `mail_id` IS NOT NULL',
             'DELETE FROM #__acym_campaign',
             'DELETE FROM #__acym_queue',
@@ -1092,6 +1150,7 @@ class acymmigrationHelper extends acymObject
     private function cleanListsTable()
     {
         $queryClean = [
+            'UPDATE #__acym_followup SET `list_id` = NULL',
             'DELETE FROM #__acym_tag WHERE `type` = "list"',
             'DELETE FROM #__acym_mail_has_list',
             'DELETE FROM #__acym_user_has_list',
@@ -1181,7 +1240,9 @@ class acymmigrationHelper extends acymObject
         $this->doCleanTable($element);
 
         if ('users_fields' == $element) {
-            $fields = acym_loadResultArray('SELECT namekey FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("customtext", "category", "gravatar")');
+            $fields = acym_loadResultArray(
+                'SELECT namekey FROM #__acymailing_fields WHERE `namekey` NOT IN ("name", "email", "html") AND `type` NOT IN ("customtext", "category", "gravatar")'
+            );
             $columnUserTable = acym_getColumns('acymailing_subscriber', false);
 
             $fieldToCkeck = [];
@@ -1202,4 +1263,3 @@ class acymmigrationHelper extends acymObject
         return $this->result;
     }
 }
-

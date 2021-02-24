@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -41,11 +41,12 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		$exists = JFile::exists(JPATH_ROOT . '/components/com_kunena/kunena.php');
 
 		$this->title('COM_EASYDISCUSS_MIGRATORS_KUNENA');
-		$this->desc('COM_EASYDISCUSS_MIGRATORS_KUNENA_DESC');
+		$this->addHelpButton('/docs/easydiscuss/administrators/migrator/migrating-from-kunena');
 
 		$this->set('exists', $exists);
+		$this->set('type', __FUNCTION__);
 
-		parent::display('migrators/kunena');
+		parent::display('migrators/default');		
 	}
 
 	/**
@@ -59,12 +60,14 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.migrators');
 
 		$exists = JFile::exists(JPATH_ROOT . '/components/com_community/community.php');
-		$this->set('exists', $exists);
 
 		$this->title('COM_EASYDISCUSS_MIGRATORS_JOMSOCIAL_GROUPS');
 		$this->desc('COM_EASYDISCUSS_MIGRATORS_JOMSOCIALGROUPS_DESC');
 
-		parent::display('migrators/jomsocial');
+		$this->set('exists', $exists);
+		$this->set('type', __FUNCTION__);
+
+		parent::display('migrators/default');
 	}
 
 	/**
@@ -72,8 +75,6 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function vbulletin()
 	{
@@ -82,16 +83,9 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 		$this->title('COM_EASYDISCUSS_MIGRATORS_VBULLETIN');
 		$this->desc('COM_EASYDISCUSS_MIGRATORS_VBULLETIN_DESC');
 
-		parent::display('migrators/vbulletin');
-	}
+		$this->set('type', __FUNCTION__);
 
-	public function cpolls()
-	{
-		$this->checkAccess('discuss.manage.migrators');
-
-		$this->set('installed', $this->communityPollsExists());
-
-		parent::display('migrators/cpolls');
+		parent::display('migrators/default');
 	}
 
 	/**
@@ -104,18 +98,15 @@ class EasyDiscussViewMigrators extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.migrators');
 
+		$exists = JFile::exists(JPATH_ADMINISTRATOR . '/components/com_discussions/discussions.php');
+
 		$this->title('Discussions');
 		$this->desc('Migrate forum posts from your Discussion extension.');
 
-		$exists = JFile::exists(JPATH_ADMINISTRATOR . '/components/com_discussions/discussions.php');
 		$this->set('exists', $exists);
+		$this->set('type', __FUNCTION__);
 
-		parent::display('migrators/discussions');
-	}
-
-	public function communityPollsExists()
-	{
-		return JFile::exists(JPATH_ROOT . '/administrator/components/com_communitypolls/communitypolls.xml');
+		parent::display('migrators/default');
 	}
 
 	public function registerToolbar()

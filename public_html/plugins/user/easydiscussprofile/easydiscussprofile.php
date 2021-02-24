@@ -52,7 +52,7 @@ class plgUserEasydiscussProfile extends JPlugin
 			if (!isset($data->easydiscussprofile) and $userId > 0) {
 
 				// Load the profile data from the database.
-				$db = JFactory::getDbo();
+				$db = ED::db();
 				$db->setQuery(
 					'SELECT * FROM `#__discuss_users`' .
 					' WHERE id = '.(int) $userId
@@ -184,7 +184,7 @@ class plgUserEasydiscussProfile extends JPlugin
 			return;
 		}
 
-		$userId	= JArrayHelper::getValue($data, 'id', 0, 'int');
+		$userId = EDArrayHelper::getValue($data, 'id', 0, 'int');
 
 		if ($userId && $result && isset($data['easydiscussprofile']) && (count($data['easydiscussprofile']))) {
 			

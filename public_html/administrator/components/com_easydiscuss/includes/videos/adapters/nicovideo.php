@@ -30,7 +30,7 @@ class DiscussVideoNicoVideo
 	{
 		$code	= $this->getCode( $url );
 
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$width	= $config->get( 'bbcode_video_width' );
 		$height	= $config->get( 'bbcode_video_height' );
 

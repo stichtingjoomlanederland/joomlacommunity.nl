@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -123,7 +123,7 @@ class modRecentRepliesHelper
 			$post->user = $profile;
 
 			$post->content = ED::parser()->bbcode($content);
-			$post->content = ED::parser()->filter($post->content);
+			$post->content = ED::badwords()->filter($post->content, $post->getContentType());
 
 			$posts[] = $post;
 		}

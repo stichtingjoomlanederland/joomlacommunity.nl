@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -34,10 +34,13 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		}
 
 		// Update the api key
-		$this->updateConfig('main_apikey', ED_KEY);
-		
+		$this->updateConfig('main_apikey', SI_KEY);
+
 		// ACL rules needs to be created first before anything else
 		$results[] = $this->updateACL();
+
+		// Update global ACL rules for category
+		$results[] = $this->assignCategoryGlobalACL();
 
 		// Create site menu
 		$results[] = $this->createDefaultMenu('site');
@@ -66,6 +69,9 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		// Create sample post
 		$results[] = $this->createSamplePost();
 
+		// Install action log
+		$results[] = $this->installActionLogs();
+
 		// Update the manifest_cache in #__extensions table
 		$this->updateManifestCache();
 
@@ -74,6 +80,9 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		// Update the toolbar colors
 		$this->updateToolbarColors();
+
+		// Remove legacy folders no longer in use
+		$this->removeLegacyFilesAndFolders();
 
 		// Change the default value for new features and theme
 		// Only for 3.x-4.0
@@ -87,7 +96,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		foreach ($results as $obj) {
 
-			if ($obj === false) {
+			if ($obj === false || is_bool($obj)) {
 				continue;
 			}
 
@@ -99,6 +108,12 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		return $this->output();
 	}
 
+	/**
+	 * Determines if the user is upgrading from v3.x
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function isUpgradeFrom3x()
 	{
 		$db = ED::db();
@@ -113,8 +128,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		if ((int)$scriptversion == 3) {
 			return true;
-		} 
-		
+		}
+
 		return false;
 	}
 
@@ -139,7 +154,6 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		$registry->set('main_mentions', 0);
 		$registry->set('post_priority', 0);
 		$registry->set('main_ban', 0);
-		$registry->set('main_hits_session', 0);
 		$registry->set('main_ratings', 0);
 		$registry->set('main_work_schedule', 0);
 		$registry->set('integrations_github', 0);
@@ -233,7 +247,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("5", "5", "Updates profile picture", NOW(), "1", "1"),'
 				. ' ("6", "6", "New Discussion", NOW(), "1", "2"),'
 				. ' ("7", "7", "New Reply", NOW(), "1", "1"),'
-				. ' ("8", "8", "Read a discusison", NOW(), "1", "0"),'
+				. ' ("8", "8", "Read a discussion", NOW(), "1", "0"),'
 				. ' ("9", "9", "Update discussion to resolved", NOW(), "1", "0"),'
 				. ' ("10", "10", "Updates profile", NOW(), "1", "0"),'
 				. ' ("11", "11", "New Comment", NOW(), "1", "1"),'
@@ -254,14 +268,12 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		$db->setQuery( $query );
 
-		$db->query();
+		$this->edQuery($db);
 
 		return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_DEFAULT_POINTS_CREATED'), true );
 
 
 	}
-
-
 
 	public function createDefaultBadgeRules()
 	{
@@ -284,7 +296,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("5", "easydiscuss.new.avatar", "Updates profile picture", "This rule allows you to assign a badge for a user when they upload a profile picture.", "", NOW(), "1"),'
 				. ' ("6", "easydiscuss.new.discussion", "New Discussion", "This rule allows you to assign a badge for a user when they create a new discussion.", "", NOW(), "1"),'
 				. ' ("7", "easydiscuss.new.reply", "New Reply", "This rule allows you to assign a badge for a user when they reply to discussion.", "", NOW(), "1"),'
-				. ' ("8", "easydiscuss.read.discussion", "Read a discusison", "This rule allows you to assign a badge for a user when they read a discussion.", "", NOW(), "1"),'
+				. ' ("8", "easydiscuss.read.discussion", "Read a discussion", "This rule allows you to assign a badge for a user when they read a discussion.", "", NOW(), "1"),'
 				. ' ("9", "easydiscuss.resolved.discussion", "Update discussion to resolved", "This rule allows you to assign a badge for a user when they mark their discussion as resolved.", "", NOW(), "1"),'
 				. ' ("10", "easydiscuss.update.profile", "Updates profile", "This rule allows you to assign a badge for a user when they update their profile.", "", NOW(), "1"),'
 				. ' ("11", "easydiscuss.new.comment", "New Comment", "This rule allows you to assign a badge for a user when they create a new comment.", "", NOW(), "1"),'
@@ -304,14 +316,11 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("25", "easydiscuss.discussion.unlike", "Unlike your discussion", "This rule allows a points to be deducted when someone unlike their own discussion post.", "", NOW(), "1")';
 
 		$db->setQuery( $query );
-		$db->query();
+		$this->edQuery($db);
 
 		return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_DEFAULT_BADGE_RULES_CREATED'), true );
 
 	}
-
-
-
 
 	public function createDefaultBadges()
 	{
@@ -335,27 +344,26 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		$query	= 'INSERT INTO ' . $db->nameQuote( '#__discuss_badges' )
 				. ' (' . $db->nameQuote( 'id' ) . ', ' . $db->nameQuote( 'rule_id' ) . ', ' . $db->nameQuote( 'title' ) . ', ' . $db->nameQuote( 'description' ) . ', '
-				. $db->nameQuote( 'avatar' ) . ', ' . $db->nameQuote( 'created' ) . ', ' . $db->nameQuote( 'published' ) . ', ' . $db->nameQuote( 'rule_limit' ) . ', ' . $db->nameQuote( 'alias' ) . ') VALUES'
-				. ' ("1", "1", "Motivator", "Voted replies 100 times.", "motivator.png", NOW(), "1", "100", "motivator"),'
-				. ' ("2", "2", "Hole-in-One", "Accepted 50 replies as answers.", "hole-in-one.png", NOW(), "1", "50", "hole-in-one"),'
-				. ' ("3", "3", "Smile Seeker", "Liked 100 discussions.", "busybody.png", NOW(), "1", "100", "busybody"),'
-				. ' ("4", "4", "Love Fool", "Liked 100 replies.", "love-fool.png", NOW(), "1", "100", "love-fool"),'
-				. ' ("5", "5", "Vanity Monster", "Updated 5 avatars in profile.", "vanity-monster.png", NOW(), "1", "5", "vanity-monster"),'
-				. ' ("6", "6", "Sherlock Holmes", "Started 10 discussions.", "sherlock-holmes.png", NOW(), "1", "10", "sherlock-holmes"),'
-				. ' ("7", "7", "The Voice", "Posted 100 replies.", "the-voice.png", NOW(), "1", "100", "the-voice"),'
-				. ' ("8", "8", "Bookworm", "Read 50 discussions.", "bookworm.png", NOW(), "1", "50", "bookworm"),'
-				. ' ("9", "9", "Peacemaker", "Updated 50 discussions to resolved.", "peacemaker.png", NOW(), "1", "50", "peacemaker"),'
-				. ' ("10", "10", "Attention!", "Updated profile 50 times.", "attention.png", NOW(), "1", "50", "attention"),'
-				. ' ("11", "11", "Firestarter", "Posted 100 comments.", "firestarter.png", NOW(), "1", "100", "firestarter"),'
-				. ' ("12", "22", "Notable Answerer", "User likes your replies 100 times.", "reply-like.png", NOW(), "1", "100", "notable-answerer"),'
-				. ' ("13", "24", "Well-Known Questionnaire", "User likes your dicussions 50 times.", "discuss-like.png", NOW(), "1", "50", "well-known-questionnaire")';
+				. $db->nameQuote( 'avatar' ) . ', ' . $db->nameQuote( 'created' ) . ', ' . $db->nameQuote( 'published' ) . ', ' . $db->nameQuote( 'rule_limit' ) . ', ' . $db->nameQuote( 'alias' ) . ', ' . $db->nameQuote( 'points_threshold' ) . ') VALUES'
+				. ' ("1", "1", "Motivator", "Voted replies 100 times.", "motivator.png", NOW(), "1", "100", "motivator", "0"),'
+				. ' ("2", "2", "Hole-in-One", "Accepted 50 replies as answers.", "hole-in-one.png", NOW(), "1", "50", "hole-in-one", "0"),'
+				. ' ("3", "3", "Smile Seeker", "Liked 100 discussions.", "busybody.png", NOW(), "1", "100", "busybody", "0"),'
+				. ' ("4", "4", "Love Fool", "Liked 100 replies.", "love-fool.png", NOW(), "1", "100", "love-fool", "0"),'
+				. ' ("5", "5", "Vanity Monster", "Updated 5 avatars in profile.", "vanity-monster.png", NOW(), "1", "5", "vanity-monster", "0"),'
+				. ' ("6", "6", "Sherlock Holmes", "Started 10 discussions.", "sherlock-holmes.png", NOW(), "1", "10", "sherlock-holmes", "0"),'
+				. ' ("7", "7", "The Voice", "Posted 100 replies.", "the-voice.png", NOW(), "1", "100", "the-voice", "0"),'
+				. ' ("8", "8", "Bookworm", "Read 50 discussions.", "bookworm.png", NOW(), "1", "50", "bookworm", "0"),'
+				. ' ("9", "9", "Peacemaker", "Updated 50 discussions to resolved.", "peacemaker.png", NOW(), "1", "50", "peacemaker", "0"),'
+				. ' ("10", "10", "Attention!", "Updated profile 50 times.", "attention.png", NOW(), "1", "50", "attention", "0"),'
+				. ' ("11", "11", "Firestarter", "Posted 100 comments.", "firestarter.png", NOW(), "1", "100", "firestarter", "0"),'
+				. ' ("12", "22", "Notable Answerer", "Users liked your replies 100 times.", "reply-like.png", NOW(), "1", "100", "notable-answerer", "0"),'
+				. ' ("13", "24", "Well-Known Questionnaire", "Users liked your discussions 50 times.", "discuss-like.png", NOW(), "1", "50", "well-known-questionnaire", "0")';
 
 		$db->setQuery( $query );
-		$db->query();
+		$this->edQuery($db);
 
 
 		return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_DEFAULT_BADGES_CREATED'), true );
-
 	}
 
 	public function createDefaultPriorities()
@@ -384,7 +392,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("3", "Critical", "#ff0000", NOW())';
 
 		$db->setQuery($query);
-		$db->query();
+		$this->edQuery($db);
 
 		return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_DEFAULT_POST_PRIORITIES_CREATED'), true );
 	}
@@ -417,7 +425,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				. ' ("3", "Task", "", NOW(), "1", "task")';
 
 		$db->setQuery( $query );
-		$db->query();
+		$this->edQuery($db);
 
 		return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_DEFAULT_POST_TYPES_CREATED'), true );
 
@@ -455,7 +463,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 	 * @access  public
 	 */
 	public function updateManifestCache()
-	{	
+	{
 		$db = JFactory::getDBO();
 		$extensionId = $this->getExtensionId();
 		$manifest_details = JInstaller::parseXMLInstallFile(JPATH_ROOT. '/administrator/components/com_easydiscuss/easydiscuss.xml');
@@ -479,7 +487,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 					. ' SET ' . $db->quoteName('manifest_cache') . ' = ' . $db->Quote($manifest)
 					. ' WHERE ' . $db->quoteName('extension_id') . ' = ' . $db->Quote($extensionId);
 			$db->setQuery($query);
-			$db->query();
+			$this->edQuery($db);
 		}
 	}
 
@@ -495,7 +503,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 		$query = 'DELETE FROM ' . $db->quoteName('#__updates') . ' WHERE ' . $db->quoteName('extension_id') . '=' . $db->Quote($this->getExtensionId());
 		$db->setQuery($query);
-		$db->Query();
+		$this->edQuery($db);
 	}
 
 	/**
@@ -549,13 +557,13 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 
 			$query = implode(' ', $query);
 			$db->setQuery($query);
-			$db->Query();
+			$this->edQuery($db);
 
 			return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_SITE_MENU_UPDATED'), true);
 		}
 
 		$menu = JTable::getInstance('Menu');
-		$menu->menuType = $menuType;
+		$menu->menutype = $menuType;
 		$menu->title = JText::_('COM_EASYDISCUSS_INSTALLATION_DEFAULT_MENU_DISCUSSIONS');
 		$menu->alias = 'discussions';
 		$menu->path = 'discussions';
@@ -566,6 +574,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		$menu->component_id = $extensionId;
 		$menu->client_id = 0;
 		$menu->language = '*';
+		$menu->img = '';
+		$menu->params = '';
 
 		$menu->setLocation('1', 'last-child');
 
@@ -636,22 +646,24 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		$content['thankyou'] = 'Thank you for choosing EasyDiscuss as your preferred discussion tool for your Joomla! website. We hope you find it useful in achieving your needs.';
 		$content['congratulation'] = 'Congratulations! You have successfully installed EasyDiscuss and ready to post your first question!';
 
-		$query		= 'INSERT IGNORE INTO `#__discuss_posts` ( `id`, `title`, `alias`, `created`, `modified`, `replied`, `content`, `published`, `featured`, `isresolve`, `user_id`, `parent_id`, `user_type`, `thread_id`, `preview`, `content_type`) '
-					. 'VALUES ( 1, "Thank you for choosing EasyDiscuss", "thank-you-for-choosing-easydiscuss", now(), now(), now(), ' . $db->Quote($content['thankyou']) . ', 1, 1, 1,' . $db->Quote($suAdmin) .', 0, "member", 1, ' . $db->Quote($content['thankyou']) . ', "bbcode" ), '
-					. '( "2", "Congratulations! You have successfully installed EasyDiscuss", "congratulations-succesfully-installed-easydiscuss", now(), now() , now(), ' . $db->Quote($content['congratulation']) . ', 1, 0, 1,' . $db->Quote($suAdmin) .', 0, "member", 2, ' . $db->Quote($content['congratulation']) . ', "bbcode"  ) ';
+		$categoryId = 1;
+
+		$query		= 'INSERT IGNORE INTO `#__discuss_posts` ( `id`, `category_id`, `title`, `alias`, `created`, `modified`, `replied`, `content`, `published`, `featured`, `isresolve`, `user_id`, `parent_id`, `user_type`, `thread_id`, `preview`, `content_type`) '
+					. 'VALUES ( 1, ' . $db->Quote($categoryId) . ', "Thank you for choosing EasyDiscuss", "thank-you-for-choosing-easydiscuss", now(), now(), now(), ' . $db->Quote($content['thankyou']) . ', 1, 1, 1,' . $db->Quote($suAdmin) .', 0, "member", 1, ' . $db->Quote($content['thankyou']) . ', "bbcode" ), '
+					. '( "2", ' . $db->Quote($categoryId) . ', "Congratulations! You have successfully installed EasyDiscuss", "congratulations-succesfully-installed-easydiscuss", now(), now() , now(), ' . $db->Quote($content['congratulation']) . ', 1, 0, 1,' . $db->Quote($suAdmin) .', 0, "member", 2, ' . $db->Quote($content['congratulation']) . ', "bbcode"  ) ';
 
 		$db->setQuery($query);
-		$state = $db->query();
+		$state = $this->edQuery($db);
 
 		if ($state) {
 
 				// insert into thread table.
-			$query		= 'INSERT IGNORE INTO `#__discuss_thread` ( `id`, `title`, `alias`, `created`, `modified`, `replied`, `content`, `published`, `featured`, `isresolve`, `user_id`, `user_type`, `post_id`, `preview`, `content_type`) '
-						. 'VALUES ( 1, "Thank you for choosing EasyDiscuss", "thank-you-for-choosing-easydiscuss", now(), now(), now(), ' . $db->Quote($content['thankyou']) . ', 1, 1, 1,' . $db->Quote($suAdmin) .', "member", 1, ' . $db->Quote($content['thankyou']) . ', "bbcode" ), '
-						. '( "2", "Congratulations! You have successfully installed EasyDiscuss", "congratulations-succesfully-installed-easydiscuss", now(), now() , now(), ' . $db->Quote($content['congratulation']) . ', 1, 0, 1,' . $db->Quote($suAdmin) .', "member", 2, ' . $db->Quote($content['congratulation']) . ', "bbcode" ) ';
+			$query		= 'INSERT IGNORE INTO `#__discuss_thread` ( `id`, `category_id`, `title`, `alias`, `created`, `modified`, `replied`, `content`, `published`, `featured`, `isresolve`, `user_id`, `user_type`, `post_id`, `preview`, `content_type`) '
+						. 'VALUES ( 1, ' . $db->Quote($categoryId) . ', "Thank you for choosing EasyDiscuss", "thank-you-for-choosing-easydiscuss", now(), now(), now(), ' . $db->Quote($content['thankyou']) . ', 1, 1, 1,' . $db->Quote($suAdmin) .', "member", 1, ' . $db->Quote($content['thankyou']) . ', "bbcode" ), '
+						. '( "2", ' . $db->Quote($categoryId) . ', "Congratulations! You have successfully installed EasyDiscuss", "congratulations-succesfully-installed-easydiscuss", now(), now() , now(), ' . $db->Quote($content['congratulation']) . ', 1, 0, 1,' . $db->Quote($suAdmin) .', "member", 2, ' . $db->Quote($content['congratulation']) . ', "bbcode" ) ';
 
 			$db->setQuery($query);
-			$db->query();
+			$this->edQuery($db);
 
 
 			// Create tag for sample post
@@ -659,14 +671,14 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 						. 'VALUES ( "6", "Thank You", "thank-you", now(), 1, ' . $db->Quote($suAdmin) .' ), '
 						. '( "7", "Congratulations", "congratulations", now(), 1, ' . $db->Quote($suAdmin) .' ) ';
 			$db->setQuery( $query );
-			$db->query();
+			$this->edQuery($db);
 
 			// Create posts tags records
 			$query		= 'INSERT INTO `#__discuss_posts_tags` ( `post_id`, `tag_id`) '
 						. 'VALUES ( "1", "6" ), '
 						. '( "2", "7" ) ';
 			$db->setQuery( $query );
-			$db->query();
+			$this->edQuery($db);
 
 		}
 
@@ -714,6 +726,8 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		$category->rgt = 2;
 		$category->default = 1;
 		$category->private = 2;
+		$category->params = '';
+		$category->language = '';
 
 		$state = $category->store();
 
@@ -752,16 +766,16 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 		if ($total > 20000) {
 			$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_acl_group');
 			$db->setQuery($query);
-			$db->Query();
+			$this->edQuery($db);
 		}
 
 		// First, remove all records from the acl table.
 		$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_acl');
 		$db->setQuery($query);
-		$db->query();
+		$this->edQuery($db);
 
 		// Get the list of acl
-		$contents = JFile::read(DISCUSS_ADMIN_ROOT . '/defaults/acl.json');
+		$contents = file_get_contents(DISCUSS_ADMIN_ROOT . '/defaults/acl.json');
 		$acls = json_decode($contents);
 
 		foreach ($acls as $acl) {
@@ -772,13 +786,44 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 			$query = implode(' ', $query);
 
 			$db->setQuery($query);
-			$db->Query();
+			$this->edQuery($db);
 		}
 
 		// Once the acl is initialized, we need to create default values for all the existing groups on the site.
 		$this->assignACL();
 
 		return $this->getResultObj(JText::_('COM_EASYDISCUSS_INSTALLATION_ACL_INITIALIZED'), true);
+	}
+
+	/**
+	 * Update default category acl
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function assignCategoryGlobalACL()
+	{
+		$this->engine();
+
+		$db = ED::db();
+
+		// check if the acl is already assigned.
+		// $query = array();
+		$query = 'SELECT count(`id`) FROM `#__discuss_category_acl_map` where category_id = ' . $db->Quote('0');
+
+		$db->setQuery($query);
+
+		$result = $db->loadResult();
+		$result = (int) $result;
+
+		if ($result > 0) {
+			return true;
+		}
+
+		$model = ED::model('Category');
+		$model->updateACL(0, array(), null, true);
+
+		return true;
 	}
 
 	/**
@@ -922,7 +967,7 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 				$query .= $insertQuery;
 
 				$db->setQuery($query);
-				$db->Query();
+				$this->edQuery($db);
 			}
 		}
 
@@ -968,5 +1013,83 @@ class EasyDiscussControllerInstallPost extends EasyDiscussSetupController
 			$this->updateConfig('layout_toolbaractivecolor', '#d6d6d6');
 			$this->updateConfig('layout_toolbartextcolor', '#888888');
 		}
+	}
+
+	/**
+	 * Inserts necessary data for action logs
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function installActionLogs()
+	{
+		$version = explode('.', JVERSION);
+		$version = $version[0] . '.' . $version[1];
+
+		$hasActionLogs = version_compare('3.9', $version) !== 1;
+
+		if (!$hasActionLogs) {
+			return $this->getResultObj('COM_ED_INSTALLATION_ACTION_LOGS_NOT_SUPPORTED', true);
+		}
+
+		$this->engine();
+
+		$db = ED::db();
+
+		$query = 'SELECT COUNT(1) FROM `#__action_logs_extensions` WHERE `extension`=' . $db->quote('com_easydiscuss');
+
+		$db->setQuery($query);
+
+		$exists = $db->loadResult() > 0;
+
+		if ($exists) {
+			return $this->getResultObj('COM_ED_INSTALLATION_ACTION_LOGS_EASYDISCUSS_EVENTS_EXISTS', true);
+		}
+
+		$query = 'INSERT INTO `#__action_logs_extensions` (`extension`) VALUES (' . $db->Quote('com_easydiscuss') . ')';
+
+		$db->setQuery($query);
+		$db->Query();
+
+		return $this->getResultObj('COM_ED_INSTALLATION_ACTION_LOGS_ADD_EASYDISCUSS_EVENTS', true);
+	}
+
+	/**
+	 * Removes legacy folders which are no longer in use
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function removeLegacyFilesAndFolders()
+	{
+		$this->engine();
+
+		$folders = array(
+			ED_THEMES . '/wireframe/composer/tabs/links',
+			ED_THEMES . '/wireframe/composer/tabs/site'
+		);
+
+		foreach ($folders as $folder) {
+
+			$exists = JFolder::exists($folder);
+
+			if ($exists) {
+				JFolder::delete($folder);
+			}
+		}
+
+		$files = array(
+			SI_ADMIN . '/themes/default/settings/integrations/komento.php'
+		);
+
+		foreach ($files as $file) {
+			$exists = JFile::exists($file);
+
+			if ($exists) {
+				JFile::delete($file);
+			}
+		}
+
+		return true;
 	}
 }

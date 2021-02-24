@@ -8,27 +8,30 @@
  * @link       https://extensions.perfectwebteam.com
  */
 
+defined('_JEXEC') or die;
+
+use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
-
-defined('_JEXEC') or die;
+use Joomla\CMS\Router\Route;
 
 HTMLHelper::_('bootstrap.tooltip');
 HTMLHelper::_('formbehavior.chosen');
 
 $listOrder  = $this->escape($this->state->get('list.ordering'));
 $listDirn   = $this->escape($this->state->get('list.direction'));
-$loggeduser = JFactory::getUser();
-$saveOrder = $listOrder === 'profiles.ordering';
+$loggeduser = Factory::getUser();
+$saveOrder  = $listOrder === 'profiles.ordering';
 
 if ($saveOrder)
 {
 	$saveOrderingUrl = 'index.php?option=com_pwtimage&task=profiles.saveOrderAjax&tmpl=component';
-	JHtml::_('sortablelist.sortable', 'profilesList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
+	HTMLHelper::_('sortablelist.sortable', 'profilesList', 'adminForm', strtolower($listDirn), $saveOrderingUrl);
 }
 ?>
-<form action="index.php?option=com_pwtimage&view=profiles" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal">
+<form action="index.php?option=com_pwtimage&view=profiles" method="post" name="adminForm" id="adminForm"
+      class="form-validate form-horizontal">
 	<div id="j-sidebar-container" class="span2">
 		<?php echo $this->sidebar; ?>
 	</div>
@@ -66,7 +69,8 @@ if ($saveOrder)
 				<tbody>
 				<?php
 				$canEdit   = $this->canDo->get('core.edit');
-				$canChange = $loggeduser->authorise('core.edit.state',	'com_pwtimage');
+				$canAdmin  = $this->canDo->get('core.admin');
+				$canChange = $loggeduser->authorise('core.edit.state', 'com_pwtimage');
 
 				foreach ($this->items as $i => $item) :
 					?>
@@ -89,7 +93,7 @@ if ($saveOrder)
 								</span>
 							<?php if ($canChange && $saveOrder) : ?>
 								<input type="text" style="display:none" name="order[]" size="5"
-								       value="<?php echo $item->ordering; ?>" class="width-20 text-area-order " />
+								       value="<?php echo $item->ordering; ?>" class="width-20 text-area-order "/>
 							<?php endif; ?>
 						</td>
 						<td class="center">
@@ -104,8 +108,9 @@ if ($saveOrder)
 						</td>
 						<td>
 							<div class="name break-word">
-								<?php if ($canEdit) : ?>
-									<a href="<?php echo JRoute::_('index.php?option=com_pwtimage&task=profile.edit&id=' . (int) $item->id); ?>" title="<?php echo Text::sprintf('COM_PWTIMAGE_EDIT_PROFILE', $this->escape($item->name)); ?>">
+								<?php if ($canAdmin) : ?>
+									<a href="<?php echo Route::_('index.php?option=com_pwtimage&task=profile.edit&id=' . (int) $item->id); ?>"
+									   title="<?php echo Text::sprintf('COM_PWTIMAGE_EDIT_PROFILE', $this->escape($item->name)); ?>">
 										<?php echo $this->escape($item->name); ?></a>
 								<?php else : ?>
 									<?php echo $this->escape($item->name); ?>
@@ -118,7 +123,7 @@ if ($saveOrder)
 			</table>
 		<?php endif; ?>
 	</div>
-	<input type="hidden" name="task" value="" />
-	<input type="hidden" name="boxchecked" value="0" />
+	<input type="hidden" name="task" value=""/>
+	<input type="hidden" name="boxchecked" value="0"/>
 	<?php echo HTMLHelper::_('form.token'); ?>
 </form>

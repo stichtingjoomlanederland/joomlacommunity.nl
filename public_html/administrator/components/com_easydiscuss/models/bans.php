@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -118,7 +118,7 @@ class EasyDiscussModelBans extends EasyDiscussAdminModel
 
 		$filter_state = $mainframe->getUserStateFromRequest('com_easydiscuss.bans.filter_state', 'filter_state', '', 'word');
 		$search = $mainframe->getUserStateFromRequest('com_easydiscuss.bans.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -172,4 +172,20 @@ class EasyDiscussModelBans extends EasyDiscussAdminModel
 
 		return $this->_data;
 	}
+
+	/**
+	 * Purge banned user
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function purge()
+	{
+		$db = ED::db();
+
+		$query = 'DELETE FROM ' . $db->quoteName('#__discuss_users_banned');
+
+		$db->setQuery($query);
+		$db->Query(); 
+	}	
 }

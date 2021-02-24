@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `#__jdidealgateway_customers`
     `name`             VARCHAR(150)     NOT NULL COMMENT 'Customer name',
     `email`            VARCHAR(75)      NOT NULL COMMENT 'Customer email',
     `customerId`       VARCHAR(30)      NOT NULL,
+    `profileId`        INT(10) UNSIGNED NOT NULL COMMENT 'The profile ID used to create the customer',
     `created`          DATETIME         NOT NULL DEFAULT '0000-00-00 00:00:00',
     `created_by`       INT(10) UNSIGNED NOT NULL DEFAULT '0',
     `modified`         DATETIME         NOT NULL DEFAULT '0000-00-00 00:00:00',
@@ -109,7 +110,6 @@ CREATE TABLE IF NOT EXISTS `#__jdidealgateway_messages`
     `modified_by`      INT(10) UNSIGNED    NOT NULL DEFAULT '0',
     `checked_out`      INT(10) UNSIGNED    NOT NULL DEFAULT '0',
     `checked_out_time` DATETIME            NOT NULL DEFAULT '0000-00-00 00:00:00',
-    `pid`              VARCHAR(50)         NOT NULL COMMENT 'A unique identifier for the transaction',
     PRIMARY KEY (`id`)
 )
     CHARSET = utf8
@@ -173,18 +173,18 @@ CREATE TABLE IF NOT EXISTS `#__jdidealgateway_statuses`
 
 CREATE TABLE IF NOT EXISTS `#__jdidealgateway_subscriptions`
 (
-    `id`               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT
-        COMMENT 'Auto increment ID',
-    `customerId`       INT(10) UNSIGNED NOT NULL
-        COMMENT 'The customer id',
-    `subscriptionId`   VARCHAR(30)      NOT NULL
-        COMMENT 'The subscription ID',
+    `id`               INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Auto increment ID',
+    `customer_id`      INT(10) UNSIGNED NOT NULL COMMENT 'The customer ID',
+    `subscriptionId`   VARCHAR(30)      NOT NULL COMMENT 'The subscription ID',
+    `customerId`       VARCHAR(30)      NOT NULL COMMENT 'The PSP customer ID',
+    `profileId`        INT(10) UNSIGNED NOT NULL COMMENT 'The profile ID used to create the customer',
     `status`           VARCHAR(10)      NOT NULL,
     `currency`         VARCHAR(3)       NOT NULL,
     `amount`           VARCHAR(10)      NOT NULL,
     `times`            TINYINT(2)       NOT NULL,
     `interval`         VARCHAR(10)      NOT NULL,
     `description`      VARCHAR(255)     NOT NULL,
+    `start`            DATETIME         NOT NULL,
     `cancelled`        DATE             NULL     DEFAULT '0000-00-00',
     `created`          DATETIME         NOT NULL DEFAULT '0000-00-00 00:00:00',
     `created_by`       INT(10) UNSIGNED NOT NULL DEFAULT '0',

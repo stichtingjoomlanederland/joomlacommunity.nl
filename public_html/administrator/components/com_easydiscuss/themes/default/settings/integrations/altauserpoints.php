@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,17 +9,17 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_ED_INTEGRATIONS_ALTAUSERPOINTS'); ?>
+			<?php echo $this->html('panel.head', 'COM_ED_INTEGRATIONS_ALTAUSERPOINTS', '', '/docs/easydiscuss/administrators/integrations/integrations#aup'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-5 control-label">
+				<div class="o-form-horizontal">
+					<div class="o-form-group">
+						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_ED_INTEGRATIONS_ALTAUSERPOINTS_ENABLE'); ?>
 						</div>
 						<div class="col-md-7">

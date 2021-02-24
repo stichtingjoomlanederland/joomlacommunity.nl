@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,16 +9,14 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussViewDashboard extends EasyDiscussView
 {
 	/**
-	 * Displays Holiday management page
+	 * Displays dashboard for admins and moderators
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function display($tmpl = null)
@@ -28,23 +26,30 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 		// Set the meta for the page
 		ED::setMeta();
 
-		$user =	ED::post();
+		$user =	ED::profile();
 
 		if (!$user->canAccessDashboard()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect(EDR::_('view=index', false));
+			return ED::redirect(EDR::_('view=index', false));
 		}
 
-		$model = ED::model('holidays');
-		$holidays = $model->getHolidays();
+		$holidays = [];
 
-		$posts = false;
+		if ($this->config->get('main_work_schedule') && $this->acl->allowed('manage_holiday')) {
+			$holidaysModel = ED::model('holidays');
+			$holidays = $holidaysModel->getHolidays();
+		}
+
+		$posts = [];
 
 		// Only retrieve pending post when site admin viewing the dashboard
 		if (ED::isSiteAdmin() || $this->acl->allowed('manage_pending')) { 
-			// Get pending posts
 			$model = ED::model("Threaded");
-			$options = array('stateKey' => 'pending', 'pending' => true);
+			$options = [
+				'stateKey' => 'pending',
+				'pending' => true
+			];
+
 			$result = $model->getPosts($options);
 			$pagination = $model->getPagination();
 			$posts = array();
@@ -62,9 +67,10 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 			}
 		}
 
-		$this->set('pendingPosts', $posts);		
+		$this->set('posts', $posts);
 		$this->set('holidays', $holidays);
-		parent::display('dashboard/default');
+		
+		return parent::display('dashboard/default');
 	}
 
 	/**
@@ -73,13 +79,13 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function form($tmpl = null)
+	public function holidayForm($tmpl = null)
 	{
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_EDIT_HOLIDAYS_TITLE'));
 
 		if (!$this->acl->allowed('manage_holiday')) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss');
+			return ED::redirect('index.php?option=com_easydiscuss');
 		}
 
 		$id = $this->input->get('id', '');
@@ -93,6 +99,6 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 
 		$this->set('holiday', $holiday);
 
-		parent::display('dashboard/form');
-	}
+		parent::display('dashboard/holidays/form');
+	}	
 }

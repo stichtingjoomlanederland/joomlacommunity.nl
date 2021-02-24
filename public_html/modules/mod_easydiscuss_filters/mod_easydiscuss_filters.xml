@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Filters</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>22nd February 2021</creationDate>
+	<copyright>Copyright Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GPL License v2</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>https://stackideas.com</authorUrl>
+	<version>5.0.1</version>
+	<description>
+	<![CDATA[
+	This module can be used in conjunction with the recent listing of EasyDiscuss to filter posts.
+	]]>		
+	</description>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_filters.ini</language>
+	</languages>
+	<files>
+		<folder>scripts</folder>
+		<folder>tmpl</folder>
+		<filename>helper.php</filename>
+		<filename module="mod_easydiscuss_filters">mod_easydiscuss_filters.php</filename>
+		<filename>mod_easydiscuss_filters.xml</filename>
+	</files>
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="type" type="list" default="category" label="MOD_ED_FILTERS_TYPE" description="MOD_ED_FILTERS_TYPE_DESC">
+					<option value="standard">Standard</option>
+					<option value="labels">Post Labels</option>
+					<option value="types">Post Types</option>
+					<option value="priority">Post Priority</option>
+				</field>
+			</fieldset>
+			
+			<fieldset name="standard" label="Standard Filter">
+				<field name="standard_resolved" type="radio" label="Show Resolved Filter" description="Determines if the resolved filter should be visible" class="btn-group btn-group-yesno" default="1" filter="integer">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="standard_unresolved" type="radio" label="Show Unresolved Filter" description="Determines if the unresolved filter should be visible" class="btn-group btn-group-yesno" default="1" filter="integer">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="standard_answered" type="radio" label="Show Answered Filter" description="Determines if the answered filter should be visible" class="btn-group btn-group-yesno" default="0" filter="integer">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="standard_unanswered" type="radio" label="Show Unanswered Filter" description="Determines if the unanswered filter should be visible" class="btn-group btn-group-yesno" default="1" filter="integer">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="standard_unread" type="radio" label="Show Unread Filter" description="Determines if the unread filter should be visible" class="btn-group btn-group-yesno" default="0" filter="integer">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+
+				<field name="standard_locked" type="radio" label="Show Locked Filter" description="Determines if the locked filter should be visible" class="btn-group btn-group-yesno" default="0" filter="integer">
+					<option value="1">JYES</option>
+					<option value="0">JNO</option>
+				</field>
+			</fieldset>
+
+			<fieldset name="category" label="Category Filter">
+			</fieldset>
+
+			<fieldset name="labels" label="Labels Filter">
+			</fieldset>
+
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

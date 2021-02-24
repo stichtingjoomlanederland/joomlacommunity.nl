@@ -5,30 +5,17 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
-<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CATEGORIES'); ?></legend>
 
-<div class="control-group">
-	<div class="controls">
-		<select name="categories[]" id="categories" multiple="multiple" class="rsepro-chosen">
-			<?php echo JHtml::_('select.options', $this->categories,'value','text',$this->eventClass->getCategories()); ?>
-		</select>
-		 <?php if (!empty($this->permissions['can_create_categories']) || $this->admin) { ?>
-		<a rel="rs_category" <?php if ($this->config->modaltype == 1) { ?>href="#rsepro-add-new-categ" data-toggle="modal"<?php } ?> class="btn" type="button"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY'); ?></a>
-		<?php } ?>
-	</div>
-</div>
+<fieldset class="options-form">
+	<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CATEGORIES'); ?></legend>
+	<?php $append = !empty($this->permissions['can_create_categories']) || $this->admin ? '<a rel="rs_category" '.($this->config->modaltype == 1 ? 'href="#rsepro-add-new-categ" data-toggle="modal" data-bs-toggle="modal"' : '').' class="btn btn-primary" type="button">'.JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY').'</a>' : ''; ?>
+	<?php echo RSEventsproAdapterGrid::inputGroup($this->dependencies->getInput('categories'), null, $append); ?>
+</fieldset>
 
-<div class="clearfix"></div>
-<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAGS'); ?></legend>
-
-<div class="control-group">
-	<div class="controls">
-		<?php echo JHtml::_('rseventspro.tags', '#rsepro_tags'); ?>
-		<select id="rsepro_tags" name="tags[]" class="rsepro-chosen" multiple="multiple" style="width: 350px;">
-			<?php echo JHtml::_('select.options', $this->eventClass->getTags(true), 'value', 'text', $this->eventClass->getTags(true)); ?>
-		</select>
-	</div>
-</div>
+<fieldset class="options-form">
+	<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAGS'); ?></legend>
+	<?php echo $this->dependencies->getInput('tags'); ?>
+</fieldset>
 
 <div class="form-actions">
 	<button class="btn btn-success rsepro-event-save" type="button"><?php echo JText::_('COM_RSEVENTSPRO_SAVE_EVENT'); ?></button>

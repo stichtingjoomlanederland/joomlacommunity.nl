@@ -1,7 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
-include ACYM_CONTROLLER.'entitySelect.php';
+
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Controllers\EntitySelectController;
 
 class FrontentityselectController extends EntitySelectController
 {
@@ -16,4 +17,3 @@ class FrontentityselectController extends EntitySelectController
         ];
     }
 }
-

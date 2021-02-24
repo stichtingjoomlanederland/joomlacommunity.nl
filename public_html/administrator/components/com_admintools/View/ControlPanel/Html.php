@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\View\ControlPanel;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use Akeeba\AdminTools\Admin\Model\AdminPassword;
@@ -352,23 +352,28 @@ JS;
 					break;
 
 				case '+':
-					$ret .= "\t" . '<li class="akeeba-changelog-added"><span></span>' . htmlentities(trim(substr($line, 2))) . "</li>\n";
+					$ret .= "\t" . '<li><span class="akeeba-label--green">Added</span> ' . htmlentities(trim(substr($line, 2))) . "</li>\n";
 					break;
 
 				case '-':
-					$ret .= "\t" . '<li class="akeeba-changelog-removed"><span></span>' . htmlentities(trim(substr($line, 2))) . "</li>\n";
+					$ret .= "\t" . '<li><span class="akeeba-label--grey">Removed</span> ' . htmlentities(trim(substr($line, 2))) . "</li>\n";
 					break;
 
 				case '~':
-					$ret .= "\t" . '<li class="akeeba-changelog-changed"><span></span>' . htmlentities(trim(substr($line, 2))) . "</li>\n";
+				case '^':
+					$ret .= "\t" . '<li><span class="akeeba-label--grey">Changed</span> ' . htmlentities(trim(substr($line, 2))) . "</li>\n";
+					break;
+
+				case '*':
+					$ret .= "\t" . '<li><span class="akeeba-label--red">Security</span> ' . htmlentities(trim(substr($line, 2))) . "</li>\n";
 					break;
 
 				case '!':
-					$ret .= "\t" . '<li class="akeeba-changelog-important"><span></span>' . htmlentities(trim(substr($line, 2))) . "</li>\n";
+					$ret .= "\t" . '<li><span class="akeeba-label--orange">Important</span> ' . htmlentities(trim(substr($line, 2))) . "</li>\n";
 					break;
 
 				case '#':
-					$ret .= "\t" . '<li class="akeeba-changelog-fixed"><span></span>' . htmlentities(trim(substr($line, 2))) . "</li>\n";
+					$ret .= "\t" . '<li><span class="akeeba-label--teal">Fixed</span> ' . htmlentities(trim(substr($line, 2))) . "</li>\n";
 					break;
 
 				default:
@@ -383,7 +388,7 @@ JS;
 
 					if (!$onlyLast)
 					{
-						$ret .= "<h3 class=\"akeeba-changelog\">$line</h3>\n";
+						$ret .= "<h4>$line</h4>\n";
 					}
 					$ret .= "<ul class=\"akeeba-changelog\">\n";
 

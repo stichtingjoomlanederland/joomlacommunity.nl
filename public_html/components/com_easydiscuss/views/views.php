@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -23,27 +23,40 @@ class EasyDiscussView extends JViewLegacy
 	 */
 	public function __construct()
 	{
-		$this->ajax = ED::ajax();
+		$this->app = JFactory::getApplication();
+		$this->doc = JFactory::getDocument();
+		$this->input = ED::request();
 		$this->config = ED::config();
 		$this->jconfig = ED::jconfig();
-		$this->doc = JFactory::getDocument();
-		$this->app = JFactory::getApplication();
-		$this->input = ED::request();
-		$this->theme = ED::themes();
 		$this->my = JFactory::getUser();
-		$this->profile = ED::profile();
-		$this->acl = ED::acl();
-		$this->isAdmin = ED::isSiteAdmin();
+		$this->theme = ED::themes();
+
+		if ($this->doc->getType() == 'ajax') {
+			$this->ajax = ED::ajax();
+		}
+
+		// $this->isAdmin = ED::isSiteAdmin();
 
 		// If there is a check feature method on subclasses, we need to call it
 		if (method_exists($this, 'isFeatureAvailable')) {
 			$available = $this->isFeatureAvailable();
 
 			if (!$available) {
-				return JError::raiseError(500, JText::_('COM_EASYDISCUSS_FEATURE_IS_NOT_ENABLED'));
+				throw ED::exception('COM_EASYDISCUSS_FEATURE_IS_NOT_ENABLED', ED_MSG_ERROR);
 			}
 		}
 		parent::__construct();
+	}
+
+	public function __get($key)
+	{
+		if ($key == 'acl' && !isset($this->acl) || !$this->acl) {
+			$this->acl = ED::acl();
+		}
+
+		if (isset($this->$key)) {
+			return $this->$key;
+		}
 	}
 
 	/**
@@ -76,6 +89,21 @@ class EasyDiscussView extends JViewLegacy
 	}
 
 	/**
+	 * Generate a rel tag on the header of the page
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function amp($url, $route = true)
+	{
+		if ($route) {
+			$url = EDR::_($url);
+		}
+
+		$this->doc->addHeadLink($this->escape($url), 'amphtml');
+	}
+
+	/**
 	 * The main invocation should be here.
 	 *
 	 * @since	4.0
@@ -103,9 +131,6 @@ class EasyDiscussView extends JViewLegacy
 			// Initialize whatever that is necessary
 			ED::init('site');
 
-			// Render custom css
-			$this->renderCustomCss();
-
 			// If integrations with ES conversations is enabled, we need to render it's scripts
 			$easysocial = ED::easysocial();
 			
@@ -113,7 +138,7 @@ class EasyDiscussView extends JViewLegacy
 				$easysocial->init();
 			}
 
-			$bbcodeSettings = $this->theme->output('admin/structure/settings');
+			$bbcodeSettings = $this->theme->output('site/composer/editors/bbcode.settings');
 
 			// Get the contents of the view.
 			$contents = $this->theme->output($tpl);
@@ -138,14 +163,10 @@ class EasyDiscussView extends JViewLegacy
 			// Retrieve the toolbar for EasyDiscuss
 			$toolbar = $this->getToolbar();
 
-			// Jomsocial toolbar
-			$jsToolbar = ED::jomsocial()->getToolbar();
-
 			// Set the ajax url
 			$ajaxUrl = ED::getAjaxUrl();
 
 			// Load easysocial headers when viewing posts of another person
-			$miniheader = '';
 			$clusterHeader = '';
 			$clusterId = '';
 
@@ -160,20 +181,20 @@ class EasyDiscussView extends JViewLegacy
 				$clusterHeader = $easysocial->renderMiniHeader($clusterId, $view);
 			}
 
-			// Only work for Easysocial 2.0. 
-			// Only display if there is no cluster header.
-			if ($view == 'post' && $this->config->get('integration_easysocial_mini_header', true) && $easysocial->exists() && !$easysocial->isLegacy() && !$clusterHeader && !$post->isAnonymous()) {
+			// Message queue
+			$messageObject = ED::getMessageQueue();
 
-				ES::initialize();
-
-				if (ES::user()->hasCommunityAccess()) {
-					$user = ES::user($post->getOwner()->id);
-
-					$miniheader = ES::themes()->html('html.miniheader', $user);
+			// Remap message object
+			if ($messageObject) {
+				if ($messageObject->type == 'error') {
+					$messageObject->type = 'danger';
 				}
 			}
 
-			$theme->set('miniheader', $miniheader);
+			$heading = $this->getHeading();
+
+			$theme->set('heading', $heading);
+			$theme->set('messageObject', $messageObject);
 			$theme->set('toolbar', $toolbar);
 			$theme->set('categoryClass', $categoryClass);
 			$theme->set('suffix', $suffix);
@@ -182,12 +203,12 @@ class EasyDiscussView extends JViewLegacy
 			$theme->set('layout', $layout);
 			$theme->set('view', $view);
 			$theme->set('ajaxUrl', $ajaxUrl);
-			$theme->set('jsToolbar', $jsToolbar);
 
 			$output = $theme->output('site/structure/default');
 
 			// Get the scripts
 			$scripts = ED::scripts()->getScripts();
+
 
 			echo $output;
 			echo $scripts;
@@ -195,24 +216,6 @@ class EasyDiscussView extends JViewLegacy
 		}
 
 		return parent::display($tpl);
-	}
-
-	/**
-	 * Renders custom css on the page
-	 *
-	 * @since	4.2.0
-	 * @access	public
-	 */
-	public function renderCustomCss()
-	{
-		// Render the custom styles
-		$theme = ED::themes();
-		$customCss = $theme->output('site/structure/css');
-
-		// This custom css doesn't need to render on the composer page
-		$customCss = ED::minifyCSS($customCss);
-
-		$this->doc->addCustomTag($customCss);
 	}
 
 	/**
@@ -228,6 +231,30 @@ class EasyDiscussView extends JViewLegacy
 		}
 		
 		$this->doc->addHeadLink($this->escape($url), 'canonical');
+	}
+
+	/**
+	 * Retrieves heading from Joomla menu
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getHeading()
+	{
+		static $heading = null;
+
+		if (is_null($heading)) {
+
+			$app = JFactory::getApplication();
+			$params = $app->getParams();
+			$heading = $params->get('show_page_heading', false);
+
+			if ($heading) {
+				$heading = $params->get('page_heading', '');
+			}
+		}
+
+		return $heading;
 	}
 
 	/**
@@ -260,7 +287,7 @@ class EasyDiscussView extends JViewLegacy
 			$db->setQuery($query);
 			$id = $db->loadResult();
 
-			$hash = md5(JRequest::getURI());
+			$hash = md5(EDFactory::getURI(true));
 
 			if ($uri) {
 				$hash = md5($uri);

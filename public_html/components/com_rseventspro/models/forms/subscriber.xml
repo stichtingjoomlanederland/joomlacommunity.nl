@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="name" type="text" label="COM_RSEVENTSPRO_SUBSCRIBER_NAME" />
+	<field name="email" type="text" label="COM_RSEVENTSPRO_SUBSCRIBER_EMAIL" />
+	<field name="state" type="list" label="COM_RSEVENTSPRO_GLOBAL_STATUS" default="0">
+		<option value="0">COM_RSEVENTSPRO_GLOBAL_STATUS_INCOMPLETE</option>
+		<option value="1">COM_RSEVENTSPRO_GLOBAL_STATUS_COMPLETED</option>
+		<option value="2">COM_RSEVENTSPRO_GLOBAL_STATUS_DENIED</option>
+	</field>
+	
+</form>

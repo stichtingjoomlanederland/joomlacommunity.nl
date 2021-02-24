@@ -4,7 +4,7 @@
  * @subpackage  RSForm!Pro
  *
  * @author      Roland Dalmulder <contact@rolandd.com>
- * @copyright   Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright   Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link        https://rolandd.com
  */
@@ -25,6 +25,10 @@ use Joomla\CMS\User\UserHelper;
 use Joomla\Registry\Registry;
 
 JLoader::register('RSFormProHelper', JPATH_ADMINISTRATOR . '/components/com_rsform/helpers/rsform.php');
+JLoader::register(
+	'RsfpjdidealHelper',
+	__DIR__ . '/RsfpjdidealHelper.php'
+);
 
 /**
  * RSForm! Pro RO Payments plugin.
@@ -125,12 +129,20 @@ class PlgSystemRsfpJdideal extends CMSPlugin
 	{
 		parent::__construct($subject, $config);
 
-		// Setup the components
+		if (!$this->canRun())
+		{
+			return;
+		}
+
 		$this->newComponents = [5575, 5576, 5577, 5578];
 
 		JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES);
 
-		// Load the language
+		if (class_exists(Gateway::class) === false)
+		{
+			JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES . '/Jdideal');
+		}
+
 		$lang = Factory::getLanguage();
 		$lang->load('plg_system_rsfpjdideal');
 	}
@@ -178,6 +190,11 @@ class PlgSystemRsfpJdideal extends CMSPlugin
 	 */
 	public function canRun(): bool
 	{
+		if (!file_exists(JPATH_LIBRARIES . '/Jdideal'))
+		{
+			return false;
+		}
+
 		if (class_exists('RSFormProHelper'))
 		{
 			return true;
@@ -353,40 +370,9 @@ class PlgSystemRsfpJdideal extends CMSPlugin
 	 */
 	private function loadFormSettings(int $formId): Registry
 	{
-		$query = $this->db->getQuery(true)
-			->select($this->db->quoteName('params'))
-			->from($this->db->quoteName('#__rsform_jdideal'))
-			->where($this->db->quoteName('form_id') . ' = ' . $formId);
-		$this->db->setQuery($query);
-		$params = new Registry($this->db->loadResult());
+		$helper = new RsfpjdidealHelper;
 
-		// Check for the settings
-		$noSettings = [
-			'allowEmpty',
-			'userEmail',
-			'adminEmail',
-			'additionalEmails',
-			'profileAlias',
-			'confirmationEmail'
-		];
-
-		foreach ($noSettings as $setting)
-		{
-			$params->def($setting, 0);
-		}
-
-		// Check for the settings
-		$yesSettings = [
-			'sendEmailOnFailedPayment',
-			'redirectRsforms'
-		];
-
-		foreach ($yesSettings as $setting)
-		{
-			$params->def($setting, 1);
-		}
-
-		return $params;
+		return $helper->loadFormSettings($formId);
 	}
 
 	/**
@@ -633,8 +619,33 @@ class PlgSystemRsfpJdideal extends CMSPlugin
 					$defaultValue = $value[$args['data']['NAME']];
 				}
 
-				$args['out'] = $args['data']['CURRENCY'] .
-					'<input
+				switch ($args['data']['BOXTYPE'])
+				{
+					case 'NUMBER':
+						$args['out'] = $args['data']['CURRENCY'] .
+							'<input
+								type="number"
+								size="' . $args['data']['SIZE'] . '"
+								name="rsfp_jdideal_inputbox[]"
+								id="jdideal-inputbox-' . $args['componentId'] . '"
+								value="' . $defaultValue . '"
+								min="' . $args['data']['BOXMIN'] . '"
+								max="' . $args['data']['BOXMAX'] . '"
+								step="' . $args['data']['BOXSTEP'] . '"
+								onchange="rsfpjsJdideal' . $this->randomId . '.calculatePrice();"
+							/>
+							<input
+								type="hidden"
+								class="' . $this->randomId . '" 
+								name="form[' . $args['data']['NAME'] . ']"
+								id="' . $args['data']['NAME'] . '"
+								value="' . RSFormProHelper::htmlEscape($args['data']['DEFAULTVALUE']) . '"
+							/>';
+						break;
+					case 'INPUT':
+					default:
+						$args['out'] = $args['data']['CURRENCY'] .
+							'<input
 								type="text"
 								size="' . $args['data']['SIZE'] . '"
 								name="rsfp_jdideal_inputbox[]"
@@ -649,6 +660,8 @@ class PlgSystemRsfpJdideal extends CMSPlugin
 								id="' . $args['data']['NAME'] . '"
 								value="' . RSFormProHelper::htmlEscape($args['data']['DEFAULTVALUE']) . '"
 							/>';
+						break;
+				}
 				break;
 		}
 	}
@@ -1558,7 +1571,7 @@ JS;
 		$formParams                = $session->get('com_rsform.formparams.formId' . $formId);
 		$formParams->formProcessed = true;
 
-		if ((int) $params->redirectRsforms === 0)
+		if ((int) $params->get('redirectRsforms') === 0)
 		{
 			// Show the result also used as fallback if there is no redirect information available
 			[$replace, $with] = RSFormProHelper::getReplacements($details->order_number);
@@ -1567,10 +1580,9 @@ JS;
 			$formParams->thankYouMessage = base64_encode($message);
 		}
 
-		// Store new session data
 		$session->set('com_rsform.formparams.formId' . $formId, $formParams);
 
-		// Redirect
+		$jdideal->log('Redirect to ' . $formParams->redirectUrl, $details->id);
 		$this->app->redirect($formParams->redirectUrl);
 	}
 
@@ -1843,10 +1855,10 @@ JS;
 	 *
 	 * @return  mixed  Return nothing we don't process the payment or price is 0, redirect if there is to be paid
 	 *
-	 * @see     rsfp_f_onAfterFormProcess
-	 *
 	 * @since   2.2.0
 	 * @throws  Exception
+	 * @see     rsfp_f_onAfterFormProcess
+	 *
 	 */
 	public function rsfp_doPayment(
 		string $payValue,
@@ -1856,7 +1868,6 @@ JS;
 		array $products,
 		string $code
 	) {
-
 		// Execute only our plugin
 		$match      = false;
 		$components = RSFormProHelper::componentExists($formId, $this->componentId);
@@ -1907,7 +1918,10 @@ JS;
 			// Calculate price with tax
 			if ($settings->get('tax', 0) > 0)
 			{
-				$price = $settings->get('taxType', 0) ? $price + $settings->get('tax', 0) : $price * ($settings->get('tax', 0) / 100 + 1);
+				$price = $settings->get('taxType', 0) ? $price + $settings->get('tax', 0) : $price * ($settings->get(
+							'tax',
+							0
+						) / 100 + 1);
 			}
 
 			// Load the payment provider
@@ -1947,7 +1961,7 @@ JS;
 				echo base64_encode(json_encode($data)); ?>"/>
 			</form>
 			<script type="text/javascript">
-				document.getElementById('jdideal').submit();
+              document.getElementById('jdideal').submit()
 			</script>
 			<?php
 			$this->app->close();
@@ -1982,13 +1996,13 @@ JS;
 	 *
 	 * @param   array  $args  List of arguments of the submission
 	 *
-	 * @return  integer  The order number.
+	 * @return  string  The order number.
 	 *
 	 * @since   2.12.0
 	 *
 	 * @throws  RuntimeException
 	 */
-	private function getCustomOrderNumber(array $args): int
+	private function getCustomOrderNumber(array $args): string
 	{
 		$db          = $this->db;
 		$formId      = (int) $args['formId'];
@@ -2015,7 +2029,7 @@ JS;
 			$orderNumber = $args['SubmissionId'];
 		}
 
-		return $orderNumber;
+		return (string) $orderNumber;
 	}
 
 	/**
@@ -2077,7 +2091,7 @@ JS;
 
 		if (RSFormProHelper::componentExists($formId, $this->newComponents))
 		{
-			$price    = '';
+			$price    = (float) 0;
 			$settings = $this->loadFormSettings($formId);
 			$total    = RSFormProHelper::componentExists($formId, 5577);
 
@@ -2094,7 +2108,7 @@ JS;
 			// Get the price
 			if ($multipleProducts || $inputBoxes || $singleProduct || $total)
 			{
-				$price = $this->getSubmissionValue($args['SubmissionId'], $totalDetails['componentId']);
+				$price = (float) $this->getSubmissionValue($args['SubmissionId'], $totalDetails['componentId']);
 			}
 
 			if ($price > 0)
@@ -2155,12 +2169,12 @@ JS;
 					echo base64_encode(json_encode($data)); ?>"/>
 				</form>
 				<script type="text/javascript">
-					document.getElementById('jdideal').submit();
+                  document.getElementById('jdideal').submit()
 				</script>
 				<?php
 				$this->app->close();
 			}
-			elseif ($price === 0 && (int) $settings->get('allowEmpty', 0) === 1)
+			elseif ($price === 0.00 && (int) $settings->get('allowEmpty', 0) === 1)
 			{
 				// Don't do anything to allow an empty price checkout. RSForms will send the emails.
 				return;
@@ -2205,10 +2219,10 @@ JS;
 	 *
 	 * @return  string The value found in the database
 	 *
-	 * @see     rsfp_doPayment
-	 *
 	 * @since   4.0.0
 	 * @throws  RuntimeException
+	 * @see     rsfp_doPayment
+	 *
 	 */
 	public function getComponentName(int $componentId): string
 	{
@@ -2342,6 +2356,7 @@ JS;
 				Text::_('PLG_RSFP_JDIDEAL_CONFIG_FIELDS')
 			);
 			echo $form->renderField('fieldOrderNumber', 'roPaymentsParams');
+			echo $form->renderField('fieldName', 'roPaymentsParams');
 			echo $form->renderField('fieldEmail', 'roPaymentsParams');
 			echo HTMLHelper::_('bootstrap.endTab');
 			echo HTMLHelper::_(
@@ -2380,7 +2395,6 @@ JS;
 	 */
 	public function rsfp_beforeUserEmail(array $args): void
 	{
-		// Check if there are any RO Payments fields
 		if (!$this->hasJdidealFields($args['form']->FormId))
 		{
 			return;
@@ -2395,8 +2409,8 @@ JS;
 			return;
 		}
 
-		$status  = $this->loadSubmissionValues($args['submissionId']);
-		$isValid = $this->isPaymentValid($args);
+		$status    = $this->loadSubmissionValues($args['submissionId']);
+		$isValid   = $this->isPaymentValid($args);
 
 		if (!isset($status->FieldValue))
 		{
@@ -2784,30 +2798,47 @@ JS;
 			$extensions = explode(',', $this->params->get('extensions'));
 			array_unshift($extensions, 'com_content');
 
-			if (in_array($this->app->input->getCmd('option'), $extensions, true))
+			if (!$this->setScript
+				&& in_array($this->app->input->getCmd('option'), $extensions, true)
+			)
 			{
-				// Check if the script has already been included
 				$jsFile = HTMLHelper::_(
 					'script',
 					'plg_system_rsfpjdideal/rsfpjdideal.js',
-					['version' => 'auto', 'pathOnly' => true, 'relative' => true]
+					[
+						'version'  => 'auto',
+						'pathOnly' => true,
+						'relative' => true
+					]
 				);
 
-				if (!$this->setScript)
-				{
-					$details['out']  .= '<script src="' . $jsFile . '"></script>';
-					$this->setScript = true;
-				}
+				$document                    = $this->app->getDocument();
+				$document->_scripts[$jsFile] = [
+					'type'    => 'text/javascript',
+					'options' => [
+						'version'       => 'auto',
+						'relative'      => true,
+						'detectDebug'   => 1,
+						'detectBrowser' => 1,
+						'framework'     => null,
+						'pathOnly'      => null,
+					]
+				];
+				$this->setScript             = true;
 
 				return;
 			}
 
-			// Regular way of adding the script
-			HTMLHelper::_(
-				'script',
-				'plg_system_rsfpjdideal/rsfpjdideal.js',
-				['version' => 'auto', 'relative' => true]
-			);
+			if (!$this->setScript)
+			{
+				HTMLHelper::_(
+					'script',
+					'plg_system_rsfpjdideal/rsfpjdideal.js',
+					['version' => 'auto', 'relative' => true]
+				);
+
+				$this->setScript = true;
+			}
 		}
 	}
 
@@ -2875,7 +2906,7 @@ JS;
 
 				$args['submissions'][$submissionId]['SubmissionValues'][Text::_(
 					'PLG_RSFP_JDIDEAL_PAYMENT_STATUS'
-				)]['Value'] = Text::_('PLG_RSFP_JDIDEAL_PAYMENT_STATUS_' . $value['Value']);
+				)]['Value'] = $value['Value'];
 			}
 		}
 	}

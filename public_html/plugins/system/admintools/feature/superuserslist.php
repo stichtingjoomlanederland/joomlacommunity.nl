@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,7 +9,7 @@ use Joomla\CMS\Access\Access;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Keep track of Super Users on the site and send an email when users are added. Optionally automatically block these

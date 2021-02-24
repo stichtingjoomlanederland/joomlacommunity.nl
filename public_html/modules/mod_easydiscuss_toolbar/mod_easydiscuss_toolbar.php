@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -21,6 +21,10 @@ if (!JFile::exists($path)) {
 // require ED's engine
 require_once ($path);
 
+// load ed stuff
+ED::init();
+$lib = ED::modules($module);
+
 $config = ED::config();
 $edPageExist = false;
 
@@ -38,9 +42,6 @@ if ($component == 'com_easydiscuss') {
 // Determine if that is mobile or tablet view
 $theme = ED::themes();
 $responsiveClass = $theme->responsiveClass();
-
-// load ed stuff
-ED::init();
 
 $modToolbar = array();
 $modToolbar['showToolbar'] = true;

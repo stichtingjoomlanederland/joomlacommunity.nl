@@ -21,6 +21,13 @@ class EasyDiscussHistory extends EasyDiscuss
 	 **/
 	public function log($command, $userId, $title, $content_id = 0)
 	{
+		// The #__discuss_users_history table is mainly used by badges where achievement type is points.
+		// If badges or points in ED is disabled, we should not proceed any further. #1139
+		$config = ED::config();
+		if (!$config->get('main_badges') || !$config->get('main_points')) {
+			return;
+		}
+
 		$point = ED::points();
 		$exist = $point->isPointRulesPublished($command);
 

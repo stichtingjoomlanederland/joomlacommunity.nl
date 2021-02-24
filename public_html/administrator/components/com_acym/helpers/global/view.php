@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_getView($ctrl, $view, $forceBackend = false)
 {
@@ -15,6 +13,11 @@ function acym_getView($ctrl, $view, $forceBackend = false)
     }
 }
 
+function acym_getPartial($family, $view)
+{
+    return ACYM_PARTIAL.$family.DS.$view.'.php';
+}
+
 function acym_loadAssets($ctrl, $task)
 {
     $scope = acym_isAdmin() ? 'back' : 'front';
@@ -23,25 +26,37 @@ function acym_loadAssets($ctrl, $task)
     acym_addScript(
         true,
         'var AJAX_URL_UPDATEME = "'.ACYM_UPDATEMEURL.'";
-        var MEDIA_URL_ACYM = "'.ACYM_MEDIA_URL.'";
-        var CMS_ACYM = "'.ACYM_CMS.'";
+        var ACYM_MEDIA_URL = "'.ACYM_MEDIA_URL.'";
+        var ACYM_CMS = "'.ACYM_CMS.'";
+        var ACYM_J40 = '.(defined('ACYM_J40') && ACYM_J40 ? 'true' : 'false').';
         var FOUNDATION_FOR_EMAIL = "'.ACYM_CSS.'libraries/foundation_email.min.css?v='.filemtime(ACYM_MEDIA.'css'.DS.'libraries'.DS.'foundation_email.min.css').'";
         var ACYM_FIXES_FOR_EMAIL = "'.str_replace('"', '\"', acym_getEmailCssFixes()).'";
         var ACYM_REGEX_EMAIL = /^'.acym_getEmailRegex(true).'$/i;
         var ACYM_JS_TXT = '.acym_getJSMessages().';
-        var ACYM_CORE_DYNAMICS_URL = "'.ACYM_CORE_DYNAMICS_URL.'";'
+        var ACYM_CORE_DYNAMICS_URL = "'.ACYM_CORE_DYNAMICS_URL.'";
+        var ACYM_PLUGINS_URL = "'.addslashes(ACYM_PLUGINS_URL).'";
+        var ACYM_ROOT_URI = "'.acym_rootURI().'";
+        var ACYM_CONTROLLER = "'.$ctrl.'";
+        var ACYM_SOCIAL_MEDIA = "'.addslashes(ACYM_SOCIAL_MEDIA).'";'
     );
 
-    acym_addScript(false, ACYM_JS.'libraries/foundation.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'foundation.min.js'));
+    if ($ctrl !== 'archive') {
+        acym_addScript(
+            false,
+            ACYM_JS.'libraries/foundation.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'foundation.min.js'),
+            'text/javascript',
+            true
+        );
+    }
 
     if ('back' === $scope) {
-        acym_addScript(false, ACYM_JS.'libraries/select2.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'select2.min.js'));
+        acym_addScript(false, ACYM_JS.'libraries/select2.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'libraries'.DS.'select2.min.js'), 'text/javascript', true);
     }
 
     acym_addScript(false, ACYM_JS.'helpers.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'helpers.min.js'), 'text/javascript', true);
-    if ('back' == $scope) acym_addScript(false, ACYM_JS.$scope.'_helpers.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.$scope.'_helpers.min.js'));
-    acym_addScript(false, ACYM_JS.'global.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'global.min.js'));
-    acym_addScript(false, ACYM_JS.$scope.'_global.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.$scope.'_global.min.js'));
+    if ('back' == $scope) acym_addScript(false, ACYM_JS.$scope.'_helpers.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.$scope.'_helpers.min.js'), 'text/javascript', true);
+    acym_addScript(false, ACYM_JS.'global.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'global.min.js'), 'text/javascript', true);
+    acym_addScript(false, ACYM_JS.$scope.'_global.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.$scope.'_global.min.js'), 'text/javascript', true);
 
     if (file_exists(ACYM_MEDIA.'js'.DS.$scope.DS.$ctrl.'.min.js')) {
         acym_addScript(false, ACYM_JS.$scope.'/'.$ctrl.'.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.$scope.DS.$ctrl.'.min.js'), 'text/javascript', true);
@@ -91,20 +106,7 @@ function acym_getJSMessages()
         'ACYM_NEXT',
         'ACYM_BACK',
         'ACYM_SKIP',
-        'ACYM_INTRO_ADD_DTEXT',
-        'ACYM_INTRO_TEMPLATE',
-        'ACYM_INTRO_DRAG_BLOCKS',
         'ACYM_INTRO_DRAG_CONTENT',
-        'ACYM_INTRO_SETTINGS',
-        'ACYM_INTRO_CUSTOMIZE_FONT',
-        'ACYM_INTRO_IMPORT_CSS',
-        'ACYM_INTRO_SAFE_CHECK',
-        'ACYM_INTRO_MAIL_SETTINGS',
-        'ACYM_INTRO_ADVANCED',
-        'ACYM_INTRO_DKIM',
-        'ACYM_INTRO_CRON',
-        'ACYM_INTRO_SUBSCRIPTION',
-        'ACYM_INTRO_CHECK_DATABASE',
         'ACYM_SEND_TEST_SUCCESS',
         'ACYM_SEND_TEST_ERROR',
         'ACYM_COPY_DEFAULT_TRANSLATIONS_CONFIRM',
@@ -126,9 +128,6 @@ function acym_getJSMessages()
         'ACYM_ARE_SURE_DUPLICATE_TEMPLATE',
         'ACYM_NOT_FOUND',
         'ACYM_EMAIL',
-        'ACYM_CAMPAIGN_NAME',
-        'ACYM_EMAIL_SUBJECT',
-        'ACYM_TEMPLATE_NAME',
         'ACYM_ERROR_SAVING',
         'ACYM_LOADING_ERROR',
         'ACYM_AT_LEAST_ONE_USER',
@@ -202,6 +201,51 @@ function acym_getJSMessages()
         'ACYM_REMOVE_LANG_CONFIRMATION',
         'ACYM_RESET_TRANSLATION',
         'ACYM_MAX_EXEC_TIME_GET_ERROR',
+        'ACYM_SAVE_AS_TEMPLATE_CONFIRMATION',
+        'ACYM_VERTICAL_PADDING',
+        'ACYM_HORIZONTAL_PADDING',
+        'ACYM_VERTICAL_PADDING_DESC',
+        'ACYM_HORIZONTAL_PADDING_DESC',
+        'ACYM_SELECT_A_PICTURE',
+        'ACYM_PLEASE_SELECT_FILTERS',
+        'ACYM_DELETE_THIS_FILTER',
+        'ACYM_IF_YOU_SELECT_SEGMENT_FILTERS_ERASE',
+        'ACYM_PLEASE_FILL_A_NAME_FOR_YOUR_SEGMENT',
+        'ACYM_COULD_NOT_SAVE_SEGMENT',
+        'ACYM_SENT',
+        'ACYM_RECIPIENTS',
+        'ACYM_RESET_OVERRIDES_CONFIRMATION',
+        'ACYM_OPEN_PERCENTAGE',
+        'ACYM_MONDAY',
+        'ACYM_TUESDAY',
+        'ACYM_WEDNESDAY',
+        'ACYM_THURSDAY',
+        'ACYM_FRIDAY',
+        'ACYM_SATURDAY',
+        'ACYM_SUNDAY',
+        'ACYM_SELECT2_RESULTS_NOT_LOADED',
+        'ACYM_SELECT2_DELETE_X_CHARACTERS',
+        'ACYM_SELECT2_ENTER_X_CHARACTERS',
+        'ACYM_SELECT2_LOADING_MORE_RESULTS',
+        'ACYM_SELECT2_LIMIT_X_ITEMS',
+        'ACYM_SELECT2_SEARCHING',
+        'ACYM_JANUARY',
+        'ACYM_FEBRUARY',
+        'ACYM_MARCH',
+        'ACYM_APRIL',
+        'ACYM_MAY',
+        'ACYM_JUNE',
+        'ACYM_JULY',
+        'ACYM_AUGUST',
+        'ACYM_SEPTEMBER',
+        'ACYM_OCTOBER',
+        'ACYM_NOVEMBER',
+        'ACYM_DECEMBER',
+        'ACYM_NEW_SUBSCRIBERS',
+        'ACYM_NEW_UNSUBSCRIBERS',
+        'ACYM_DEFAULT',
+        'ACYM_SELECT_IMAGE_TO_UPLOAD',
+        'ACYM_USE_THIS_IMAGE',
     ];
 
     foreach ($keysToLoad as $oneKey) {
@@ -215,7 +259,7 @@ function acym_getJSMessages()
 
 function acym_isExcludedFrontView($ctrl, $task)
 {
-    if ('archive' === $ctrl && in_array($task, ['view', 'listing'])) return true;
+    if ('archive' === $ctrl && in_array($task, ['view'])) return true;
     if ('frontusers' === $ctrl && 'profile' === $task) return true;
 
     return false;
@@ -253,4 +297,3 @@ function acym_backToListing($listingName = null)
 
     return $returnLink;
 }
-

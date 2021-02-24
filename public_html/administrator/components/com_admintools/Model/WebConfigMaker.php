@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
@@ -313,8 +313,10 @@ class WebConfigMaker extends ServerConfigMaker
 	 * @var  array
 	 */
 	protected $allowedCallersForSave = [
+		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::reset',
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::save',
+		'Akeeba\AdminTools\Admin\Controller\WebConfigMaker::reset',
 		'Akeeba\AdminTools\Admin\Controller\WebConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\WebConfigMaker::save',
 		'Akeeba\AdminTools\Admin\Model\QuickStart::applyHtmaker',
@@ -433,11 +435,10 @@ XML;
 			// Expiration time of 1 week or 1 year (based on selection)
 			$expTime = ($config->exptime == 1) ? 604800 : 31708800;
 
-			// TODO Or 31708800 (367 days)
 			$webConfig .= <<< XML
 		<!-- Optimal default expiration time $eTagInfo -->
 		<staticContent>
-			<clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="01:00:00" $setEtag />
+			<clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="$expTime" $setEtag />
 		</staticContent>
 
 XML;
@@ -456,6 +457,7 @@ XML;
 				<add mimeType="application/xhtml+xml" enabled="true" />
 				<add mimeType="application/rss+xml" enabled="true" />
 				<add mimeType="application/javascript" enabled="true" />
+				<add mimeType="text/javascript" enabled="true" />
 				<add mimeType="application/x-javascript" enabled="true" />
 				<add mimeType="image/svg+xml" enabled="true" />
 				<add mimeType="*/*" enabled="false" />
@@ -482,7 +484,7 @@ XML;
 			{
 				$patternCache[] = $agent;
 
-				if (count($agent) < 10)
+				if ((is_array($agent) || $agent instanceof \Countable ? count($agent) : 0) < 10)
 				{
 					continue;
 				}
@@ -682,7 +684,7 @@ END;
 				<rule name="Allow access to folders except .php files #$ruleCounter" stopProcessing="true">
 					<match url="^$dir/" ignoreCase="false" />
 					<conditions logicalGrouping="MatchAll" trackAllCaptures="false">
-						<add input="{REQUEST_FILENAME}" pattern="(\.php)$" ignoreCase="false" negate="true" />
+						<add input="{URL}" pattern="(\.php)$" ignoreCase="false" negate="true" />
 						<add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false" />
 					</conditions>
 					<action type="None" />
@@ -787,8 +789,8 @@ END;
 				<rule name="Front-end protection - Block access to all PHP files except index.php">
 					<match url="(.*\.php)$" ignoreCase="false" />
 					<conditions logicalGrouping="MatchAll" trackAllCaptures="false">
-						<add input="{REQUEST_FILENAME}" pattern="(\.php)$" ignoreCase="false" />
-						<add input="{REQUEST_FILENAME}" pattern="(/index?\.php)$" ignoreCase="false" negate="true" />
+						<add input="{URL}" pattern="(\.php)$" ignoreCase="false" />
+						<add input="{URL}" pattern="(/index?\.php)$" ignoreCase="false" negate="true" />
 						<add input="{REQUEST_FILENAME}" matchType="IsFile" ignoreCase="false" />
 					</conditions>
 					<action type="CustomResponse" statusCode="403" statusReason="Forbidden" statusDescription="Forbidden" />

@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -47,9 +47,18 @@ defined('_JEXEC') or die;
 
 // Load the language file
 $language = Factory::getLanguage();
-$language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway', 'en-GB', true);
-$language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway', $language->getDefault(), true);
-$language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway', null, true);
+$language->load(
+	'com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway',
+	'en-GB', true
+);
+$language->load(
+	'com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway',
+	$language->getDefault(), true
+);
+$language->load(
+	'com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway', null,
+	true
+);
 
 // Data is stored in an array called $displayData, let's put it in a regular array
 /** @var array $displayData */
@@ -67,8 +76,13 @@ if (!isset($data->profileAlias) || empty($data->profileAlias))
 // Set the autoloader, we may come from a place that never heard about us
 JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES);
 
+if (class_exists(Gateway::class) === false)
+{
+	JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES . '/Jdideal');
+}
+
 // Load the basics
-$jinput = Factory::getApplication()->input;
+$jinput  = Factory::getApplication()->input;
 $jdideal = new Gateway($data->profileAlias ?? null);
 
 // Load the profile if needed
@@ -86,7 +100,8 @@ if ($jdideal->psp)
 		// Fix the amount in case it is in the format of 1,234.56
 		$clean        = str_replace(',', '.', $data->amount);
 		$lastpos      = strrpos($clean, '.');
-		$data->amount = str_replace('.', '', substr($clean, 0, $lastpos)) . substr($clean, $lastpos);
+		$data->amount = str_replace('.', '', substr($clean, 0, $lastpos))
+			. substr($clean, $lastpos);
 
 		// Check if the amount has a maximum of 2 digits
 		$data->amount = round($data->amount, 2);
@@ -142,32 +157,34 @@ if ($jdideal->psp)
 			$mail     = Factory::getMailer();
 
 			// Construct the body
-			$mail_tpl = $jdideal->getMailBody('admin_inform_email');
+			$maiTemplate = $jdideal->getMailBody('admin_inform_email');
 
-			if ($mail_tpl)
+			if ($maiTemplate)
 			{
-				$find = array();
-				$find[] = '{BEDRAG}';
-				$find[] = '{ORDERNR}';
-				$find[] = '{ORDERID}';
-				$replace = array();
+				$find      = [];
+				$find[]    = '{BEDRAG}';
+				$find[]    = '{ORDERNR}';
+				$find[]    = '{ORDERID}';
+				$replace   = [];
 				$replace[] = number_format($data->amount, 2, ',', '.');
 				$replace[] = $data->order_number;
 				$replace[] = $data->order_id;
-				$body = str_ireplace($find, $replace, $mail_tpl->body);
+				$body      = str_ireplace($find, $replace, $maiTemplate->body);
 
-				// Construct the subject
-				$subject = str_ireplace($find, $replace, $mail_tpl->subject);
+				$subject = str_ireplace($find, $replace, $maiTemplate->subject);
 
-				// Send the e-mail
-				$emailtos = explode(',', $jdideal->get('jdidealgateway_emailto'));
+				$emailtos = explode(
+					',', $jdideal->get('jdidealgateway_emailto')
+				);
 
 				if (!empty($emailtos))
 				{
 					foreach ($emailtos as $email)
 					{
 						$mail->clearAddresses();
-						$mail->sendMail($from, $fromname, $email, $subject, $body, true);
+						$mail->sendMail(
+							$from, $fromname, $email, $subject, $body, true
+						);
 					}
 				}
 			}
@@ -177,11 +194,16 @@ if ($jdideal->psp)
 		switch ($jdideal->psp)
 		{
 			case 'advanced':
-				$psp = new Advanced($jinput);
+				$psp    = new Advanced($jinput);
 				$output = $psp->getForm($jdideal, $data);
 
-				$layout = new FileLayout('forms.psp', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(array('jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output));
+				$layout = new FileLayout(
+					'forms.psp', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					array('jdideal' => $jdideal, 'data' => $data,
+					      'root'    => $root, 'output' => $output)
+				);
 				break;
 			case 'mollie':
 				$psp = new Mollie($jinput);
@@ -194,37 +216,60 @@ if ($jdideal->psp)
 				{
 					$jdideal->log($exception->getMessage(), $data->logid);
 
-					throw new RuntimeException($exception->getMessage(), $exception->getCode());
+					throw new RuntimeException(
+						$exception->getMessage(), $exception->getCode()
+					);
 				}
 
-				$layout = new FileLayout('forms.psp', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output]);
+				$layout = new FileLayout(
+					'forms.psp', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'output'  => $output]
+				);
 				break;
 			case 'targetpay':
-				$psp = new Targetpay($jinput);
+				$psp    = new Targetpay($jinput);
 				$output = $psp->getForm($jdideal, $data);
 
-				$layout = new FileLayout('forms.' . $output->file, null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output]);
+				$layout = new FileLayout(
+					'forms.' . $output->file, null,
+					['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'output'  => $output]
+				);
 				break;
 			case 'sisow':
-				$psp = new Sisow($jinput);
-				$output = $psp->getForm($jdideal, $data);
+				$psp           = new Sisow($jinput);
+				$output        = $psp->getForm($jdideal, $data);
 				$data->grouped = false;
 
-				$layout = new FileLayout('forms.psp', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output]);
+				$layout = new FileLayout(
+					'forms.psp', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'output'  => $output]
+				);
 				break;
 			case 'buckaroo':
-				$psp = new Buckaroo($jinput);
+				$psp    = new Buckaroo($jinput);
 				$output = $psp->getForm($jdideal, $data);
 
-				$layout = new FileLayout('forms.psp', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output]);
+				$layout = new FileLayout(
+					'forms.psp', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'output'  => $output]
+				);
 				break;
 			case 'rabo-lite':
 			case 'ing-lite':
-				$psp = new Lite($jinput);
+				$psp  = new Lite($jinput);
 				$data = $psp->getForm($jdideal, $data);
 
 				// Get the URL
@@ -235,12 +280,17 @@ if ($jdideal->psp)
 					$url = $psp->getTestUrl();
 				}
 
-				$layout = new FileLayout('forms.lite', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'url' => $url]);
+				$layout = new FileLayout(
+					'forms.lite', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'url'     => $url]
+				);
 				break;
 			case 'abn-internetkassa':
 			case 'ogone':
-				$psp = new Internetkassa($jinput);
+				$psp  = new Internetkassa($jinput);
 				$data = $psp->getForm($jdideal, $data);
 
 				// Get the URL
@@ -251,19 +301,30 @@ if ($jdideal->psp)
 					$url = $psp->getTestUrl($jdideal->psp);
 				}
 
-				$layout = new FileLayout('forms.internetkassa', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'url' => $url]);
+				$layout = new FileLayout(
+					'forms.internetkassa', null,
+					['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'url'     => $url]
+				);
 				break;
 			case 'kassacompleet':
-				$psp = new Kassacompleet($jinput);
-				$output = $psp->getForm($jdideal, $data);
+				$psp           = new Kassacompleet($jinput);
+				$output        = $psp->getForm($jdideal, $data);
 				$data->grouped = false;
 
-				$layout = new FileLayout('forms.psp', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output]);
+				$layout = new FileLayout(
+					'forms.psp', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'output'  => $output]
+				);
 				break;
 			case 'ems':
-				$psp = new Ems($jinput);
+				$psp    = new Ems($jinput);
 				$output = $psp->getForm($jdideal, $data);
 
 				// Get the URL
@@ -274,15 +335,25 @@ if ($jdideal->psp)
 					$url = $psp->getTestUrl();
 				}
 
-				$layout = new FileLayout('forms.ems', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'url' => $url]);
+				$layout = new FileLayout(
+					'forms.ems', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'url'     => $url]
+				);
 				break;
 			case 'onlinekassa':
-				$psp = new Onlinekassa($jinput);
+				$psp    = new Onlinekassa($jinput);
 				$output = $psp->getForm($jdideal, $data);
 
-				$layout = new FileLayout('forms.psp', null, ['component' => 'com_jdidealgateway']);
-				echo $layout->render(['jdideal' => $jdideal, 'data' => $data, 'root' => $root, 'output' => $output]);
+				$layout = new FileLayout(
+					'forms.psp', null, ['component' => 'com_jdidealgateway']
+				);
+				echo $layout->render(
+					['jdideal' => $jdideal, 'data' => $data, 'root' => $root,
+					 'output'  => $output]
+				);
 				break;
 		}
 	}
@@ -290,7 +361,9 @@ if ($jdideal->psp)
 	{
 		if (!is_object($data))
 		{
-			echo Text::sprintf('COM_ROPAYMENTS_DATA_NOT_OBJECT', gettype($data));
+			echo Text::sprintf(
+				'COM_ROPAYMENTS_DATA_NOT_OBJECT', gettype($data)
+			);
 		}
 		elseif (!isset($data->order_id))
 		{

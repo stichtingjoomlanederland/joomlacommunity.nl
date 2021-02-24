@@ -30,7 +30,7 @@ class RSEventsProInvoice {
 			throw new Exception(JText::_('COM_RSEVENTSPRO_ERROR_INVOICE_PDF_PLUGIN'), 500);
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_isCart',array(array('cart'=>&$this->cart)));
+		JFactory::getApplication()->triggerEvent('onrsepro_isCart',array(array('cart'=>&$this->cart)));
     }
 
     public static function getInstance($order_id = null) {

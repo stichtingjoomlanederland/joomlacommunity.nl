@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="cell grid-x acym__campaign__summary__preview__languages align-center margin-top-2">
+<div class="cell grid-x acym__campaign__summary__preview__languages align-center margin-top-2">
     <?php
     $data['languages'] = array_merge([$data['main_language']], $data['languages']);
 
@@ -11,14 +9,13 @@ defined('_JEXEC') or die('Restricted access');
             $class .= ' acym__campaign__summary__preview__languages-one__empty';
         }
 
-        $code = strtolower(substr($language->code, 3));
         $flag = acym_tooltip(
-            '<img acym-data-lang="'.$language->code.'" src="https://www.countryflags.io/'.$code.'/flat/48.png" alt="'.$code.' flag">',
+            '<img acym-data-lang="'.$language->code.'" src="'.acym_getFlagByCode($language->code).'" alt="'.$language->code.' flag">',
             $language->name
         );
         echo '<div data-acym-lang="'.$language->code.'" class="cell shrink acym__campaign__summary__preview__languages-one '.$class.'">'.$flag.'</div>';
 
-        if (empty($data['multilingual_mails'][$language->code]) && $language->code !== $data['main_language']->code) continue;
+        if (empty($data['multilingual_mails'][$language->code])) continue;
 
         echo '<input type="hidden" id="acym__summary-body-'.$language->code.'" value="'.acym_escape(acym_absoluteURL($data['multilingual_mails'][$language->code]->body)).'">';
         echo '<input type="hidden" id="acym__summary-subject-'.$language->code.'" value="'.acym_escape($data['multilingual_mails'][$language->code]->subject).'">';
@@ -26,4 +23,3 @@ defined('_JEXEC') or die('Restricted access');
     }
     ?>
 </div>
-

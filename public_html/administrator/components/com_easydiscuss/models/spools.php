@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -27,7 +27,7 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 		$mainframe = JFactory::getApplication();
 
 		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.limit', 'limit', $mainframe->getCfg('list_limit'), 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -81,7 +81,7 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 		// Get the WHERE and ORDER BY clauses for the query
 		$where = $this->_buildQueryWhere($publishedOnly);
 		$orderby = $this->_buildQueryOrderBy();
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query = 'SELECT *';
 
@@ -100,11 +100,11 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 	public function _buildQueryWhere()
 	{
 		$mainframe = JFactory::getApplication();
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$filter_state = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.filter_state', 'filter_state', 'U', 'word');
 		$search = $mainframe->getUserStateFromRequest('com_easydiscuss.spools.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -167,5 +167,20 @@ class EasyDiscussModelSpools extends EasyDiscussAdminModel
 		}
 
 		return $this->_data;
+	}
+
+	/**
+	 * Method to purge the email notification data
+	 *
+	 * @since   5.0
+	 * @access  public
+	 */
+	public function purge()
+	{
+		$db = ED::db();
+		$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_mailq');
+
+		$db->setQuery($query);
+		$db->Query();		
 	}
 }

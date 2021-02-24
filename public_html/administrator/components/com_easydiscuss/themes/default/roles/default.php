@@ -1,26 +1,30 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 
 	<div class="app-filter-bar">
-		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search">
+			<?php echo $this->html('table.search', 'search', $search); ?>
+		</div>
+
+		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
 			<div class="app-filter-bar__filter-wrap">
 				<?php echo $this->html('table.filter', 'filter_state', $filter); ?>
 			</div>
 		</div>
 		
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -39,13 +43,13 @@ defined('_JEXEC') or die('Restricted access');
 					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ROLE_TITLE') , 'title', $orderDirection, $order); ?>
 					</th>
-					<th width="1%" class="center">
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_ROLE_PUBLISHED'); ?>
 					</th>
-					<th width="10%" class="center">
-						<?php echo JText::_('COM_EASYDISCUSS_ROLES_LABEL_COLOUR'); ?>
+					<th width="20%" class="center">
+						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_COLOR'); ?>
 					</th>
-					<th width="10%" class="center">
+					<th width="20%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_( 'COM_EASYDISCUSS_USERGROUP' ) , 'usergroup_id', $orderDirection, $order); ?>
 					</th>
 					<th width="6%" class="center">
@@ -54,10 +58,25 @@ defined('_JEXEC') or die('Restricted access');
 				</tr>
 			</thead>
 
+			<?php 
+				// Fixed color code from the previous version
+				$colorCodes = array(
+					'success' => '#39b54a',
+					'warning' => '#c77c11',
+					'danger' => '#d9534f',
+					'info' => '#5bc0de',
+					'default' => '#777777'
+				);
+			?>
 			<tbody>
 			<?php if ($roles) { ?>
 				<?php $i = 0; ?>
 				<?php foreach ($roles as $role) { ?>
+					<?php
+						if (array_key_exists($role->colorcode, $colorCodes)) {
+							$role->colorcode = $colorCodes[$role->colorcode];
+						} 
+					?>
 				<tr>
 					<td>
 						<?php echo $this->html('table.checkbox', $i++, $role->id); ?>
@@ -69,7 +88,7 @@ defined('_JEXEC') or die('Restricted access');
 						<?php echo $this->html('table.state', 'roles', $role, 'published'); ?>
 					</td>
 					<td class="center">
-						<span class="o-label o-label--<?php echo $role->colorcode;?>"><?php echo JText::_($role->title);?></span>
+						<?php echo $this->html('string.bubble', $role->colorcode); ?>
 					</td>
 					<td class="center">
 						<?php echo $role->usergroup_title; ?>
@@ -81,8 +100,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php } ?>
 			<?php } else { ?>
 				<tr>
-					<td colspan="6" class="empty">
-						<i class="fa fa-user-secret"></i>
+					<td colspan="6" class="center empty">
 						<?php echo JText::_('COM_EASYDISCUS_ROLE_NOT_CREATED');?>
 					</td>
 				</tr>
@@ -101,7 +119,7 @@ defined('_JEXEC') or die('Restricted access');
 		</table>
 	</div>
 
-	<?php echo $this->html('form.hidden', 'roles', 'roles'); ?>
+	<?php echo $this->html('form.action', 'roles', 'roles'); ?>
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="" />
 </form>

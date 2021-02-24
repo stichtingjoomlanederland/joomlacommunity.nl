@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\View\SecurityExceptions;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\SecurityExceptions;
 use FOF30\View\DataView\Json as BaseView;
@@ -24,7 +24,7 @@ class Json extends BaseView
 		$this->limitStart = $model->getState('limitstart', 0);
 		$this->limit      = $model->getState('limit', 0);
 		$this->items      = $model->getRawDataArray($this->limitStart, $this->limit, true);
-		$this->total      = count($this->items);
+		$this->total      = is_array($this->items) || $this->items instanceof \Countable ? count($this->items) : 0;
 
 		parent::onBeforeBrowse();
 	}

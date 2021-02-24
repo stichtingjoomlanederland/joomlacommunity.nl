@@ -81,11 +81,6 @@ class PwtAclControllerWizard extends BaseController
 		$wizardModel = $this->getModel('wizard');
 		$groupId     = $wizardModel->groupSetup($data);
 
-		// Fix the admin access conflicts
-		/** @var PwtAclModelDiagnostics $diagnosticModel */
-		$diagnosticModel = $this->getModel('diagnostics');
-		$diagnosticModel->fixAdminConflicts(true);
-
 		// Save component access in session
 		Factory::getSession()->set('components', $data['core.manage'], 'pwtacl');
 
@@ -105,6 +100,11 @@ class PwtAclControllerWizard extends BaseController
 	public function finalize()
 	{
 		Session::checkToken() or jexit(Text::_('JINVALID_TOKEN'));
+
+		// Fix the admin access conflicts
+		/** @var PwtAclModelDiagnostics $diagnosticModel */
+		$diagnosticModel = $this->getModel('diagnostics');
+		$diagnosticModel->fixAdminConflicts(true);
 
 		// Get Group ID
 		$groupId = $this->input->getInt('groupid');

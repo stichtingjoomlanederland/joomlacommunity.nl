@@ -48,9 +48,7 @@ class EasyDiscussViewIndex extends EasyDiscussView
 			$item->title = $row->title;
 
 			$item->link	= JRoute::_('index.php?option=com_easydiscuss&view=post&id=' . $row->id);
-			//$row->content	= DiscussHelper::parseContent( $row->content );
 			if ($row->content_type == 'bbcode') {
-			    //$row->content = DiscussHelper::parseContent( $row->content );
 			    $row->content = html_entity_decode($row->content);
 			}
 

@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use AkeebaUsagestats;
 use Exception;
@@ -97,8 +97,8 @@ class Stats extends Model
 		// I can't use list since dev release don't have any dots
 		$at_parts    = explode('.', ADMINTOOLS_VERSION);
 		$at_major    = $at_parts[0];
-		$at_minor    = isset($at_parts[1]) ? $at_parts[1] : '';
-		$at_revision = isset($at_parts[2]) ? $at_parts[2] : '';
+		$at_minor    = $at_parts[1] ?? '';
+		$at_revision = $at_parts[2] ?? '';
 
 		[$php_major, $php_minor, $php_revision] = explode('.', phpversion());
 		$php_qualifier = strpos($php_revision, '~') !== false ? substr($php_revision, strpos($php_revision, '~')) : '';
@@ -305,7 +305,7 @@ class Stats extends Model
 			 * Collect any entropy available from the PHP system and filesystem.
 			 * If we have ssl data that isn't strong, we use it once.
 			 */
-			$entropy = rand() . uniqid(mt_rand(), true) . $sslStr;
+			$entropy = random_int(0, mt_getrandmax()) . uniqid(random_int(0, mt_getrandmax()), true) . $sslStr;
 			$entropy .= implode('', @fstat(fopen(__FILE__, 'r')));
 			$entropy .= memory_get_usage();
 			$sslStr  = '';
@@ -330,7 +330,7 @@ class Stats extends Model
 				for ($pass = 0; $pass < $samples; ++$pass)
 				{
 					$microStart = microtime(true) * 1000000;
-					$hash       = sha1(mt_rand(), true);
+					$hash       = sha1(random_int(0, mt_getrandmax()), true);
 
 					for ($count = 0; $count < 50; ++$count)
 					{
@@ -365,7 +365,7 @@ class Stats extends Model
 				for ($pass = 0; $pass < $iter; ++$pass)
 				{
 					$microStart = microtime(true);
-					$hash       = sha1(mt_rand(), true);
+					$hash       = sha1(random_int(0, mt_getrandmax()), true);
 
 					for ($count = 0; $count < $rounds; ++$count)
 					{

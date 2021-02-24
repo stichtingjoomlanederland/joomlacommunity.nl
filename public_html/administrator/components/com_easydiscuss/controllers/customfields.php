@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -25,6 +25,9 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 		$this->registerTask('publish', 'togglePublish');
 		$this->registerTask('unpublish', 'togglePublish');
 
+		$this->registerTask('required', 'toggleRequired');
+		$this->registerTask('optional', 'toggleRequired');
+
 		$this->registerTask('save', 'save');
 		$this->registerTask('apply', 'save');
 		$this->registerTask('save2new', 'save');
@@ -42,8 +45,8 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 		ED::checkToken();
 
 		// Get the posted data
-		$post = JRequest::get('post');
-	
+		$post = $this->input->post->getArray();
+
 		// This could be an edited field
 		$id = $this->input->get('id', 0, 'int');
 
@@ -52,13 +55,12 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 
 		// Default redirection url
 		$redirect = 'index.php?option=com_easydiscuss&view=customfields&active=' . $active;
-		
-
 
 		// Bind the posted data with the library
 		$field = ED::field($id);
 		$field->bind($post);
 
+		$isNew = $id ? false : true;
 
 		// Bind the field options
 		$options = $this->input->get('options', '', 'default');
@@ -66,17 +68,16 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 
 		// Validation
 		if (!$field->validate()) {
-			
 			// Set the error
-			ED::setMessage($field->getError(), 'error');
-			
-			return $this->app->redirect($redirect . '&layout=form');
+			ED::setMessage($field->getError(), ED_MSG_ERROR);
+
+			return ED::redirect($redirect . '&layout=form');
 		}
 
 		// Try to save the field now
 		if (!$field->save()) {
-			ED::setMessage($field->getError(), 'error');
-			return $this->app->redirect($redirect);
+			ED::setMessage($field->getError(), ED_MSG_ERROR);
+			return ED::redirect($redirect);
 		}
 
 		// Build the redirection options based on the task.
@@ -90,10 +91,19 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 			$redirect .= '&layout=form';
 		}
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionString = $isNew ? 'COM_ED_ACTIONLOGS_CREATED_CUSTOMFIELD' : 'COM_ED_ACTIONLOGS_UPDATED_CUSTOMFIELD';
+
+		$actionlog->log($actionString, 'field', array(
+			'link' => 'index.php?option=com_easydiscuss&view=customfields&layout=form&id=' . $field->id,
+			'fieldTitle' => $field->title
+		));
+
 		// Set the message
 		ED::setMessage('COM_EASYDISCUSS_CUSTOMFIELDS_SAVED', 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -108,7 +118,7 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 		ED::checkToken();
 
 		// Get the list of fields to be deleted
-		$ids = $this->input->get('cid', '', 'default');
+		$ids = $this->input->get('cid', '', 'array');
 
 		$redirect = 'index.php?option=com_easydiscuss&view=customfields';
 		
@@ -119,16 +129,16 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 			$state = $field->delete();
 
 			if (!$state) {
-				ED::setMessage($field->getError(), 'error');
+				ED::setMessage($field->getError(), ED_MSG_ERROR);
 
-				return $this->app->redirect($redirect);
+				return ED::redirect($redirect);
 			}
 		}
 
 		// Set the message
 		ED::setMessage('COM_EASYDISCUSS_CUSTOMFIELDS_DELETED', 'success');
 
-		$this->app->redirect($redirect);
+		ED::redirect($redirect);
 	}
 
 	/**
@@ -148,11 +158,11 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 		$redirect = 'index.php?option=com_easydiscuss&view=customfields';
 
 		// Get the ids
-		$ids = $this->input->get('cid', array(), 'default');	
+		$ids = $this->input->get('cid', array(), 'array');	
 
 		if (!$ids) {
 			ED::setMessage('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_ID');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		foreach ($ids as $id) {
@@ -169,7 +179,48 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 
 		ED::setMessage($message, 'success');
 		
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
+	}
+
+	/**
+	 * Toggles a field's required state
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function toggleRequired()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		// Get the current task
+		$task = $this->getTask();
+
+		$redirect = 'index.php?option=com_easydiscuss&view=customfields';
+
+		// Get the ids
+		$ids = $this->input->get('cid', array(), 'array');	
+
+		if (!$ids) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_CUSTOMFIELDS_ID');
+			return ED::redirect($redirect);
+		}
+
+		foreach ($ids as $id) {
+			$field = ED::field($id);
+
+			$field->$task();
+		}
+
+		$message = 'COM_EASYDISCUSS_CUSTOMFIELDS_PUBLISHED_SUCCESS';
+
+		if ($task == 'optional') {
+			$message = 'COM_EASYDISCUSS_CUSTOMFIELDS_OPTIONAL_SUCCESS';
+		}
+
+		ED::setMessage($message, 'success');
+		
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -190,7 +241,7 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 		$direction = $task == 'orderup' ? 'up' : 'down';
 
 		// Initialize variables
-		$cid = $this->input->get('cid', array(), 'default');
+		$cid = $this->input->get('cid', array(), 'array');
 
 		// Get the field id
 		$id = (int) $cid[0];
@@ -198,7 +249,7 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 		$field = ED::field($cid[0]);
 		$field->move($direction);
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=customfields');
+		return ED::redirect('index.php?option=com_easydiscuss&view=customfields');
 	}
 
 	public function saveOrder()
@@ -213,6 +264,6 @@ class EasyDiscussControllerCustomFields extends EasyDiscussController
 
 		ED::setMessage($message, $type);
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=customfields');
+		return ED::redirect('index.php?option=com_easydiscuss&view=customfields');
 	}
 }

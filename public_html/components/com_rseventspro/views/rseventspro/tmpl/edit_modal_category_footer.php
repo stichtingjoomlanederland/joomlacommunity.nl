@@ -8,4 +8,4 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-add-category-loader', 'style' => 'display: none;', 'class' => 'pull-left'), true); ?> 
 <button class="btn btn-primary rsepro-event-add-category"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADD_CATEGORY_ADD'); ?></button>
-<button class="btn" data-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>
+<button class="btn btn-danger" data-dismiss="modal" data-bs-dismiss="modal" aria-hidden="true"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></button>

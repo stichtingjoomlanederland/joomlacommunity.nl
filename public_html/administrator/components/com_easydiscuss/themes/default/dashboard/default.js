@@ -1,119 +1,158 @@
 ed.require(['edq', 'chartjs'], function($) {
 
-    var data = {
-        labels: <?php echo $postsTicks; ?>,
-        datasets: [
-            {
-                fillColor: "rgba(151,187,205,0.2)",
-                strokeColor: "rgba(151,187,205,1)",
-                pointColor: "rgba(151,187,205,1)",
-                pointStrokeColor: "#fff",
-                pointHighlightFill: "#fff",
-                pointHighlightStroke: "rgba(151,187,205,1)",
-                data: <?php echo $postsCreated; ?>
-            }
-        ]
-    };
+	var wrapper = $('[data-ed-wrapper]');
 
-    var options ={
-        bezierCurve : false,
-        responsive: true,
-        maintainAspectRatio: false,
-        tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %] Post",
-        legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span style=\"background-color:[%=datasets[i].strokeColor%]\"></span>[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</li>[%}%]</ul>"
-    }
+	$(document).ready(function() {
+		$.ajax({
+			url: "<?php echo ED_SERVICE_VERSION;?>",
+			jsonp: "callback",
+			dataType: "jsonp",
+			data: {
+				"current": "<?php echo $version;?>"
+			},
+			success: function(data) {
 
-    var ctx = document.getElementById("graph-area").getContext("2d");
-    var myLineChart = new Chart(ctx).Line(data, options);
+				var version = {
+					"latest": data.version,
+					"local": "<?php echo $version;?>"
+				};
 
-    var legend = myLineChart.generateLegend();
+				var outdated = EasyDiscuss.compareVersion(version.local, version.latest) === -1;
 
-    $('#graph-legend').append(legend);
+				$('[data-loading]').addClass('t-d--none');
 
 
-    // Tabs animation
-    jQuery(document).ready(function() {
-        jQuery('.db-activity .db-activity-filter a').on('click', function(e)  {
-            var currentAttrValue = jQuery(this).attr('href');
-     
-            // Show/Hide Tabs
-            jQuery('.db-activity ' + currentAttrValue).show().siblings().hide();
-     
-            // Change/remove current tab to active
-            jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
-     
-            e.preventDefault();
+				if (outdated) {
+					$('[data-version-checks]').removeClass('t-d--none');
+					$('[data-version]').html(data.version);
 
-            if (currentAttrValue == '#month') { monthPie(); };
-            if (currentAttrValue == '#category') { categoryPie(); };
-            if (currentAttrValue == '#posts') { postsPie(); };
-        });
-    });    
+					// Update with banner
+					var banner = $('[data-outdated-banner]');
 
-    var postsPie = function() {
-        var pieData = <?php echo $postsPie; ?>;
+					if (banner.length > 0 && outdated) {
+						banner.removeClass('t-hidden');
+					}
+										
+					return;
+				}
+			}
+		});
+	});
 
-        if (pieData.length == 0) {
-            pieData = pieDefault;
-        };
+	var data = {
+		labels: <?php echo $postsTicks; ?>,
+		datasets: [
+			{
+				fillColor: "rgba(151,187,205,0.2)",
+				strokeColor: "rgba(151,187,205,1)",
+				pointColor: "rgba(151,187,205,1)",
+				pointStrokeColor: "#fff",
+				pointHighlightFill: "#fff",
+				pointHighlightStroke: "rgba(151,187,205,1)",
+				data: <?php echo $postsCreated; ?>
+			}
+		]
+	};
 
-        fixedPosition("chart-area2");
-       
-        var ctx2 = document.getElementById("chart-area2").getContext("2d");
-        window.myPie = new Chart(ctx2).Pie(pieData, options);
-        document.getElementById('js-legend2').innerHTML = myPie.generateLegend();
-    };
+	var options ={
+		bezierCurve : false,
+		responsive: true,
+		maintainAspectRatio: false,
+		tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %] Post",
+		legendTemplate : "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<datasets.length; i++){%]<li><span style=\"background-color:[%=datasets[i].strokeColor%]\"></span>[%if(datasets[i].label){%][%=datasets[i].label%][%}%]</li>[%}%]</ul>"
+	}
 
-    var monthPie = function() {
-        var pieData = <?php echo $monthPie; ?>;
+	var ctx = document.getElementById("graph-area").getContext("2d");
+	var myLineChart = new Chart(ctx).Line(data, options);
 
-        if (pieData.length == 0) {
-            pieData = pieDefault;
-        };
+	var legend = myLineChart.generateLegend();
 
-        fixedPosition("chart-area3");
+	$('#graph-legend').append(legend);
 
-        var ctx2 = document.getElementById("chart-area3").getContext("2d");
-        window.myPie = new Chart(ctx2).Pie(pieData, options);
-        document.getElementById('js-legend3').innerHTML = myPie.generateLegend();
-    };
 
-    var categoryPie = function() {
-        var pieData = <?php echo $categoryPie; ?>;
+	// Tabs animation
+	jQuery(document).ready(function() {
+		jQuery('.db-activity .db-activity-filter a').on('click', function(e)  {
+			var currentAttrValue = jQuery(this).attr('href');
+	 
+			// Show/Hide Tabs
+			jQuery('.db-activity ' + currentAttrValue).show().siblings().hide();
+	 
+			// Change/remove current tab to active
+			jQuery(this).parent('li').addClass('active').siblings().removeClass('active');
+	 
+			e.preventDefault();
 
-        if (pieData.length == 0) {
-            pieData = pieDefault;
-        };
+			if (currentAttrValue == '#month') { monthPie(); };
+			if (currentAttrValue == '#category') { categoryPie(); };
+			if (currentAttrValue == '#posts') { postsPie(); };
+		});
+	});    
 
-        fixedPosition("chart-area4");
+	var postsPie = function() {
+		var pieData = <?php echo $postsPie; ?>;
 
-        var ctx2 = document.getElementById("chart-area4").getContext("2d");
-        window.myPie = new Chart(ctx2).Pie(pieData, options);
-        document.getElementById('js-legend4').innerHTML = myPie.generateLegend();
-    };
+		if (pieData.length == 0) {
+			pieData = pieDefault;
+		};
 
-    var pieDefault = [{
-        value: 1,
-        color: '#CFCFCF',
-        highlight: "#e2e2e2",
-        label: "No Data Currently"
-    }];
+		fixedPosition("chart-area2");
+	   
+		var ctx2 = document.getElementById("chart-area2").getContext("2d");
+		window.myPie = new Chart(ctx2).Pie(pieData, options);
+		document.getElementById('js-legend2').innerHTML = myPie.generateLegend();
+	};
 
-    var options = {
-        animateRotate: true,
-        // animateScale: true,
-        tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %] Post",
-        legendTemplate: "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<segments.length; i++){%]<li><span class=\"chartjs-legend-label\" style=\"background-color:[%=segments[i].fillColor%]\"></span>[%if(segments[i].label){%][%=segments[i].label%][%}%]</li>[%}%]</ul>"
-    }
+	var monthPie = function() {
+		var pieData = <?php echo $monthPie; ?>;
 
-    var fixedPosition = function(element) {
-        document.getElementById(element).width = "300";
-        document.getElementById(element).height = "200";
-    }
+		if (pieData.length == 0) {
+			pieData = pieDefault;
+		};
 
-    $(document).ready(function() {
-        postsPie();
-        monthPie();
-        categoryPie();
-    });
+		fixedPosition("chart-area3");
+
+		var ctx2 = document.getElementById("chart-area3").getContext("2d");
+		window.myPie = new Chart(ctx2).Pie(pieData, options);
+		document.getElementById('js-legend3').innerHTML = myPie.generateLegend();
+	};
+
+	var categoryPie = function() {
+		var pieData = <?php echo $categoryPie; ?>;
+
+		if (pieData.length == 0) {
+			pieData = pieDefault;
+		};
+
+		fixedPosition("chart-area4");
+
+		var ctx2 = document.getElementById("chart-area4").getContext("2d");
+		window.myPie = new Chart(ctx2).Pie(pieData, options);
+		document.getElementById('js-legend4').innerHTML = myPie.generateLegend();
+	};
+
+	var pieDefault = [{
+		value: 1,
+		color: '#CFCFCF',
+		highlight: "#e2e2e2",
+		label: "No Data Currently"
+	}];
+
+	var options = {
+		animateRotate: true,
+		// animateScale: true,
+		tooltipTemplate: "[%if (label){%][%=label%]: [%}%][%= value %] Post",
+		legendTemplate: "<ul class=\"[%=name.toLowerCase()%]-legend\">[% for (var i=0; i<segments.length; i++){%]<li><span class=\"chartjs-legend-label\" style=\"background-color:[%=segments[i].fillColor%]\"></span>[%if(segments[i].label){%][%=segments[i].label%][%}%]</li>[%}%]</ul>"
+	}
+
+	var fixedPosition = function(element) {
+		document.getElementById(element).width = "300";
+		document.getElementById(element).height = "200";
+	}
+
+	$(document).ready(function() {
+		postsPie();
+		monthPie();
+		categoryPie();
+	});
 });

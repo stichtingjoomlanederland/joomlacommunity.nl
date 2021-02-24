@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(__DIR__ . '/controller.php');
 
 class EasydiscussControllerConversation extends EasyDiscussController
 {
@@ -27,8 +25,6 @@ class EasydiscussControllerConversation extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function isFeatureAvailable()
 	{
@@ -44,8 +40,6 @@ class EasydiscussControllerConversation extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function reply()
 	{
@@ -116,13 +110,13 @@ class EasydiscussControllerConversation extends EasyDiscussController
 		// Test for valid recipients.
 		if (!$recipientId) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_MESSAGING_INVALID_RECIPIENT'));
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Do not allow user to send a message to himself, it's crazy.
 		if ($recipientId == $this->my->id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_CONVERSATION_CANNOT_TALK_TO_SELF'));
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Get message from query.
@@ -136,7 +130,7 @@ class EasydiscussControllerConversation extends EasyDiscussController
 			}
 
 			ED::setMessage($message);
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Create a new conversation
@@ -151,24 +145,23 @@ class EasydiscussControllerConversation extends EasyDiscussController
 		ED::setMessage(JText::_('COM_EASYDISCUSS_MESSAGE_SENT'));
 
 		$redirect = EDR::_('view=conversation&id=' . $conversation->id, false);
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
-	 * Archives a conversation
+	 * Toggling archives for conversations.
 	 *
-	 * @since	4.0
+	 * @since	5.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
-	public function archive()
+	public function toggleArchive()
 	{
 		// Check for request forgeries
 		ED::checkToken();
 
 		// Detect the message id.
 		$id = $this->input->get('id', 0, 'int');
+		$type = $this->input->get('type', 'archive', 'string');
 
 		// Default redirection
 		$redirect = EDR::_('view=conversation', false);
@@ -177,21 +170,21 @@ class EasydiscussControllerConversation extends EasyDiscussController
 		$conversation = ED::conversation($id);
 
 		if (!$id || !$conversation->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+			throw ED::exception('COM_EASYDISCUSS_SYSTEM_INVALID_ID', ED_MSG_ERROR);
 		}
 
 		// Test if user has access
 		if (!$conversation->canAccess()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Archive the conversation now
-		$conversation->archive();
+		$conversation->$type();
 
-		ED::setMessage('COM_EASYDISCUSS_CONVERSATION_IS_NOW_ARCHIVED', 'success');
+		ED::setMessage('COM_EASYDISCUSS_CONVERSATION_IS_NOW_' . strtoupper($type), 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -199,8 +192,6 @@ class EasydiscussControllerConversation extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function delete()
 	{
@@ -217,19 +208,19 @@ class EasydiscussControllerConversation extends EasyDiscussController
 		$redirect = EDR::_('view=conversation', false);
 
 		if (!$id || !$conversation->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'));
+			throw ED::exception('COM_EASYDISCUSS_SYSTEM_INVALID_ID', ED_MSG_ERROR);
 		}
 
 		// Test if user has access
 		if (!$conversation->canAccess()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Delete the conversation now
 		$conversation->delete();
 
 		ED::setMessage('COM_EASYDISCUSS_CONVERSATION_DELETED_SUCCESSFULLY', 'success');
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 }

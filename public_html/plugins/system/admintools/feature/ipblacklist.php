@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,7 +9,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 {
@@ -83,7 +83,7 @@ class AtsystemFeatureIpblacklist extends AtsystemFeatureAbstract
 				$this->container->platform->setSessionVar('message', $message, 'com_admintools');
 
 				// Close the session (logs out the user)
-				Factory::getSession()->close();
+				$this->container->session->close();
 
 				$base = Uri::base();
 

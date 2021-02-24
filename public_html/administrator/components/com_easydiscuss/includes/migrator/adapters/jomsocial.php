@@ -186,7 +186,7 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 
 	public function createCategory($group)
 	{
-		$title = JString::strtolower($group->name);
+		$title = EDJString::strtolower($group->name);
 
 		// Check if the category exists
 		$query = 'select * from `#__discuss_category`';
@@ -204,7 +204,7 @@ class EasyDiscussMigratorJomsocial extends EasyDiscussMigratorBase
 		$category = ED::table('Category');
 
 		$category->title = $group->name;
-		$category->alias = JString::strtolower($group->name);
+		$category->alias = EDJString::strtolower($group->name);
 		$category->published = $group->published;
 		$category->created_by = $group->ownerid;
 

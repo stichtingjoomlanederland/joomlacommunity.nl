@@ -163,10 +163,12 @@ class PlgPwtSitemapK2 extends PwtSitemapPlugin
 		$jinput = Factory::getApplication()->input;
 		$jinput->set('view', 'itemlist');
 		$jinput->set('task', 'category');
-		$jinput->set('id', $categoryId);
 		$jinput->set('featured', 1);
 		$jinput->set('limit', 0);
 		$jinput->set('clearFlag', true);
+
+		// Need this legacy here for proper category setting
+		JRequest::setVar('id', $categoryId);
 
 		return $model->getData();
 	}

@@ -57,7 +57,7 @@ class EasyDiscussControllerSearch extends EasyDiscussController
 		}
 
 		$url = EDR::_('view=search&query=' . $query . $catQuery . $tagQuery . $postTypeQuery, false);
-		$this->app->redirect($url);
+		ED::redirect($url);
 	}
 
 }

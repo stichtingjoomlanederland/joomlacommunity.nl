@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -73,6 +73,13 @@ class Html extends BaseView
 	public $profilesList = [];
 
 	/**
+	 * List of frozen options for JHtmlSelect
+	 *
+	 * @var  array
+	 */
+	public $frozenList = [];
+
+	/**
 	 * Order direction, ASC/DESC
 	 *
 	 * @var  string
@@ -113,6 +120,13 @@ class Html extends BaseView
 	 * @var  string
 	 */
 	public $fltProfile = '';
+
+	/**
+	 * Frozen records filter
+	 *
+	 * @var string
+	 */
+	public $fltFrozen = '';
 
 	/**
 	 * List of records to display
@@ -168,7 +182,7 @@ class Html extends BaseView
 	public function onBeforeMain()
 	{
 		// Load custom Javascript for this page
-		$this->container->template->addJS('media://com_akeeba/js/Manage.min.js');
+		$this->container->template->addJS('media://com_akeeba/js/Manage.min.js', true, false, $this->container->mediaVersion);
 
 		$user              = $this->container->platform->getUser();
 		$this->permissions = [
@@ -204,6 +218,8 @@ class Html extends BaseView
 		$this->fltTo            = $platform->getUserStateFromRequest($hash . 'filter_to', 'to', $input, '');
 		$this->fltOrigin        = $platform->getUserStateFromRequest($hash . 'filter_origin', 'origin', $input, '');
 		$this->fltProfile       = $platform->getUserStateFromRequest($hash . 'filter_profile', 'profile', $input, '');
+		$this->fltFrozen        = $platform->getUserStateFromRequest($hash . 'filter_frozen', 'frozen', $input, '');
+
 		$this->lists            = new stdClass();
 		$this->lists->order     = $platform->getUserStateFromRequest($hash . 'filter_order', 'filter_order', $input, 'backupstart');
 		$this->lists->order_Dir = $platform->getUserStateFromRequest($hash . 'filter_order_Dir', 'filter_order_Dir', $input, 'DESC');
@@ -251,6 +267,12 @@ class Html extends BaseView
 		$this->profilesList = $profilesList; // Profiles list for select box
 		$this->itemCount    = count($this->items);
 		$this->pagination   = $model->getPagination($filters); // Pagination object
+
+		$this->frozenList = [
+			JHtml::_('select.option', '', '–' . JText::_('COM_AKEEBA_BUADMIN_LABEL_FROZEN_SELECT') . '–'),
+			JHtml::_('select.option', '1', JText::_('COM_AKEEBA_BUADMIN_LABEL_FROZEN_FROZEN')),
+			JHtml::_('select.option', '2', JText::_('COM_AKEEBA_BUADMIN_LABEL_FROZEN_UNFROZEN')),
+		];
 
 		if ($this->lists->order_Dir)
 		{
@@ -318,11 +340,6 @@ class Html extends BaseView
 		if ($unit == 0)
 		{
 			$decimals = 0;
-		}
-
-		if (version_compare(PHP_VERSION, '5.6.0', 'lt'))
-		{
-			return number_format($sizeInBytes / 1024 ** $unit, $decimals, $decSeparator, $thousandsSeparator) . ' ' . $units[$unit];
 		}
 
 		return number_format($sizeInBytes / (1024 ** $unit), $decimals, $decSeparator, $thousandsSeparator) . ' ' . $units[$unit];
@@ -567,6 +584,7 @@ class Html extends BaseView
 				'value'   => $to,
 			];
 		}
+
 		if ($this->fltOrigin)
 		{
 			$filters[] = [
@@ -575,12 +593,30 @@ class Html extends BaseView
 				'value'   => $this->fltOrigin,
 			];
 		}
+
 		if ($this->fltProfile)
 		{
 			$filters[] = [
 				'field'   => 'profile_id',
 				'operand' => '=',
 				'value'   => (int) $this->fltProfile,
+			];
+		}
+
+		if ($this->fltFrozen == 1)
+		{
+			$filters[] = [
+				'field'   => 'frozen',
+				'operand' => '=',
+				'value'   => 1,
+			];
+		}
+		elseif ($this->fltFrozen == 2)
+		{
+			$filters[] = [
+				'field'   => 'frozen',
+				'operand' => '=',
+				'value'   => 0,
 			];
 		}
 

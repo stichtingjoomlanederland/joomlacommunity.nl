@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewSubscription extends EasyDiscussView
 {
@@ -49,9 +47,8 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$theme->set('type', $type);
 		$theme->set('subscription', $subscription);
 		$theme->set('interval', $interval);
-
-		$namespace = 'site/subscription/dialog.subscribe.' . $type;
-		$output = $theme->output($namespace);
+		
+		$output = $theme->output('site/subscription/dialogs/form');
 
 		return $this->ajax->resolve($output);
 	}
@@ -69,8 +66,7 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$cid = $this->input->get('cid', '', 'int');
 		$sid = $this->input->get('sid', '', 'int');
 
-		if (! $sid) {
-			// TODO: show error
+		if (!$sid) {
 			return;
 		}
 
@@ -79,14 +75,14 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$theme->set('type', $type);
 		$theme->set('sid', $sid);
 
-		$namespace = 'site/subscription/dialog.unsubscribe';
+		$namespace = 'site/subscription/dialogs/unsubscribe';
 		$output = $theme->output($namespace);
 
 		return $this->ajax->resolve($output);
 	}
 
 	/**
-	 * process un-subscribe
+	 * Process user request to unsubscribe from subscription
 	 *
 	 * @since	4.0
 	 * @access	public
@@ -100,38 +96,47 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$type = $this->input->get('type', null);
 		$sid = $this->input->get('sid', 0, 'int');
 
-		if (! $sid) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
+		if (!$sid) {
+			die("no sid");
 		}
 
 		$sub = ED::table('Subscribe');
 		$state = $sub->load($sid);
 
-		if (! $state) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_NOT_FOUND'));
+		if (!$state) {
+			die("not found");
+		}
+
+		// Ensure that the user can truly delete
+		if ($sub->member && $sub->userid != $this->my->id) {
+			die();
 		}
 
 		$state = $sub->delete();
 
-		if (! $state) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED_ERROR_DELETING_RECORDS'));
+		if (!$state) {
+			return $this->ajax->reject('COM_EASYDISCUSS_SUBSCRIPTION_UNSUBSCRIBE_FAILED_ERROR_DELETING_RECORDS');
 		}
 
-		$message = JText::_('COM_EASYDISCUSS_UNSUBSCRIPTION_SITE_SUCCESS');
+		$message = 'COM_EASYDISCUSS_UNSUBSCRIPTION_SITE_SUCCESS';
+		
 		if ($type == 'category') {
-			$message = JText::_('COM_EASYDISCUSS_UNSUBSCRIPTION_CATEGORY_SUCCESS');
-		} else if ($type == 'post') {
-			$message = JText::_('COM_ED_SUBSCRIPTION_UNSUBSCRIBE_DISCUSSION_SUCCESS');
+			$message = 'COM_EASYDISCUSS_UNSUBSCRIPTION_CATEGORY_SUCCESS';
 		}
+
+		if ($type == 'post') {
+			$message = 'COM_ED_SUBSCRIPTION_UNSUBSCRIBE_DISCUSSION_SUCCESS';
+		}
+		
+		$message = JText::_($message);
 
 		return $this->ajax->resolve($message);
-
 	}
 
 	/**
-	 * process subscription
+	 * Post process after the user subscribes
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function process()
@@ -143,7 +148,6 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$type = $this->input->get('type', null);
 		$name = $this->input->get('subscribe_name', '', 'string');
 		$email = $this->input->get('subscribe_email', '', 'string');
-		// $interval = $this->input->get('subscription_interval' ,'weekly', 'string');
 
 		// Allowed subscription types
 		$allowed = array('site', 'post', 'category');
@@ -181,8 +185,8 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		// Apply filtering on the name.
 		$filter = JFilterInput::getInstance();
 		$name = $filter->clean($name, 'STRING');
-		$email = JString::trim($email);
-		$name = JString::trim($name);
+		$email = EDJString::trim($email);
+		$name = EDJString::trim($name);
 
 
 		// Check for empty email
@@ -212,19 +216,16 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		$data['name'] = ($this->my->id)? $this->my->name : $name;
 		$data['interval'] = ($subscription) ? $subscription->interval : $interval;
 
-		$withSetting = ($this->my->id) ? '_WITH_LINK' : '';
-
-		$successMsg = JText::_('COM_EASYDISCUSS_SUBSCRIPTION_SUBSCRIBED_SUCCESSFULLY');
+		$message = JText::_('COM_ED_SUBSCRIBED_SUCCESSFULLY');
+		$manageLink = '';
 
 		if ($this->my->id) {
-
 			$filter = ($type == 'category') ? '&filter=category' : '';
-			$settingLink = EDR::_('view=subscription' . $filter);
-			$successMsg = JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_SUBSCRIBED_SUCCESSFULLY_WITH_LINK', $settingLink);
+			$manageLink = EDR::_('view=subscription' . $filter);
 		}
 
 		if ($subscription) {
-			return $this->ajax->resolve($successMsg);
+			return $this->ajax->resolve($message, $manageLink);
 		}
 
 		// If there is no subscription record for this user, add it here
@@ -232,65 +233,99 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED'));
 		}
 
-		return $this->ajax->resolve($successMsg);
+		return $this->ajax->resolve($message, $manageLink);
 	}
 
-	public function tab()
+	/**
+	 * Renders the post process dialog
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function postProcess()
+	{
+		$contents = $this->input->get('contents', '', 'default');
+		$manageLink = $this->input->get('manageLink', '', 'default');
+
+		$theme = ED::themes();
+		$theme->set('manageLink', $manageLink);
+		$theme->set('contents', $contents);
+		$output = $theme->output('site/subscription/dialogs/process');
+
+		return $this->ajax->resolve($output);
+	}
+
+	/**
+	 * Renders the tab when viewing my subscriptions
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function renderTab()
 	{
 		// always reset the limitstart.
-		JRequest::setVar('limitstart', 0);
+		$this->input->set('limitstart', 0);
 
 		$type = $this->input->get('type', '', 'cmd');
-		$id = $this->input->get('id', '', 'int');
 
 		// Load subscription library.
 		$subscription = ED::subscription();
 		$model = ED::model('Subscribe');
 
+		// Only allowed specific filter types
+		$allowedFilters = ['category', 'post'];
+
+		if (!in_array($type, $allowedFilters)) {
+			die('not allowed');
+		}
+
 		$options = array(
-			'userid' => $id,
+			'userid' => $this->my->id,
 			'type' => $type,
-			);
+		);
 
 		// Get posts subscriptions from the user.
-		$content = $model->getSubscriptionBy($options);
+		$items = $model->getSubscriptionBy($options);
 
 		// Format the content base on the type
-		$content = $subscription->format($content, $type);
-
-		$namespace = 'site/subscription/default.item';
-
-		if ($type == 'category') {
-			$namespace = 'site/subscription/default.category';
-		}
-
+		$items = $subscription->format($items, $type);
 		$pagination = $model->getPagination()->getPagesLinks('subscription', array('filter' => $type), true);
 
-		$theme = ED::themes();
+		$namespace = 'site/subscription/listings/posts';
 
-		$contents = '';
-
-		foreach ($content as $post) {
-			$theme->set('post', $post);
-			$contents .= $theme->output($namespace);
+		if ($type == 'category') {
+			$namespace = 'site/subscription/listings/categories';
 		}
 
-		return $this->ajax->resolve($contents, $pagination);
+		$theme = ED::themes();
+		$theme->set('pagination', $pagination);
+		$theme->set('items', $items);
+		$contents = $theme->output($namespace);
+
+		return $this->ajax->resolve($contents);
 	}
 
-	public function subscribeToggle()
+	/**
+	 * Toggles site wide subscription for user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function toggleSiteSubscription()
 	{
-		$id = $this->input->get('id', '', 'cmd');
-
-		// create a new function to enable or disable subscriptions notification.
-		// work in progress
 		$model = ED::model('subscribe');
 
-		$result = $model->subscribeToggle($id);
+		$result = $model->subscribeToggle($this->my->id);
 
 		return $result;
 	}
 
+	/**
+	 * Updates the subscription interval
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function updateSubscribeInterval()
 	{
 		$id = $this->input->get('id', '', 'cmd');
@@ -303,6 +338,12 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		return $this->ajax->resolve($result);
 	}
 
+	/**
+	 * Updates the subscription sorting behavior
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function updateSubscribeSort()
 	{
 		$id = $this->input->get('id', '', 'cmd');
@@ -315,6 +356,12 @@ class EasyDiscussViewSubscription extends EasyDiscussView
 		return $this->ajax->resolve($result);
 	}
 
+	/**
+	 * Updates the subscription limit behavior
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function updateSubscribeCount()
 	{
 		$id = $this->input->get('id', '', 'cmd');

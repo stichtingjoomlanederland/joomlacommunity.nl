@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymconditionClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class ConditionClass extends acymClass
 {
     var $table = 'condition';
     var $pkey = 'id';
@@ -16,16 +18,12 @@ class acymconditionClass extends acymClass
 
     public function delete($elements)
     {
-        if (!is_array($elements)) {
-            $elements = [$elements];
-        }
+        if (empty($elements)) return 0;
+
+        if (!is_array($elements)) $elements = [$elements];
         acym_arrayToInteger($elements);
 
-        if (empty($elements)) {
-            return 0;
-        }
-
-        $actionClass = acym_get('class.action');
+        $actionClass = new ActionClass();
         $actionsIds = $actionClass->getAllActionsIdByConditionsId($elements);
         if (!empty($actionsIds)) $actionClass->delete($actionsIds);
 
@@ -56,4 +54,3 @@ class acymconditionClass extends acymClass
         return acym_loadObjectList($query);
     }
 }
-

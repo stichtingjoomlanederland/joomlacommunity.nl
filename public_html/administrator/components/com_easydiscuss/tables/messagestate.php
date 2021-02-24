@@ -68,7 +68,7 @@ class DiscussMessageState extends EasyDiscussTable
 	 */
 	public function loadByComposite( $messageId , $userId )
 	{
-		$db 	= DiscussHelper::getDBO();
+		$db 	= ED::db();
 
 		$query 		= array();
 		$query[]	= 'SELECT * FROM ' . $db->nameQuote( $this->_tbl );

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -24,7 +24,7 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	public function display($tpl = null)
 	{
 		// If user access this page manually, automatically redirect to the facebook page
-		$this->app->redirect('index.php?option=com_easydiscuss&view=autoposting&layout=facebook');
+		ED::redirect('index.php?option=com_easydiscuss&view=autoposting&layout=facebook');
 
 		parent::display('autoposting/default');
 	}
@@ -37,8 +37,8 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 */
 	public function facebook($tpl = null)
 	{
-		// Set page title
 		$this->title('COM_EASYDISCUSS_AUTOPOST_FACEBOOK');
+		$this->addHelpButton('/docs/easydiscuss/administrators/autoposting/facebook-application');
 
 		// Generate a default callback url
 		$callback = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=autoposting&layout=facebook', false, true);
@@ -118,8 +118,8 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 */
 	public function twitter($tpl = null)
 	{
-		// Set page attributes
 		$this->title('COM_EASYDISCUSS_AUTOPOST_TWITTER');
+		$this->addHelpButton('/docs/easydiscuss/administrators/autoposting/twitter-application');
 
 		// Register buttons here
 		JToolBarHelper::apply();
@@ -156,9 +156,9 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 */
 	public function linkedin($tpl = null)
 	{
-		// Set page attributes
 		$this->title('COM_EASYDISCUSS_AUTOPOST_LINKEDIN');
-
+		$this->addHelpButton('/docs/easydiscuss/administrators/autoposting/linkedin-application');
+		
 		// Register buttons here
 		JToolBarHelper::apply();
 
@@ -226,8 +226,8 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 */
 	public function telegram($tpl = null)
 	{
-		// Set page attributes
 		$this->title('COM_EASYDISCUSS_AUTOPOST_TELEGRAM');
+		$this->addHelpButton('/docs/easydiscuss/administrators/autoposting/telegram-application');
 
 		// Register buttons here
 		JToolBarHelper::apply();
@@ -243,10 +243,9 @@ class EasyDiscussViewAutoposting extends EasyDiscussAdminView
 	 */
 	public function slack($tpl = null)
 	{
-		// Set page attributes
 		$this->title('COM_EASYDISCUSS_AUTOPOST_SLACK');
-
-		// Register buttons here
+		$this->addHelpButton('/docs/easydiscuss/administrators/autoposting/slack-application');
+		
 		JToolBarHelper::apply();
 
 		parent::display('autoposting/slack');

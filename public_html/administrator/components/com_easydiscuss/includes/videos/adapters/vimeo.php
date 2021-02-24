@@ -25,19 +25,23 @@ class DiscussVideoVimeo
 		
 		return false;
 	}
-	
-	public function getEmbedHTML( $url )
+
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		$code	= $this->getCode( $url );
 
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$width	= $config->get( 'bbcode_video_width' );
 		$height	= $config->get( 'bbcode_video_height' );
 
-		if( $code )
-		{
+		if ($code) {
+			if ($isAmp) {
+				return '<amp-vimeo data-videoid="' . $code . '" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-vimeo>';
+			}
+
 			return '<div class="ed-video ed-video--16by9"><iframe src="https://player.vimeo.com/video/' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>';
 		}
+
 		return false;
 	}
 }

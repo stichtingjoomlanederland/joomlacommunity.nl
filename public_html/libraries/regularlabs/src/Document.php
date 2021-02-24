@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -23,6 +23,34 @@ use Joomla\CMS\Language\Text as JText;
  */
 class Document
 {
+	/**
+	 * Check if the current setup matches the given main version number
+	 *
+	 * @param int    $version
+	 * @param string $title
+	 *
+	 * @return bool
+	 */
+	public static function isJoomlaVersion($version, $title = '')
+	{
+		if ((int) JVERSION == $version)
+		{
+			return true;
+		}
+
+		if ($title)
+		{
+			Language::load('plg_system_regularlabs');
+
+			JFactory::getApplication()->enqueueMessage(
+				JText::sprintf('RL_NOT_COMPATIBLE_WITH_JOOMLA_VERSION', JText::_($title), (int) JVERSION),
+				'error'
+			);
+		}
+
+		return false;
+	}
+
 	/**
 	 * Check if page is an admin page
 	 *
@@ -115,7 +143,7 @@ class Document
 
 		return Cache::set($cache_id,
 			(
-				in_array($option, ['com_contentsubmit', 'com_cckjseblod'])
+				in_array($option, ['com_config', 'com_contentsubmit', 'com_cckjseblod'])
 				|| ($option == 'com_comprofiler' && in_array($task, ['', 'userdetails']))
 				|| in_array($task, ['edit', 'form', 'submission'])
 				|| in_array($view, ['edit', 'form'])
@@ -195,6 +223,16 @@ class Document
 				|| $input->getWord('cAction') == 'pdf'
 			)
 		);
+	}
+
+	/**
+	 * Checks if current page is a JSON format fle
+	 *
+	 * @return bool
+	 */
+	public static function isJSON()
+	{
+		return JFactory::getApplication()->input->get('format') == 'json';
 	}
 
 	/**
@@ -283,7 +321,7 @@ class Document
 		{
 			JHtml::_('behavior.core');
 			JHtml::_('script', 'jui/cms.js', ['version' => 'auto', 'relative' => true]);
-			$version = '20.7.20564';
+			$version = '20.12.24168';
 		}
 
 		if ( ! empty($version))
@@ -304,7 +342,7 @@ class Document
 	{
 		if (strpos($file, 'regularlabs/') === 0)
 		{
-			$version = '20.7.20564';
+			$version = '20.12.24168';
 		}
 
 		if ( ! $file = File::getMediaFile('css', $file))

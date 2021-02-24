@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,194 +9,150 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerReports extends EasyDiscussController
 {
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->checkAccess('discuss.manage.reports');
-    }
-
-	public function publish()
+	public function __construct()
 	{
-		$posts = $this->input->get('cid', array(), 'array');
-		$message = '';
-		$type = 'success';
+		parent::__construct();
 
-		if (count($posts) <= 0) {
-			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type = 'error';
-		} else {
-			$model = ED::model('Reports');
+		$this->checkAccess('discuss.manage.reports');
 
-			if ($model->publishPost($posts , 1)) {
-				$message = JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING_POST');
-				$type = 'error';
-			}
-		}
-
-		ED::setMessage($message, $type);
-		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
-	}
-
-	public function unpublish()
-	{
-		$posts = $this->input->get('cid', array(), 'array');
-		$message = '';
-		$type = 'success';
-
-		if (count($posts) <= 0) {
-			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type = 'error';
-		} else {
-			$model = ED::model('Reports');
-
-			if ($model->publishPost($posts , 0)) {
-				$message = JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING_POST');
-				$type = 'error';
-			}
-		}
-
-		ED::setMessage($message, $type);
-		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
+		$this->registerTask('publish', 'togglePublish');
+		$this->registerTask('unpublish', 'togglePublish');
 	}
 
 	/**
-	 * Publish/unpublish post.
+	 * Toggles the publishing state of the posts
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function togglePublish()
 	{
-		$postId = $this->input->get('post_id', array(), 'array');
-		$postVal = $this->input->get('post_val', 0, 'int');
+		$cid = $this->input->get('cid', array(), 'int');
+		$task = $this->getTask();
+
+		if (!$cid) {
+			die('Invalid id provided');
+		}
+
+		$message = JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
+
+		if ($task == 'unpublish') {
+			$message = JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
+		}
 
 		$model = ED::model('Reports');
-		$message = '';
-		$type = 'success';
 
-		if (empty($postId)) {
-			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type = 'error';
+		foreach ($cid as $id) {
+			$id = (int) $id;
+			$action = $task == 'publish' ? 'publish' : 'unpublish';
+
+			$post = ED::post($id);
+			$state = $post->$action();
+
+			if ($state) {
+				// log the current action into database.
+				$actionlog = ED::actionlog();
+				$action = strtoupper($action);
+
+				$actionlogMsg = $actionlog->normalizeActionLogConstants($post->isReply(), 'COM_ED_ACTIONLOGS_REPORT_POST_' . $action);
+				$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($post);
+				$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($post);
+
+				$actionlog->log($actionlogMsg, 'report', array(
+					'link' => $actionlogPostPermalink,
+					'postTitle' => $actionlogPostTitle
+				));				
+			}
 		}
 
-		if ($postVal && !empty($postId)) {
-			if ($model->publishPost($postId , 1)) {
-				$message = JText::_('COM_EASYDISCUSS_POST_PUBLISHED');
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ERROR_PUBLISHING_POST');
-				$type = 'error';
-			}
-		} else {
-			if ($model->publishPost($postId, 0)) {
-				$message = JText::_('COM_EASYDISCUSS_POST_UNPUBLISHED');
-			} else {
-				$message = JText::_('COM_EASYDISCUSS_ERROR_UNPUBLISHING_POST');
-				$type = 'error';
-			}
-		}
-
-		ED::setMessage($message, $type);
-		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
+		ED::setMessage($message, 'success');
+		ED::redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
 	/**
-	 * Remove reports of a discussion.
+	 * Remove just the reports from the site
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function removeReports()
-	{
-		$postId = $this->input->get('post_id', 0, 'int');
-
-		$model = ED::model('Reports');
-		$message = '';
-		$type = 'success';
-
-		if (empty($postId)) {
-			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type = 'error';
-		} else {
-			$model->removeReports($postId);
-			$message = JText::_('COM_EASYDISCUSS_REPORT_ABUSE_REMOVED');
-		}
-
-		ED::setMessage($message, $type);
-		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
-	}
-
-	public function edit()
-	{
-		$id = $this->input->getInt('id', 0);
-
-		$this->input->set('view', 'post');
-		$this->input->set('id', $id);
-		$this->input->set('source', 'reports');
-
-		parent::display();
-	}
-
 	public function remove()
 	{
-		$post = $this->input->get('cid', array(0), 'POST');
-		$post = $this->get('cid', array(), 'ARRAY');
+		$cid = $this->input->get('cid', array(), 'int');
 
-		$message = '';
-		$type = 'success';
-
-		if (count($post) <= 0) {
-			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			$type = 'error';
-		} else {
-			$model = ED::model('Reports');
-
-			for ($i = 0; $i < count($post); $i++) {
-				$pid = $post[$i];
-				$model->removePostReports($pid);
-			}
-
-			$message = JText::_('COM_EASYDISCUSS_POST_DELETED');
+		if (!$cid) {
+			die('Invalid id provided');
 		}
 
-		ED::setMessage($message, $type);
-		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
+		$model = ED::model('Reports');
+
+		foreach ($cid as $id) {
+			$id = (int) $id;
+
+			// Remove all reports associated with the post
+			$state = $model->removePostReports($id);
+
+			if ($state) {
+				// log the current action into database.
+				$actionlog = ED::actionlog();
+				$actionlog->log('COM_ED_ACTIONLOGS_REPORT_RECORD_DELETED', 'report');
+			}		
+		}
+
+		ED::setMessage('COM_ED_SELECTED_REPORTS_DELETED', 'success');
+		ED::redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 
-	public function deletePost()
+	/**
+	 * Delete posts associated with the reports
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function deletePosts()
 	{
-		$id = $this->input->get('post_id', 0, 'int');
+		$ids = $this->input->get('cid', 0, 'int');
 
-		if (!$id) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=reports');
+		if (!$ids) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'), ED_MSG_ERROR);
+			return ED::redirect('index.php?option=com_easydiscuss&view=reports');
+		}
+			
+		$model = ED::model('Reports');	
+
+		foreach ($ids as $id) {
+			$id = (int) $id;
+			$post = ED::post($id);
+
+			// log the current action into database.
+			$actionlog = ED::actionlog();
+
+			$actionlogMsg = $actionlog->normalizeActionLogConstants($post->isReply(), 'COM_ED_ACTIONLOGS_REPORT_POST_DELETED');
+			$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($post);
+			$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($post);
+
+			// Delete the post
+			$state = $post->delete();
+
+			if ($state) {
+				$actionlog->log($actionlogMsg, 'report', array(
+					'link' => $actionlogPostPermalink,
+					'postTitle' => $actionlogPostTitle
+				));
+			}
+
+			// Remove all reports related to the post first
+			$status = $model->removePostReports($id);
+
+			if ($status) {
+				$actionlog->log('COM_ED_ACTIONLOGS_REPORT_RECORD_DELETED', 'report');
+			}
 		}
 		
-		$model = ED::model('Reports');
-		$status = $model->removePostReports($id);
-
-		// Let the post library handle the delete post.
-		if ($status) {
-			$post = ED::post($id);
-			$status = $post->delete();
-		}
-
-		$message = JText::_('COM_EASYDISCUSS_POST_DELETED');
-		ED::setMessage(JText::_('COM_EASYDISCUSS_POST_DELETED'), 'success');
-
-		$this->app->redirect('index.php?option=com_easydiscuss&view=reports');
+		ED::setMessage('COM_ED_SELECTED_POSTS_AND_REPORTS_DELETED_SUCCESSFULLY', 'success');
+		ED::redirect('index.php?option=com_easydiscuss&view=reports');
 	}
 }

@@ -19,10 +19,11 @@ if (!JFile::exists($path)) {
 }
 
 require_once ($path);
-require_once dirname(__FILE__) . '/helper.php';
 
 ED::init();
+$lib = ED::modules($module);
+$helper = $lib->getHelper(false);
 
-$tagcloud = modEDTagCloud::getTagCloud($params);
+$tagcloud = $helper->getTagCloud($params);
 
 require(JModuleHelper::getLayoutPath('mod_easydiscuss_tag_cloud'));

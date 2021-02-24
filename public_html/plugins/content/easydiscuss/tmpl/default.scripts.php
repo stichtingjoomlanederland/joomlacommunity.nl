@@ -63,7 +63,7 @@ ed.require(['edq', 'site/vendors/gmaps', 'https://maps.google.com/maps/api/js?la
 <?php } ?>
 
 <?php if ($system->config->get('main_likes_discussions') || $system->config->get('main_likes_replies')) { ?>
-ed.require(['edq', 'site/src/like'], function($) {});
+ed.require(['edq', 'site/src/likes'], function($) {});
 <?php } ?>
 
 

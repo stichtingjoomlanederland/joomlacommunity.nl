@@ -8,79 +8,28 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <h1><?php echo JText::sprintf('COM_RSEVENTSPRO_EDIT_LOCATION',$this->row->name); ?></h1>
 
-<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editlocation'); ?>" method="post" name="locationForm" id="locationForm">
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_name"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_NAME'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" id="jform_name" name="jform[name]" value="<?php echo $this->escape($this->row->name); ?>" class="input-large" />
-		</div>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_url"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_URL'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" id="jform_url" name="jform[url]" value="<?php echo $this->escape($this->row->url); ?>" class="input-large" />
-		</div>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_address"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_ADDRESS'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" autocomplete="off" id="jform_address" name="jform[address]" value="<?php echo $this->escape($this->row->address); ?>" class="input-large" />
-			<?php if (rseventsproHelper::getConfig('map')) { ?><button type="button" style="border:medium none;height:30px;" id="rsepro-pinpoint"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_PINPOINT'); ?></button><?php } ?>
-		</div>
-	</div>
+<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editlocation'); ?>" method="post" name="locationForm" id="locationForm" class="rsepro-horizontal">
 	
-	<?php if (rseventsproHelper::isGallery()) { ?>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_gallery_tags" style="margin-top: 10px;"><?php echo JText::_('COM_RSEVENTSPRO_GALLERY_TAGS'); ?></label>
-		</div>
-		<div class="controls">
-			<select name="jform[gallery_tags][]" id="jform_gallery_tags" multiple="multiple" class="rs200 rschosen">
-				<?php echo JHtml::_('select.options',rseventsproHelper::getGalleryTags(),'value','text', $this->row->gallery_tags); ?>
-			</select>
-		</div>
-	</div>
-	<?php } ?>
+	<?php echo $this->form->renderField('name'); ?>
+	<?php echo $this->form->renderField('url'); ?>
+	<?php $input = $this->config->map ? ' <button type="button" id="rsepro-pinpoint" class="btn btn-secondary">'.JText::_('COM_RSEVENTSPRO_LOCATION_PINPOINT').'</button>' : ''; ?>
+	<?php $inputGroup = $input ? RSEventsproAdapterGrid::inputGroup($this->form->getInput('address'), null, $input) : $this->form->getInput('address'); ?>
+	<?php echo RSEventsproAdapterGrid::renderField($this->form->getLabel('address'), $inputGroup); ?>
+	<?php if (rseventsproHelper::isGallery()) echo $this->form->renderField('gallery_tags'); ?>
 	
-	<div class="control-group clearfix">
-		<div class="controls">
-			<?php echo JEditor::getInstance(JFactory::getConfig()->get('editor'))->display('jform[description]',$this->row->description,'80%', '70%', 20, 7, rseventsproHelper::getConfig('enable_buttons','bool')); ?>
-		</div>
-	</div>
+	<div class="clearfix"></div>
+	<?php echo $this->form->getInput('description'); ?>
+	<div class="clearfix"></div>
 	
-	<?php if (rseventsproHelper::getConfig('map')) { ?>
-	<div class="control-group">
-		<div class="controls">
-			<div id="map-canvas" style="width:100%;height: 400px"></div>
-		</div>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_coordinates"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_COORDINATES'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" id="jform_coordinates" name="jform[coordinates]" value="<?php echo $this->escape($this->row->coordinates); ?>" class="input-large" />
-		</div>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="jform_marker"><?php echo JText::_('COM_RSEVENTSPRO_LOCATION_MARKER'); ?></label>
-		</div>
-		<div class="controls">
-			<?php echo $this->form->getInput('marker'); ?>
-		</div>
-	</div>
+	<?php if ($this->config->map) { ?>
+	<div id="map-canvas" style="width:100%;height: 400px" class="mb-2 mt-2"></div>
+	<?php echo $this->form->renderField('coordinates'); ?>
+	<?php echo $this->form->renderField('marker'); ?>
 	<?php } ?>
 	
 	<div class="form-actions">
-		<button type="button" class="button btn btn-primary" onclick="document.locationForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
-		<a class="btn" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=locations'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></a>
+		<button type="button" class="btn btn-primary" onclick="document.locationForm.submit();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button>
+		<a class="btn btn-danger" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=locations'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL'); ?></a>
 	</div>
 	
 	<?php echo JHTML::_('form.token')."\n"; ?>

@@ -40,7 +40,7 @@ class DiscussCustomfieldsRule extends EasyDiscussTable
 			parent::load( $key );
 		}
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query = 'SELECT * FROM ' . $db->nameQuote( '#__discuss_customfields_rule' )
 				. ' WHERE ' . $db->nameQuote( 'field_id' ) . '=' . $db->Quote( $key );

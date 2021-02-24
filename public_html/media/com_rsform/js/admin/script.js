@@ -1422,8 +1422,9 @@ function enableEmailMode(type, value)
 {
 	var opener = type == 'User' ? 'UserEmailText' : 'AdminEmailText';
 	var id = type == 'User' ? 'rsform_edit_user_email' : 'rsform_edit_admin_email';
+	var formId = document.getElementById('formId').value;
 
-	document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=<?php echo $this->form->FormId; ?>&tmpl=component" + (value < 1 ? '&noEditor=1' : '') + "')");
+	document.getElementById(id).setAttribute('onclick', "openRSModal('index.php?option=com_rsform&task=richtext.show&opener=" + opener + "&formId=" + formId + "&tmpl=component" + (value < 1 ? '&noEditor=1' : '') + "')");
 }
 
 RSFormPro.Post = {};

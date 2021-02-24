@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><button class="acym_vcenter align-center acym__toolbar__button acy_button_submit cell medium-6 large-shrink <?php echo $data['isPrimary'] ? 'acym__toolbar__button-primary' : 'acym__toolbar__button-secondary' ?>"
+<button class="acym_vcenter align-center acy_button_submit cell medium-6 large-shrink button <?php echo $data['isPrimary'] ? '' : 'button-secondary'; ?>"
 
 <?php foreach ($data['attributes'] as $attribute => $value) {
     echo $attribute.'="'.acym_escape($value).'" ';
@@ -15,4 +13,3 @@ if (!empty($data['icon'])) {
 echo '  '.$data['content'];
 ?>
 </button>
-

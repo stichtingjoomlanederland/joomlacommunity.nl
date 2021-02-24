@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymtoolbarHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Libraries\acymObject;
+
+class ToolbarHelper extends acymObject
 {
     var $leftPart = '';
     var $rightPart = '';
@@ -13,12 +15,12 @@ class acymtoolbarHelper extends acymObject
     {
         $data = [];
         $data['icon'] = $icon;
-        $data['content'] = $textContent;
+        $data['content'] = acym_translation($textContent);
         $data['attributes'] = $attributes;
         $data['isPrimary'] = $isPrimary;
 
         ob_start();
-        include ACYM_PARTIAL.'toolbar'.DS.'button_main.php';
+        include acym_getPartial('toolbar', 'button_main');
         $this->rightPart .= ob_get_clean();
     }
 
@@ -36,7 +38,7 @@ class acymtoolbarHelper extends acymObject
 
     public function addFilterByTag(&$data, $name, $class)
     {
-        $allTags = new stdClass();
+        $allTags = new \stdClass();
         $allTags->name = acym_translation('ACYM_ALL_TAGS');
         $allTags->value = '';
         array_unshift($data['allTags'], $allTags);
@@ -72,7 +74,6 @@ class acymtoolbarHelper extends acymObject
         $data['rightPart'] = $this->rightPart;
         $data['nonPermanentPart'] = $this->nonPermanentPart;
         $data['moreOptionsPart'] = $this->moreOptionsPart;
-        include ACYM_PARTIAL.'toolbar'.DS.'toolbar.php';
+        include acym_getPartial('toolbar', 'toolbar');
     }
 }
-

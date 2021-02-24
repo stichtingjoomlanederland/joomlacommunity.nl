@@ -50,7 +50,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 
 		//get the number of events from database
 		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.posts.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -70,11 +70,11 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 	function _buildQuery()
 	{
 		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere();
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere();
+		$orderby = $this->_buildQueryOrderBy();
+		$db = ED::db();
 
-		$filter_tag			= JRequest::getInt( 'tagid' , '' );
+		$filter_tag = $this->input->get('tagid' , '', 'int');
 
 
 		$query	= 'SELECT DISTINCT a.* FROM ' . $db->nameQuote( '#__discuss_posts' ) . ' AS a ';
@@ -93,12 +93,12 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 	function _buildQueryWhere()
 	{
 		$mainframe			= JFactory::getApplication();
-		$db					= DiscussHelper::getDBO();
+		$db					= ED::db();
 
 		$filter_state 		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.filter_state', 'filter_state', '', 'word' );
 
 		$search 			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.posts.search', 'search', '', 'string' );
-		$search 			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$search 			= $db->getEscaped( trim(EDJString::strtolower( $search ) ) );
 
 		$where = array();
 
@@ -181,7 +181,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 	{
 		if( count( $posts ) > 0 )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$ids	= implode( ',' , $posts );
 
@@ -201,13 +201,13 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 			foreach( $posts as $postId )
 			{
 				// Load the reply
-				$reply = DiscussHelper::getTable( 'Posts' );
+				$reply = ED::table( 'Posts' );
 				$reply->load( $postId );
 
 				// We only need replies
 				if( !empty( $reply->parent_id ) )
 				{
-					$parent = DiscussHelper::getTable( 'Post' );
+					$parent = ED::table( 'Post' );
 					$parent->load( $reply->parent_id );
 
 					// Check if current reply date is more than the last replied date of the parent to determine if this reply is new or is an old pending moderate reply.
@@ -238,7 +238,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 
 	function getTotalPosts()
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query = 'SELECT COUNT(id) AS total FROM #__discuss_posts';
 		$db->setQuery( $query );
@@ -248,7 +248,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 
 	function getPostTags( $postId )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT a.* FROM `#__discuss_tags` AS a';
 		$query	.= ' LEFT JOIN `#__discuss_posts_tags` AS b';
@@ -263,7 +263,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 
 	function getPostRepliesCount( $postId )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT COUNT(1) FROM `#__discuss_posts`';
 		$query	.= ' WHERE `parent_id` = ' . $db->Quote($postId);
@@ -280,7 +280,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 	{
 		if( count( $posts ) > 0 )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$ids	= implode( ',' , $posts );
 
@@ -302,7 +302,7 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 	{
 		if( count( $blogs ) > 0)
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 			$blogs	= implode( ',' , $blogs );
 
 			$query	= 'SELECT `parent_id` FROM `#__discuss_posts`';
@@ -473,8 +473,57 @@ class EasyDiscussModelPost extends EasyDiscussAdminModel
 		$this->db->Query();
 	}
 
+	/**
+	 * Determine if the post has been modified
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 * @return
+	 */
+	public function hasModified($postId, $since = null)
+	{
+		$query = array();
 
+		$query[] = 'SELECT COUNT(1) FROM ' . $this->db->nameQuote('#__discuss_posts');
+		$query[] = 'WHERE ' . $this->db->nameQuote('id') . '=' . $this->db->Quote($postId);
 
+		if ($since) {
+			$query[] = 'AND ' . $this->db->nameQuote('modified') . '>=' . $this->db->Quote($since);
+		}
+
+		$query = implode(' ', $query);
+
+		$this->db->setQuery($query);
+		$result = $this->db->loadResult();
+
+		return (int) $result;
+	}
+
+	/**
+	 * Retrieve the assignment of the post
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 * @return
+	 */
+	public function getAssignment($postId)
+	{
+		$query = array();
+
+		$query[] = 'SELECT * FROM ' . $this->db->nameQuote('#__discuss_assignment_map');
+		$query[] = 'WHERE ' . $this->db->nameQuote('post_id') . '=' . $this->db->Quote($postId);
+
+		$query = implode(' ', $query);
+
+		$this->db->setQuery($query);
+		$result = $this->db->loadObject();
+
+		if (!$result) {
+			return false;
+		}
+
+		return $result;
+	}
 
 	/**
 	 * method to branch out a reply into discussion post.

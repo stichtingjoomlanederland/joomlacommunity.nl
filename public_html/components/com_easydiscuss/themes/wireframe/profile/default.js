@@ -1,48 +1,53 @@
-ed.require(['edq', 'easydiscuss', 'site/src/profile'], function($, EasyDiscuss, profile) {
+ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
-    // Initialize the profile app.
-    profile.execute('[data-profile-item]');
+var tabs = $('[data-ed-tab]');
+var loaded = [];
 
-<?php if ($profile->latitude && $profile->longitude) { ?>
-	function initialize() {
+$('[data-ed-toggle]').on('click', function() {
 
-		var mapCanvas = document.getElementById('ed-user-map');
-		var lat = <?php echo $profile->latitude; ?>;
-		var lng = <?php echo $profile->longitude; ?>;
-		var latLng = {lat: lat, lng: lng};
+var element = $(this);
+var parent = element.parent();
+var filter = element.data('filter');
 
-		var mapOptions = {
-		  center: new google.maps.LatLng(lat, lng),
-		  zoom: 15,
-		  mapTypeId: google.maps.MapTypeId.ROADMAP
-		}
+// Set active tab
+tabs.removeClass('active');
+parent.addClass('active');
 
-		var map = new google.maps.Map(mapCanvas, mapOptions)
 
-		var marker = new google.maps.Marker({
-			position: latLng,
-			map: map
-		})
+// Since badges are already preloaded, we do not need to do anything here
+if (filter == 'badges' || loaded[filter]) {
+	return;
+}
+
+var userId = element.parents('[data-profile-item]').data('id');
+var tabContent = $('#' + filter);
+
+tabContent.addClass('is-loading');
+
+var namespace = 'site/views/profile/render';
+
+if (filter == 'points') {
+	namespace = 'site/views/profile/getPointsHistory';
+}
+
+EasyDiscuss.ajax(namespace, {
+	filter: filter,
+	id: userId
+})
+.done(function(contents) {
+
+	if ($.trim(contents).length <= 0) {
+		tabContent.addClass('is-empty');
 	}
 
-	google.maps.event.addDomListener(window, 'load', initialize);    
-<?php } ?>
-    
-	$('[data-ed-profile-compose]').on('click', function() {
+	tabContent.removeClass('is-loading');
+	tabContent.find('[data-ed-list]').html(contents);
 
-	    // It needs to contain the user id otherwise this will not work
-    	var id = $(this).data('userid');
+	loaded[filter] = true;
+});
 
-	    // Displays the dialog to start a conversation.
-	    EasyDiscuss.dialog({
-	        content: EasyDiscuss.ajax('site/views/conversation/compose', {
-	            "id": id
-	        }),
-	        bindings: {
-	            "init": function() {
-	                console.log('initializing');
-	            }
-	        }
-	    });
-	});
+
+});
+
+
 });

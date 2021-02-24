@@ -11,27 +11,19 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-$category = JRequest::getInt('category_id');
+$input = JFactory::getApplication()->input;
+$category = $input->get('category_id', '', 'int');
 ?>
-
-<div id="ed" class="ed-mod <?php echo $params->get('moduleclass_sfx') ?>">
-	<div class="ed-mod-ask">
-		<?php if ($params->get('onlinestate', 1) && $work->enabled()) { ?>
-			<div class="ed-mod-ask__header">
-				<div class="pull-right">
-					<?php echo JText::_('COM_EASYDISCUSS_SUPPORT_IS_CURRENTLY'); ?>
-					<span class="ed-ask-status <?php echo strtolower($status); ?>"><?php echo $status; ?></span>
-				</div>
+<div id="ed" class="ed-mod ed-mod--ask <?php echo $lib->getModuleWrapperClass();?>">
+	<div class="ed-mod-card">
+		<div class="ed-mod-card__body">
+			<?php if ($params->get('onlinestate', 1) && $work->enabled()) { ?>
+			<div class="o-title ed-mod-ask__status is-<?php echo strtolower($status); ?>">
+				<?php echo JText::_('COM_EASYDISCUSS_SUPPORT_IS_CURRENTLY'); ?>
+				<span class=""><?php echo $status; ?></span>
 			</div>
-		<?php } ?>
-
-		<div class="ed-mod-ask__content">
-			<a class="btn btn-success btn-block" href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=ask&category=' . $category);?>">
-				<span><?php echo JText::_('MOD_ASK_POST_QUESTION');?></span>
-			</a>
-		</div>
-		<?php if ($params->get('workschedule', 1) && $work->enabled()) { ?>
-			<div class="ed-mod-ask__footer">
+			<?php } ?>
+			<?php if ($params->get('workschedule', 1) && $work->enabled()) { ?>
 				<div class="ed-mod-ask__support-msg">
 					<div class=""><?php echo JText::_('COM_EASYDISCUSS_WORK_OFFICIAL_WORKING_HOURS'); ?></div>
 					<div class="">
@@ -39,7 +31,12 @@ $category = JRequest::getInt('category_id');
 						<?php echo $options['workTimeLabel']; ?>
 					</div>
 				</div>
+			<?php } ?>
+			<div class="ed-mod-ask__action">
+				<a class="o-btn o-btn--primary t-d--block" href="<?php echo EDR::_('index.php?option=com_easydiscuss&view=ask&category=' . $category);?>">
+					<span><?php echo JText::_('MOD_ASK_POST_QUESTION');?></span>
+				</a>
 			</div>
-		<?php } ?>
+		</div>
 	</div>
 </div>

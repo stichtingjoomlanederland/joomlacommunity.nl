@@ -1,0 +1,18 @@
+<mj-section padding="20px" text-align="center">
+    <mj-column>
+        <mj-image align="center" padding="5px 0 5px 0" width="180px" src="/media/com_easydiscuss/images/logo-ed-text.png" href="http://localhost" />
+    </mj-column>
+</mj-section>
+<!-- end logo -->
+<mj-section  text-align="center" full-width="full-width" background-color="#F2F4FA">
+      <mj-column width="100%"  padding-top="40px" padding-bottom="40px">
+        <mj-text color="#444444" align="center" line-height="52px" font-size="36px" font-weight="bold" padding-bottom="20px">	
+          New Question!
+        </mj-text>
+        <mj-text color="#444444" align="center" font-size="18px" padding-bottom="20px">
+          <b>James</b> created a new discussion <a href="#">Post title</a> in <a href="#">Category Title</a>
+        </mj-text>
+        
+      </mj-column>  		
+</mj-section>
+<!-- end section -->

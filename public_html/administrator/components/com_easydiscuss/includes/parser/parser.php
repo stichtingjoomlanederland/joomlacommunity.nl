@@ -13,13 +13,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussParser extends EasyDiscuss
 {
+	public $hasGist = null;
+
 	/**
 	 * BBcode parsing
 	 *
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function bbcode($text, $debug = false)
+	public function bbcode($text, $debug = false, $isAmp = false)
 	{
 		$text = trim($text);
 
@@ -33,8 +35,10 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Replace [gist] blocks
 		if ($this->config->get('integrations_github')) {
-			$text = $this->replaceGist($text);
+			$text = $this->replaceGist($text, $isAmp);
 		}
+
+		$text = $this->replaceQuotedPost($text, $debug);
 
 		// BBCode to find...
 		$bbcodeSearch = array(
@@ -51,7 +55,9 @@ class EasyDiscussParser extends EasyDiscuss
 						 '/\[ul\](.*?)\[\/ul\]/ims',
 						 '/\[ol\](.*?)\[\/ol\]/ims',
 						 '/\[li\](.*?)\[\/li\]/ims',
-						 '/\[email\](.*?)\[\/email\]/ims'
+						 '/\[email\](.*?)\[\/email\]/ims',
+						 '/\[tr\](.*?)\[\/tr\]/ims',
+						 '/\[td\](.*?)\[\/td\]/ims'
 		);
 
 		// And replace them by...
@@ -69,7 +75,9 @@ class EasyDiscussParser extends EasyDiscuss
 						 '<ul>\1</ul>',
 						 '<ol>\1</ol>',
 						 '<li>\1</li>',
-						 '<a href="mailto:\1">\1</a>'
+						 '<a href="mailto:\1">\1</a>',
+						 '<tr>\1</tr>',
+						 '<td>\1</td>'
 		);
 
 		// @rule: Replace URL links.
@@ -81,7 +89,7 @@ class EasyDiscussParser extends EasyDiscuss
 			$tmp = ED::videos()->strip($tmp);
 
 			// @rule: Replace video links
-			$text = ED::videos()->replace($text);
+			$text = ED::videos()->replace($text, $isAmp);
 		}
 
 		// we treat the quote abit special here for the nested tag.
@@ -90,6 +98,7 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// special treatment to UL and LI. Need to do this step 1st before send for replacing the rest bbcodes. @sam
 		$text = EasyDiscussParserUtilities::parseListItems($text);
+		$text = EasyDiscussParserUtilities::parseTables($text, $isAmp);
 
 		// Replace bbcodes
 		$text = preg_replace($bbcodeSearch, $bbcodeReplace, $text);
@@ -99,6 +108,19 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Urls have special treatments
 		$text = $this->replaceBBCodeURL($text);
+
+		// Replace the [giphy] with the its display
+		$text = $this->replaceGiphyCode($text, $isAmp);
+
+		// Replace twitter links with twitter embed objects
+		if ($this->config->get('bbcode_tweet')) {
+			$text = $this->replaceTweets($text, $isAmp);
+		}
+
+		// Replace gsit links with embed objects
+		if ($this->config->get('bbcode_gist')) {
+			$text = $this->replaceGistLinks($text, $isAmp);	
+		}
 
 		// Replace URLs ! important, we only do this url replacement after the bbcode url processed. @sam at 07 Jan 2013
 		$text = ED::string()->replaceUrl($tmp, $text);
@@ -111,12 +133,52 @@ class EasyDiscussParser extends EasyDiscuss
 		// Replace smileys before anything else
 		$text = $this->replaceSmileys($text);
 
-		// Replace article tags
-		if ($this->config->get('layout_bbcode_article')) {
-			$text = $this->replaceArticles($text);
+		// Replace article tags (For kunena migrated items)
+		$text = $this->replaceArticles($text);
+
+		if ($isAmp) {
+			$text = ED::image()->processAMP($text);
 		}
 
 		return $text;
+	}
+
+	/**
+	 * Replace the [giphy] with its embed
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function replaceGiphyCode($content, $isAmp = false)
+	{
+		$giphy = ED::giphy();
+
+		if (!$giphy->isEnabled()) {
+			return $content;
+		}
+
+		preg_match_all('/\[giphy\](.*?)\[\/giphy\]/ims', $content, $matches);
+
+		if (empty($matches) || !isset($matches[0]) || empty($matches[0])) {
+			return $content;
+		}
+
+		$codes = $matches[0];
+		$urls = $matches[1];
+		$i = 0;
+
+		foreach ($urls as $url) {
+			if (!$giphy->isValidUrl($url)) {
+				continue;
+			}
+
+			$item = $giphy->getEmbedItem($url);
+
+			$content = EDJString::str_ireplace($codes[$i], $item, $content);
+			$i++;
+		}
+
+		return $content;
 	}
 
 	/**
@@ -155,7 +217,7 @@ class EasyDiscussParser extends EasyDiscuss
 	 */
 	public function normliseBBCode($content)
 	{
-		$content = JString::str_ireplace('class="bb-smiley"', 'class="bb-smiley" width="20"', $content);
+		$content = EDJString::str_ireplace('class="bb-smiley"', 'class="bb-smiley" width="20"', $content);
 		return $content;
 	}
 
@@ -165,13 +227,9 @@ class EasyDiscussParser extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function replaceAttachmentsEmbed($text, $post)
+	public function replaceAttachmentsEmbed($text, $post, $isRemove = false)
 	{
-		if (!$this->config->get('attachment_questions')) {
-			return $text;
-		}
-
-		if (! $post->id) {
+		if (!$this->config->get('attachment_questions') || !$post->id) {
 			return $text;
 		}
 
@@ -188,19 +246,50 @@ class EasyDiscussParser extends EasyDiscuss
 
 		foreach ($files as $title) {
 
+			$code = $codes[$i];
+			$i++;
+
+			if ($isRemove) {
+				$text = EDJString::str_ireplace($code, '', $text);
+				continue;
+			}
+
 			$table = ED::table('Attachments');
 			$table->load(array('uid' => $post->id, 'title' => $title));
 
 			if ($table->id) {
 				$attachment = ED::attachment($table);
 				$contents = $attachment->getEmbedCodes();
-				$code = $codes[$i];
 
-				$text = JString::str_ireplace($code, $contents, $text);
+				$text = EDJString::str_ireplace($code, $contents, $text);
 			}
-
-			$i++;
 		}
+
+		return $text;
+	}
+
+	/**
+	 * Replaces quoted posts
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function replaceQuotedPost($text, $debug = false)
+	{
+		$pattern = '/\[quotePost id=&quot;(.*?)&quot;?\](.*?)\[\/quotePost\]/ms';
+
+		$count = 0;
+
+		do {		
+			$text = preg_replace_callback($pattern, array('EasyDiscussParser', 'processQuotedPost'), $text, -1, $count);
+		} while($count > 0);
+		
+
+		// $pattern = '/\[quote( id=&quot;(.*?)&quot;)?\](.*?)\[\/quote\]/ms';
+		// $text = preg_replace_callback($pattern, array('EasyDiscussParser', 'processQuotedPost'), $text);
+
+		// $pattern = '/\[quote( id="(.*?)")?\](.*?)\[\/quote\]/ms';
+		// $text = preg_replace_callback($pattern, array('EasyDiscussParser', 'processQuotedPost'), $text);
 
 		return $text;
 	}
@@ -216,15 +305,6 @@ class EasyDiscussParser extends EasyDiscuss
 		// We need to check if there is smileys override
 		$overridePath = '/'.$this->app->getTemplate() . '/html/com_easydiscuss/smileys';
 
-		// Smileys to find...
-		$in = array(':D',
-					':)',
-					':o',
-					':p',
-					':(',
-					';)'
-		);
-
 		$smileys = array (':D' => '/emoticon-happy.png',
 						  ':)' => '/emoticon-smile.png',
 						  ':o' => '/emoticon-surprised.png',
@@ -233,6 +313,7 @@ class EasyDiscussParser extends EasyDiscuss
 						  ';)' => '/emoticon-wink.png'
 		);
 
+		$in = array();
 		$out = array();
 
 		foreach ($smileys as $smiley => $file) {
@@ -253,11 +334,13 @@ class EasyDiscussParser extends EasyDiscuss
 				$path = DISCUSS_JOOMLA_SITE_TEMPLATES_URI . $filePath;
 			}
 
+			$str = str_replace(array(':', ';', ')', '('), array('\:', '\;', '\)', '\('), $smiley);
+			$in[] = '/(?<![a-zA-Z0-9])(' . $str . ')(?![a-zA-Z0-9])/';
 			$out[] = '<img alt="'.$smiley.'" class="bb-smiley" src="'.$path.'" />';
+			
 		}
 
-		$text = str_replace($in, $out, $text);
-
+		$text = preg_replace($in, $out, $text);
 		return $text;
 	}
 
@@ -275,6 +358,106 @@ class EasyDiscussParser extends EasyDiscuss
 		$text = preg_replace($pattern, $replace, $text);
 
 		return $text;
+	}
+
+	/**
+	 * Replaces twitter url links with twitter embeds
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function replaceTweets($text, $isAmp = false)
+	{
+		// Pattern to skip the url that are within the specific html tag. eg: <img src="www.url.com">.
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a.*?<\/a>(*SKIP)(*FAIL)';
+
+		// $pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
+		$pattern = '@' . $skipPattern . '|(?:https?:\/\/twitter.com)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
+
+		preg_match_all($pattern, $text, $matches);
+
+		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
+			$links = $matches[0];
+
+			foreach ($links as $link) {
+				if ($isAmp) {
+					$html = $this->getTweetAMPHtml($link);
+
+					$text = EDJString::str_ireplace($link, $html, $text);
+					continue;
+				}
+
+				$url = 'https://api.twitter.com/1/statuses/oembed.json?url=' . $link;
+
+				// Load up the connector first.
+				$connector = ED::connector();
+				$connector->addUrl($url);
+				$connector->execute();
+
+				// Get the result and parse them.
+				$contents = $connector->getResult($url);
+
+				// We are retrieving json data
+				$oembed = json_decode($contents);
+
+				if ($oembed && isset($oembed->html)) {
+					// Remove newlines to avoid ED replacing newlines with <br/>
+					$oembed->html = str_ireplace("\n", "", $oembed->html);
+
+					$text = EDJString::str_ireplace($link, $oembed->html, $text);
+				}
+			}
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Replaces gist url links with twitter embeds
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function replaceGistLinks($text, $isAmp = false)
+	{
+		// Pattern to skip the url that are within the specific html tag. eg: <img src="www.url.com">.
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a.*?<\/a>(*SKIP)(*FAIL)';
+
+		// $pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
+		$pattern = '@' . $skipPattern . '|(?:https?:\/\/gist.github.com)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
+
+		preg_match_all($pattern, $text, $matches);
+
+		if (!empty($matches) && isset($matches[0]) && !empty($matches[0])) {
+			$links = $matches[0];
+			$regex = '#https://gist.github.com/(?:\#!/)?(\w+)/([A-Za-z0-9]+)#is';
+
+			$this->hasGist = true;
+
+			foreach ($links as $link) {
+				if ($isAmp) {
+					$html = $this->getGistAMPHtml($link, $regex);
+
+					$text = EDJString::str_ireplace($link, $html, $text);
+					continue;
+				}
+
+				$text = EDJString::str_ireplace($link, '<script src="' . $link . '.js"></script>', $text);
+			}
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Determine if the content has gist after parsed
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function hasGist()
+	{
+		return $this->hasGist;
 	}
 
 	/**
@@ -380,15 +563,51 @@ class EasyDiscussParser extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function replaceGist($text, $debug = false)
+	public function replaceGist($text, $isAmp = false)
 	{
-		$codesPattern = '/\[gist( type=&quot;(.*?)&quot;)?\](.*?)\[\/gist\]/ms';
-		$text = preg_replace_callback($codesPattern, array('EasyDiscussParser', 'processGistBlocks'), $text);
+		$codesPattern1 = '/\[gist( type=&quot;(.*?)&quot;)?\](.*?)\[\/gist\]/ms';
+		$codesPattern2 = '/\[gist( type="(.*?)")?\](.*?)\[\/gist\]/ms';
 
-		$codesPattern = '/\[gist( type="(.*?)")?\](.*?)\[\/gist\]/ms';
-		$text = preg_replace_callback($codesPattern, array('EasyDiscussParser', 'processGistBlocks'), $text);
+		if ($isAmp) {
+			$text = preg_replace_callback($codesPattern1, ['EasyDiscussParser', 'processGistBlocksForAMP'], $text);
+			$text = preg_replace_callback($codesPattern2, ['EasyDiscussParser', 'processGistBlocksForAMP'], $text);
+
+			return $text;
+		}
+
+		$text = preg_replace_callback($codesPattern1, array('EasyDiscussParser', 'processGistBlocks'), $text);
+		$text = preg_replace_callback($codesPattern2, array('EasyDiscussParser', 'processGistBlocks'), $text);
 
 		return $text;
+	}
+
+	/**
+	 * Process gist blocks for AMP
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function processGistBlocksForAMP($matches)
+	{
+		$html = '';
+		$url = '';
+		$tmp = $matches[1];
+		$tmp = str_replace('&quot;', '"', $tmp);
+		$regex = '#https://gist.github.com/([A-Za-z0-9]+)#is';
+
+		$pattern = '/url="(.*?)"/ms';
+		preg_match($pattern, $tmp, $match);
+
+		if ($match && isset($match[1])) {
+			// Remove '.js' from the url
+			if (strpos($match[1], '.js') !== false) {
+				$url = str_replace('.js', '', $match[1]);
+			}
+
+			$html = $this->getGistAMPHtml($url, $regex);
+		}
+
+		return $html;
 	}
 
 	/**
@@ -431,7 +650,7 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Get the permalink
 		$alias = $article->alias ? ($article->id . ':' . $article->alias) : $article->id;
-		$link = ContentHelperRoute::getArticleRoute($alias, $article->catid, $article->language);
+		$link = EDContentHelperRoute::getArticleRoute($alias, $article->catid, $article->language);
 		$permalink = EDR::siteLink($link, true, null, false);
 
 		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
@@ -442,9 +661,9 @@ class EasyDiscussParser extends EasyDiscuss
 		$articleText = $theme->output('site/parser/article');
 
 		// Remove all newlines from the article text to avoid the parser in ED to replace to br
-		$articleText = JString::str_ireplace("\r\n", "", $articleText);
+		$articleText = EDJString::str_ireplace("\r\n", "", $articleText);
 		
-		$contents = JString::str_ireplace($matches[0], $articleText, $text);
+		$contents = EDJString::str_ireplace($matches[0], $articleText, $text);
 
 
 		return $contents;
@@ -458,6 +677,8 @@ class EasyDiscussParser extends EasyDiscuss
 	 */
 	public function processGistBlocks($blocks)
 	{
+		$this->hasGist = true;
+
 		// check if we have the gist url or not.
 		// if yes, we will just reuse the existing gist url.
 		$tmp = $blocks[1];
@@ -481,7 +702,6 @@ class EasyDiscussParser extends EasyDiscuss
 
 		// Because the text / contents are already escaped, we need to revert back to the original html codes only for the codes.
 		$code = html_entity_decode($code);
-
 
 		// Send to gist to create the gist now.
 		$github = ED::github();
@@ -517,12 +737,12 @@ class EasyDiscussParser extends EasyDiscuss
 
 			$popbox = "";
 			if (!$this->config->get('integration_easysocial_popbox')) {
-				$popbox .= ' data-ed-popbox="ajax://site/views/profile/popbox"';
+				$popbox .= ' data-ed-popbox="ajax://site/views/popbox/user"';
 				$popbox .= ' data-ed-popbox-position="top-left"';
 				$popbox .= ' data-ed-popbox-toggle="hover"';
 				$popbox .= ' data-ed-popbox-offset="4"';
-				$popbox .= ' data-ed-popbox-type="avatar"';
-				$popbox .= ' data-ed-popbox-component="popbox--avatar"';
+				$popbox .= ' data-ed-popbox-type="ed-avatar"';
+				$popbox .= ' data-ed-popbox-component="o-popbox--user"';
 				$popbox .= ' data-ed-popbox-cache="1"';
 				$popbox .= ' data-args-id="' . $user->id . '"';
 			}
@@ -533,7 +753,7 @@ class EasyDiscussParser extends EasyDiscuss
 				$replace = $user->getName();
 			}
 
-			$text = JString::str_ireplace($search, $replace, $text);
+			$text = EDJString::str_ireplace($search, $replace, $text);
 		}
 
 		return $text;
@@ -613,9 +833,9 @@ class EasyDiscussParser extends EasyDiscuss
 
 			$theme = ED::themes();
 			$theme->set('content', $text);
-			$spoiler = $theme->output('site/post/default.spoiler');
+			$spoiler = $theme->output('site/parser/spoiler');
 
-			$content = JString::str_ireplace($code, $spoiler, $content);
+			$content = EDJString::str_ireplace($code, $spoiler, $content);
 
 			$i++;
 		}
@@ -654,6 +874,54 @@ class EasyDiscussParser extends EasyDiscuss
 		$code = htmlspecialchars($code, ENT_NOQUOTES);
 
 		return '<pre class="line-numbers"><code class="language-' . $language . '">'.$code.'</code></pre>';
+	}
+
+	/**
+	 * Processes quoted post blocks
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function processQuotedPost($blocks)
+	{
+		// Get the post id
+		$id = (int) $blocks[1];
+
+		if (!$id) {
+			return $blocks[0];
+		}
+		
+		// The quoted contents are on the 3rd index.
+		$contents = $blocks[2];
+		// $contents = html_entity_decode($contents);
+
+		// If we cannot determine the post id or the post has been deleted, just ignore this
+		$user = false;
+		$permalink = false;
+		$postDate = null;
+
+		if ($id) {
+			$post = ED::post($id);
+			
+			if ($post->id) {
+				$user = $post->getAuthor();
+				$permalink = $post->getPermalink();
+				$postDate = $post->getDateObject()->format(JText::_('DATE_FORMAT_LC1'));
+			}
+		}
+
+		$theme = ED::themes();
+		$theme->set('contents', $contents);
+		$theme->set('user', $user);
+		$theme->set('permalink', $permalink);
+		$theme->set('postDate', $postDate);
+
+		$contents = $theme->output('site/parser/quotes');
+
+		// Remove newlines to avoid newline to br replacing these newlines
+		$contents = EDJString::str_ireplace("\n", "", $contents);
+
+		return $contents;
 	}
 
 	public function removeCodes( $content )
@@ -743,7 +1011,7 @@ class EasyDiscussParser extends EasyDiscuss
 
 				// Check whether this is valid img link with the http protocol
 				// Replace the domain name into image path
-				if (JString::strpos($imgPath , 'http://') === false && JString::strpos($imgPath, 'https://') === false) {
+				if (EDJString::strpos($imgPath , 'http://') === false && EDJString::strpos($imgPath, 'https://') === false) {
 					$content = str_replace($imgPath, $base . $imgPath, $content);
 				}
 			}
@@ -758,7 +1026,7 @@ class EasyDiscussParser extends EasyDiscuss
 	 * @since	1.0
 	 * @access	public
 	 */
-	public function html2bbcode( $text )
+	public function html2bbcode($text)
 	{
 		if ((stripos($text, '<p') === false) && (stripos($text, '<div') === false) &&  (stripos($text, '<br') === false)) {
 			return $text;
@@ -780,6 +1048,8 @@ class EasyDiscussParser extends EasyDiscuss
 			'/<ol.*?\>(.*?)<\/ol>/ims',
 			'/<ul.*?\>(.*?)<\/ul>/ims',
 			'/<li.*?\>(.*?)<\/li>/ims',
+			'/<tr.*?\>(.*?)<\/tr>/ims',
+			'/<td.*?\>(.*?)<\/td>/ims',
 			'/<a.*?href=["|\']mailto:(.*?)["|\'].*?\>.*?<\/a>/ims',
 			'/<a.*?href=["|\'](.*?)["|\'].*?\>(.*?)<\/a>/ims',
 			'/<pre.*?\>(.*?)<\/pre>/ims'
@@ -801,6 +1071,8 @@ class EasyDiscussParser extends EasyDiscuss
 			'[list=1]\1[/list]',
 			'[list]\1[/list]',
 			'[*] \1',
+			'[tr]\1[/tr]',
+			'[td] \1',
 			'[email]\1[/email]',
 			'[url=\1]\2[/url]',
 			'[code type="xml"]\1[/code]'
@@ -945,6 +1217,58 @@ class EasyDiscussParser extends EasyDiscuss
 
 		return $text;
 	}
+
+	/**
+	 * Retrieve AMP html for tweet
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function getTweetAMPHtml($url)
+	{
+		// retrieve the Tweet ID
+		$regex = '#https?://twitter\.com/(?:\#!/)?(\w+)/status(es)?/(\d+)#is';
+
+		$html = '';
+
+		if (preg_match($regex, $url, $match)) {
+
+			$html = '<amp-twitter width="486" height="657" layout="responsive" data-tweetid="' . $match[3] . '" ></amp-twitter>';
+
+			return $html;
+		}
+
+		return $html;
+	}
+
+	/**
+	 * Retrieve AMP html for gist
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function getGistAMPHtml($url, $regex)
+	{
+		$html = '';
+
+		if (!$url) {
+			return $html;
+		}
+
+		if (preg_match($regex, $url, $match)) {
+			$id = $match[1];
+
+			if (isset($match[2]) && $match[2]) {
+				$id = $match[2];
+			}
+
+			$html = '<amp-gist data-gistid="' . $id . '" layout="fixed-height" height="225"></amp-gist>';
+
+			return $html;
+		}
+
+		return $html;
+	}
 }
 
 class EasyDiscussParserUtilities
@@ -1049,16 +1373,124 @@ class EasyDiscussParserUtilities
 		foreach ($lists as $list) {
 
 			// Check if this list contains any list items "[*]"
-			if (JString::strpos($list->contents, '[*]') !== false) {
+			if (EDJString::strpos($list->contents, '[*]') !== false) {
 
 				$text = preg_replace($bbcodeULSearch, $bbcodeULReplace, $list->original);
+
 				$text = preg_replace($bbcodeLISearch, $bbcodeLIReplace, $text);
+				// dump($text);
 			} else {
 				$text = preg_replace($bbcodeULSearch, $bbcodeULReplaceString, $list->original);
 			}
 
 			// Update the content
-			$content = JString::str_ireplace($list->original, $text, $content);
+			$content = EDJString::str_ireplace($list->original, $text, $content);
+		}
+
+		return $content;
+	}
+
+	public static function parseTables($content, $isAmp = false)
+	{
+		// BBCode to find... e.g.
+		// [table][tr]
+		// [td] Hola1
+		// [td] Hola2
+		// [td] Hola3
+		// [tr][/table]
+		$bbcodeTablesSearch = '#\[table.*?\](.*?)\[\/table\]#ims';
+
+		// BBCode to find. e.g.
+		// [td]hello world
+		$bbcodeTDSearch = array(
+			'/\[td\]\s?(.*?)\[\/td\]\r\n/ims'
+			// '/\[td\]\s?(.*?)\n/ims'
+			 // '/\[td\]\s?(.*?)/ims'
+		);
+
+		// And replace them by...
+		$bbcodeTDReplace = array(
+			 '<td>\1</td>'
+		);
+
+		// And replace them by...
+		$bbcodeTDReplaceString = array(
+			 '\1',
+			 '\1'
+		);
+
+		// BBCode to find...
+		$bbcodeTablePattern = array(
+			 '/\[table\=(.*?)\]/ims',
+			 '/\[table\]/ims',
+			 '/\[\/table\]/ims'
+		);
+
+		$bbcodeTableSearch = array(
+			 '/\[table\](.*?)\[\/table\]/ims',
+		);
+
+		$tableTag = '<table>\1</table>';
+
+		if ($isAmp) {
+			$tableTag = '<table class="table-bordered">\1</table>';
+		}
+
+		// And replace them by...
+		$bbcodeTableReplace = array(
+			 $tableTag
+		);
+
+		// And replace them by...
+		$bbcodeTRReplaceString = array('\2', '\1');
+
+		// BBCode to find...
+		$bbcodeTRSearch = array('/\[tr\]\s?\r\n(.*?)\[\/tr\]/ims');
+
+		// And replace them by...
+		$bbcodeTRReplace = array('<tr>\1</tr>');
+
+		preg_match_all($bbcodeTablesSearch, $content, $matches);
+
+		if (!$matches || !$matches[0]) {
+			return $content;
+		}
+
+		$tables = array();
+
+		// Fix any unclosed list tags
+		foreach ($matches[0] as &$contents) {
+
+			$original = $contents;
+
+			// The match of lists within this block should always be the first and last. Anything within the "list" should be considered as unclosed.
+			$contents = preg_replace($bbcodeTablePattern, '', $contents);
+			
+			$contents = '[table]' . $contents . '[/table]';
+
+			$item = new stdClass();
+			$item->original = $original;
+			$item->contents = $contents;
+
+			$tables[] = $item;
+		}
+
+		foreach ($tables as $table) {
+
+			// Check if this table contains any table items "[td]"
+			if (EDJString::strpos($table->contents, '[td]') !== false) {
+				$text = preg_replace($bbcodeTableSearch, $bbcodeTableReplace, $table->original);
+				$text = preg_replace($bbcodeTDSearch, $bbcodeTDReplace, $text);
+				$text = preg_replace($bbcodeTRSearch, $bbcodeTRReplace, $text);
+
+				// $text = trim(preg_replace('/\s\s+/', ' ', $text));
+			
+			} else {
+				$text = preg_replace($bbcodeTRSearch, $bbcodeTRReplaceString, $table->original);
+			}
+
+			// Update the content
+			$content = EDJString::str_ireplace($table->original, $text, $content);
 		}
 
 		return $content;

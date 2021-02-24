@@ -1,8 +1,6 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acym__list__settings" class="acym__content">
+<div id="acym__list__settings" class="acym__content">
 	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
-		<div class="cell grid-x text-right grid-margin-x margin-left-0 margin-right-0 align-right">
+		<div class="cell grid-x text-right grid-margin-x margin-left-0 margin-right-0 align-right  margin-bottom-1">
             <?php include acym_getView('lists', 'settings_actions'); ?>
 		</div>
 		<div class="grid-x margin-bottom-1">
@@ -25,4 +23,3 @@ defined('_JEXEC') or die('Restricted access');
         <?php acym_formOptions(true, 'settings'); ?>
 	</form>
 </div>
-

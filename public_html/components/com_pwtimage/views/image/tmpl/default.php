@@ -35,7 +35,9 @@ $this->form->setFieldAttribute('image', 'description', '');
 
 Factory::getDocument()->setMetaData('viewport', 'width=device-width, initial-scale=1.0');
 ?>
-
+<script>
+	pwtImage.setHotkeys();
+</script>
 <form class="pwt-image-extension js-image-form" action="index.php?option=com_pwtimage&view=image&layout=close" enctype="multipart/form-data" method="post">
 	<?php echo $this->form->getInput('image'); ?>
 	<input type="hidden" id="formPath" name="path" value="" />

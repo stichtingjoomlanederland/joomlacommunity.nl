@@ -1,0 +1,43 @@
+// Download
+.docman_download {
+  width: 33%;
+  min-width: 150px;
+  max-width: 300px;
+  margin: 0 0 $smallMargin;
+  text-align: center;
+  float: right;
+  margin-left: $smallMargin;
+
+  @include rtl {
+    float: left
+  }
+}
+
+.docman_download__button {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.docman_download__info {
+  font-size: .8125em;
+  display: block;
+}
+
+// inherit font size in tables
+.koowa_table--documents,
+.koowa_table--files {
+  .docman_download__info {
+    font-size: inherit;
+    display: inline;
+  }
+}
+
+.docman_download__info--inline {
+  display: inline;
+}
+
+.docman_download__filename {
+  margin: 0;
+  padding: 5px 0 0;
+  @include wrap_words();
+}

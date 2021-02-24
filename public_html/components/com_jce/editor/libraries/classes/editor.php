@@ -59,7 +59,7 @@ class WFEditor
 
     /**
      * Array of core plugins
-     * 
+     *
      * @var array
      */
     private static $plugins = array('core', 'help', 'autolink', 'effects', 'cleanup', 'code', 'format', 'importcss', 'colorpicker', 'upload', 'figure', 'ui', 'noneditable', 'branding');
@@ -117,6 +117,7 @@ class WFEditor
         // set profile
         $this->profile = $wf->getProfile($config['plugin'], $config['id']);
 
+        // set context
         $this->context = $wf->getContext();
     }
 
@@ -124,7 +125,7 @@ class WFEditor
      * Returns a reference to a editor object.
      *
      * This method must be invoked as:
-     *         <pre>  $browser =WFEditor::getInstance();</pre>
+     *         <pre>  $editor =WFEditor::getInstance();</pre>
      *
      * @return JCE The editor object
      */
@@ -150,6 +151,17 @@ class WFEditor
         return $url;
     }
 
+    public function init()
+    {
+        $settings = $this->getSettings();
+
+        JFactory::getApplication()->triggerEvent('onBeforeWfEditorRender', array(&$settings));
+
+        $this->render($settings);
+
+        return $this;
+    }
+
     /**
      * Legacy function to build the editor
      *
@@ -157,11 +169,10 @@ class WFEditor
      */
     public function buildEditor()
     {
-        $this->render($this->getSettings());
-        return $this->getOutput();
+        $this->init()->getOutput();
     }
 
-    /**
+     /**
      * Legacy function to get the editor settings
      *
      * @return array
@@ -265,6 +276,28 @@ class WFEditor
         }
     }
 
+    private function isSkinRtl()
+    {
+        $language = JFactory::getLanguage();
+
+        if ($language->getTag() === WFLanguage::getTag()) {
+            return $language->isRTL();
+        }
+        
+        return false;
+    }
+
+    private function getLanguageDirection()
+    {
+        $user = JFactory::getUser();
+        $params = JComponentHelper::getParams('com_languages');
+        $locale = $user->getParam('language', $params->get('site', 'en-GB'));
+
+        $language = JLanguage::getInstance($locale);
+
+        return $language->isRTL() ? 'rtl' : 'ltr';
+    }
+
     public function getSettings()
     {
         // get an editor instance
@@ -276,20 +309,28 @@ class WFEditor
         // get editor version
         $version = self::getVersion();
 
+        // get form token
+        $token = JSession::getFormToken();
+
         $settings = array(
             'token' => JSession::getFormToken(),
-            'etag' => md5($version),
-            'context' => $this->context,
             'base_url' => JURI::root(),
             'language' => WFLanguage::getCode(),
-            'directionality' => WFLanguage::getDir(),
+            'directionality' => $this->getLanguageDirection(),
             'theme' => 'none',
             'plugins' => '',
+            'skin' => 'default',
+            'query' => array(
+                $token => 1,
+                'context' => $this->context,
+            ),
         );
 
         // if a profile is set
         if (is_object($this->profile)) {
             jimport('joomla.filesystem.folder');
+
+            $settings['query']['profile_id'] = $this->profile->id;
 
             $settings = array_merge($settings, array('theme' => 'advanced'), $this->getToolbar());
 
@@ -380,7 +421,7 @@ class WFEditor
 
         // set css compression
         if ($settings['compress']['css']) {
-            $this->addStyleSheet(JURI::base(true) . '/index.php?option=com_jce&task=editor.pack&type=css&context=' . $this->context . '&' . $token . '=1');
+            $this->addStyleSheet(JURI::base(true) . '/index.php?option=com_jce&task=editor.pack&type=css&' . http_build_query((array) $settings['query']));
         } else {
             // CSS
             $this->addStyleSheet($this->getURL(true) . '/libraries/css/editor.min.css');
@@ -399,9 +440,13 @@ class WFEditor
             }
         }
 
+        if ($this->isSkinRtl()) {
+            $settings['skin_directionality'] = 'rtl';
+        }
+
         // set javascript compression script
         if ($settings['compress']['javascript']) {
-            $this->addScript(JURI::base(true) . '/index.php?option=com_jce&task=editor.pack&context=' . $this->context . '&' . $token . '=1');
+            $this->addScript(JURI::base(true) . '/index.php?option=com_jce&task=editor.pack&' . http_build_query((array) $settings['query']));
         } else {
             // Tinymce
             $this->addScript($this->getURL(true) . '/tiny_mce/tiny_mce.js');
@@ -410,7 +455,7 @@ class WFEditor
             $this->addScript($this->getURL(true) . '/libraries/js/editor.min.js');
 
             // language
-            $this->addScript(JURI::base(true) . '/index.php?option=com_jce&task=editor.loadlanguages&lang=' . $settings['language'] . '&context=' . $this->context . '&' . $token . '=1');
+            $this->addScript(JURI::base(true) . '/index.php?option=com_jce&task=editor.loadlanguages&lang=' . $settings['language'] . '&' . http_build_query((array) $settings['query']));
         }
 
         $this->getCustomConfig($settings);
@@ -848,7 +893,7 @@ class WFEditor
                     if (WF_EDITOR_PRO && $item == 'branding') {
                         return false;
                     }
-                    
+
                     return is_file(WF_EDITOR_PLUGINS . '/' . $item . '/editor_plugin.js');
                 });
 
@@ -974,6 +1019,7 @@ class WFEditor
         $app = JFactory::getApplication();
         $id = 0;
 
+        // only process when front-end editing
         if ($app->getClientId() == 0) {
             $menus = $app->getMenu();
             $menu = $menus->getActive();
@@ -984,7 +1030,7 @@ class WFEditor
         }
 
         $query = $db->getQuery(true);
-        $query->select('id, template AS name, params')->from('#__template_styles')->where(array('client_id = 0', "home = '1'"));
+        $query->select('id, template AS name, params, home')->from('#__template_styles')->where(array('client_id = 0'));
 
         $db->setQuery($query);
         $templates = $db->loadObjectList();
@@ -992,10 +1038,15 @@ class WFEditor
         $assigned = array();
 
         foreach ($templates as $template) {
+            // default template
+            if ((string) $template->home == '1') {
+                $assigned[] = $template;
+                continue;
+            }
+
+            // assigned template
             if ($id == $template->id) {
                 array_unshift($assigned, $template);
-            } else {
-                $assigned[] = $template;
             }
         }
 
@@ -1034,15 +1085,29 @@ class WFEditor
         }
 
         // try Gantry5 templates
-        $gantry5 = glob($path . '/custom/css-compiled/' . $name . '_*.css');
-        $gantry4 = glob($path . '/css-compiled/master-*.css');
+        $gantry5 = $path . '/custom/css-compiled';
+        $gantry4 = $path . '/css-compiled';
 
-        if (!empty($gantry5)) {
+        if (is_dir($gantry5)) {
+            $items = array();
+            
+            $files = glob($gantry5 . '/' . $name . '_*.css');
+
+            foreach($files as $file) {
+                $items[filemtime($file)] = $file;
+            }
+
+            // sort by modified time key
+            ksort($items, SORT_NUMERIC);
+
+            // get the last item in the array
+            $item = end($items);
+                        
             // update url
             $url = 'templates/' . $template->name . '/custom/css-compiled';
 
-            $path = dirname($gantry5[0]);
-            $file = basename($gantry5[0]);
+            $path = dirname($item);
+            $file = basename($item);
 
             // check for editor.css file
             $css = self::isEditorStylesheet($path);
@@ -1076,13 +1141,27 @@ class WFEditor
             }
         }
 
-        if (!empty($gantry4)) {
+        if (is_dir($gantry4)) {
+            $items = array();
+            
+            $files = glob($gantry4 . '/master-*.css');
+
+            foreach($files as $file) {
+                $items[filemtime($file)] = $file;
+            }
+
+            // sort by modified time key
+            ksort($items, SORT_NUMERIC);
+
+            // get the last item in the array
+            $item = end($items);
+            
             // update url
             $url = 'templates/' . $template->name . '/css-compiled';
             // load gantry bootstrap files
             $files[] = $url . '/bootstrap.css';
             // load css files
-            $files[] = $url . '/' . basename($gantry4[0]);
+            $files[] = $url . '/' . basename($item);
         }
     }
 
@@ -1298,8 +1377,8 @@ class WFEditor
 
         // set default url as empty value
         $url = '';
-        // set default tempalte as empty value
-        $template = '';
+        // set default template as empty value
+        $template = (object) array('name' => '');
         // use editor default styles
         $styles = '';
         // stylesheets
@@ -1318,10 +1397,6 @@ class WFEditor
             if (is_dir($path)) {
                 // assign template
                 $template = $item;
-
-                // assign url
-                $url = 'templates/' . $item->name . '/css';
-
                 break;
             }
         }
@@ -1332,11 +1407,6 @@ class WFEditor
 
         $global = intval($wf->getParam('editor.content_css', 1));
         $profile = intval($wf->getParam('editor.profile_content_css', 2));
-
-        // no template found???
-        if (empty($template)) {
-            return $stylesheets;
-        }
 
         switch ($global) {
             // Custom template css files
@@ -1355,17 +1425,17 @@ class WFEditor
                         continue;
                     }
 
-                    // clean slashes
-                    $tmp = preg_replace('#[/\\\\]+#', '/', $tmp);
-
-                    // Replace $template variable with site template name
-                    $tmp = str_replace('$template', $template->name, $tmp);
-
                     // external url
                     if (strpos($tmp, '://') !== false) {
                         $files[] = $tmp;
                         continue;
                     }
+
+                    // clean slashes
+                    $tmp = preg_replace('#[/\\\\]+#', '/', $tmp);
+
+                    // Replace $template variable with site template name
+                    $tmp = str_replace('$template', $template->name, $tmp);
 
                     $file = JPATH_SITE . '/' . $tmp;
                     $list = array();
@@ -1425,6 +1495,12 @@ class WFEditor
                         continue;
                     }
 
+                    // external url
+                    if (strpos($tmp, '://') !== false) {
+                        $list[] = $tmp;
+                        continue;
+                    }
+
                     // clean slashes
                     $tmp = preg_replace('#[/\\\\]+#', '/', $tmp);
 
@@ -1432,12 +1508,6 @@ class WFEditor
                     $tmp = str_replace('$template', $template->name, $tmp);
 
                     $list = array();
-
-                    // external url
-                    if (strpos($tmp, '://') !== false) {
-                        $list[] = $tmp;
-                        continue;
-                    }
 
                     $file = JPATH_SITE . '/' . $tmp;
 
@@ -1494,7 +1564,6 @@ class WFEditor
 
             $fullpath = JPATH_SITE . '/' . $file;
 
-            // check file exits before loading
             if (JFile::exists($fullpath)) {
                 // less
                 if (pathinfo($file, PATHINFO_EXTENSION) == 'less') {
@@ -1502,15 +1571,7 @@ class WFEditor
                     continue;
                 }
 
-                $etag = '';
-
-                // add etag
-                if ($absolute === false) {
-                    // create hash
-                    //$etag = '?' . filemtime(JPATH_SITE . '/' . $file);
-                }
-
-                $stylesheets[] = $root . '/' . $file . $etag;
+                $stylesheets[] = $root . '/' . $file;
             }
         }
 
@@ -1619,7 +1680,7 @@ class WFEditor
                     if (in_array($plugin, self::$plugins)) {
                         continue;
                     }
-                    
+
                     $files[] = WF_EDITOR_PLUGINS . '/' . $plugin . '/editor_plugin' . $suffix . '.js';
                 }
 

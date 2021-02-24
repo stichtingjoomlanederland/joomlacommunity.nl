@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewReports extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
@@ -20,17 +18,13 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.reports');
 
 		$this->setHeading('COM_EASYDISCUSS_REPORTS_TITLE', 'COM_EASYDISCUSS_REPORTS_DESC');
-		JToolbarHelper::publishList();
-		JToolbarHelper::unpublishList();
+		
+		JToolbarHelper::deleteList(JText::_('COM_ED_CONFIRM_DELETE_REPORTS'));
 
-		$filter_state = $this->getUserState('com_easydiscuss.reports.filter_state', 'filter_state', '*', 'word');
-
-		// Ordering
 		$order = $this->getUserState('com_easydiscuss.reports.filter_order', 'filter_order', 'a.id', 'cmd');
 		$orderDirection = $this->getUserState('com_easydiscuss.reports.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
 		$model = ED::model('Reports');
-
 		$reports = $model->getReports();
 		$pagination = $model->getPagination();
 
@@ -39,38 +33,18 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 
 				$report =& $reports[$i];
 
-				$user = JFactory::getUser($report->reporter);
-
-				$report->user = $user;
-
-				$editLink	= JRoute::_('index.php?option=com_easydiscuss&controller=reports&task=edit&id='.$report->id);
-				$published 	= JHTML::_('grid.published', $report, $i );
-
+				$report->post = ED::post($report->id);
+				$report->user = JFactory::getUser($report->reporter);
 				$report->date = $report->lastreport;
-
-				$actions	= array();
-				$actions[]	= JHTML::_('select.option',  '', '- '. JText::_( 'COM_EASYDISCUSS_SELECT_ACTION' ) .' -' );
-				$actions[]	= JHTML::_('select.option',  'D', JText::_( 'COM_EASYDISCUSS_DELETE_POST' ) );
-				$actions[]	= JHTML::_('select.option',  'C', JText::_( 'COM_EASYDISCUSS_REMOVE_REPORT' ) );
-				$actions[]	= JHTML::_('select.option',  'P', JText::_( 'COM_EASYDISCUSS_REPORT_PUBLISHED' ) );
-				$actions[]	= JHTML::_('select.option',  'U', JText::_( 'COM_EASYDISCUSS_REPORT_UNPUBLISHED' ) );
 
 				if ($report->user_id != 0) {
 					$actions[] = JHTML::_('select.option',  'E', JText::_( 'COM_EASYDISCUSS_EMAIL_AUTHOR' ) );
-				}
-
-				$report->actions = JHTML::_('select.genericlist',   $actions, 'report-action-' . $report->id, ' style="width:250px;margin: 0;" data-action-type data-id="' . $report->id . '"', 'value', 'text', '*' );
-				$report->viewLink = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $report->id;
-
-				if ($report->parent_id != 0) {
-					$report->viewLink = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $report->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPORT_REPLY_PERMALINK') . '-' . $report->id;
 				}
 			}
 		}
 
 		$this->set('reports', $reports);
 		$this->set('pagination', $pagination);
-		$this->set('filter_state', $filter_state);
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
 
@@ -86,7 +60,7 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 	public function preview()
 	{
 		// Check for acl rules.
-		$this->checkAccess('discuss.manage.spools');
+		$this->checkAccess('discuss.manage.reports');
 
 		// Get the mail id
 		$id = $this->input->get('id', 0, 'int');
@@ -104,11 +78,8 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 			}
 		}
 
-		$theme = ED::themes();
-		$theme->set('reasons', $result);
+		$this->set('reasons', $result);
 
-		echo $theme->output('admin/reports/reasons');
-
-		exit;
+		parent::display('reports/reasons');
 	}
 }

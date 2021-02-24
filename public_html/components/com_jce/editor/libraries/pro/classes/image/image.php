@@ -643,6 +643,9 @@ class WFImage
             case 'gif':
                 return IMAGETYPE_GIF;
                 break;
+            case 'webp':
+                return IMAGETYPE_WEBP;
+                break;
         }
     }
 

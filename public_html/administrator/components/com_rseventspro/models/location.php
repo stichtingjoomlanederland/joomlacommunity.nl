@@ -60,6 +60,10 @@ class RseventsproModelLocation extends JModelAdmin
 		if (empty($form))
 			return false;
 		
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('gallery_tags', 'layout', 'joomla.form.field.list-fancy-select');
+		}
+		
 		return $form;
 	}
 	

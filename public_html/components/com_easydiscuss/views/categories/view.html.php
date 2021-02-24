@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewCategories extends EasyDiscussView
 {
@@ -70,10 +68,15 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		}
 
 		$this->set('categories', $parents);
-		parent::display('categories/default');
-
+		parent::display('categories/listings/default');
 	}
 
+	/**
+	 * Single category layout
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function listings()
 	{
 		$categoryId = $this->input->get('category_id', 0, 'int');
@@ -82,7 +85,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 
 		// If the category isn't found on the site throw an error.
 		if (!$categoryId) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_CATEGORY_NOT_FOUND'));
+			throw ED::exception('COM_ED_CATEGORY_NOT_FOUND', ED_MSG_ERROR);
 		}
 
 		// Try to detect if there's any category id being set in the menu parameter.
@@ -90,7 +93,7 @@ class EasyDiscussViewCategories extends EasyDiscussView
 
 		// If there is an active menu, render the params
 		if ($activeMenu && !$categoryId) {
-			$registry->loadString($activeMenu->params);
+			$registry->loadString($activeMenu->getParams());
 
 			if ($registry->get('category_id')) {
 				$categoryId	= $registry->get('category_id');
@@ -102,69 +105,29 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$limit = ($limit == '-2') ? ED::getListLimit() : $limit;
 		$limit = ($limit == '-1') ? $this->jconfig->get('list_limit') : $limit;
 
+		// Get the current active category
+		$activeCategory = ED::category($categoryId);
+
 		// Set the meta for the page
-		ED::setMeta($categoryId, ED_META_TYPE_CATEGORY);
+		ED::setMeta($activeCategory->id, ED_META_TYPE_CATEGORY);
 
 		// Add view to this page.
 		$this->logView();
 
 		// Add rss feed into headers
-		ED::feeds()->addHeaders('index.php?option=com_easydiscuss&view=categories&layout=listings&category_id=' . $categoryId);
+		ED::feeds()->addHeaders($activeCategory->getRSSPermalink(true));
 
 		// Get list of categories on the site.
-		$model = ED::model('Posts');
-
-		// Get the current active category
-		$activeCategory = ED::category($categoryId);
-		$breadcrumbs = $activeCategory->getBreadcrumbs();
+		$postsModel = ED::model('Posts');
 
 		// If user trying to access this category page but he didn't get allowed, show error.
 		if (!$activeCategory->canAccess()) {
-			return JError::raiseError(404, JText::_('COM_ED_CATEGORY_NOT_ALLOWED'));
+			throw ED::exception('COM_ED_CATEGORY_NOT_FOUND', ED_MSG_ERROR);
 		}
 
-		// determine if we should retrive posts from it sub categories or not.
-		$includeChilds = false;
-		if ($activeCategory->isContainer()) {
-			$includeChilds = true;
-		}
+		// Update the breadcrumbs
+		$breadcrumbs = $activeCategory->getBreadcrumbs();
 
-		$activeSort = $registry->get('sort');
-		$activeFilter = $this->input->get('filter', 'allposts', 'string');
-		$activeSort = $this->input->get('sort', $activeSort, 'string');
-
-		$options = array(
-						'sort' => $activeSort,
-						'limitstart' => $this->input->get('limitstart', 0, 'int'),
-						'filter' => $activeFilter,
-						'category' => $categoryId,
-						'limit' => $this->config->get('layout_single_category_post_limit', $limit),
-						'userId' => $this->my->id,
-						'includeChilds' => $includeChilds,
-						'featuredSticky' => true
-					);
-
-		// Get all the posts in this category and it's childs
-		$posts = $model->getDiscussions($options);
-
-		$threads = array();
-
-		if ($posts) {
-
-			// Preload the post id's.
-			ED::post($posts);
-
-			// Format normal entries
-			$posts = ED::formatPost($posts);
-
-			$thread = new stdClass();
-			$thread->category = $activeCategory;
-			$thread->posts = array();
-			$threads[$activeCategory->id] = $thread;
-			$threads[$activeCategory->id]->posts = $posts;
-		}
-
-		// setthing pathway
 		if (!EDR::isCurrentActiveMenu('categories', $activeCategory->id, 'category_id') && $breadcrumbs) {
 			foreach ($breadcrumbs as $bdc) {
 				$this->setPathway($bdc->title, $bdc->link);
@@ -173,38 +136,85 @@ class EasyDiscussViewCategories extends EasyDiscussView
 			$this->setPathway(JText::_('COM_EASYDISCUSS_FORUMS_BREADCRUMB_LAYOUT'));
 		}
 
-		ED::setPageTitle($activeCategory->title);
+		$activeSort = $this->input->get('sort', $registry->get('sort'), 'string');
+		$activeFilter = $this->input->get('filter', 'all', 'string');
 
-		// Get the pagination
-		$pagination = $model->getPagination();
+		// Allows caller to filter posts by post types
+		$postTypes = $this->input->get('types', array(), 'string');
 
-		// get cats immediate childs
-		$childs = ED::category()->getChildCategories($categoryId, true, false);
+		// Allows caller to filter posts by labels
+		$postLabels = $this->input->get('labels', array(), 'int');
 
-		$subcategories = array();
+		// Allows caller to filter posts by priority
+		$postPriorities = $this->input->get('priorities', array(), 'int');
 
-		if ($childs) {
-			foreach($childs as $item) {
-				$c = ED::category($item);
-				$subcategories[] = $c;
+		// Set the page title
+		ED::setPageTitle($activeCategory->getTitle());
+
+		// Get featured posts from this particular category.
+		$featuredOptions = [
+			'pagination' => false,
+			'filter' => $activeFilter,
+			'category' => $activeCategory->id,
+			'sort' => 'latest',
+			'featured' => true,
+			'postTypes' => $postTypes,
+			'postLabels' => $postLabels,
+			'postPriorities' => $postPriorities,
+			'limit' => DISCUSS_NO_LIMIT
+		];
+
+		$featured = $postsModel->getDiscussions($featuredOptions);
+
+
+		$options = [
+			'filter' => $activeFilter,
+			'category' => (int) $activeCategory->id,
+			'sort' => $activeSort,
+			'limit' => $this->config->get('layout_single_category_post_limit', $limit),
+			'postTypes' => $postTypes,
+			'postLabels' => $postLabels,
+			'postPriorities' => $postPriorities,
+			'featured' => false,
+			'limitstart' => $this->input->get('limitstart', 0, 'int')
+		];
+
+		// Get all the posts in this category and it's childs
+		$posts = $postsModel->getDiscussions($options);
+		$pagination = $postsModel->getPagination();
+
+		// Only load the data when we really have data
+		if ($featured || $posts) {
+			ED::post(array_merge($featured, $posts));
+
+			// Format featured entries.
+			if ($featured) {
+				$featured = ED::formatPost($featured, false, true);
+			}
+
+			// Format normal entries
+			if ($posts) {
+				$posts = ED::formatPost($posts, false, true);
 			}
 		}
 
+		$subcategories = $activeCategory->getSubcategories();
+
+		// Used in post filters
 		$baseUrl = 'view=categories&layout=listings&category_id=' . $activeCategory->id;
 
+		$this->set('postLabels', $postLabels);
+		$this->set('postTypes', $postTypes);
+		$this->set('postPriorities', $postPriorities);
 		$this->set('activeSort', $activeSort);
 		$this->set('activeFilter', $activeFilter);
-		$this->set('listing', true);
-		$this->set('breadcrumbs', $breadcrumbs);
-		$this->set('activeCategory', $activeCategory);
-		$this->set('threads', $threads);
-		$this->set('pagination', $pagination);
-		$this->set('includeChild', false);
-		$this->set('childs', $subcategories);
 		$this->set('baseUrl', $baseUrl);
-		$this->set('view', $view);
-		$this->set('activeStatus', '');
+		$this->set('featured', $featured);
+		$this->set('posts', $posts);
+		$this->set('pagination', $pagination);
+		$this->set('subcategories', $subcategories);
+		$this->set('activeCategory', $activeCategory);
 
-		parent::display('forums/listings');
+		return parent::display('categories/item/default');
 	}
 }

@@ -1,0 +1,182 @@
+<mjml>
+  <mj-head>
+    <mj-breakpoint width="320px" />
+
+    <mj-font name="Roboto" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" />
+    <mj-attributes>
+      <mj-all padding="0"></mj-all>
+      <mj-text font-family="'Roboto', Arial, sans-serif" line-height="30px" font-size="16px"></mj-text>
+      <mj-section background-color="#ffffff"></mj-section>
+      <mj-class name="preheader" color="#000000" font-size="11px"></mj-class>      
+    </mj-attributes>
+    <mj-style inline="inline">a { text-decoration: none!important; color:#4e72e2; }</mj-style>
+    
+    <mj-preview>Preview message here Hello MJML</mj-preview>
+
+  </mj-head>
+<mj-body background-color="#ffffff" width="480px">
+    
+<mj-include path="_header.mjml" /><!-- end 'header_.mjml' -->
+    
+    
+<mj-section padding-top="40px" >
+  <mj-column background-color="#ffffff">
+    <mj-text  
+              font-size="16px"
+              color="#444444">
+      <p>Hello</p>
+      <p>Thank you for choosing our products at <a href="/">Photography</a></p>
+      <p>Here's the items in your cart waiting for you action.</p>
+    </mj-text>
+  </mj-column>
+</mj-section>
+<!-- end 'section' -->
+
+<mj-section padding="10px 0 0" background-color="#f9f9fa">
+  <mj-column background-color="#f9f9fa" border="1px solid #f9f9fa" padding="0" width="40px">
+    <mj-image width="40px" border-radius="20px" src="/media/com_easydiscuss/images/default_avatar.png"/>
+  </mj-column>
+  <mj-column background-color="#f9f9fa" border="1px solid #f9f9fa" padding="0 10px" width="400px">
+    <mj-text  
+              font-size="16px"
+             line-height="12px"
+
+              color="#444444">
+      <p><b>Jared McCormick</b> replied</p>
+    </mj-text>
+  </mj-column>
+</mj-section>
+
+<mj-section padding="0px 20px 0" background-color="#f9f9fa">
+  <mj-column>
+  <mj-text  
+              font-size="16px"
+             line-height="12px"
+
+              color="#888888">
+      <p>I thik the comment spaces looks too spacious</p>
+    </mj-text>
+  </mj-column>
+</mj-section>
+  
+<mj-section padding="10px 0 10px" background-color="#f9f9fa">
+  <mj-column background-color="#ffffff" border-radius="8px" padding="0" width="440px">
+    <mj-button href="https://google.com" text-align="left" color="#4e72e2" border="1px solid #ebebeb" background-color="#ffffff" border-radius="8px" line-height="16px" width="440px" inner-padding="10px 16px"><img src="/media/com_easydiscuss/images/emails/email-attach-icon.jpg" style="width:18px; vertical-align:middle;" /> &nbsp; File name.jpg</mj-button>
+  </mj-column>
+</mj-section>
+<mj-section padding="0 0 10px" background-color="#f9f9fa">
+  <mj-column background-color="#ffffff" border-radius="8px" padding="0" width="440px">
+    <mj-button href="https://google.com" text-align="left" color="#4e72e2" border="1px solid #ebebeb" background-color="#ffffff" border-radius="8px" line-height="16px" width="440px" inner-padding="10px 16px"><img src="/media/com_easydiscuss/images/emails/email-attach-icon.jpg" style="width:18px; vertical-align:middle;" /> &nbsp; File name.jpg</mj-button>
+  </mj-column>
+</mj-section>
+
+<!-- end 'section' -->
+
+<mj-section padding-top="40px" >
+</mj-section>
+
+<mj-section padding="16px 20px" background-color="#f9f9fa">
+  <mj-column>
+  <mj-text  
+           font-size="20px"
+           font-weight="bold"
+           line-height="18px"
+           color="#444444"
+           padding-top="10px"
+           padding-bottom="10px">
+      Sitewide update
+    </mj-text>
+    <mj-text  
+           font-size="16px"
+           line-height="22px"
+           color="#888888">
+      Here are the new discussions posted on the forum while you're away.
+    </mj-text>
+  </mj-column>
+</mj-section>
+<!-- end 'section' -->
+  
+<mj-section padding="10px 20px" background-color="#ffffff">
+  <mj-column>
+  <mj-text  
+           font-size="16px"
+           font-weight="bold"
+           line-height="22px"
+           color="#444444"
+           padding-top="10px"
+           padding-bottom="4px">
+          <a href="#">Post title Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat modi</a>
+    </mj-text>
+    <mj-text  
+           font-size="13px"
+           line-height="14px"
+           padding-bottom="16px"
+           color="#aaaaaa">
+      By Jacob
+    </mj-text>
+    <mj-text  
+           font-size="14px"
+           line-height="18px"
+           color="#888888">
+      Post description are the new discussions posted on the forum while you're away.
+    </mj-text>
+  </mj-column>
+</mj-section>
+<!-- end 'section' -->
+
+<mj-section padding="10px 20px" background-color="#ffffff">
+  <mj-column>
+  <mj-text  
+           font-size="16px"
+           font-weight="bold"
+           line-height="22px"
+           color="#444444"
+           padding-top="10px"
+           padding-bottom="4px">
+          <a href="#">Post title Lorem ipsum dolor sit amet consectetur adipisicing elit. Fugiat modi</a>
+    </mj-text>
+    <mj-text  
+           font-size="13px"
+           line-height="14px"
+           padding-bottom="16px"
+           color="#aaaaaa">
+      By Jacob
+    </mj-text>
+    <mj-text  
+           font-size="14px"
+           line-height="18px"
+           color="#888888">
+      Post description are the new discussions posted on the forum while you're away.
+    </mj-text>
+  </mj-column>
+</mj-section>
+<!-- end 'section' -->
+  
+<mj-section padding-top="16px" padding-bottom="16px" >
+  <mj-column background-color="#ffffff" padding="0">
+    <mj-button background-color="#4e72e2" color="white" href="https://xmjml.io" font-family="Arial, sans-serif" padding="0 0 0" font-weight="bold" font-size="16px" width="480px">View this reply</mj-button>
+  </mj-column>
+</mj-section>
+<!-- end 'section' -->
+  
+<mj-section padding-bottom="0px" >
+  <mj-column background-color="#ffffff" border="1px solid #E1E4ED" padding="4px 0" width="235px">
+    <mj-button background-color="#ffffff" color="#4e72e2" href="https://xmjml.io" font-family="Arial, sans-serif" padding="0 0 0" font-weight="bold" font-size="16px" width="220px" border-radius="16px">Reject</mj-button>
+  </mj-column>
+  </mj-column>
+  <mj-column width="10px"></mj-column>
+  <mj-column background-color="#ffffff" border="1px solid #E1E4ED" padding="4px 0" width="235px">
+    <mj-button background-color="#ffffff" color="#4e72e2" href="https://xmjml.io" font-family="Arial, sans-serif" padding="0 0 0" font-weight="bold" font-size="16px" width="220px">Approve</mj-button>
+  </mj-column>
+</mj-section>
+<!-- end 'section' -->
+  
+
+
+
+
+  
+  <mj-include path="_footer.mjml" /><!-- end 'footer' -->
+  
+  </mj-body>
+</mjml>

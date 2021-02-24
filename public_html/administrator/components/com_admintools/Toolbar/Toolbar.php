@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,7 +11,7 @@ use FOF30\Toolbar\Toolbar as FOFToolbar;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class Toolbar extends FOFToolbar
 {
@@ -58,6 +58,18 @@ class Toolbar extends FOFToolbar
 		ToolbarHelper::apply('apply', 'COM_ADMINTOOLS_LBL_HTACCESSMAKER_APPLY');
 		ToolbarHelper::divider();
 
+		Text::script('COM_ADMINTOOLS_LBL_SERVERTECH_RESET_CONFIRM', true);
+
+		$text = Text::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_RESET');
+		$html = <<<HTML
+<button class="btn btn-sm btn-small btn-danger" onclick="if (!confirm(Joomla.JText._('COM_ADMINTOOLS_LBL_SERVERTECH_RESET_CONFIRM'))) return;Joomla.submitbutton('reset');">
+	<span class="icon-lightning"></span>
+	$text
+</button>
+HTML;
+		$bar  = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
+		$bar->appendButton('Custom', $html);
+
 		$bar = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
 		$bar->appendButton('Popup', 'search', 'Preview', 'index.php?option=com_admintools&view=HtaccessMaker&task=preview&tmpl=component', 640, 380);
 
@@ -72,6 +84,18 @@ class Toolbar extends FOFToolbar
 		ToolbarHelper::apply('apply', 'COM_ADMINTOOLS_LBL_NGINXCONFMAKER_APPLY');
 		ToolbarHelper::divider();
 
+		Text::script('COM_ADMINTOOLS_LBL_SERVERTECH_RESET_CONFIRM', true);
+
+		$text = Text::_('COM_ADMINTOOLS_LBL_NGINXCONFMAKER_RESET');
+		$html = <<<HTML
+<button class="btn btn-sm btn-small btn-danger" onclick="if (!confirm(Joomla.JText._('COM_ADMINTOOLS_LBL_SERVERTECH_RESET_CONFIRM'))) return;Joomla.submitbutton('reset');">
+	<span class="icon-lightning"></span>
+	$text
+</button>
+HTML;
+		$bar  = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
+		$bar->appendButton('Custom', $html);
+
 		$bar = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
 		$bar->appendButton('Popup', 'search', 'Preview', 'index.php?option=com_admintools&view=NginXConfMaker&task=preview&tmpl=component', 640, 380);
 
@@ -85,6 +109,18 @@ class Toolbar extends FOFToolbar
 		ToolbarHelper::save('save', 'COM_ADMINTOOLS_LBL_WEBCONFIGMAKER_SAVE');
 		ToolbarHelper::apply('apply', 'COM_ADMINTOOLS_LBL_WEBCONFIGMAKER_APPLY');
 		ToolbarHelper::divider();
+
+		Text::script('COM_ADMINTOOLS_LBL_SERVERTECH_RESET_CONFIRM', true);
+
+		$text = Text::_('COM_ADMINTOOLS_LBL_WEBCONFIGMAKER_RESET');
+		$html = <<<HTML
+<button class="btn btn-sm btn-small btn-danger" onclick="if (!confirm(Joomla.JText._('COM_ADMINTOOLS_LBL_SERVERTECH_RESET_CONFIRM'))) return;Joomla.submitbutton('reset');">
+	<span class="icon-lightning"></span>
+	$text
+</button>
+HTML;
+		$bar  = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
+		$bar->appendButton('Custom', $html);
 
 		$bar = \Joomla\CMS\Toolbar\Toolbar::getInstance('toolbar');
 		$bar->appendButton('Popup', 'search', 'Preview', 'index.php?option=com_admintools&view=WebConfigMaker&task=preview&tmpl=component', 640, 380);
@@ -547,6 +583,13 @@ HTML;
 		// Set the toolbar title
 		ToolbarHelper::title(Text::_('COM_ADMINTOOLS_TITLE_SCHEDULINGINFORMATION'), 'admintools');
 		ToolbarHelper::back('JTOOLBAR_BACK', 'index.php?option=com_admintools');
+	}
+
+	public function onTempSuperUsersBrowse()
+	{
+		ToolbarHelper::back('JTOOLBAR_BACK', 'index.php?option=com_admintools');
+
+		parent::onBrowse();
 	}
 
 	/**

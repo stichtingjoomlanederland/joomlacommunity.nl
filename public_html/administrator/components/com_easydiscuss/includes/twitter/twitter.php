@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,9 +28,9 @@ class EasyDiscussTwitter extends EasyDiscuss
 		$data = $post->getEmbedData();
 		$type = 'summary';
 
-		$this->doc->addCustomTag('<meta name="twitter:title" content="' . $post->getTitle() . '" />');
-		$this->doc->addCustomTag('<meta name="twitter:url" content="' . $data->url . '" />');
-		$this->doc->addCustomTag('<meta property="twitter:description" content="' . $data->description . '" />');
+		$this->doc->setMetaData('twitter:title', $post->getTitle());
+		$this->doc->setMetaData('twitter:description', $data->description);
+		$this->doc->setMetaData('twitter:url', $data->url);
 
 		$images = $data->images;
 
@@ -38,10 +38,10 @@ class EasyDiscussTwitter extends EasyDiscuss
 			$type = 'summary_large_image';
 
 			foreach ($images as $image) {
-				$this->doc->addCustomTag('<meta name="twitter:image" content="' . $image . '"/>');		
+				$this->doc->setMetaData('twitter:image', $image);	
 			}
 		}
 
-		$this->doc->addCustomTag('<meta name="twitter:card" content="' . $type . '" />');
+		$this->doc->setMetaData('twitter:card', $type);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewEmails extends EasyDiscussAdminView
 {
 	/**
@@ -20,8 +18,6 @@ class EasyDiscussViewEmails extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -29,6 +25,9 @@ class EasyDiscussViewEmails extends EasyDiscussAdminView
 
 		// Set the page attributes
 		$this->title('COM_EASYDISCUSS_EMAILS_TITLE');
+		$this->addHelpButton('/docs/easydiscuss/administrators/templating/overrides-email-template');
+
+		JToolbarHelper::deleteList('', 'reset', JText::_('COM_ED_RESET_TO_ORIGINAL'));
 
 		$model = ED::model('Emails');
 		$mails = $model->getTemplates();
@@ -43,8 +42,6 @@ class EasyDiscussViewEmails extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function edit()
 	{
@@ -58,6 +55,8 @@ class EasyDiscussViewEmails extends EasyDiscussAdminView
 		JToolBarHelper::apply();
 		JToolBarHelper::cancel();
 
+		$this->hideSidebar();
+		
 		$file = $this->input->get('file', '', 'default');
 		$file = urldecode($file);
 
@@ -67,7 +66,7 @@ class EasyDiscussViewEmails extends EasyDiscussAdminView
 		$file = $model->getTemplate($absolutePath, true);
 
 		// Get the current editor
-		$editor = JFactory::getEditor('codemirror');
+		$editor = ED::getEditor('codemirror');
 
 		$this->set('editor', $editor);
 		$this->set('file', $file);

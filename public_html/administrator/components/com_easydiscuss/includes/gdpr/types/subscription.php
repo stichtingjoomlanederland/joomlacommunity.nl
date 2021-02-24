@@ -133,7 +133,7 @@ class EasyDiscussGdprSubscription extends EasyDiscussGdprAbstract
 			<?php echo $date->format($this->getDateFormat());?>
 		</div>
 		<div class="gdpr-item__label">
-			<span class="gdpr-label"><?php echo JString::strtoupper($subscription->type);?></span>
+			<span class="gdpr-label"><?php echo EDJString::strtoupper($subscription->type);?></span>
 		</div>
 		<?php
 		$contents = ob_get_contents();

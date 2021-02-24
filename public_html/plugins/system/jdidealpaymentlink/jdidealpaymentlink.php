@@ -3,12 +3,20 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Document\HtmlDocument;
+use Joomla\CMS\Factory;
+use Joomla\CMS\HTML\HTMLHelper;
+use Joomla\CMS\Plugin\CMSPlugin;
+use Joomla\CMS\Router\Route;
+use Joomla\CMS\Uri\Uri;
+use Joomla\Utilities\ArrayHelper;
 
 /**
  * Plugin to generate a payment link.
@@ -16,7 +24,7 @@ defined('_JEXEC') or die;
  * @package  JDiDEAL
  * @since    4.5.0
  */
-class plgSystemJdidealpaymentlink extends JPlugin
+class plgSystemJdidealpaymentlink extends CMSPlugin
 {
 	/**
 	 * Application
@@ -35,23 +43,21 @@ class plgSystemJdidealpaymentlink extends JPlugin
 	 */
 	public function onBeforeRender()
 	{
-		/** @var \Joomla\CMS\Document\HtmlDocument $document */
-		$document = JFactory::getDocument();
+		/** @var HtmlDocument $document */
+		$document = Factory::getDocument();
 
 		if (!$this->app->isClient('administrator') || $document->getType() !== 'html')
 		{
-			// Process the buffer
 			$buffer = $document->getBuffer();
 
-			// Check if the buffer is an array, make it a string otherwise
 			if (is_array($buffer))
 			{
-				$buffer = JArrayHelper::toString($buffer);
+				$buffer = ArrayHelper::toString($buffer);
 			}
 
-			if (stristr($buffer, 'editor') === false
+			if (stripos($buffer, 'editor') === false
 				|| is_null(stristr($buffer, 'editor'))
-				|| in_array($this->app->input->getCmd('format'), array('raw', 'json'))
+				|| in_array($this->app->input->getCmd('format'), ['raw', 'json'])
 			)
 			{
 				return;
@@ -59,9 +65,9 @@ class plgSystemJdidealpaymentlink extends JPlugin
 		}
 
 		// We need to add our own stylesheet as last because otherwise our icons are overwritten
-		$url = JUri::getInstance()->getHost() . JUri::root(true);
-		$stylelink = '<link href="//' . $url . '/media/com_jdidealgateway/css/jdidealgateway.css" rel="stylesheet" />';
-		$document->addCustomTag($stylelink);
+		$url = Uri::getInstance()->getHost() . Uri::root(true);
+		$stylesheetLink = '<link href="//' . $url . '/media/com_jdidealgateway/css/jdidealgateway.css" rel="stylesheet" />';
+		$document->addCustomTag($stylesheetLink);
 	}
 
 	/**
@@ -74,7 +80,7 @@ class plgSystemJdidealpaymentlink extends JPlugin
 	public function onAfterRender()
 	{
 		// Fix the icon in the WYSIWYG editor
-		if ($this->app->isClient('administrator') && $this->app->input->getCmd('option') !== 'com_rsform')
+		if (JVERSION < 4 && $this->app->isClient('administrator') && $this->app->input->getCmd('option') !== 'com_rsform')
 		{
 			// Replace the icon-jdideal to jdicon-jdideal
 			$body = $this->app->getBody();
@@ -122,10 +128,9 @@ class plgSystemJdidealpaymentlink extends JPlugin
 			$arguments = $this->convertArguments($matches[1][$index]);
 			$title     = 'RO Payments';
 
-			// Check if there is a title
 			foreach ($arguments as $argument)
 			{
-				list($name, $value) = explode('=', $argument);
+				[$name, $value] = explode('=', $argument);
 
 				if ($name === 'title')
 				{
@@ -137,7 +142,7 @@ class plgSystemJdidealpaymentlink extends JPlugin
 				}
 			}
 
-			$link = JHtml::_('link', JRoute::_($url), $title);
+			$link = HTMLHelper::_('link', Route::_($url), $title);
 			$text = str_replace($tag, $link, $text);
 		}
 
@@ -153,21 +158,18 @@ class plgSystemJdidealpaymentlink extends JPlugin
 	 *
 	 * @since   4.5.0
 	 */
-	private function convertArguments($arguments)
+	private function convertArguments(string $arguments): array
 	{
 		$replaced = preg_match_all('/[a-z]+="[^"]+"/', $arguments, $matches);
 
-		// If no replacement was done, don't do anything
 		if (!$replaced || $replaced === 0)
 		{
-			return array();
+			return [];
 		}
 
-		// Replace quotes
-		$find      = array('"', "'", ' ');
-		$replace   = array('', '', '+');
-		$arguments = str_replace($find, $replace, $matches[0]);
+		$find      = ['"', "'", ' '];
+		$replace   = ['', '', '+'];
 
-		return $arguments;
+		return str_replace($find, $replace, $matches[0]);
 	}
 }

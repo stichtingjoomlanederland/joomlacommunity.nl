@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.9" client="site" type="language" method="upgrade">
-	<name>Nederlands (nl-NL)</name>
+	<name>Dutch (nl-NL)</name>
 	<tag>nl-NL</tag>
-	<version>3.9.21.1</version>
-	<creationDate>Augustus 2020</creationDate>
+	<version>3.9.24.1</version>
+	<creationDate>Januari 2021</creationDate>
 	<author>Dutch Translation Team</author>
 	<authorEmail>taal@joomlacommunity.nl</authorEmail>
 	<authorUrl>https://joomlacommunity.nl</authorUrl>
-	<copyright>Copyright (C) 2005 - 2020 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2005 - 2021 Dutch Translation Team en Open Source Matters. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<description>Nederlands taalbestand Joomla! 3.9 (site)</description>
 	<files>

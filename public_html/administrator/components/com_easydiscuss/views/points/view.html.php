@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewPoints extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
@@ -21,18 +19,15 @@ class EasyDiscussViewPoints extends EasyDiscussAdminView
 		$this->title('COM_EASYDISCUSS_POINTS');
 
 		JToolbarHelper::addNew('add');
-		JToolBarHelper::custom( 'rules' , 'cog' , '' , JText::_('COM_EASYDISCUSS_MANAGE_RULES_BUTTON'), false );
-		JToolBarHelper::divider();
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
-		JToolBarHelper::divider();
-		
+		JToolBarHelper::custom('rules', 'cog' , '' , JText::_('COM_EASYDISCUSS_MANAGE_RULES_BUTTON'), false );
 		JToolbarHelper::deleteList();
 
 		$state = $this->app->getUserStateFromRequest('com_easydiscuss.points.filter_state', 'filter_state', 	'*', 'word');
 		$search = $this->app->getUserStateFromRequest('com_easydiscuss.points.search', 'search', '', 'string' );
 
-		$search = JString::trim(JString::strtolower($search));
+		$search = EDJString::trim(EDJString::strtolower($search));
 
 		$order = $this->app->getUserStateFromRequest('com_easydiscuss.points.filter_order', 'filter_order', 'a.id', 'cmd');
 		$orderDirection = $this->app->getUserStateFromRequest('com_easydiscuss.points.filter_order_Dir', 'filter_order_Dir', '', 'word');
@@ -57,12 +52,21 @@ class EasyDiscussViewPoints extends EasyDiscussAdminView
 		parent::display('points/default');
 	}
 
+	/**
+	 * Renders the form for points
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function form()
 	{
 		$this->checkAccess('discuss.manage.points');
 
-		JToolBarHelper::custom( 'save','save.png','save_f2.png', JText::_( 'COM_EASYDISCUSS_SAVE_BUTTON' ) , false);
-		JToolBarHelper::custom( 'saveNew','save.png','save_f2.png', JText::_( 'COM_EASYDISCUSS_SAVE_NEW_BUTTON' ) , false);
+		$this->title('COM_EASYDISCUSS_POINTS');
+
+		JToolbarHelper::apply();
+		JToolbarHelper::save();
+		JToolbarHelper::save2new();
 		JToolBarHelper::cancel();
 
 		$id = $this->input->get('id', 0, 'int');

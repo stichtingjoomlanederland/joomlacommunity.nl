@@ -8,10 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewMessage extends JViewLegacy
 {
-	protected $form;
-	protected $type;
-	protected $types;
-	
 	public function display($tpl = null) {
 		require_once JPATH_SITE.'/components/com_rseventspro/helpers/placeholders.php';
 		
@@ -34,7 +30,5 @@ class RseventsproViewMessage extends JViewLegacy
 		JToolBarHelper::apply('message.apply');
 		JToolBarHelper::save('message.save');
 		JToolBarHelper::cancel('message.cancel');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

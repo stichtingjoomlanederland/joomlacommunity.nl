@@ -1,6 +1,6 @@
-ed.require(['edq', 'admin/vendors/jquery.joomla'], function($) {
+ed.require(['edq'], function($) {
 
-	$.Joomla( 'submitbutton' , function(action){
+	$.Joomla('submitbutton', function(action) {
 		$.Joomla('submitform', [action]);
 	});
 

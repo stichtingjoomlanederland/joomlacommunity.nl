@@ -1,12 +1,12 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
@@ -47,7 +47,7 @@ class Com_AdmintoolsInstallerScript extends InstallScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumPHPVersion = '7.1.0';
+	protected $minimumPHPVersion = '7.2.0';
 
 	/**
 	 * The minimum Joomla! version required to install this extension
@@ -321,6 +321,12 @@ class Com_AdmintoolsInstallerScript extends InstallScript
 
 			// CSRFShield
 			'plugins/system/admintools/feature/customadminfolder.php',
+
+			// Update notification
+			'administrator/components/com_admintools/View/ControlPanel/tmpl/updateinfo.php',
+
+			// Changelog PNG images
+			'administrator/components/com_admintools/media/icons/changelog.png',
 		],
 		'folders' => [
 			// Obsolete folders from AT 1.x, 2.x and 3.x

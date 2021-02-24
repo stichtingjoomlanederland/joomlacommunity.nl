@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,7 +10,7 @@ use Joomla\CMS\Language\Text;
 
 /** @var  Html $this For type hinting in the IDE */
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $root      = realpath(JPATH_ROOT);
 $root      = trim($root);
@@ -63,20 +63,18 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/needsipworkaround
 // Obsolete PHP version check
 echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/phpversion_warning', [
 	'softwareName'  => 'Admin Tools',
-	'minPHPVersion' => '7.1.0',
+	'minPHPVersion' => '7.2.0',
 ]);
 ?>
 
 <?php if ($this->oldVersion): ?>
 	<div class="akeeba-block--warning">
-		<a class="close" data-dismiss="alert" href="#">×</a>
 		<strong><?php echo Text::_('COM_ADMINTOOLS_ERR_CONTROLPANEL_OLDVERSION'); ?></strong>
 	</div>
 <?php endif; ?>
 
 <?php if ($emptyRoot): ?>
 	<div class="akeeba-block--failure">
-		<a class="close" data-dismiss="alert" href="#">×</a>
 		<?php echo Text::_('COM_ADMINTOOLS_LBL_CONTROLPANEL_EMPTYROOT'); ?>
 	</div>
 <?php endif; ?>
@@ -107,8 +105,6 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/phpversion_warnin
 		</form>
 	</div>
 <?php endif; ?>
-
-<div id="updateNotice"></div>
 
 <?php if ($this->serverConfigEdited): ?>
 	<div class="akeeba-block--warning">

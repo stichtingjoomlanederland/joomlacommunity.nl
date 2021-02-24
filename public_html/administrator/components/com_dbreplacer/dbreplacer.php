@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.7PRO
+ * @version         6.3.8PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -16,6 +16,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\MVC\Controller\BaseController as JController;
 use Joomla\CMS\Plugin\PluginHelper as JPluginHelper;
+use RegularLabs\Library\Document as RL_Document;
 use RegularLabs\Library\Language as RL_Language;
 
 // Access check.
@@ -50,6 +51,11 @@ if ( ! JPluginHelper::isEnabled('system', 'regularlabs'))
 require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 RL_Language::load('plg_system_regularlabs');
+
+if (!RL_Document::isJoomlaVersion(3, 'COM_DBREPLACER'))
+{
+	return;
+}
 
 $controller = JController::getInstance('DBReplacer');
 $controller->execute(JFactory::getApplication()->input->get('task'));

@@ -8,12 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewDiscount extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	protected $used;
-	protected $excludes;
-	protected $tabs;
-	
 	public function display($tpl = null) {
 		$this->form 		= $this->get('Form');
 		$this->item 		= $this->get('Item');
@@ -28,7 +22,5 @@ class RseventsproViewDiscount extends JViewLegacy
 		JToolBarHelper::save('discount.save');
 		JToolBarHelper::save2new('discount.save2new');
 		JToolBarHelper::cancel('discount.cancel');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

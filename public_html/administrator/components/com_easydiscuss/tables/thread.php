@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -38,6 +38,7 @@ class DiscussThread extends EasyDiscussTable
     public $vote = null;
     public $sum_totalvote = null;
     public $hits = null;
+    public $isnew = null;
     public $islock = null;
     public $locdate = null;
     public $featured = null;

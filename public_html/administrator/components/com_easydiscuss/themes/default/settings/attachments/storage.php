@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,15 +17,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_STORAGE_GENERAL'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
-					<div class="form-group">
-						<div class="col-md-5 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_STORAGE_ATTACHMENTS'); ?>
-						</div>
-						<div class="col-md-7">
-							<?php echo $this->html('form.dropdown', 'storage_attachments', array('joomla' => 'Local', 'amazon' => 'Amazon S3'), $this->config->get('storage_attachments'));?>
-						</div>
-					</div>
+				<div class="o-form-horizontal">
+					<?php echo $this->html('settings.dropdown', 'storage_attachments', 'COM_EASYDISCUSS_STORAGE_ATTACHMENTS', '', array('joomla' => 'Local', 'amazon' => 'Amazon S3')); ?>
 				</div>
 			</div>
 		</div>
@@ -33,10 +26,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<div class="col-md-6">
 		<div class="panel <?php echo $this->config->get('storage_attachments') != 'amazon' ? 't-hidden' : '';?>" data-storage-amazon>
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_STORAGE_AMAZON'); ?>
+			<?php echo $this->html('panel.heading', 'COM_EASYDISCUSS_SETTINGS_STORAGE_AMAZON', '', '/docs/easydiscuss/administrators/remote-storage/setup-amazon'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'amazon_enabled', 'COM_EASYDISCUSS_STORAGE_AMAZON_ENABLE'); ?>
 					<?php echo $this->html('settings.toggle', 'amazon_ssl', 'COM_EASYDISCUSS_STORAGE_AMAZON_SSL'); ?>
 
@@ -44,8 +37,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('settings.textbox', 'amazon_access_secret', 'COM_EASYDISCUSS_STORAGE_AMAZON_ACCESS_SECRET'); ?>
 					<?php echo $this->html('settings.textbox', 'amazon_bucket', 'COM_EASYDISCUSS_STORAGE_AMAZON_BUCKET_PATH'); ?>
 
-					<div class="form-group">
-						<div class="col-md-5 control-label">
+					<div class="o-form-group">
+						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_STORAGE_AMAZON_REGION'); ?>
 						</div>
 						<div class="col-md-7">

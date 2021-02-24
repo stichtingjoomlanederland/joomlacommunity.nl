@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <extension type="component" version="3.5" method="upgrade">
 	<name>COM_JDIDEALGATEWAY</name>
-	<creationDate>20 July 2020</creationDate>
+	<creationDate>21 January 2021</creationDate>
 	<author>RolandD Cyber Produksi</author>
 	<authorEmail>contact@rolandd.com</authorEmail>
 	<authorUrl>https://rolandd.com/</authorUrl>
-	<copyright>Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.</copyright>
+	<copyright>Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.</copyright>
 	<license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
-	<version>6.0.2</version>
+	<version>6.3.2</version>
 	<description>COM_ROPAYMENTS_XML_DESCRIPTION</description>
 
 	<!-- Scripts to run on installation -->
@@ -57,6 +57,8 @@
 			<menu view="messages">COM_ROPAYMENTS_MESSAGES</menu>
 			<menu view="emails">COM_ROPAYMENTS_EMAILS</menu>
 			<menu view="pays">COM_ROPAYMENTS_PAYMENTS</menu>
+			<menu view="customers">COM_ROPAYMENTS_CUSTOMERS</menu>
+			<menu view="subscriptions">COM_ROPAYMENTS_SUBSCRIPTIONS</menu>
 		</submenu>
 
 		<!-- Core files admin -->

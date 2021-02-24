@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
 	<width>600</width>
-	<height>200</height>
+	<height>300</height>
 	<selectors type="json">
 	{
 		"{closeButton}" : "[data-close-button]",
@@ -46,20 +46,30 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</bindings>
 	<title><?php echo JText::_('COM_EASYDISCUSS_BBCODE_INSERT_LINK'); ?></title>
 	<content>
-		<form data-ed-link-form>
-			<label for="linkTitle">
-				<strong><?php echo JText::_('COM_EASYDISCUSS_LINK_TITLE');?>:</strong>
-			</label>
-			<input type="text" id="linkTitle" value="" class="form-control" data-ed-link-title />
-			<label for="linkURL">
-				<strong><?php echo JText::_('COM_EASYDISCUSS_LINK_URL');?>:</strong>
-			</label>
-			<input type="text" id="linkURL" value="" class="form-control" data-ed-link-url />
+		<form class="l-stack" data-ed-link-form>
+			<div>
+				<label class="o-form-label" for="link-title">
+					<?php echo JText::_('COM_EASYDISCUSS_LINK_TITLE');?>
+				</label>
+				<input type="text" id="link-title" value="" class="o-form-control" data-ed-link-title />
+
+				<div class="o-form-text"><?php echo JText::_('COM_ED_LINK_TITLE_HELP');?></div>
+			</div>
+
+			<div>
+				<label class="o-form-label" for="link-url">
+					<?php echo JText::_('COM_EASYDISCUSS_LINK_URL');?>
+				</label>
+				<input type="text" id="link-url" value="" class="o-form-control" data-ed-link-url />
+
+				<div class="o-form-text"><?php echo JText::_('COM_ED_LINK_URL_HELP');?></div>
+			</div>
+
 			<input type="hidden" id="message" value="<?php echo ED::string()->escape($contents); ?>" data-ed-message />
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
-		<button data-submit-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_INSERT'); ?></button>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_INSERT'); ?></button>
 	</buttons>
 </dialog>

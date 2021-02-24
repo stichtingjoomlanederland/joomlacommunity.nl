@@ -1,6 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Controllers;
+
+use AcyMailing\Helpers\MailerHelper;
+use AcyMailing\Helpers\UpdateHelper;
+use AcyMailing\Libraries\acymController;
 
 class LanguageController extends acymController
 {
@@ -25,25 +29,28 @@ class LanguageController extends acymController
         $result = acym_writeFile($path, $content);
         if ($result) {
             acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
-            acym_addScript(true, 'let langIcon = window.top.document.getElementById("image'.$code.'"); langIcon.className = langIcon.className.replace("acymicon-add", "") + " acymicon-edit"');
+            acym_addScript(
+                true,
+                'let langIcon = window.top.document.getElementById("image'.$code.'"); langIcon.className = langIcon.className.replace("acymicon-add", "") + " acymicon-edit"'
+            );
 
-            $updateHelper = acym_get('helper.update');
+            $updateHelper = new UpdateHelper();
             $updateHelper->installBackLanguages($code);
         } else {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $path), 'error');
+            acym_enqueueMessage(acym_translationSprintf('ACYM_FAIL_SAVE_FILE', $path), 'error');
         }
 
         $custompath = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym_custom.ini';
         $customresult = acym_writeFile($custompath, $customcontent);
         if (!$customresult) {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $custompath), 'error');
+            acym_enqueueMessage(acym_translationSprintf('ACYM_FAIL_SAVE_FILE', $custompath), 'error');
         }
 
         if ($code == acym_getLanguageTag()) {
             acym_loadLanguage();
         }
 
-        $updateHelper = acym_get('helper.update');
+        $updateHelper = new UpdateHelper();
         $updateHelper->installBackLanguages();
 
         if ($fromShare) {
@@ -65,7 +72,7 @@ class LanguageController extends acymController
         if ($this->saveLanguage(true)) {
             acym_setVar('layout', 'share');
 
-            $file = new stdClass();
+            $file = new \stdClass();
             $file->name = acym_getVar('cmd', 'code');
 
             return parent::display(['file' => $file]);
@@ -86,7 +93,7 @@ class LanguageController extends acymController
             return;
         }
 
-        $mailer = acym_get('helper.mailer');
+        $mailer = new MailerHelper();
         $mailer->Subject = '[ACYMAILING LANGUAGE FILE] '.$code;
         $mailer->Body = 'The website '.ACYM_LIVE.' using AcyMailing '.$this->config->get('level').' '.$this->config->get('version').' sent a language file : '.$code;
         $mailer->Body .= "\n\n\n".$bodyEmail;
@@ -151,12 +158,12 @@ class LanguageController extends acymController
 
         $code = acym_getVar('string', 'code');
         if (empty($code)) {
-            acym_display('Code not specified', 'error');
+            acym_display(acym_translation('ACYM_LANGUAGE_CODE_NOT_FOUND'), 'error');
 
             return;
         }
 
-        $file = new stdClass();
+        $file = new \stdClass();
         $file->name = $code;
         $path = acym_getLanguagePath(ACYM_ROOT, $code).DS.$code.'.com_acym.ini';
         $file->path = $path;
@@ -170,11 +177,16 @@ class LanguageController extends acymController
         if (file_exists($path)) {
             $file->content = acym_fileGetContent($path);
             if (empty($file->content)) {
-                acym_display('File not found : '.$path, 'error');
+                acym_display(acym_translationSprintf('ACYM_FILE_NOT_FOUND', $path), 'error');
             }
         } else {
             $loadLatest = true;
-            acym_enqueueMessage(acym_translation('ACYM_LOAD_ENGLISH_1').'<br />'.acym_translation('ACYM_LOAD_ENGLISH_2').'<br />'.acym_translation('ACYM_LOAD_ENGLISH_3'), 'info');
+            if ('Joomla' === 'Joomla') {
+                $message = acym_translation('ACYM_LOAD_ENGLISH_1');
+                $message .= '<br />'.acym_translation('ACYM_LOAD_ENGLISH_2');
+                $message .= '<br />'.acym_translation('ACYM_LOAD_ENGLISH_3');
+                acym_enqueueMessage($message, 'info');
+            }
             $file->content = acym_fileGetContent(acym_getLanguagePath(ACYM_ROOT, ACYM_DEFAULT_LANGUAGE).DS.ACYM_DEFAULT_LANGUAGE.'.com_acym.ini');
         }
 
@@ -185,9 +197,11 @@ class LanguageController extends acymController
 
         if ($loadLatest || acym_getVar('cmd', 'task') == 'latest') {
             if (file_exists(acym_getLanguagePath(ACYM_ROOT, $code))) {
-                acym_addScript(false, ACYM_UPDATEURL.'languageload&component=acym&code='.acym_getVar('cmd', 'code'));
+                if ('Joomla' === 'Joomla') {
+                    acym_addScript(false, ACYM_UPDATEURL.'languageload&component=acym&code='.acym_getVar('cmd', 'code'));
+                }
             } else {
-                acym_enqueueMessage('The specified language "'.acym_escape($code).'" is not installed on your site', 'warning');
+                acym_enqueueMessage(acym_translationSprintf('ACYM_LANGUAGE_NOT_INSTALLED', $code), 'warning');
             }
             $showLatest = false;
         } elseif (acym_getVar('cmd', 'task') == 'save') {
@@ -199,7 +213,6 @@ class LanguageController extends acymController
             'file' => $file,
         ];
 
-        return parent::display($data);
+        parent::display($data);
     }
 }
-

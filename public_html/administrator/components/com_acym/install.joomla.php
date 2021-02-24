@@ -1,16 +1,19 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-    echo '<p style="color:red">This version of AcyMailing requires at least PHP 5.4.0, it is time to upgrade the PHP version of your server!</p>';
+use AcyMailing\Helpers\UpdateHelper;
+
+if (version_compare(PHP_VERSION, '5.6.0', '<')) {
+    echo '<p style="color:red">This version of AcyMailing requires at least PHP 5.6.0, it is time to upgrade the PHP version of your server!</p>';
     exit;
 }
 
 function installAcym()
 {
     try {
-        include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php');
+        include_once(rtrim(
+                JPATH_ADMINISTRATOR,
+                DIRECTORY_SEPARATOR
+            ).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php');
     } catch (Exception $e) {
         echo 'Initialization error, please re-install';
 
@@ -24,13 +27,23 @@ function installAcym()
     $installClass->updatePref();
     $installClass->updateSQL();
 
-    $updateHelper = acym_get('helper.update');
+    $updateHelper = new UpdateHelper();
     $updateHelper->fromLevel = $installClass->fromLevel;
     $updateHelper->fromVersion = $installClass->fromVersion;
     $updateHelper->installList();
     $updateHelper->installNotifications();
     if (!$installClass->update) {
+        $installClass->deleteNewSplashScreenInstall();
         $updateHelper->installTemplates(true);
+    } else {
+        if (!empty($installClass->fromVersion)) {
+            $fromVersion = substr($installClass->fromVersion, 0, strrpos($installClass->fromVersion, '.'));
+            $toVersion = substr($installClass->version, 0, strrpos($installClass->version, '.'));
+
+            if (version_compare($fromVersion, $toVersion, '=')) {
+                $installClass->deleteNewSplashScreenInstall();
+            }
+        }
     }
     $updateHelper->installFields();
     $updateHelper->installLanguages();
@@ -39,6 +52,7 @@ function installAcym()
     $updateHelper->installBounceRules();
     $updateHelper->installAdminNotif();
     $updateHelper->installAddons();
+    $updateHelper->installOverrideEmails();
 
     $newConfig = new stdClass();
     $newConfig->installcomplete = 1;
@@ -58,10 +72,16 @@ function uninstallAcym()
     ?>
 	AcyMailing successfully uninstalled.<br />
 	Its modules have been disabled.<br /><br />
-	If you want to completely uninstall AcyMailing and remove its data, please uninstall all the AcyMailing modules and plugins from the Joomla Extensions Manager then run the following query on your database manager:<br /><br />
+	If you want to completely uninstall AcyMailing and remove its data, please uninstall all the AcyMailing modules and plugins from the Joomla Extensions Manager then run the following query on your database manager:
+	<br /><br />
     <?php
 
     $tables = [
+        'mail_override',
+        'followup_has_mail',
+        'followup',
+        'segment',
+        'form',
         'plugin',
         'action',
         'condition',
@@ -129,6 +149,26 @@ class com_acymInstallerScript
 
     public function preflight($type, $parent)
     {
+        if ($type === 'update') {
+            $db = JFactory::getDbo();
+            $query = $db->getQuery(true)->select('*')->from('#__extensions');
+            $query->where(
+                'type = "component" AND element = "com_acym"'
+            );
+            $db->setQuery($query);
+
+            try {
+                $extension = $db->loadObject();
+            } catch (Exception $e) {
+                echo JText::sprintf('JLIB_DATABASE_ERROR_FUNCTION_FAILED', $e->getCode(), $e->getMessage()).'<br />';
+
+                return false;
+            }
+
+            $installer = new JInstaller();
+            $installer->refreshManifestCache($extension->extension_id);
+        }
+
         return true;
     }
 
@@ -138,5 +178,4 @@ class com_acymInstallerScript
     }
 }
 
-include_once(__DIR__.DIRECTORY_SEPARATOR.'install.class.php');
-
+include_once __DIR__.DIRECTORY_SEPARATOR.'install.class.php';

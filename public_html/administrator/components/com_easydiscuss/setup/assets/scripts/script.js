@@ -83,18 +83,18 @@ var ed = {
 			var syncProgress = $('[data-sync-progress]');
 
 			// Show loading
-			loading.removeClass('hide');
+			loading.removeClass('d-none');
 
 			// Hide submit
-			submit.addClass('hide');
+			submit.addClass('d-none');
 
 			ed.ajax('list', {"controller": "addons", "path": ed.options.path}, function(result){
 
 				// Hide the retrieving message
-				$('[data-addons-retrieving]').addClass('hide');
+				$('[data-addons-retrieving]').addClass('d-none');
 
-				loading.addClass('hide');
-				installAddons.removeClass('hide');
+				loading.addClass('d-none');
+				installAddons.removeClass('d-none');
 
 				selection.html(result.html);
 
@@ -106,11 +106,11 @@ var ed = {
 				installAddons.on('click', function() {
 
 					// Hide the container
-					selection.addClass('hide');
+					selection.addClass('d-none');
 
 					// Show the installation progress
-					progress.removeClass('hide');
-					syncProgress.removeClass('hide');
+					progress.removeClass('d-none');
+					syncProgress.removeClass('d-none');
 
 					// Install the selected items
 					var modules = [];
@@ -280,27 +280,30 @@ var ed = {
 					};
 
 					// Show loading indicator
-					loading.removeClass('hide');
-					installAddons.addClass('hide');
+					loading.removeClass('d-none');
+					installAddons.addClass('d-none');
+
+					// Hide the submit button first
+					submit.addClass('d-none');
 
 					// Install Modules
 					installModules().done(function() {
 						installPlugins().done(function() {
 							
 							// Show complete
-							$('[data-progress-active-message]').addClass('hide');
-							$('[data-progress-complete-message]').removeClass('hide');
+							$('[data-progress-active-message]').addClass('d-none');
+							$('[data-progress-complete-message]').removeClass('d-none');
 							$('[data-progress-bar]').css('width', '100%');
 							$('[data-progress-bar-result]').html('100%');
 
 							runMaintenance().done(function() {
 
 								// When everything is done, update the submit button
-								loading.addClass('hide');
-								submit.removeClass('hide');
+								loading.addClass('d-none');
+								submit.removeClass('d-none');
 
-								$('[data-sync-progress-active-message]').addClass('hide');
-								$('[data-sync-progress-complete-message]').removeClass('hide');
+								$('[data-sync-progress-active-message]').addClass('d-none');
+								$('[data-sync-progress-complete-message]').removeClass('d-none');
 								$('[data-sync-progress-bar]').css('width', '100%');
 								$('[data-sync-progress-bar-result]').html('100%');
 
@@ -526,37 +529,16 @@ var ed = {
 		},
 
 		update: function(element, obj, progress) {
-			var className = obj.state ? ' text-success' : ' text-error',
-				stateMessage = obj.state ? 'Success' : 'Failed';
-				stateIcon = obj.state ? 'icon-checkmark text-success' : 'icon-warning text-error';
+			var logItem = $('[' + element + ']');
 
-			// Update the icon
-			$('[' + element + ']')
-				.find('.progress-icon > i')
-				.removeClass('loader')
-				.addClass(stateIcon);
-
-			// Update the state
-			$('[' + element + ']')
-				.find('.progress-state')
-				.html(stateMessage)
-				.removeClass('text-info')
-				.addClass(className);
-
-			// Update the message
-			$('[' + element + ']')
-				.find('.notes')
-				.html(obj.message)
-				.removeClass('text-info')
-				.addClass(className);
-
-			$('[' + element + ']').removeClass('is-loading');
+			logItem.removeClass("is-loading")
+				.addClass(obj.state ? 'is-complete' : 'is-error');
 		},
 
 		setActive: function(item) {
-			$('[data-progress-active-message]').html($('[' + item + ']').find('.split__title').html() + ' ...');
-			$('[' + item + ']').removeClass('pending').addClass('active is-loading');
-			$('[' + item + ']').find('.progress-icon > i') .removeClass('icon-radio-unchecked') .addClass('loader');
+			var logItem = $('[' + item + ']');
+
+			logItem.addClass('is-loading');
 		}
 	}
 }

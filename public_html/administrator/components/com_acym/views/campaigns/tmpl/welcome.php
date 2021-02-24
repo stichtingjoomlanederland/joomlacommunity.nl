@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
     <?php
     $isEmpty = empty($data['allCampaigns']) && empty($data['search']) && empty($data['tag']);
     if (!$isEmpty) {
@@ -9,7 +7,7 @@ defined('_JEXEC') or die('Restricted access');
     ?>
 	<div id="acym__welcome-emails" class="acym__content">
         <?php
-        $workflow = acym_get('helper.workflow');
+        $workflow = $data['workflowHelper'];
         echo $workflow->displayTabs($this->tabs, 'welcome');
 
         if ($isEmpty) {
@@ -21,4 +19,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(true, 'welcome'); ?>
 </form>
-

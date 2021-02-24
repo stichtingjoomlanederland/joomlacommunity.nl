@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Helper;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\Factory;
@@ -540,6 +540,12 @@ class Select
 
 	protected static function genericlist($list, $name, $attribs, $selected, $idTag)
 	{
+		$chosen = strpos($attribs['class'] ?? '', 'advancedSelect') !== false;
+
+		if ($chosen) {
+			HTMLHelper::_('formbehavior.chosen');
+		}
+
 		if (empty($attribs))
 		{
 			$attribs = null;

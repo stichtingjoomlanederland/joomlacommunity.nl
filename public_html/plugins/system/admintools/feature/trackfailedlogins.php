@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -15,7 +15,7 @@ use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
 use Joomla\CMS\User\UserHelper;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 {
@@ -121,7 +121,7 @@ class AtsystemFeatureTrackfailedlogins extends AtsystemFeatureAbstract
 		$randomPassword        = class_exists('Joomla\\CMS\\User\\UserHelper') ? UserHelper::genRandomPassword() : UserHelper::genRandomPassword();
 		$data['activation']    = class_exists('Joomla\\CMS\\Application\\ApplicationHelper') ? ApplicationHelper::getHash($randomPassword) : JApplication::getHash($randomPassword);
 		$data['block']         = 1;
-		$data['lastvisitDate'] = $db->getNullDate();
+		$data['lastvisitDate'] = version_compare(JVERSION, '3.9999.9999', 'le') ? $db->getNullDate() : null;
 
 		// If an admin needs to activate the user, I have to set the activate flag
 		if ($userParams->get('useractivation') == 2)

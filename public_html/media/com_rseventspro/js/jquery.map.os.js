@@ -503,11 +503,11 @@
 				
 				// Image
 				var $image 	= $(element.image);
-				var $cell 	= $('<td>').append($image);
+				var $cell 	= $('<td>').addClass('center text-center').append($image);
 				$row.append($cell);
 				
 				// Info
-				var $button = $('<button type="button" class="btn btn-block"><i class="fa fa-map-marker"></i></button>').click(function(e){ 
+				var $button = $('<button type="button" class="btn btn-primary btn-block"><i class="fa fa-map-marker"></i></button>').click(function(e){ 
 					e.preventDefault();
 					base.map.setView(base.createLatLng(element.coords));
 					marker.fire('click');

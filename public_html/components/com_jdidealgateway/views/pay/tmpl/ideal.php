@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -13,6 +13,8 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
 
+/** @var JdidealgatewayViewPay $this */
+
 ?>
 
 <div id="dopay">
@@ -20,7 +22,6 @@ use Joomla\CMS\Layout\LayoutHelper;
 		<legend><?php echo Text::_('COM_ROPAYMENTS_DO_PAYMENT'); ?></legend>
 
 		<?php
-			// Include the payment form
 			$layout = new LayoutHelper;
 			echo $layout->render('forms.form', ['data' => $this->data]);
 		?>

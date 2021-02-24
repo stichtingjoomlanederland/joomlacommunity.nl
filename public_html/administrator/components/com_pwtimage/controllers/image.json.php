@@ -42,7 +42,7 @@ class PwtimageControllerImage extends BaseController
 		$message = '';
 		$error   = false;
 
-		if ($canDo->get('core.edit'))
+		if ($canDo->get('core.edit') || $canDo->get('core.edit.own'))
 		{
 			$file            = $this->input->files->get('image', null);
 			$localFile       = $this->input->getString('pwt-image-localFile', null);

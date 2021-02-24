@@ -1,17 +1,17 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class delayType extends acymObject
+namespace AcyMailing\Types;
+
+use AcyMailing\Libraries\acymObject;
+
+class DelayType extends acymObject
 {
     var $values = [];
     var $num = 0;
     var $onChange = '';
 
-    public function __construct()
+    public function display($map, $value, $type = 1)
     {
-        parent::__construct();
-
         static $i = 0;
         $i++;
         $this->num = $i;
@@ -30,10 +30,9 @@ class delayType extends acymObject
             delayvar.value = realValue;
         }';
         acym_addScript(true, $js);
-    }
 
-    public function display($map, $value, $type = 1)
-    {
+        $this->values = [];
+
         if ($type == 0) {
             $this->values[] = acym_selectOption('second', 'ACYM_SECONDS');
             $this->values[] = acym_selectOption('minute', 'ACYM_MINUTES');
@@ -56,16 +55,24 @@ class delayType extends acymObject
         }
 
         $return = $this->get($value, $type);
-        $delayValue = '<input class="intext_input" onchange="updateDelay'.$this->num.'();'.$this->onChange.'" type="text" id="delayvalue'.$this->num.'" value="'.$return->value.'" /> ';
+        $delayValue = '<input class="intext_input" onchange="updateDelay'.$this->num.'();'.$this->onChange.'" type="number" id="delayvalue'.$this->num.'" value="'.$return->value.'" /> ';
         $delayVar = '<input type="hidden" name="'.$map.'" id="delayvar'.$this->num.'" value="'.$value.'"/>';
 
-        return $delayValue.acym_select($this->values, 'delaytype'.$this->num, $return->type, 'class="intext_select" onchange="updateDelay'.$this->num.'();'.$this->onChange.'"', 'value', 'text', 'delaytype'.$this->num).$delayVar;
+        return $delayValue.acym_select(
+                $this->values,
+                'delaytype'.$this->num,
+                $return->type,
+                'class="intext_select" onchange="updateDelay'.$this->num.'();'.$this->onChange.'"',
+                'value',
+                'text',
+                'delaytype'.$this->num
+            ).$delayVar;
     }
 
     public function get($value, $type)
     {
 
-        $return = new stdClass();
+        $return = new \stdClass();
 
         $return->value = $value;
         if ($type == 0) {
@@ -97,4 +104,3 @@ class delayType extends acymObject
         return $return;
     }
 }
-

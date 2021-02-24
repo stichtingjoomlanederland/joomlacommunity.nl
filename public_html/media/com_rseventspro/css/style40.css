@@ -1,0 +1,154 @@
+/* Bootstrap 2 imported visibility utility classes */
+
+.visible-phone {
+    display: none !important;
+}
+
+.visible-tablet {
+    display: none !important;
+}
+
+.hidden-desktop {
+    display: none !important;
+}
+
+.visible-desktop {
+    display: initial !important;
+}
+
+@media (min-width: 768px) and (max-width: 979px) {
+    .hidden-desktop {
+        display: initial !important;
+    }
+    .visible-desktop {
+        display: none !important ;
+    }
+    .visible-tablet {
+        display: initial !important;
+    }
+    .hidden-tablet {
+        display: none !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .hidden-desktop {
+        display: initial !important;
+    }
+    .visible-desktop {
+        display: none !important;
+    }
+    .visible-phone {
+        display: initial !important;
+    }
+    .hidden-phone {
+        display: none !important;
+    }
+}
+
+.rsepro-horizontal .control-group {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 0 1rem;
+}
+
+.rsepro-horizontal .control-group .control-label {
+    width: 240px;
+    padding: .3rem 1rem .3rem 0;
+}
+
+.rsepro-horizontal .control-group .controls {
+    position: relative;
+    flex: 1;
+    min-width: 210px;
+}
+
+.form-vertical .control-group {
+	margin: 0 0 1rem;
+}
+
+.form-actions {
+	margin-top: 1rem;
+}
+
+.rsepro-sponsors,
+.rsepro-speakers {
+	list-style: none;
+	padding: 0;
+}
+
+.rsepro-sponsors > li, 
+.rsepro-speakers > li {
+	float: left;
+}
+
+.rsepro-sponsors .thumbnail,
+.rsepro-speakers .thumbnail {
+	display: block;
+	padding: 4px;
+	line-height: 18px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.055);
+	transition: all .2s ease-in-out;
+}
+
+
+.rsepro-sponsors .thumbnail > img,
+.rsepro-speakers .thumbnail > img {
+    display: block;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#rs_event_show .dropdown-menu {
+	min-width: 250px;
+}
+
+#rseproUserForm .rsepro-checkbox-inline, 
+#rseproUserForm .rsepro-radio-inline,
+#editTicket .rsepro-checkbox-inline, 
+#editTicket .rsepro-radio-inline,
+#checkoutForm .rsepro-checkbox-inline, 
+#checkoutForm .rsepro-radio-inline,
+.card .rsepro-checkbox-inline, 
+.card .rsepro-radio-inline,
+.rsepro-subscriber-layout .col-md-6 .rsepro-checkbox-inline, 
+.rsepro-subscriber-layout .col-md-6 .rsepro-radio-inline {
+	vertical-align: initial;
+	width:auto;
+}
+
+.rsepro-step i {
+	top: -5px;
+	position: relative;
+}
+
+.rsepro-step .btn-success i {
+	color: #fff;
+}
+
+#rseproUserForm .rsepro-cart-validation-message,
+#checkoutForm .rsepro-cart-validation-message,
+#editTicket .rsepro-cart-validation-message,
+.card .rsepro-cart-validation-message {
+	margin-left:0;
+}
+
+#rsepro-math-captcha {
+	padding-left: 0;
+}
+
+.rsepro-edit-container-site .control-group {
+	margin-bottom: .5rem;
+}
+
+#rsepro-edit-tab7 .input-group-append,
+[id^=rsepro-edit-coupon] .input-group-append {
+	display:flex;
+}
+
+.rsepro-calendar table caption select {
+	display: inline-block;
+}

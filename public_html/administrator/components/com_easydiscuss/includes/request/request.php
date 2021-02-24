@@ -1,25 +1,18 @@
 <?php
 /**
-* @package		EasyBlog
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined( '_JEXEC' ) or die( 'Unauthorized Access' );
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussRequest
 {
-	/**
-	 * Class constructor
-	 *
-	 * @since	1.0
-	 * @access	public
-	 * @param	string		The registry's raw data.
-	 */
 	public function __construct()
 	{
 		$this->app = JFactory::getApplication();
@@ -31,8 +24,6 @@ class EasyDiscussRequest
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	null
-	 * @return	SocialParameter
 	 *
 	 */
 	public static function factory()
@@ -64,11 +55,6 @@ class EasyDiscussRequest
 	 */
 	public function get($name, $default = null, $filter = 'cmd')
 	{
-		// If filter is raw, and is 2.5
-		if ($filter == 'raw' && ED::isJoomla25()) {
-			return JRequest::getVar($name, $default, 'REQUEST' , 'none' , JREQUEST_ALLOWRAW);
-		}
-
 		return $this->input->get($name, $default, $filter);
 	}
 

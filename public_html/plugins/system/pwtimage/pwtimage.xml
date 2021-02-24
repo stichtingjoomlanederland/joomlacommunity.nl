@@ -2,12 +2,12 @@
 <extension version="3.8" type="plugin" group="system" method="upgrade">
     <name>PLG_PWTIMAGE</name>
     <author>Perfect Web Team</author>
-    <creationDate>30 July 2020</creationDate>
+    <creationDate>2 October 2020</creationDate>
     <copyright>Copyright (C) 2015 - 2020 Perfect Web Team</copyright>
     <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>extensions@perfectwebteam.com</authorEmail>
     <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
     <description>PLG_PWTIMAGE_XML_DESCRIPTION</description>
 
     <files>

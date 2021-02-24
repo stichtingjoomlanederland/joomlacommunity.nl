@@ -92,6 +92,12 @@
                    label="PLG_RSFP_JDIDEAL_EMAIL_LABEL"
                    default=""/>
 
+            <field name="fieldName"
+                   type="text"
+                   description="PLG_RSFP_JDIDEAL_NAME_DESCRIPTION"
+                   label="PLG_RSFP_JDIDEAL_NAME_LABEL"
+                   default=""/>
+
             <field name="userEmail"
                    type="radio"
                    class="btn-group btn-group-yesno"

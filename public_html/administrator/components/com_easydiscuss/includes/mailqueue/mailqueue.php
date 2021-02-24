@@ -14,30 +14,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 class EasyDiscussMailQueue extends EasyDiscuss
 {
 	/**
-	 * Detects the content of a replied e-mail
-	 *
-	 * @since	4.1.15
-	 * @access	public
-	 */
-	public function detectEmailContent($content)
-	{
-		require_once(DISCUSS_ADMIN_INCLUDES . '/vendor/autoload.php');
-
-		// Another method to just extract the contents
-		// $visibleText = \EmailReplyParser\EmailReplyParser::parseReply($content);
-
-		// Remove all known <blockquotes>
-		$content = preg_replace('/\<blockquote.*?>.*\<\/blockquote\>/is', ' ', $content);
-
-		$email = (new EmailReplyParser\Parser\EmailParser())->parse($content);
-
-		$fragment = current($email->getFragments());
-		$content = $fragment->getContent();
-
-		return $content;
-	}
-
-	/**
 	 * Processes e-mails from the queue and dispatch them out
 	 *
 	 * @since	4.0.13
@@ -194,7 +170,6 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		$filter = JFilterInput::getInstance();
 		$total = 0;
 
-		$intelligentReplyDetection = $this->config->get('mail_reply_breaker_intelligent');
 		$replyBreaker = $this->config->get('mail_reply_breaker');
 
 		foreach ($unread as $sequence) {
@@ -246,13 +221,6 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			// Get the html output
 			$html = $message->getHTML();
 
-			// // Intelligently detect content (Not reliable, see #899)
-			$intelligentReplyDetection = false;
-
-			// if ($intelligentReplyDetection) {
-			// 	$html = $this->detectEmailContent($html);
-			// }
-
 			// Default allowed html codes
 			$allowed = '<img>,<a>,<br>,<table>,<tbody>,<th>,<tr>,<td>,<div>,<span>,<p>,<h1>,<h2>,<h3>,<h4>,<h5>,<h6>,<b>,<i>,<u>';
 
@@ -264,13 +232,13 @@ class EasyDiscussMailQueue extends EasyDiscuss
 			$pattern[] = '/<img.*?src=["|\'](.*?)["|\'].*?\>/ims';
 			$html = preg_replace( $pattern, array( '' ), $html );
 
-			$editor 	= $config->get('layout_editor');
+			$editor = $config->get('layout_editor');
 			$contentType = $editor == 'bbcode' ? 'bbcode' : 'html';
 
 			if ($editor == 'bbcode') {
 
 				// remove &nbsp; from content if there is any
-				$html = JString::str_ireplace('&nbsp;', ' ', $html);
+				$html = EDJString::str_ireplace('&nbsp;', ' ', $html);
 
 				// Switch html back to bbcode
 				$html = ED::parser()->html2bbcode($html);
@@ -321,11 +289,10 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$parentId = (int) $matches[1];
 				$data['parent_id'] = $parentId;
 
-				if (!$intelligentReplyDetection && $replyBreaker) {
-					$pos = JString::strpos($data['content'], $replyBreaker);
-
-					if ($pos) {
-						$data['content'] = JString::substr($data['content'], 0, $pos);
+				// Trim content, get text before the defined line
+				if( $replyBreaker ) {
+					if( $pos = EDJString::strpos($data['content'], $replyBreaker) ) {
+						$data['content'] = EDJString::substr($data['content'], 0, $pos);
 					}
 				}
 
@@ -372,6 +339,9 @@ class EasyDiscussMailQueue extends EasyDiscuss
 				$data['published'] = DISCUSS_ID_PENDING;
 			}
 
+			// Indicate that this post is imported from email parser
+			$data['params_fromEmailParser'] = true;
+
 			// bind the data
 			$post->bind($data);
 
@@ -382,8 +352,21 @@ class EasyDiscussMailQueue extends EasyDiscuss
 
 			$post->save($saveOptions);
 
+			// Log an acitivty for it
+			if (!$post->isReply()) {
+				$actLib = ED::activity();
+
+				$tmpl = $actLib->getTemplate();
+				$tmpl->setAction('post.email.parser');
+				$tmpl->setType('post', $post->id);
+				$tmpl->setActor($post->getAuthor()->id);
+				$tmpl->setContent(0, 1);
+
+				$actLib->log($tmpl);
+			}
+
 			// @task: Increment the count.
-			$total	+= 1;
+			$total += 1;
 
 			$attachments = array();
 			$attachments = $message->getAttachment();
@@ -474,122 +457,6 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		}
 	}
 
-	public function replyNotifyUsers( $reply , $user , $senderName )
-	{
-		//send notification to all comment's subscribers that want to receive notification immediately
-		$notify		= DiscussHelper::getNotification();
-		$emailData	= array();
-		$config		= DiscussHelper::getConfig();
-
-		$parent		= DiscussHelper::getTable( 'Post' );
-		$parent->load( $reply->parent_id );
-
-		$profile = ED::user($user->id);
-
-		$emailData['replyAuthor' ]			= $profile->getName();
-		$emailData['commentAuthor']			= $profile->getName();
-		$emailData['replyAuthorAvatar' ]	= $profile->getAvatar();
-
-		if ($reply->get( 'user_type') == DISCUSS_POSTER_GUEST) {
-			$emailData['postAuthor']	= $senderName;
-			$emailData['commentAuthor']	= $senderName;
-			$emailData['replyAuthorAvatar' ]	= '';
-		}
-
-		$emailContent = $reply->content;
-
-		if( $reply->content_type != 'html' )
-		{
-			// the content is bbcode. we need to parse it.
-			$emailContent	= ED::parser()->bbcode( $emailContent);
-			$emailContent	= ED::parser()->removeBrTag( $emailContent);
-		}
-
-		// If reply is html type we need to strip off html codes.
-		if ($reply->content_type == 'html') {
-			$emailContent 			= strip_tags( $emailContent );
-		}
-
-		$emailContent	= $parent->trimEmail( $emailContent );
-
-		$emailData['postTitle']		= $parent->title;
-		$emailData['comment']		= $reply->content;
-		$emailData['postLink']		= DiscussRouter::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $parent->id, false, true);
-		$emailData['replyContent']	= $reply->content;
-
-		$attachments	= $reply->getAttachments();
-		$emailData['attachments']	= $attachments;
-
-		$excludeEmails = array();
-		$subscriberEmails			= array();
-
-		if( ($config->get('main_sitesubscription') ||  $config->get('main_postsubscription') ) && $config->get('notify_subscriber') && $reply->published == DISCUSS_ID_PUBLISHED)
-		{
-			$emailData['emailTemplate']	= 'email.subscription.reply.new.php';
-			$emailData['emailSubject']	= JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-
-			$emailData['post_id'] = $parent->id;
-			$emailData['cat_id'] = $parent->category_id;
-
-			// Notify all subscriber about new replies
-			DiscussHelper::getHelper( 'Mailer' )->notifySubscribers( $emailData, $excludeEmails );
-		}
-
-		//notify post owner.
-		$postOwnerId	= $parent->user_id;
-		$postOwner		= JFactory::getUser($postOwnerId);
-		$ownerEmail		= $postOwner->email;
-
-		if ($parent->user_type != 'member') {
-			$ownerEmail 	= $parent->poster_email;
-		}
-
-		if ($config->get('notify_owner') && $reply->published == DISCUSS_ID_PUBLISHED && ($postOwnerId != $user->id) && !in_array($ownerEmail , $subscriberEmails) && !empty($ownerEmail)) {
-			$emailData['owner_email'] = $ownerEmail;
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-			$emailData['emailTemplate'] = 'email.post.reply.new.php';
-			DiscussHelper::getHelper( 'Mailer' )->notifyThreadOwner( $emailData );
-
-			$excludeEmails[] = $ownerEmail;
-		}
-
-		// Notify Participants
-		if ($config->get( 'notify_participants' ) && $reply->published	== DISCUSS_ID_PUBLISHED) {
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-			$emailData['emailTemplate'] = 'email.post.reply.new.php';
-			DiscussHelper::getHelper( 'Mailer' )->notifyThreadParticipants( $emailData, $excludeEmails );
-		}
-
-		//if reply under moderation, send owner a notification.
-		if ($reply->published == DISCUSS_ID_PENDING) {
-			// Generate hashkeys to map this current request
-			$hashkey		= DiscussHelper::getTable( 'Hashkeys' );
-			$hashkey->uid	= $reply->id;
-			$hashkey->type	= DISCUSS_REPLY_TYPE;
-			$hashkey->store();
-
-			$approveURL	= DiscussHelper::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=approvePost&key=' . $hashkey->key );
-			$rejectURL	= DiscussHelper::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=rejectPost&key=' . $hashkey->key );
-			$emailData[ 'moderation' ]	= '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-			$emailData[ 'moderation' ] .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_( 'COM_EASYDISCUSS_EMAIL_APPROVE_REPLY' ) . '</a>';
-			$emailData[ 'moderation' ] .= ' ' . JText::_( 'COM_EASYDISCUSS_OR' ) . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_( 'COM_EASYDISCUSS_REJECT' ) . '</a>';
-			$emailData[ 'moderation' ] .= '</div>';
-
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_MODERATE', $parent->title);
-			$emailData['emailTemplate'] = 'email.post.reply.moderation.php';
-
-			DiscussHelper::getHelper( 'Mailer' )->notifyAdministrators( $emailData, array(), $config->get( 'notify_admin' ), $config->get( 'notify_moderator' ) );
-
-		} elseif($reply->published	== DISCUSS_ID_PUBLISHED) {
-
-			$emailData['emailTemplate']	= 'email.post.reply.new.php';
-			$emailData['emailSubject']	= JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $parent->id , $parent->title);
-			$emailData['post_id'] = $parent->id;
-
-			DiscussHelper::getHelper( 'Mailer' )->notifyAdministrators( $emailData, array(), $config->get( 'notify_admin_onreply' ), $config->get( 'notify_moderator_onreply' ) );
-		}
-	}
-
 	/**
 	 * Ensure that the sender is allowed
 	 *
@@ -669,7 +536,7 @@ class EasyDiscussMailQueue extends EasyDiscuss
 		$filter = JFilterInput::getInstance();
 
 		$list = $filter->clean($list, 'string');
-		$list = JString::trim($list);
+		$list = EDJString::trim($list);
 
 		if (!$list) {
 			return array();

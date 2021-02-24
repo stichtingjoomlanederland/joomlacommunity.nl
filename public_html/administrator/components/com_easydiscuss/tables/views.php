@@ -34,7 +34,7 @@ class DiscussViews extends EasyDiscussTable
 
 	public function loadByUser( $id )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT * FROM ' . $db->nameQuote( $this->_tbl ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'user_id' ) . '=' . $db->Quote( $id );
 		$db->setQuery( $query );

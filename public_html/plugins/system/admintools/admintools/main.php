@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -17,7 +17,7 @@ use Joomla\CMS\Language\LanguageHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 use Joomla\CMS\Uri\Uri;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 // This dummy class is here to allow the class autoloader to load the main plugin file
 class AtsystemAdmintoolsMain
@@ -138,6 +138,9 @@ class plgSystemAdmintools extends CMSPlugin
 	 */
 	public function onAfterInitialise()
 	{
+		// We check for a Rescue URL before processing any other security rules.
+		$this->exceptionsHandler->checkRescueURL();
+
 		return $this->runFeature('onAfterInitialise', []);
 	}
 
@@ -167,7 +170,7 @@ class plgSystemAdmintools extends CMSPlugin
 		}
 		else
 		{
-			$app->getDispatcher()->addListener('onAfterRender', [$this, 'onAfterRenderLatebound'],  PHP_INT_MAX - 1);
+			$app->getDispatcher()->addListener('onAfterRender', [$this, 'onAfterRenderLatebound'], PHP_INT_MAX - 1);
 		}
 
 		return $this->runFeature('onBeforeRender', []);
@@ -911,8 +914,11 @@ class plgSystemAdmintools extends CMSPlugin
 	 */
 	private function getCurrentView()
 	{
-		$view = $this->input->getCmd('view', '');
-		$task = $this->input->getCmd('task', '');
+		$fallbackView = version_compare(JVERSION, '3.999.999', 'ge')
+			? $this->input->getCmd('controller', '')
+			: '';
+		$view         = $this->input->getCmd('view', $fallbackView);
+		$task         = $this->input->getCmd('task', '');
 
 		if (empty($view) && (strpos($task, '.') !== false))
 		{

@@ -1,0 +1,158 @@
+/*------------------------------------*\
+	Scaffolding/Reset
+\*------------------------------------*/
+* {
+	// Bliking issues on iOS
+	-webkit-tap-highlight-color:  transparent;
+}
+
+// Reset to prevent conflict for Joomla Template
+// ==========================================================================
+// Base (HTML tags)
+// ==========================================================================
+//
+// 1. Set default font family to sans-serif.
+// 2. Prevent iOS text size adjust after orientation change, without disabling
+//    user zoom.
+// 3. Prevent templates globally align center
+// 4. This only works in OS X, Windows-user won’t see any difference!
+// 5. Have to define base line height for UI.
+// 6. Sizes will base on html root
+// 
+html, body {
+	font-family: $fd-base-font-family; // 1
+	-ms-text-size-adjust: 100%; // 2
+	-webkit-text-size-adjust: 100%; // 2
+	text-align: left; // 3
+	-moz-osx-font-smoothing: grayscale; // 4
+	-webkit-font-smoothing: antialiased; // 4
+	font-smoothing: antialiased; // 4
+	line-height: $fd-base-line-height; // 5
+	font-size: 1em; // 6
+}
+
+
+// font-size: 13px;
+
+*,
+*:before,
+*:after {
+	// Safe to use width:100% without caring the padding
+	box-sizing: border-box;
+}
+
+html, body, p, ol, ul, li, dl, dt, dd, blockquote, figure, fieldset, legend, textarea, pre, iframe, hr, h1, h2, h3, h4, h5, h6 {
+	&.si-reset {
+		margin: 0;
+		padding: 0;
+	}
+	
+}
+
+
+img,
+input {
+	// Reset to prevent templates using min-height mess up input fields and images
+	min-width: 0;
+	min-height: 0;
+	max-width: 100%;
+}
+
+//reset some HTML elements
+blockquote,
+header,
+nav,
+article,
+aside,
+footer,
+form {
+	// box model
+	padding: 0;
+	margin: 0;
+	width: auto;
+	height: auto;
+	border: 0;
+	outline: 0;
+	// layout
+	float: none;
+	position: static;
+	display: block;
+	background: none;
+	// text
+	text-align: inherit;
+	font-size: inherit;
+	font-family: inherit;
+	text-shadow: none;
+}
+
+// Reset fonts for relevant elements
+input,
+button,
+select,
+textarea {
+	font-family: $fd-base-font-family;
+	// font-size: inherit;
+	// line-height: inherit;
+	// color: inherit;
+	// margin: 0;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	border: none;
+	box-shadow: none;
+}
+
+// Images
+img {
+	vertical-align: middle;
+	border: 0;
+}
+
+// Horizontal rules
+hr {
+	&.si-hr {
+		background-color: var(--si-basic--400);
+		border: none;
+		display: block;
+		height: 1px;
+		margin: var(--si-spacing--md)--lg 0;
+	}
+	
+
+	&.si-hr--light {
+		background-color: $fd-ui-bg;
+	}
+}
+
+
+// Tables
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+// Removed due to aggressiveness
+tr,
+td {
+	// border: 1px solid transparent;
+}
+
+a {
+	// background-color: transparent;
+	// color: $fd-ui-text-link-color;
+	&:link {
+		text-decoration: none;
+	}
+	&:hover {
+	}
+	&:hover,
+	&:focus,
+	&:active {
+		// background-color: inherit;
+	}
+}
+
+// Line height might affect UI.
+li {
+	line-height: $fd-base-line-height;
+}

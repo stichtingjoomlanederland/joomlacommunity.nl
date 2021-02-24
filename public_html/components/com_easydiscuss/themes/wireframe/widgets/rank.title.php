@@ -12,5 +12,5 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($this->config->get('main_ranking')) { ?>
-<div class="ed-user-rank t-lg-mb--sm"><?php echo ED::getUserRanks($user->id); ?></div>
+<div class="ed-user-rank t-lg-mb--sm"><?php echo ED::ranks()->getRank($user->id); ?></div>
 <?php } ?>

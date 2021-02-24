@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php if ($hasMoreBadges) { ?>
 	<a href="javascript:void(0);" class="ed-post-item-badges__toggle" 
 		data-ed-popbox data-ed-popbox-toggle="click" 
-		data-ed-popbox-position="<?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'top-right' : 'top-left';?>" 
+		data-ed-popbox-position="top-left" 
 		data-ed-popbox-offset="4" 
 		data-ed-popbox-type="ed-badges-list" 
 		data-ed-popbox-component="ed" 

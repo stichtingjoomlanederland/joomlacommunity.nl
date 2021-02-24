@@ -27,7 +27,7 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 
 		//get the number of events from database
 		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.points.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -63,7 +63,7 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 
 		$filter_state = $mainframe->getUserStateFromRequest('com_easydiscuss.points.filter_state', 'filter_state', '', 'word');
 		$search	= $mainframe->getUserStateFromRequest('com_easydiscuss.points.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -273,12 +273,12 @@ class EasyDiscussModelPoints extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Get Points history given by command and user id
+	 * Get total history count given by command and user id
 	 *
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function getTotalPointsHistory($userId, $command)
+	public function getTotalHistory($userId, $command)
 	{
 		$db = $this->db;
 

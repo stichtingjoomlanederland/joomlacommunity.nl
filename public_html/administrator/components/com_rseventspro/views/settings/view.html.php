@@ -7,14 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewSettings extends JViewLegacy
-{
-	protected $form;
-	protected $fieldsets;
-	protected $tabs;
-	protected $layouts;
-	protected $config;
-	protected $social;
-	
+{	
 	public function display($tpl = null) {
 		if ($this->getLayout() == 'log') {
 			$this->logs			= $this->get('Logs');
@@ -46,7 +39,9 @@ class RseventsproViewSettings extends JViewLegacy
 	protected function addToolBar() {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_CONF_SETTINGS'), 'rseventspro48');
 		
-		JHtml::_('rseventspro.chosen','select');
+		if (!rseventsproHelper::isJ4()) {
+			JHtml::_('formbehavior.chosen', 'select');
+		}
 		
 		JToolBarHelper::apply('settings.apply');
 		JToolBarHelper::save('settings.save');

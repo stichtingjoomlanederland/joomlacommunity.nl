@@ -1,7 +1,9 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class fileViewFile extends acymView
+namespace AcyMailing\Views;
+
+use AcyMailing\Libraries\acymView;
+
+class FileViewFile extends acymView
 {
 }

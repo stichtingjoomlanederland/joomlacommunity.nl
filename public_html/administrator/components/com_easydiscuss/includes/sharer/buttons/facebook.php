@@ -47,7 +47,7 @@ class EasyDiscussSharerButtonFacebook extends EasyDiscuss
 		$send = $config->get( 'integration_facebook_like_send' ) ? 'true' : 'false';
 
 		$height	= ($faces == 'true') ? '70' : '30';
-		$locale	= $language[0] . '_' . JString::strtoupper($language[1]);
+		$locale	= $language[0] . '_' . EDJString::strtoupper($language[1]);
 
 		$url = EDR::getRoutedURL('view=post&id=' . $row->id, true, true);
 		$html = '';

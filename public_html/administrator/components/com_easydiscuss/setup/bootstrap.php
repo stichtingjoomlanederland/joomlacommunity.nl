@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -29,27 +29,32 @@ $developer = $input->get('developer', false, 'bool');
 ############################################################
 $path = dirname(__FILE__);
 
-define('ED_IDENTIFIER', 'com_easydiscuss');
-define('ED_PACKAGES', $path . '/packages');
-define('ED_CONFIG', $path . '/config');
-define('ED_THEMES', $path . '/themes');
-define('ED_CONTROLLERS', $path . '/controllers');
-define('ED_SERVER', 'https://stackideas.com');
-define('ED_VERIFIER', 'https://stackideas.com/updater/verify');
-define('ED_MANIFEST', 'https://stackideas.com/updater/manifests/easydiscuss');
-define('ED_SETUP_URL', JURI::base() . 'components/com_easydiscuss/setup');
-define('ED_TMP', $path . '/tmp');
-define('ED_BETA', false);
-define('ED_KEY', 'be5367700e2f4d3d834bb8803ab67f56');
-define('ED_INSTALLER', 'full');
+define('SI_IDENTIFIER_SHORT', 'easydiscuss');
+define('SI_IDENTIFIER', 'com_' . SI_IDENTIFIER_SHORT);
+define('SI_LANG', strtoupper(SI_IDENTIFIER));
+define('SI_ADMIN', JPATH_ROOT . '/administrator/components/' . SI_IDENTIFIER);
+define('SI_ADMIN_MANIFEST', SI_ADMIN . '/' . SI_IDENTIFIER_SHORT . '.xml');
+define('SI_SETUP', SI_ADMIN . '/setup');
+define('SI_PACKAGES', $path . '/packages');
+define('SI_CONFIG', $path . '/config');
+define('SI_THEMES', $path . '/themes');
+define('SI_CONTROLLERS', $path . '/controllers');
+define('SI_CONTROLLER_PREFIX', 'EasyDiscussController');
+define('SI_VERIFIER', 'https://stackideas.com/updater/verify');
+define('SI_MANIFEST', 'https://stackideas.com/updater/manifests/' . SI_IDENTIFIER_SHORT);
+define('SI_SETUP_URL', JURI::base() . 'components/' . SI_IDENTIFIER . '/setup');
+define('SI_TMP', $path . '/tmp');
+define('SI_BETA', false);
+define('SI_KEY', 'be5367700e2f4d3d834bb8803ab67f56');
+define('SI_INSTALLER', 'full');
 
-// Only when ED_PACKAGE is running on full package, the ED_PACKAGE should contain the zip's filename
-define('ED_PACKAGE', 'com_easydiscuss_4.1.12_component_pro.zip');
+// Only when SI_PACKAGE is running on full package, the SI_PACKAGE should contain the zip's filename
+define('SI_PACKAGE', 'com_easydiscuss_5.0.1_component_pro.zip');
 
 // If this is in developer mode, we need to set the session
 if ($developer) {
 	$session = JFactory::getSession();
-	$session->set('easydiscuss.developer', true);
+	$session->set(SI_IDENTIFIER_SHORT . '.developer', true);
 }
 
 if (!function_exists('dump')) {
@@ -57,7 +62,7 @@ if (!function_exists('dump')) {
 	function isDevelopment()
 	{
 		$session = JFactory::getSession();
-		$developer = $session->get('easydiscuss.developer');
+		$developer = $session->get(SI_IDENTIFIER_SHORT . '.developer');
 
 		return $developer;
 	}
@@ -77,6 +82,10 @@ if (!function_exists('dump')) {
 	}
 }
 
+function t($constant)
+{
+	return JText::_(SI_LANG . '_' . $constant);
+}
 
 ############################################################
 #### Process controller
@@ -87,28 +96,28 @@ $task = $input->get('task', '');
 if (!empty($controller)) {
 
 	$file = strtolower($controller) . '.' . strtolower($task) . '.php';
-	$file = ED_CONTROLLERS . '/' . $file;
+	$file = SI_CONTROLLERS . '/' . $file;
 
 	require_once($file);
 
-	$className = 'EasyDiscussController' . ucfirst($controller) . ucfirst($task);
+	$className = SI_CONTROLLER_PREFIX . ucfirst($controller) . ucfirst($task);
 	$controller = new $className();
 	return $controller->execute();
 }
 
 // Get the current version
-$contents = JFile::read(JPATH_ROOT. '/administrator/components/com_easydiscuss/easydiscuss.xml');
+$contents = file_get_contents(SI_ADMIN_MANIFEST);
 $parser = simplexml_load_string($contents);
 
 $version = $parser->xpath('version');
 $version = (string) $version[0];
 
-define('ED_HASH', md5($version));
+define('SI_HASH', md5($version));
 
 ############################################################
 #### Initialization
 ############################################################
-$contents = JFile::read(ED_CONFIG . '/install.json');
+$contents = file_get_contents(SI_CONFIG . '/install.json');
 $steps = json_decode($contents);
 
 ############################################################
@@ -119,7 +128,7 @@ $active = $input->get('active', 0, 'default');
 if ($active === 'complete') {
 	$activeStep = new stdClass();
 
-	$activeStep->title = JText::_('COM_EASYDISCUSS_INSTALLER_INSTALLATION_COMPLETED');
+	$activeStep->title = t('INSTALLER_INSTALLATION_COMPLETED');
 	$activeStep->template = 'complete';
 
 	// Assign class names to the step items.
@@ -148,4 +157,4 @@ if ($active === 'complete') {
 	}
 }
 
-require(ED_THEMES . '/default.php');
+require(SI_THEMES . '/default.php');

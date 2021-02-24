@@ -1,6 +1,9 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Controllers;
+
+use AcyMailing\Helpers\EntitySelectHelper;
+use AcyMailing\Libraries\acymController;
 
 class EntitySelectController extends acymController
 {
@@ -9,7 +12,7 @@ class EntitySelectController extends acymController
     public function __construct()
     {
         parent::__construct();
-        $this->entitySelectHelper = acym_get('helper.entitySelect');
+        $this->entitySelectHelper = new EntitySelectHelper();
         $this->loadScripts = [
             'all' => ['vue-applications' => ['entity_select']],
         ];
@@ -42,9 +45,13 @@ class EntitySelectController extends acymController
         if (!empty($join)) $entityParams['join'] = $join;
         if (!empty($columnsToDisplay)) $entityParams['columns'] = $columnsToDisplay;
 
+        if ('list' == $entity) $entityParams['columns'][] = 'description';
+
         if (!acym_isAdmin()) $entityParams['creator_id'] = acym_currentUserId();
 
-        $entityClass = acym_get('class.'.$entity);
+        $namespaceClass = 'AcyMailing\\Classes\\'.ucfirst($entity).'Class';
+        $entityClass = new $namespaceClass;
+
         $availableEntity = $entityClass->getMatchingElements($entityParams);
 
         $this->formatEntites($availableEntity, $entity);
@@ -57,6 +64,7 @@ class EntitySelectController extends acymController
         if ($entity == 'list') {
             foreach ($availableEntity['elements'] as $key => $element) {
                 $availableEntity['elements'][$key]->color = '<i style="color: '.$element->color.'" class="acym_subscription acymicon-circle">';
+                if (!empty($element->description)) $availableEntity['elements'][$key]->name = $element->name.acym_info($element->description);
             }
         }
     }
@@ -82,7 +90,8 @@ class EntitySelectController extends acymController
             exit;
         }
 
-        $entityClass = acym_get('class.'.$entity);
+        $namespaceClass = 'AcyMailing\\Classes\\'.ucfirst($entity).'Class';
+        $entityClass = new $namespaceClass;
 
         $joinQuery = '';
         if (!empty($join)) $joinQuery = $entityClass->getJoinForQuery($join);
@@ -93,4 +102,3 @@ class EntitySelectController extends acymController
         exit;
     }
 }
-

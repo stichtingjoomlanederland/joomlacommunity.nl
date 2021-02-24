@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -15,7 +15,7 @@ class EasyDiscussUrl extends EasyDiscuss
 {
 	public static function replace( $tmp , $text )
 	{
-		$config = DiscussHelper::getConfig();
+		$config = ED::config();
 		$pattern = '@(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’]))@';
 
 		preg_match_all($pattern, $tmp, $matches);
@@ -30,7 +30,7 @@ class EasyDiscussUrl extends EasyDiscuss
 		$links = $matches[0];
 
 		foreach ($links as &$link) {
-			$link = JString::strtolower($link);
+			$link = EDJString::strtolower($link);
 		}
 
 		$uniques = array_unique($links);
@@ -43,20 +43,20 @@ class EasyDiscussUrl extends EasyDiscuss
 				$matchProtocol	= 'http://' . $matchProtocol;
 			}
 
-			$text = JString::str_ireplace($match, '<a href="' . $matchProtocol . '"' . $targetBlank . '>' . $match . '</a>', $text);
+			$text = EDJString::str_ireplace($match, '<a href="' . $matchProtocol . '"' . $targetBlank . '>' . $match . '</a>', $text);
 		}
 
-		$text = JString::str_ireplace('&quot;', '"', $text);
+		$text = EDJString::str_ireplace('&quot;', '"', $text);
 
 		return $text;
 	}
 
-	public static function clean( $url )
+	public static function clean($url)
 	{
-		$juri	= JFactory::getURI($url);
+		$juri = JFactory::getURI($url);
 		$juri->parse($url);
 		$scheme = $juri->getScheme() ? $juri->getScheme() : 'http';
-		$juri->setScheme( $scheme );
+		$juri->setScheme($scheme);
 
 		return $juri->toString();
 	}

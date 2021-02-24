@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -20,16 +20,20 @@ class EasyDiscussSubscription extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function html($userid, $cid = 0, $type = DISCUSS_ENTITY_TYPE_POST, $class = '', $simpleText = true)
+	public function html($userId = null, $cid = 0, $type = DISCUSS_ENTITY_TYPE_POST, $options = [])
 	{
+		if (is_null($userId)) {
+			$userId = JFactory::getUser()->id;
+		}
+
 		// If guest subscription is disabled, do not show subscription link at all.
-		if (!$userid && !$this->config->get('main_allowguestsubscribe')) {
+		if (!$userId && !$this->config->get('main_allowguestsubscribe')) {
 			return;
 		}
 
+		$customClass = ED::normalize($options, 'customClass', '');
+		$icon = ED::normalize($options, 'icon', true);
 		$model = ED::model('Subscribe', false);
 		$type = $type == 'index' ? 'site' : $type;
 
@@ -38,29 +42,17 @@ class EasyDiscussSubscription extends EasyDiscuss
 			return;
 		}
 
-		$subscribed = $model->isSubscribed($userid, $cid, $type);
-		$sid = $subscribed ? $subscribed : 0;
-
-		$view = $this->input->get('view', '', 'cmd');
+		$subscribed = $model->isSubscribed($userId, $cid, $type);
+		$subscriptionId = $subscribed ? $subscribed : 0;
 
 		$theme = ED::themes();
-		$theme->set('view', $view);
-		$theme->set('subscribed', $subscribed);
+		$theme->set('customClass', $customClass);
+		$theme->set('icon', $icon);
 		$theme->set('cid', $cid);
-		$theme->set('sid', $sid);
-		$theme->set('simple', $simpleText);
-		$theme->set('class', $class);
+		$theme->set('subscriptionId', $subscriptionId);
 		$theme->set('type', $type);
 
-		$namespace = 'site/subscription/site';
-
-		// if ($type == 'site' || $type == 'category') {
-		// 	$namespace .= 'site';
-		// } else {
-		// 	$namespace .= 'post';
-		// }
-
-		$output = $theme->output($namespace);
+		$output = $theme->output('site/subscription/button');
 
 		return $output;
 	}
@@ -153,7 +145,6 @@ class EasyDiscussSubscription extends EasyDiscuss
 					} else {
 						$siteSub->posts[] = $post;
 					}
-
 				}
 
 				$namespace = "site/emails/email.digest.posts";
@@ -208,8 +199,8 @@ class EasyDiscussSubscription extends EasyDiscuss
 						$item = new stdClass();
 
 						$item->comment = ED::badwords()->filter($row->comment);
-						if (JString::strlen($item->comment) > $maxLength) {
-							$item->comment = JString::substr($row->comment, 0, $maxLength) . '...';
+						if (EDJString::strlen($item->comment) > $maxLength) {
+							$item->comment = EDJString::substr($row->comment, 0, $maxLength) . '...';
 						}
 						$item->authorName = $row->name;
 						$item->authorEmail = $row->email;
@@ -230,23 +221,17 @@ class EasyDiscussSubscription extends EasyDiscuss
 			// proceed to email sending if there are something.
 			if ($posts || $replies || $comments) {
 
-				$logo = ED::getLogo();
-
-				$theme = ED::themes();
-				$theme->set('sitename', ED::jconfig()->get('sitename'));
-				$theme->set('now', ED::date()->display());
-				$theme->set('posts', $postsContent);
-				$theme->set('replies', $repliesContent);
-				$theme->set('comments', $commentsContent);
-				$theme->set('logo', $logo);
-
-				$namespace = "site/emails/email.digest.subscriptions";
-				$body = $theme->output($namespace);
+				$data = [
+					'sitename' => ED::jconfig()->get('sitename'),
+					'now' => ED::date()->display(),
+					'posts' => $postsContent,
+					'replies' => $repliesContent,
+					'comments' => $commentsContent
+				];
 
 				$subject = JText::sprintf('COM_EASYDISCUSS_DIGEST_EMAIL_SUBJECT', ED::date()->display(), ED::jconfig()->get('sitename'));
 
-				// add into mail queue
-				ED::mailer()->addQueue($email, $subject, $body);
+                ED::notifications()->addQueue($email, $subject, '', 'email.digest', $data);
 			}
 
 			// now update subscriptions sent_out
@@ -256,7 +241,12 @@ class EasyDiscussSubscription extends EasyDiscuss
 		return true;
 	}
 
-
+	/**
+	 * Process user subscriptions
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function process()
 	{
 		$date = ED::date();
@@ -267,14 +257,12 @@ class EasyDiscussSubscription extends EasyDiscuss
 
 		$total = count($subscribers);
 
-		if(empty($total))
-		{
+		if (empty($total)) {
 			return false;
 		}
 
-		foreach($subscribers as $subscriber)
-		{
-			$notify	= DiscussHelper::getNotification();
+		foreach ($subscribers as $subscriber) {
+			$notify	= ED::getNotification();
 
 			$data = array();
 			$rows = $model->getCreatedPostByInterval($subscriber->sent_out, $now);
@@ -284,9 +272,9 @@ class EasyDiscussSubscription extends EasyDiscuss
 			{
 				foreach( $rows as $row )
 				{
-					$row['categorylink']	= DiscussRouter::getRoutedURL('index.php?option=com_easydiscuss&view=categorie&layout=listings&category_id='.$row['category_id'], false, true);
-					$row['link']			= DiscussRouter::getRoutedURL('index.php?option=com_easydiscuss&view=post&id='.$row['id'], false, true);
-					$row['userlink'] 		= DiscussRouter::getRoutedURL('index.php?option=com_easydiscuss&view=profile&id=' . $row['user_id'] , false , true );
+					$row['categorylink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=categorie&layout=listings&category_id='.$row['category_id'], false, true);
+					$row['link'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id='.$row['id'], false, true);
+					$row['userlink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=profile&id=' . $row['user_id'] , false , true );
 
 					$category = ED::table('Category');
 					$category->load( $row['category_id'] );
@@ -297,7 +285,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 					$row['avatar'] 		= $creator->getAvatar();
 					$row['name']	 	= $creator->getName();
 					$row['date']		= DiscussDateHelper::toFormat( $row['created'] , '%b %e, %Y' );
-					$row['message']		= DiscussHelper::parseContent( $row['content'] );
+					$row['message']		= ED::parseContent( $row['content'] );
 
 					$posts[]		= $row;
 				}
@@ -305,7 +293,7 @@ class EasyDiscussSubscription extends EasyDiscuss
 			$data['post']		= $posts;
 			$data['total']		= count($data['post']);
 
-			$data['unsubscribeLink']	= DiscussHelper::getUnsubscribeLink( $subscriber, true, true);
+			$data['unsubscribeLink'] = ED::getUnsubscribeLink($subscriber, true, true);
 
 			$subject			= $date->toMySQL();
 
@@ -325,12 +313,11 @@ class EasyDiscussSubscription extends EasyDiscuss
 				break;
 			}
 
-			if(!empty($data['post']))
-			{
+			if (!empty($data['post'])) {
 				$notify->addQueue($subscriber->email, JText::sprintf('COM_EASYDISCUSS_YOUR_'.$this->interval.'_SUBSCRIPTION', $subject) , '', 'email.subscription.site.interval.php', $data);
 			}
 
-			$subscribe = DiscussHelper::getTable( 'Subscribe' );
+			$subscribe = ED::table( 'Subscribe' );
 			$subscribe->load($subscriber->id);
 			$subscribe->sent_out = $now;
 			$subscribe->store();
@@ -374,8 +361,6 @@ class EasyDiscussSubscription extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getGraphSubscription($userId, $type)
 	{

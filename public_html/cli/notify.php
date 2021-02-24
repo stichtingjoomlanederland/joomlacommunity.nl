@@ -3,35 +3,43 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
+use Jdideal\Gateway;
 use Jdideal\Status\Request;
+use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\LanguageFactoryInterface;
+use Joomla\CMS\Session\Session;
+use Joomla\Session\SessionInterface;
 
 define('_JEXEC', 1);
 
-// Setup the path related constants.
-define('DS', DIRECTORY_SEPARATOR);
-define('JPATH_BASE', dirname(__DIR__));
-define('JPATH_ROOT', JPATH_BASE);
-define('JPATH_SITE', JPATH_ROOT);
-define('JPATH_CONFIGURATION', JPATH_ROOT);
-define('JPATH_ADMINISTRATOR', JPATH_ROOT . DIRECTORY_SEPARATOR . 'administrator');
-define('JPATH_LIBRARIES', JPATH_ROOT . DIRECTORY_SEPARATOR . 'libraries');
-define('JPATH_PLUGINS', JPATH_ROOT . DIRECTORY_SEPARATOR . 'plugins');
-define('JPATH_INSTALLATION', JPATH_ROOT . DIRECTORY_SEPARATOR . 'installation');
-define('JPATH_THEMES', JPATH_BASE . DIRECTORY_SEPARATOR . 'templates');
-define('JPATH_CACHE', JPATH_BASE . DIRECTORY_SEPARATOR . 'cache');
-define('JPATH_MANIFESTS', JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'manifests');
-define('JPATH_COMPONENT_ADMINISTRATOR', JPATH_ADMINISTRATOR . DIRECTORY_SEPARATOR . 'components/com_jdidealgateway');
+if (file_exists((dirname(__DIR__)) . '/defines.php'))
+{
+	require_once dirname(__DIR__) . '/defines.php';
+}
 
-// Load the library importer.
+if (!defined('_JDEFINES'))
+{
+	define('JPATH_BASE', dirname(__DIR__));
+	require_once JPATH_BASE . '/includes/defines.php';
+}
+
+if (file_exists(JPATH_LIBRARIES . '/import.legacy.php'))
+{
+	require_once JPATH_LIBRARIES . '/import.legacy.php';
+}
+elseif (file_exists(JPATH_LIBRARIES . '/import.php'))
+{
+	require_once JPATH_LIBRARIES . '/import.php';
+}
+
 require_once JPATH_BASE . '/includes/framework.php';
 
-// Only load this file in Joomla lower than version 3.8.5
 if (version_compare(JVERSION, '3.8.5', '<'))
 {
 	require_once JPATH_LIBRARIES . '/import.php';
@@ -39,22 +47,51 @@ if (version_compare(JVERSION, '3.8.5', '<'))
 
 require_once JPATH_CONFIGURATION . '/configuration.php';
 
-// Create the Application
-$app   = Factory::getApplication('site');
-$input = Factory::getApplication()->input;
+if (JVERSION < 4)
+{
+	$app      = Factory::getApplication('site');
+	$language = Factory::getLanguage();
+}
+else
+{
+	$_SERVER['argv'] = [];
+	$container = Factory::getContainer();
+	$container->alias('session', 'session.web.site')
+		->alias('JSession', 'session.web.site')
+		->alias(Session::class, 'session.web.site')
+		->alias(\Joomla\Session\Session::class, 'session.web.site')
+		->alias(SessionInterface::class, 'session.web.site');
 
-// Load the language files
-$language = Factory::getLanguage();
+	try
+	{
+		$app = $container->get(SiteApplication::class);
+	}
+	catch (Exception $exception)
+	{
+		echo $exception->getMessage();
+		exit();
+	}
+
+	$config   = $container->get('config');
+	$locale   = $config->get('language');
+	$debug    = $config->get('debug_lang');
+	$language = $container->get(LanguageFactoryInterface::class)
+		->createLanguage($locale, $debug);
+}
+
 $language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway/', 'en-GB', true);
 $language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway/', $language->getDefault(), true);
 $language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway/', null, true);
 
 $_SERVER['HTTP_HOST'] = 'example.com';
 
-// Setup the autoloader
 JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES);
 
-// Load RO Payments
+if (class_exists(Gateway::class) === false)
+{
+	JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES . '/Jdideal');
+}
+
 $statusRequest = new Request;
 
 try
@@ -63,7 +100,8 @@ try
 
 	if ($result['isCustomer'])
 	{
-		$app->redirect($result['url'], $result['message'], $result['level']);
+		$app->enqueueMessage($result['message'], $result['level']);
+		$app->redirect($result['url']);
 	}
 	else
 	{
@@ -81,7 +119,8 @@ catch (Exception $exception)
 
 		if ($customer)
 		{
-			$app->redirect('/', $exception->getMessage(), 'error');
+			$app->enqueueMessage($exception->getMessage(), 'error');
+			$app->redirect('/');
 		}
 		else
 		{

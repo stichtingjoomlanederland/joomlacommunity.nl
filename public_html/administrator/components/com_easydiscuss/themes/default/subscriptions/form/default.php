@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,22 +18,22 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SUBSCRIPTION_SETTINGS'); ?>
 
 				<div class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_TYPE'); ?>
-							</div>
-							<div class="col-md-7">
-								<select name="type" class="form-control" data-subscription-type>
-									<option value="site" <?php echo $subscription->type == 'site' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIPTION_TYPE_SITE');?></option>
-									<option value="category" <?php echo $subscription->type == 'category' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIPTION_TYPE_CATEGORY');?></option>
-									<option value="post" <?php echo $subscription->type == 'post' ? ' selected="selected"' : '';?>><?php echo JText::_('COM_EASYDISCUSS_SUBSCRIPTION_TYPE_POST');?></option>
-								</select>
-							</div>
-						</div>
+					<div class="o-form-horizontal">
+						<?php echo $this->html('forms.textbox', 'fullname', 'COM_EASYDISCUSS_SUBSCRIPTION_NAME', $subscription->fullname); ?>
+						<?php echo $this->html('forms.textbox', 'email', 'COM_EASYDISCUSS_SUBSCRIPTION_EMAIL', $subscription->email); ?>
+						
+						<?php echo $this->html('forms.dropdown', 'type', 'COM_EASYDISCUSS_SUBSCRIPTION_TYPE', $subscription->type,
+							array(
+								'site' => 'COM_EASYDISCUSS_SUBSCRIPTION_TYPE_SITE',
+								'category' => 'COM_EASYDISCUSS_SUBSCRIPTION_TYPE_CATEGORY',
+								'post' => 'COM_EASYDISCUSS_SUBSCRIPTION_TYPE_POST'
+							),
+							'data-subscription-type'
+						); ?>
 
-						<div class="form-group <?php echo $subscription->type != 'category' ? 'hide' : '';?>" data-subscriptions="category">
-							<div class="col-md-5 control-label">
+
+						<div class="o-form-group <?php echo $subscription->type != 'category' ? 't-hidden' : '';?>" data-subscriptions="category">
+							<div class="col-md-5 o-form-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_SELECT_CATEGORY'); ?>
 							</div>
 							<div class="col-md-7">
@@ -41,30 +41,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</div>
 						</div>
 
-						<div class="form-group <?php echo $subscription->type != 'post' ? 'hide' : '';?>" data-subscriptions="post">
-							<div class="col-md-5 control-label">
+						<div class="o-form-group <?php echo $subscription->type != 'post' ? 't-hidden' : '';?>" data-subscriptions="post">
+							<div class="col-md-5 o-form-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_SELECT_POST'); ?>
 							</div>
 							<div class="col-md-7">
 								<?php echo $this->html('form.posts', 'cid_post', $subscription->type == 'post' ? $subscription->cid : null); ?>
-							</div>
-						</div>
-
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_NAME'); ?>
-							</div>
-							<div class="col-md-7">
-								<input type="text" class="form-control" id="fullname" name="fullname" size="55" maxlength="255" value="<?php echo $subscription->fullname;?>" />
-							</div>
-						</div>
-
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_SUBSCRIPTION_EMAIL'); ?>
-							</div>
-							<div class="col-md-7">
-								<input type="text" class="form-control" id="email" name="email" size="55" maxlength="255" value="<?php echo $subscription->email;?>" />
 							</div>
 						</div>
 					</div>
@@ -76,5 +58,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 	</div>
 	<input type="hidden" name="id" value="<?php echo $subscription->id;?>" />
-	<?php echo $this->html('form.hidden', 'subscription'); ?>
+	<?php echo $this->html('form.action', 'subscription'); ?>
 </form>

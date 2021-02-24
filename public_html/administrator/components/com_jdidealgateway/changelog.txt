@@ -1,8 +1,8 @@
 RO Payments
 Author: RolandD Cyber Produksi (contact@rolandd.com)
 Website: https://rolandd.com/
-Version: 6.0.2
-Date: 20 July 2020
+Version: 6.3.2
+Date: 21 January 2021
 
 Legenda:
 + Added
@@ -11,6 +11,55 @@ Legenda:
 / Changed
 
 Changelog
+Version 6.3.2 [ 2021-01-19 ]
+* Fixed error on RSEvents! Pro plugin
+
+Version 6.3.1 [ 2021-01-19 ]
+* Fixed missing database field for subscriptions
+* Fixed outdated Mollie library
+* Fixed display of cancellation date when empty
++ Added a check if RO Payments is uninstalled before the RSForm! Pro plugin preventing a fatal error
+
+Version 6.3.0 [ 2021-01-18 ]
+* Fixed event dispatcher on Joomla 4
+* Fixed payment page silent option redirecting back to form
+* Fixed getting email field for order information in RSForm! Pro
+* Fixed failure status not being the same across all payment providers
+* Fixed the name giropay for Mollie
++ Added support for RSEvents! Pro 1.13.3
++ Added sync for Mollie Subscriptions
++ Added sync for Mollie Customers
+/ Changed to cancel a VirtueMart order only when the status is cancelled
+/ Update Mollie API to version 2.27.2
+* Fixed email field not send to Mollie for banktransfer
+* Fixed retrieving email field from RSForm! Pro configurable fields
++ Added configurable name field for RSForm! Pro
+
+Version 6.2.0 [ 2020-10-26 ]
+* Fixed the autoloader not always working
++ Added Joomla 4 support for RO Payments core
++ Added copy button on the transaction log
+* Fixed missing menu entries
+- Removed obsolete toolbar button on Customers view
+
+Version 6.1.1 [ 2020-10-22 ]
+* Fixed missing Sisow library
+* Fixed RSForm! Pro input box not working
+
+Version 6.1.0 [ 2020-10-17 ]
+* Fixed RSForm! Pro Thank you page not showing
+* Fixed RSForm! Pro free checkout price check failing
++ Added banktransfer support for Ingenico
+* Fixed RSForm! Pro order numbers can contain letters as well
++ Added replacement of recurring subscription description
+/ Changed loading of the rsfpjdideal.js file
+/ Improved texts in the recurring subscription list
+* Fixed undefined notice in the pay view
+/ Changed to use the Sisow API version 1.0.2
++ Added RSForm! Pro Input box to also support numbers with step values
+* Fixed deleting customers did not delete customer at Mollie
+* Fixed a notice if no language map was defined in Mollie profile
+
 Version 6.0.2 [ 2020-07-18 ]
 * Fixed error in Internetkassa placeholder replacements
 * Fixed RSForm! Pro fatal error when using the System - RSForm! Pro Payment plugin

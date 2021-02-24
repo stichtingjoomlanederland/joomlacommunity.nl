@@ -11,14 +11,14 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 	};
 
 	var allowedExtensions = "<?php echo $allowedExtensions; ?>";
-
 	var wrapper = $('[<?php echo $editorId;?>] [data-ed-attachments]');
+
+	<?php if ($view == 'ask') { ?>
+	wrapper = $('[data-ed-attachments]');
+	<?php } ?>
 
 	// Clone the form once
 	var clonedForm = wrapper.find('[data-ed-attachment-form]').clone();
-
-	// Get the file input
-	var fileInput = wrapper.find('[data-attachment-item-input]');
 
 	// Get the attachment limit
 	var limitEnabled = <?php echo $this->config->get('enable_attachment_limit'); ?>;
@@ -26,36 +26,9 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	// maximum upload file size in bytes
 	var maxSize = <?php echo $this->config->get('attachment_maxsize') * 1024 * 1024 ; ?>;
-
 	var info = wrapper.find('[data-ed-attachment-info]');
-
 	var list = wrapper.find('[data-ed-attachments-list]');
 
-	fileInput.live('change', function() {
-		var el = $(this);
-		var form = el.parents('[data-ed-attachment-form]');
-
-		// Insert a new item on the result
-		insertAttachment(form);
-	});
-
-	// When a reply form is edited / replied, reset the form
-	$(document)
-	.on('composer.form.reset', '[data-ed-composer-form]', function(){
-
-		// If there is attachment form, remove it
-		wrapper.find('[data-ed-attachment-form]').remove();
-
-		// get back the cloned form
-		var form = clonedForm.clone();
-
-		// Re-append a new form
-		wrapper.append(form);
-
-		// Reset the info dom
-		info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
-
-	});
 
 	var existInArray = function(val, arr) {
 		var exist = false;
@@ -117,6 +90,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		var fileInput = form.find("input:not(:hidden)");
 
 		var filesize = 0;
+
 		if ($(fileInput)[0] != undefined && $(fileInput)[0].files[0] != undefined) {
 			filesize = $(fileInput)[0].files[0].size;
 		}
@@ -137,20 +111,19 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 		// file upload validation
 		var errorMsg = '';
+		var supported = '<?php echo $this->config->get('main_attachment_extension'); ?>';
 
 		if (!isExtensionAllowed(file)) {
-
-			var error = '<?php echo JText::_('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', true); ?>';
-			errorMsg = error.replace('%1s', filename);
+			errorMsg = '<?php echo JText::_('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', true); ?>'.replace('%1s', filename);
+			errorMsg = errorMsg.replace('%2s', supported);
 		}
 
 		if (filesize > 0 && maxSize > 0 && filesize > maxSize) {
-			var error = '<?php echo JText::_('COM_ED_FILE_ATTACHMENTS_EXCEEDED_MAXSIZE', true); ?>';
-			errorMsg = error.replace('%1s', filename);
+			errorMsg = '<?php echo JText::_('COM_ED_FILE_ATTACHMENTS_EXCEEDED_MAXSIZE', true); ?>'.replace('%1s', filename);
 		}
 
 		if (errorMsg) {
-			var fullErrorMsg = '<label class="o-alert o-alert--icon o-alert--danger">' + errorMsg + '</label>';
+			var fullErrorMsg = '<div class="t-text--danger">' + errorMsg + '</div>';
 			info.html(fullErrorMsg);
 
 			// remove existing file input form
@@ -163,71 +136,118 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		}
 
 		// Set the file title
-		var title = form.children('[data-ed-attachment-item-title]');
+		var title = form.find('[data-item-title]');
 		title.html(file.title);
 
-		// Add the attachment type class
-		form
-			.removeClass('ed-attachment-form')
-			.addClass('attachment-type-' + file.type)
+		// Display the actions
+		var actions = form.find('[data-item-actions]');
+		actions.removeClass('t-d--none');
 
 		// If not image type, hide the insert link
 		if (file.type != 'image') {
-			var insertLink = form.children('[data-ed-attachment-item-insert]');
+			var insertLink = form.find('[data-item-actions]').children('[data-insert]');
+
 			insertLink.remove();
 		}
+
+		// Remove the form class since this is no longer a form
+		form.removeClass('ed-attachment-form');
 
 		// Add it into the list
 		form.appendTo(list);
 
-		var itemCount = list.find('.attachment-item');
+		var itemCount = list.children();
 
 		// if reached the limit, don't reset form
 		if (itemCount.length < limit || !limitEnabled) {
 			// Once it is added, we want to attach a new form to the list
 			resetAttachmentForm();
-		} else {
-			info.html('<?php echo JText::_('COM_EASYDISCUSS_EXCEED_ATTACHMENT_LIMIT') ?>');
 
+			return;
 		}
-
+		
+		info.html('<?php echo JText::_('COM_EASYDISCUSS_EXCEED_ATTACHMENT_LIMIT') ?>');
 	};
 
 	var resetAttachmentForm = function() {
-
 		var form = clonedForm.clone();
 
 		// Re-append a new form
 		wrapper.append(form);
 	};
 
+	var newFile = wrapper.find('[data-ed-attachment-form]').find('[data-attachment-item-input]');
 
-	// Removing an attachment item
-	var removeItem = wrapper.find('[data-ed-attachment-item-remove]');
+	/**
+	 * When user selects a new file to attach
+	 */
+	$(document)
+		.off('change.easydiscuss.attachment', newFile.selector)
+		.on('change.easydiscuss.attachment', newFile.selector, function() {
 
-	removeItem.live('click', function() {
+		var element = $(this);
+		var form = element.parents('[data-ed-attachment-form]');
 
-		var item = $(this);
-		var itemWrapper = item.parents('.attachment-item');
-		var id = item.data('id');
+		// Insert a new item on the result
+		insertAttachment(form);
+	});
 
-		if (!id) {
-			itemWrapper.remove();
+	// When a reply form is edited / replied, reset the form
+	$(document)
+		.off('composer.form.reset', '[data-ed-composer-form]')
+		.on('composer.form.reset', '[data-ed-composer-form]', function(){
 
-			// Get the attachment count
-			var itemCount = list.find('.attachment-item');
-			var diff = limit - itemCount.length;
+		// If there is attachment form, remove it
+		wrapper.find('[data-ed-attachment-form]').remove();
 
-			// if it does not reach the limit, add the form
+		// get back the cloned form
+		var form = clonedForm.clone();
+
+		// Re-append a new form
+		wrapper.append(form);
+
+		// Reset the info dom
+		info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
+	});
+
+
+	/**
+	 * Removing attachment item
+	 */
+	$(document)
+		.off('click.remove.attachment', '[data-ed-attachment-item-remove]')
+		.on('click.remove.attachment', '[data-ed-attachment-item-remove]', function() {
+		var element = $(this);
+		var item = element.parents('[data-attachment-wrapper]');
+		var attachmentsList = item.parents('[data-ed-attachments-list]');
+		var id = element.data('id');
+		var self = this;
+
+		this.getTotalItems = function() {
+			return attachmentsList.children().length;
+		};
+
+		this.removeItem = function(row) {
+			row.remove();
+
+			var totalItems = self.getTotalItems();
+			var diff = limit - totalItems;
+
 			if (diff == 1 && limitEnabled) {
-				// Once it is removed, we want to attach a new form to the list
 				resetAttachmentForm();
 
 				info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
 			}
+		};
+
+		if (!id) {
+			this.removeItem(item);
 			return;
 		}
 
+		var self = this;
+
+		// If the user is editing a post and trying to delete an attachment, we should warn them first.
 		EasyDiscuss.dialog({
 			"content": EasyDiscuss.ajax('site/views/attachments/confirmDelete', {"id": id}),
 			"bindings": {
@@ -239,38 +259,29 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 					// Remove the item
 					EasyDiscuss.ajax('site/views/attachments/delete', {
 						"id": id
-					}).done(function(){
-						itemWrapper.remove();
-
-						// Get the attachment count
-						var itemCount = list.find('.attachment-item');
-						var diff = limit - itemCount.length;
-
-						// if it does not reach the limit, add the form
-						if (diff == 1 && limitEnabled) {
-							// Once it is removed, we want to attach a new form to the list
-							resetAttachmentForm();
-
-							info.html('<?php echo JText::sprintf('COM_EASYDISCUSS_ATTACHMENTS_INFO', $allowedExtensions); ?>');
-						}
+					}).done(function() {
+						self.removeItem(item);
 					});
 				}
 			}
 		});
 	});
 
-	// Insert an attachment item
-	var insertAttachmentItem = wrapper.find('[data-ed-attachment-item-insert]');
-
-	insertAttachmentItem.live('click', function() {
+	/**
+	 * Inserting an attachment into the editor
+	 */
+	$(document)
+		.off('click.insert.attachment', '[data-ed-attachments] [data-ed-attachments-list] [data-insert]')
+		.on('click.insert.attachment', '[data-ed-attachments] [data-ed-attachments-list] [data-insert]', function() {
+		var element = $(this);
+		var item = element.parents('[data-attachment-wrapper]');
+		var title = item.find('[data-item-title]').html();
 
 		var editor = $('[data-ed-editor]');
 		var value = editor.val();
-		var file = $(this).siblings('[data-ed-attachment-item-title]').html();
-
-		value += '[attachment]' + file + '[/attachment]';
+		
+		value += '[attachment]' + title + '[/attachment]';
 
 		$('[data-ed-editor]').val(value);
 	});
-
 });

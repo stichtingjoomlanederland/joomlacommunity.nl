@@ -1,26 +1,27 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Libraries\acymPlugin;
 
 class plgAcymManagetext extends acymPlugin
 {
     public function replaceContent(&$email, $send = true)
     {
-        $this->_replaceConstant($email);
         $this->_replaceRandom($email);
         $this->_handleAnchors($email);
+        $this->fixPicturesOutlook($email);
     }
 
     public function replaceUserInformation(&$email, &$user, $send = true)
     {
-        $this->pluginHelper->cleanHtml($email->body);
         $this->pluginHelper->replaceVideos($email->body);
+        $this->pluginHelper->cleanHtml($email->body);
 
         $this->_removetext($email);
         $this->_ifstatement($email, $user);
+        $this->_replaceConstant($email, $user);
     }
 
-    private function _replaceConstant(&$email)
+    private function _replaceConstant(&$email, $user)
     {
         $tags = $this->pluginHelper->extractTags($email, '(?:const|trans|config)');
         if (empty($tags)) {
@@ -51,6 +52,17 @@ class plgAcymManagetext extends acymPlugin
                     $tagsReplaced[$i] = acym_getCMSConfig($val);
                 }
             } else {
+                if (!empty($user->language)) {
+                    $language = $user->language;
+                } elseif (!empty($email->language)) {
+                    $language = $email->language;
+                } else {
+                    $language = acym_getLanguageTag();
+                }
+
+                $previousLanguage = acym_setLanguage($language);
+                acym_loadLanguage($language);
+
                 static $done = false;
                 if (!$done && strpos($val, 'COM_USERS') !== false) {
                     $done = true;
@@ -58,10 +70,24 @@ class plgAcymManagetext extends acymPlugin
                     acym_loadLanguageFile('com_users');
                 }
                 if (!empty($arrayVal)) {
-                    $tagsReplaced[$i] = nl2br(vsprintf(acym_translation($val), $arrayVal));
+                    $translation = acym_translation($val);
+                    $paramsIncluded = vsprintf($translation, $arrayVal);
+                    if ($translation === $paramsIncluded) {
+                        $translation = preg_replace(
+                            '/\{[A-Z_]+\}/',
+                            '%s',
+                            $translation
+                        );
+                        $paramsIncluded = vsprintf($translation, $arrayVal);
+                    }
+                    $tagsReplaced[$i] = nl2br($paramsIncluded);
                 } else {
                     $tagsReplaced[$i] = acym_translation($val);
                 }
+
+                if (empty($previousLanguage)) $previousLanguage = acym_getLanguageTag();
+                acym_setLanguage($previousLanguage);
+                acym_loadLanguage($previousLanguage);
             }
         }
 
@@ -146,9 +172,13 @@ class plgAcymManagetext extends acymPlugin
                     continue;
                 }
                 $allresults[1][$i] = html_entity_decode($allresults[1][$i]);
-                if (!preg_match('#^(.+)(!=|<|>|&gt;|&lt;|!~)([^=!<>~]+)$#is', $allresults[1][$i], $operators) && !preg_match('#^(.+)(=|~)([^=!<>~]+)$#is', $allresults[1][$i], $operators)) {
+                if (!preg_match('#^(.+)(!=|<|>|&gt;|&lt;|!~)([^=!<>~]+)$#is', $allresults[1][$i], $operators) && !preg_match(
+                        '#^(.+)(=|~)([^=!<>~]+)$#is',
+                        $allresults[1][$i],
+                        $operators
+                    )) {
                     if ($isAdmin) {
-                        acym_enqueueMessage(acym_translation_sprintf('ACYM_OPERATION_NOT_FOUND', $allresults[1][$i]), 'error');
+                        acym_enqueueMessage(acym_translationSprintf('ACYM_OPERATION_NOT_FOUND', $allresults[1][$i]), 'error');
                     }
                     $tags[$oneTag] = $allresults[3][$i];
                     continue;
@@ -253,5 +283,105 @@ class plgAcymManagetext extends acymPlugin
 
         if (!empty($newBody)) $email->body = $newBody;
     }
-}
 
+    public function fixPicturesOutlook(&$email)
+    {
+        $this->addPictureDimensions($email->body);
+        $this->addPictureAlign($email->body);
+    }
+
+    public function addPictureDimensions(&$html)
+    {
+        if (!preg_match_all('#(<img)([^>]*>)#i', $html, $results)) {
+            return;
+        }
+
+        $replace = [];
+        $widthheight = ['width', 'height'];
+        foreach ($results[0] as $num => $oneResult) {
+            $add = [];
+            foreach ($widthheight as $whword) {
+                if (preg_match('#'.$whword.' *=#i', $oneResult) || !preg_match('#[^a-z_\-]'.$whword.' *:([0-9 ]{1,8})px#i', $oneResult, $resultWH)) continue;
+
+                if (empty($resultWH[1])) continue;
+                $add[] = $whword.'="'.trim($resultWH[1]).'" ';
+            }
+
+            if (!empty($add)) {
+                $replace[$oneResult] = '<img '.implode(' ', $add).$results[2][$num];
+            }
+        }
+
+        if (!empty($replace)) {
+            $html = str_replace(array_keys($replace), $replace, $html);
+            preg_match_all('#(<img)([^>]*>)#i', $html, $results);
+        }
+
+        static $replace = [];
+        foreach ($results[0] as $num => $oneResult) {
+            if (isset($replace[$oneResult])) continue;
+            if (strpos($oneResult, 'width=') || strpos($oneResult, 'height=')) continue;
+            if (preg_match('#[^a-z_\-]width *:([0-9 ]{1,8})#i', $oneResult, $res)) continue;
+            if (preg_match('#[^a-z_\-]height *:([0-9 ]{1,8})#i', $oneResult, $res)) continue;
+            if (!preg_match('#src="([^"]*)"#i', $oneResult, $url)) continue;
+
+            $imageUrl = $url[1];
+
+            $replace[$oneResult] = $oneResult;
+
+            $base = str_replace(['http://www.', 'https://www.', 'http://', 'https://'], '', ACYM_LIVE);
+            $replacements = ['https://www.'.$base, 'http://www.'.$base, 'https://'.$base, 'http://'.$base];
+            $localpict = false;
+            foreach ($replacements as $oneReplacement) {
+                if (strpos($imageUrl, $oneReplacement) === false) continue;
+
+                $imageUrl = str_replace(
+                    [$oneReplacement, '/'],
+                    [ACYM_ROOT, DS],
+                    urldecode($imageUrl)
+                );
+                $localpict = true;
+                break;
+            }
+
+            if (!$localpict) continue;
+
+            $dim = @getimagesize($imageUrl);
+            if (!$dim) continue;
+            if (empty($dim[0]) || empty($dim[1])) continue;
+
+            $replace[$oneResult] = str_replace('<img', '<img width="'.$dim[0].'" height="'.$dim[1].'"', $oneResult);
+        }
+
+        if (!empty($replace)) {
+            $html = str_replace(array_keys($replace), $replace, $html);
+        }
+    }
+
+    public function addPictureAlign(&$html)
+    {
+        if (preg_match_all('#< *img([^>]*)>#Ui', $html, $allPictures)) ;
+
+        foreach ($allPictures[0] as $i => $onePict) {
+            if (strpos($onePict, 'align=') !== false) continue;
+            if (!preg_match('#(style="[^"]*)(float *: *)(right|left|top|bottom|middle)#Ui', $onePict, $pictParams)) continue;
+
+            $newPict = str_replace('<img', '<img align="'.$pictParams[3].'" ', $onePict);
+            $html = str_replace($onePict, $newPict, $html);
+
+
+            if (strpos($onePict, 'hspace=') !== false) continue;
+
+            $hspace = 5;
+            if (preg_match('#margin(-right|-left)? *:([^";]*)#i', $onePict, $margins)) {
+                $currentMargins = explode(' ', trim($margins[2]));
+                $myMargin = (count($currentMargins) > 1) ? $currentMargins[1] : $currentMargins[0];
+                if (strpos($myMargin, 'px') !== false) $hspace = preg_replace('#[^0-9]#i', '', $myMargin);
+            }
+
+            $lastPict = str_replace('<img', '<img hspace="'.$hspace.'" ', $newPict);
+
+            $html = str_replace($newPict, $lastPict, $html);
+        }
+    }
+}

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,9 +19,11 @@ if (!JFile::exists($path)) {
 	return;
 }
 
-require_once ($path);
+require_once($path);
 
 ED::init();
+$lib = ED::modules($module);
+
 $my = ED::user();
 $config = ED::config();
 $acl = ED::acl();
@@ -35,15 +37,25 @@ $popboxPosition = JFactory::getDocument()->getDirection() == 'rtl' ? 'bottom-lef
 $showConversation = $config->get('layout_toolbar_conversation');
 $showNotification = ($config->get('layout_toolbar_notification') && $config->get('main_notifications'));
 $showSettings = $config->get('layout_toolbarprofile');
+$showManageSubscription = true;
+$usernameField = 'COM_EASYDISCUSS_TOOLBAR_USERNAME';
+$return = EDR::getLoginRedirect();
+
+if (ED::easysocial()->exists() && $lib->config->get('main_login_provider') == 'easysocial') {
+	$usernameField = ED::easysocial()->getUsernameField();
+}
+
+// determine to show manage subscription link
+if (!$lib->config->get('main_sitesubscription') && !$lib->config->get('main_ed_categorysubscription') && !$lib->config->get('main_postsubscription')) {
+	$showManageSubscription = false;
+}
 
 if ($showNotification) {
-	// Get total notifications for the current viewer
 	$model = ED::model('Notification');
 	$notificationsCount = $model->getTotalNotifications($my->id);
 }
 
 if ($showConversation) {
-	// Get new message count.
 	$conversationModel = ED::model('Conversation');
 	$conversationsCount = $conversationModel->getCount($my->id, array('filter' => 'unread'));
 }

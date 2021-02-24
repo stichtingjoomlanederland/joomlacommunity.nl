@@ -25,8 +25,6 @@ class RseventsproViewTags extends JViewLegacy
 		JToolBarHelper::deleteList('','tags.delete');
 		JToolBarHelper::publishList('tags.publish');
 		JToolBarHelper::unpublishList('tags.unpublish');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getEvents($id) {

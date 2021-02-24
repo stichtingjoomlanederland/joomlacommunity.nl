@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(__DIR__ . '/controller.php');
 
 class EasyDiscussControllerPosts extends EasyDiscussController
 {
@@ -22,7 +20,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Register task aliases
 		$this->registerTask('unfeature', 'feature');
 	}
-
 
 	/**
 	 * This occurs when the user tries to create a new discussion or edits an existing discussion
@@ -56,13 +53,13 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check the permissions to post a new question
 		if (!$post->canPostNewDiscussion()) {
 			ED::setMessage($post->getError(), 'error');
-			return $this->app->redirect(EDR::_('', false));
+			return ED::redirect(EDR::_('', false));
 		}
 
 		// If this post is being edited, check for perssion if the user is able to edit or not.
 		if ($post->id && !$post->canEdit()) {
 			ED::setMessage($post->getError(), 'error');
-			return $this->app->redirect(EDR::_('view=post&id='.$id, false));
+			return ED::redirect(EDR::_('view=post&id='.$id, false));
 		}
 
 		// For contents, we need to get the raw data.
@@ -99,14 +96,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			ED::storeSession($data, 'NEW_POST_TOKEN');
 			ED::setMessage($post->getError(), 'error');
 
-			return $this->app->redirect(EDR::getAskRoute($post->getCategory()->id, false));
+			return ED::redirect(EDR::getAskRoute($post->getCategory()->id, false));
 		}
 
 		// Save
 		// Need to check all the error and make sure it is standardized
 		if (!$post->save()) {
 			ED::setMessage($post->getError(), 'error');
-			return $this->app->redirect(EDR::getAskRoute($redirectUrl, false));
+			return ED::redirect(EDR::getAskRoute($redirectUrl, false));
 		}
 
 		// Process T&C
@@ -122,7 +119,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			$state = 'info';
 		}
 
-		ED::setMessageQueue($message, $state);
+		ED::setMessage($message, $state);
 
 		$redirect = $this->input->get('redirect', '', 'default');
 
@@ -132,7 +129,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			// Decode any special characters to the correct url format, eg: &amp; to &
 			$redirect = htmlspecialchars_decode($redirect);
 
-			return $this->app->redirect(JRoute::_($redirect));
+			return ED::redirect(JRoute::_($redirect));
 		}
 
 		$redirect = EDR::getPostRoute($post->id, false);
@@ -158,7 +155,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			$redirect = EDR::_('view=mypost', false);
 		}
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -179,13 +176,13 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$id || !$post->id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_REPLY_ID_PROVIDED'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// Check the permission is it allowed
 		if (!$post->canBranch()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_BRANCHING_NOT_ALLOWED'), 'error');
-			return $this->app->redirect(EDR::getPostRoute($post->parent_id, false));
+			return ED::redirect(EDR::getPostRoute($post->parent_id, false));
 		}
 
 
@@ -200,7 +197,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		ED::setMessage(JText::_('COM_EASYDISCUSS_REPLY_BRANCHED_OUT_SUCCESSFULLY'), 'success');
 
 		$redirect = EDR::getPostRoute($post->id, false);
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -216,6 +213,19 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		$newParent = $this->input->get('id', 0, 'int');
 		$currentParent = $this->input->get('current', 0, 'int');
+
+		// check if require data present or not.
+		if (!$newParent || !$currentParent) {
+			ED::setMessage(JText::_('COM_ED_MERGE_INVALID_DATA'), 'error');
+			return ED::redirect(EDR::_('view=index', false));
+		}
+
+		// check if currently logged user has the ability to merge the post or not.
+		$post = ED::post($currentParent);
+		if (!$post->canMove()) {
+			ED::setMessage(JText::_('COM_ED_MERGE_NOT_ALLOWED'), 'error');
+			return ED::redirect(EDR::getPostRoute($post->id, false));
+		}
 
 		$newPost = ED::table('Post');
 		$newPost->load($newParent);
@@ -233,7 +243,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Update the posts.
 		if (!$post->store()) {
 			ED::setMessage(JText::sprintf('COM_EASYDISCUSS_MERGE_ERROR', $newPost->title), 'error');
-			return $this->app->redirect(EDR::getPostRoute($newParent, false));
+			return ED::redirect(EDR::getPostRoute($newParent, false));
 		}
 
 		// Update all the child items from this parent to the new parent.
@@ -252,7 +262,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		// Set proper message in mail queue.
 		ED::setMessage(JText::sprintf('COM_EASYDISCUSS_MERGE_SUCCESS', $newPost->title), 'success');
-		return $this->app->redirect(EDR::getPostRoute($newParent, false));
+		return ED::redirect(EDR::getPostRoute($newParent, false));
 	}
 
 	/**
@@ -292,7 +302,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// check current post user can ban or not and
 		if (!$post->canBanAuthor()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_BAN_FAILED'), 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// if the user kena banned already, cant ban again.
@@ -301,7 +311,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if ($model->isBanned($options)) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_BAN_IN_THE_LIST_ALREADY'), 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// get the ban duration time
@@ -338,7 +348,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$ban->store();
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_BAN_SUCCESSFULLY'), 'success');
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -367,20 +377,20 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check if the params given is correct.
 		if (!$id || !$post->id || !$categoryId || !$newCategory->id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_ID_PROVIDED'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// Check the permission is it allowed
 		if (!$post->canMove()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
-			return $this->app->redirect(EDR::getPostRoute($post->id, false));
+			return ED::redirect(EDR::getPostRoute($post->id, false));
 		}
 
 		// Move the post now
 		$post->move($newCategory->id);
 
 		ED::setMessage('COM_EASYDISCUSS_POST_MOVED_SUCCESSFULLY', 'success');
-		return $this->app->redirect(EDR::getPostRoute($post->id, false));
+		return ED::redirect(EDR::getPostRoute($post->id, false));
 	}
 
 	/**
@@ -404,7 +414,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_ID_PROVIDED'), 'error');
-			return $this->app->redirect($return);
+			return ED::redirect($return);
 		}
 
 		// Get password from the request.
@@ -413,7 +423,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// If password is empty, we should throw some errors here.
 		if (!$password) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_PASSWORD_PROVIDED'), 'error');
-			return $this->app->redirect($return);
+			return ED::redirect($return);
 		}
 
 		// Set the password that the user posted into the session's name space.
@@ -425,7 +435,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Verify that the password matches
 		if ($post->password != $password) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_PASSWORD_PROVIDED'), 'error');
-			return $this->app->redirect($return);
+			return ED::redirect($return);
 		}
 
 		// If the user supplied the correct password, we want to redirect them to the correct page.
@@ -434,7 +444,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$return = EDR::_($return, false);
 
 		// If the user passes here, then the page should be visible to the user.
-		return $this->app->redirect($return);
+		return ED::redirect($return);
 	}
 
 	/**
@@ -454,7 +464,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// If id isn't provided, we need to disallow the user.
 		if (!$id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// Load the new post object for reply
@@ -465,7 +475,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$reply->canAcceptAsAnswer()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
-			return $this->app->redirect(EDR::getPostRoute($question->id, false));
+			return ED::redirect(EDR::getPostRoute($question->id, false));
 		}
 
 		// Set the reply as answer
@@ -476,7 +486,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_REPLY_ACCEPTED_AS_ANSWER'), 'success');
-		return $this->app->redirect(EDR::getPostRoute($question->id, false));
+		return ED::redirect(EDR::getPostRoute($question->id, false));
 	}
 
 	/**
@@ -494,7 +504,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$id){
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// Load the new post object for reply
@@ -506,7 +516,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$reply->canAcceptAsAnswer()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Update the reply state
@@ -517,7 +527,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_REPLY_REJECTED_AS_ANSWER'), 'success');
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 
@@ -533,14 +543,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$redirect = EDR::_('index.php?option=com_easydiscuss&view=index', false);
 
 		if (empty($key)) {
-			return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+			return ED::redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
 		}
 
 		$hashkey = ED::table('HashKeys');
 		$state = $hashkey->load(array('key' => $key));
 
 		if (!$state) {
-			return $this->app->redirect($redirect, JText::_('COM_ED_NOT_ALLOWED_ITEM_ALREADY_APPROVED'), 'error');
+			return ED::redirect($redirect, JText::_('COM_ED_NOT_ALLOWED_ITEM_ALREADY_APPROVED'), 'error');
 		}
 
 		$post = ED::post($hashkey->uid);
@@ -554,7 +564,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		ED::setMessage($message, 'success');
 
-		return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $pid, false));
+		return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $pid, false));
 	}
 
 	/**
@@ -569,14 +579,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$redirect = EDR::_('index.php?option=com_easydiscuss&view=index', false);
 
 		if (empty($key)) {
-			return $this->app->redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
+			return ED::redirect($redirect, JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
 		}
 
 		$hashkey = ED::table('HashKeys');
 		$state = $hashkey->load(array('key' => $key));
 
 		if (!$state) {
-			return $this->app->redirect($redirect, JText::_('COM_ED_NOT_ALLOWED_ITEM_ALREADY_APPROVED'), 'error');
+			return ED::redirect($redirect, JText::_('COM_ED_NOT_ALLOWED_ITEM_ALREADY_APPROVED'), 'error');
 		}
 
 		$post = ED::post($hashkey->uid);
@@ -590,7 +600,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		ED::setMessage($message, 'success');
 
-		return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
+		return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 	}
 
 	/**
@@ -608,7 +618,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		// Initialize the default redirection
 		$return = $this->input->get('return', '', 'var');
-		$redirect = EDR::_('view=forums', false);
+		$redirect = EDR::_('view=index', false);
 
 		if ($return) {
 			$redirect = base64_decode($return);
@@ -619,7 +629,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$id || !$post->id) {
 			ED::setMessage('COM_EASYDISCUSS_ENTRY_DELETE_MISSING_ID', 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// If return url is not provided, we need to figure this out on our own
@@ -632,13 +642,13 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check if the user really can delete
 		if (!$post->canDelete()) {
 			ED::setMessage('COM_EASYDISCUSS_ENTRY_DELETE_NO_PERMISSION', 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Do not allow user to delete a locked post
 		if ($post->isLocked() && !ED::isSiteAdmin()) {
 			ED::setMessage('COM_EASYDISCUSS_ENTRY_DELETE_LOCKED', 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Try to delete the post now
@@ -646,7 +656,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		ED::setMessage('COM_EASYDISCUSS_POST_DELETED_SUCCESS', 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 
@@ -655,18 +665,18 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$valid = true;
 		$message = '<ul class="unstyled">';
 
-		if (!isset($post['title']) || JString::strlen($post['title']) == 0 || $post['title'] == JText::_('COM_EASYDISCUSS_POST_TITLE_EXAMPLE')) {
+		if (!isset($post['title']) || EDJString::strlen($post['title']) == 0 || $post['title'] == JText::_('COM_EASYDISCUSS_POST_TITLE_EXAMPLE')) {
 			$message .= '<li>' . JText::_('COM_EASYDISCUSS_POST_TITLE_CANNOT_EMPTY') . '</li>';
 			$valid = false;
 		}
 
 		// quick_question_reply_content is from the module quick question
-		if ((!isset($post['dc_reply_content']) || (JString::strlen($post['dc_reply_content']) == 0)) && (!isset($post['quick_question_reply_content']) || JString::strlen($post['quick_question_reply_content']) == 0)){
+		if ((!isset($post['dc_reply_content']) || (EDJString::strlen($post['dc_reply_content']) == 0)) && (!isset($post['quick_question_reply_content']) || EDJString::strlen($post['quick_question_reply_content']) == 0)){
 			$message .= '<li>' . JText::_('COM_EASYDISCUSS_POST_CONTENT_IS_EMPTY') . '</li>';
 			$valid = false;
 		}
 
-		if (JString::strlen($post['dc_reply_content']) < $this->config('main_post_min_length')) {
+		if (EDJString::strlen($post['dc_reply_content']) < $this->config('main_post_min_length')) {
 			$message .= '<li>' . JText::sprintf('COM_EASYDISCUSS_POST_CONTENT_LENGTH_IS_INVALID', $this->config('main_post_min_length')) . '</li>';
 			$valid = false;
 		}
@@ -725,14 +735,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$post->id || !$id) {
 			ED::setMessage('COM_EASYDISCUSS_INVALID_POST_ID', 'error');
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Ensure that the user is allowed to feature this post
 		if (!$post->canFeature()) {
 			ED::setMessage('COM_EASYDISCUSS_NO_PERMISSION_TO_PERFORM_THE_REQUESTED_ACTION', 'error');
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		// Get the current task
@@ -749,7 +759,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		ED::setMessage($message, 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -769,14 +779,14 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Check if the post data is valid
 		if (!isset($data['id']) || !$data['id']) {
 			ED::setMessage( JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
 
 		$post = ED::post($data['id']);
 
 		if (!$post->canEdit()) {
 			ED::setMessage( JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
-			return $this->app->redirect($threadUrl);
+			return ED::redirect($threadUrl);
 		}
 
 		$threadUrl = EDR::_('index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id, false);
@@ -791,7 +801,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if ($valid === false) {
 			ED::setMessage($post->getError(), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id, false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=post&layout=edit&id=' . $post->id, false));
 		}
 
 		// update the post
@@ -800,7 +810,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Try to store the post now
 		if (!$state) {
 			ED::setMessage( JText::_('COM_EASYDISCUSS_ERROR'), 'error');
-			return $this->app->redirect($threadUrl);
+			return ED::redirect($threadUrl);
 		}
 
 		$message = JText::_('COM_EASYDISCUSS_REPLY_SUCCESSFULLY_UPDATED');
@@ -813,79 +823,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!empty($redirect)) {
 			$redirect = base64_decode($redirect);
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
-		$this->app->redirect($threadUrl);
+		ED::redirect($threadUrl);
 		return;
-	}
-
-	/**
-	 * Prepare email data
-	 *
-	 * @since   4.0
-	 * @access  public
-	 */
-	public function toEmailData($post, $author)
-	{
-		$emailData = array();
-		$emailData['postTitle'] = $post->title;
-		$emailData['postAuthor'] = $profile->id ? $profile->getName() : $post->poster_name;
-		$emailData['postCategory']  = $category->title;
-		$emailData['postAuthorAvatar'] = $profile->getAvatar();
-		$emailData['postLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
-
-		$emailContent = $post->content;
-
-		if ($post->content_type != 'html') {
-			// the content is bbcode. we need to parse it.
-			$emailContent = ED::parser()->bbcode($emailContent);
-			$emailContent = ED::parser()->removeBrTag($emailContent);
-		}
-
-		// If post is html type we need to strip off html codes.
-		if ($post->content_type == 'html') {
-			$emailContent = strip_tags($post->content);
-		}
-
-		$emailContent = $post->trimEmail($emailContent);
-
-		$attachments = $post->getAttachments();
-
-		$emailData['attachments'] = $attachments;
-		$emailData['postContent'] = $emailContent;
-		$emailData['post_id'] = $post->id;
-		$emailData['cat_id'] = $post->category_id;
-		$emailData['emailTemplate'] = 'email.subscription.site.new.php';
-		$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_ASKED', $post->id, $post->title);
-
-		return $emailData;
-	}
-
-	/**
-	 * Prepare email data for moderated post
-	 *
-	 * @since   4.0
-	 * @access  public
-	 */
-	public function toEmailModerationData($post)
-	{
-			$hashkey = ED::table('HashKeys');
-			$hashkey->uid = $post->id;
-			$hashkey->type = DISCUSS_QUESTION_TYPE;
-			$hashkey->store();
-
-			$approveURL = ED::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=approvePost&key=' . $hashkey->key);
-			$rejectURL = ED::getExternalLink('index.php?option=com_easydiscuss&controller=posts&task=rejectPost&key=' . $hashkey->key);
-			$emailData['moderation'] = '<div style="display:inline-block;width:100%;padding:20px;border-top:1px solid #ccc;padding:20px 0 10px;margin-top:20px;line-height:19px;color:#555;font-family:\'Lucida Grande\',Tahoma,Arial;font-size:12px;text-align:left">';
-			$emailData['moderation'] .= '<a href="' . $approveURL . '" style="display:inline-block;padding:5px 15px;background:#fc0;border:1px solid #caa200;border-bottom-color:#977900;color:#534200;text-shadow:0 1px 0 #ffe684;font-weight:bold;box-shadow:inset 0 1px 0 #ffe064;-moz-box-shadow:inset 0 1px 0 #ffe064;-webkit-box-shadow:inset 0 1px 0 #ffe064;border-radius:2px;moz-border-radius:2px;-webkit-border-radius:2px;text-decoration:none!important">' . JText::_('COM_EASYDISCUSS_EMAIL_APPROVE_POST') . '</a>';
-			$emailData['moderation'] .= ' ' . JText::_('COM_EASYDISCUSS_OR') . ' <a href="' . $rejectURL . '" style="color:#477fda">' . JText::_('COM_EASYDISCUSS_REJECT') . '</a>';
-			$emailData['moderation'] .= '</div>';
-
-			$emailData['emailTemplate'] = 'email.subscription.site.moderate.php';
-			$emailData['emailSubject']  = JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_MODERATE', $post->id , $post->title);
-
-			return $emailData;
 	}
 
 	/**
@@ -908,7 +850,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$post->canModerate()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect(EDR::_('view=index', false));
+			return ED::redirect(EDR::_('view=index', false));
 		}
 
 		// COM_EASYDISCUSS_MODERATE_REPLY_PUBLISHED
@@ -922,7 +864,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		// Let's set our custom message here.
 		ED::setMessage($message, 'success');
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -934,10 +876,11 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 	public function rejectPendingPost()
 	{
 		$postId = $this->input->get('postId', 0, 'int');
+		$view = $this->input->get('view', 'index', 'cmd');
 
 		if (!$postId) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_POST_ID');
-			return $this->ajax->reject($message);         
+			return $this->ajax->reject($message);
 		}
 
 		$post = ED::post($postId);
@@ -945,23 +888,25 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$post->canModerate()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect(EDR::_('view=index', false));
+			return ED::redirect(EDR::_('view=index', false));
 		}
 
 		$message = JText::_('COM_EASYDISCUSS_POST_REJECT');
-		$redirect = EDR::_('index.php?option=com_easydiscuss');
-
-		if ($this->acl->allowed('manage_pending') || ED::isSiteAdmin()) {
-			$redirect = EDR::_('index.php?option=com_easydiscuss&view=dashboard');
-		}
+		$redirect = 'index.php?option=com_easydiscuss&view=' . $view;
 
 		if ($post->isReply()) {
+			if ($view == 'post') {
+				$redirect .= '&id=' . $post->getParent()->id;
+			}
+
 			$message = JText::_('COM_EASYDISCUSS_MODERATE_REPLY_UNPUBLISHED');
 		}
 
+		$redirect = EDR::_($redirect);
+
 		// Let's set our custom message here.
 		ED::setMessage($message, 'success');
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -979,7 +924,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		$id = $this->input->get('id', 0, 'int');
 
 		// Get the date POST
-		$data = JRequest::get('post');
+		$data = $this->input->post->getArray();
 
 		// For contents, we need to get the raw data.
 		$data['content'] = $this->input->get('dc_content', '', 'raw');
@@ -989,7 +934,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$post->canModerate()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect(EDR::_('view=index', false));
+			return ED::redirect(EDR::_('view=index', false));
 		}
 
 		// Bind post data
@@ -1001,7 +946,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 			$redirectUrl = 'view=ask&id=' . $post->id;
 
 			ED::setMessage($post->getError(), 'error');
-			return $this->app->redirect($redirectUrl);
+			return ED::redirect($redirectUrl);
 		}
 
 		// Reset previous publish state to moderated before publishing. #168
@@ -1015,11 +960,12 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		$redirect = 'index.php?option=com_easydiscuss';
 
-		if ($this->acl->allowed('manage_pending') || ED::isSiteAdmin()) {
+		$acl = ED::acl();
+		if ($acl->allowed('manage_pending') || ED::isSiteAdmin()) {
 			$redirect = 'index.php?option=com_easydiscuss&view=dashboard';	
 		}
 
-		$this->app->redirect($redirect);
+		ED::redirect($redirect);
 	}
 
 	/**
@@ -1035,7 +981,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// load the post lib
@@ -1044,7 +990,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Ensure that the user can really resolve this
 		if (!$post->canResolve()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
-			return $this->app->redirect(EDR::getPostRoute($post->id, false));
+			return ED::redirect(EDR::getPostRoute($post->id, false));
 		}
 
 		// Try to resolve it now
@@ -1055,7 +1001,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_RESOLVED'), 'success');
-		return $this->app->redirect(EDR::getPostRoute($post->id, false));		
+		return ED::redirect(EDR::getPostRoute($post->id, false));		
 	}
 
 	/**
@@ -1071,7 +1017,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 
 		if (!$id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INVALID_ID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// load the post lib
@@ -1080,7 +1026,7 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		// Ensure that the user can really resolve this
 		if (!$post->canResolve()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'), 'error');
-			return $this->app->redirect(EDR::getPostRoute($post->id, false));
+			return ED::redirect(EDR::getPostRoute($post->id, false));
 		}
 
 		// Try to resolve it now
@@ -1091,6 +1037,6 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED'), 'success');
-		return $this->app->redirect(EDR::getPostRoute($post->id, false));		
+		return ED::redirect(EDR::getPostRoute($post->id, false));		
 	}	
 }

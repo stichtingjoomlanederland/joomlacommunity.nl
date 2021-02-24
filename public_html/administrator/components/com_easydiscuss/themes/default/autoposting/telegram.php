@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,39 +19,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<div class="panel-body">
 					<?php echo $this->html('panel.info', 'COM_EASYDISCUSS_TELEGRAM_INTEGRATIONS_INFO'); ?>
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_ENABLE_TELEGRAM'); ?>
-							</div>
-
-							<div class="col-md-7">
-								<?php echo $this->html('form.boolean', 'integrations_telegram', $this->config->get('integrations_telegram')); ?>
-							</div>
-						</div>
-
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_BOT_TOKEN'); ?>
-							</div>
-
-							<div class="col-md-7">
-								<?php echo $this->html('form.textbox', 'integrations_telegram_token', $this->config->get('integrations_telegram_token')); ?>
-								<div class="small">
-									<a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/telegram-application" target="_blank"><?php echo JText::_('COM_EASYDISCUSS_WHAT_IS_THIS');?></a>
-								</div>
-							</div>
-						</div>
-
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TELEGRAM_MESSAGE'); ?>
-							</div>
-
-							<div class="col-md-7">
-								<?php echo $this->html('form.textarea', 'integrations_telegram_message', $this->config->get('integrations_telegram_message')); ?>
-							</div>
-						</div>
+					<div class="o-form-horizontal">
+						<?php echo $this->html('settings.toggle', 'integrations_telegram', 'COM_EASYDISCUSS_ENABLE_TELEGRAM'); ?>
+						<?php echo $this->html('settings.textbox', 'integrations_telegram_token', 'COM_EASYDISCUSS_BOT_TOKEN', '', array(), '<a href="https://stackideas.com/docs/easydiscuss/administrators/autoposting/telegram-application" target="_blank">' . JText::_('COM_EASYDISCUSS_WHAT_IS_THIS') . '</a>'); ?>
+						<?php echo $this->html('settings.toggle', 'integrations_telegram_only_post_notify', 'COM_ED_TELEGRAM_ONLY_POST_NOTIFY'); ?>
+						<?php echo $this->html('settings.textarea', 'integrations_telegram_message', 'COM_EASYDISCUSS_TELEGRAM_MESSAGE'); ?>
+						<?php echo $this->html('settings.textarea', 'integrations_telegram_reply_message', 'COM_ED_TELEGRAM_REPLY_MESSAGE'); ?>
 					</div>
 				</div>
 			</div>
@@ -64,46 +37,33 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="panel-body">
 					<?php echo $this->html('panel.info', 'COM_EASYDISCUSS_TELEGRAM_DISCOVER_DESC');?></p>
 
-					<div class="form-horizontal">
-						<div class="form-group">
+					<div class="o-form-horizontal">
+						<div class="o-form-group">
 							<div class="col-md-12">
-								<a href="javascript:void(0);" class="btn btn-primary btn-sm" data-ed-telegram-discover>
-									<i class="fa fa-globe"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_TELEGRAM_DISCOVER');?>
+								<a href="javascript:void(0);" class="o-btn o-btn--outline-primary" data-ed-telegram-discover>
+									<i class="fab fa-telegram"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_TELEGRAM_DISCOVER');?>
 								</a>
 							</div>
 						</div>
 
-						<div class="form-group hide" data-ed-telegram-messages-wrapper>
-							<div class="col-md-5 control-label">
+						<div class="o-form-group t-hidden" data-ed-telegram-messages-wrapper>
+							<div class="col-md-5 o-form-label">
 								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TELEGRAM_CHAT'); ?>
 							</div>
 
 							<div class="col-md-7" data-ed-telegram-messages>
 							</div>
 						</div>
-					</div>
 
-					<?php if ($this->config->get('integrations_telegram_chat_id')) { ?>
-					<div class="form-horizontal">
-						<div class="form-group">
-							<div class="col-md-5 control-label">
-								<?php echo $this->html('form.label', 'COM_EASYDISCUSS_TELEGRAM_CHAT_ID'); ?>
-							</div>
-
-							<div class="col-md-7" data-ed-telegram-messages>
-								<?php echo $this->html('form.textbox', 'integrations_telegram_chat_id', $this->config->get('integrations_telegram_chat_id')); ?>
-							</div>
-						</div>
+						<?php if ($this->config->get('integrations_telegram_chat_id')) { ?>
+							<?php echo $this->html('settings.textbox', 'integrations_telegram_chat_id', 'COM_EASYDISCUSS_TELEGRAM_CHAT_ID'); ?>
+						<?php } ?>
 					</div>
-					<?php } ?>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<input type="hidden" name="step" value="completed" />
-	<input type="hidden" name="task" value="save" />
+	<?php echo $this->html('form.action', 'autoposting', '', 'save'); ?>
 	<input type="hidden" name="type" value="telegram" />
-	<input type="hidden" name="controller" value="autoposting" />
-	<input type="hidden" name="option" value="com_easydiscuss" />
 </form>

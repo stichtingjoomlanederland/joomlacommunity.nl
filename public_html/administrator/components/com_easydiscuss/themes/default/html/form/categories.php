@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<select name="<?php echo $name;?>" <?php echo $multiple ? 'multiple style="height: 150px;"' : '';?> class="form-control">
+<select name="<?php echo $name;?>" <?php echo $multiple ? 'multiple style="height: 150px;"' : '';?> class="o-form-select" data-ed-select>
 	<?php foreach ($categories as $category) { ?>
 	<option value="<?php echo $category->id;?>" <?php echo in_array($category->id, $selected) ? ' selected="selected"' : '';?>><?php echo JText::_($category->title); ?></option>
 	<?php } ?>

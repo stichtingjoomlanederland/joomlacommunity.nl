@@ -1,0 +1,17 @@
+[
+	{
+		"table": "#__discuss_posts",
+		"column": "isnew",
+		"query": "ALTER TABLE `#__discuss_posts` ADD COLUMN `isnew` tinyint unsigned NULL DEFAULT 0;"
+	},
+	{
+		"table": "#__discuss_thread",
+		"column": "isnew",
+		"query": "ALTER TABLE `#__discuss_thread` ADD COLUMN `isnew` tinyint unsigned NULL DEFAULT 0;"
+	},
+	{
+		"table": "#__discuss_post_types",
+		"column": "icon",
+		"query": "ALTER TABLE `#__discuss_post_types` ADD COLUMN `icon` varchar(50) DEFAULT NULL;"
+	}
+]

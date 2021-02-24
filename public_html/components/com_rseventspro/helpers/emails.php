@@ -4,12 +4,7 @@
 * @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); 
-
-use Joomla\CMS\Crypt\Cipher\SimpleCipher;
-use Joomla\CMS\Crypt\CipherInterface;
-use Joomla\CMS\Crypt\Crypt;
-use Joomla\CMS\Crypt\Key;
+defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class rseventsproEmails
 {	
@@ -149,8 +144,10 @@ class rseventsproEmails
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		$text['body']		= str_replace(array('{from}','{fromname}'),array($from, $fromName), $text['body']);
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($from , $fromName , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($from , $fromName , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -207,7 +204,7 @@ class rseventsproEmails
 			}
 		}
 		
-		JFactory::getApplication()->triggerEvent('rseproRegistrationEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproRegistrationEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$text				= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
 		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
@@ -216,8 +213,10 @@ class rseventsproEmails
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		$text['body']		= str_replace('{PaymentURL}',$paymentURL,$text['body']);
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -257,7 +256,7 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproActivationEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproActivationEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$text		 		= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
 		$text['cc']	 		= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
@@ -266,10 +265,12 @@ class rseventsproEmails
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		$attachments 		= rseventsproEmails::pdfAttachement($to,$ide,$name,$optionals,$ids);
 		
-		$mailer	= JFactory::getMailer();
-		if ($mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , $attachments , $text['replyto'], $text['replyname'])) {
-			JFactory::getApplication()->triggerEvent('rsepro_activationEmailCleanup',array(array('id'=>&$ide)));
-		}
+		try {
+			$mailer	= JFactory::getMailer();
+			if ($mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , $attachments , $text['replyto'], $text['replyname'])) {
+				JFactory::getApplication()->triggerEvent('onrsepro_activationEmailCleanup',array(array('id'=>&$ide)));
+			}
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -309,7 +310,7 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproUnsubscribeEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproUnsubscribeEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$optionals			= rseventsproEmails::createOptionals($ids);
 		$text				= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
@@ -318,8 +319,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -358,7 +361,7 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproDeniedEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproDeniedEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$optionals			= rseventsproEmails::createOptionals($ids);
 		$text				= rseventsproEmails::placeholders($replacer, $ide, $name, $optionals, $ids);
@@ -367,8 +370,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -414,8 +419,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $subscriber->email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $subscriber->email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -461,8 +468,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -500,8 +509,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'], $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'], $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -550,8 +561,10 @@ class rseventsproEmails
 		$approve			= rseventsproHelper::route(JURI::root().'index.php?option=com_rseventspro&task=activate&key='.md5('event'.$ide));
 		$text['body']		= str_replace('{EventApprove}',$approve,$text['body']);
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -610,8 +623,10 @@ class rseventsproEmails
 		}
 		$text['body'] = str_replace('{TagsApprove}',$approve,$text['body']);
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -659,8 +674,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -699,7 +716,7 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproNotifyEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproNotifyEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$text				= rseventsproEmails::placeholders($replacer,$ide,'',$optionals, $ids);
 		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
@@ -712,8 +729,10 @@ class rseventsproEmails
 			$text['subject']	= str_replace(array_keys($additional_data), array_values($additional_data), $text['subject']);
 		}
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -752,7 +771,7 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproNotifyPaidEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproNotifyPaidEmail', array(array('ids' => $ids, 'ide' => $ide, 'data' => &$replacer)));
 		
 		$text				= rseventsproEmails::placeholders($replacer,$ide,'',$optionals, $ids);
 		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
@@ -765,8 +784,10 @@ class rseventsproEmails
 			$text['subject']	= str_replace(array_keys($additional_data), array_values($additional_data), $text['subject']);
 		}
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -806,7 +827,7 @@ class rseventsproEmails
 			'body'		=> $body
 		);
 		
-		JFactory::getApplication()->triggerEvent('rseproNotifyUnsubscribeEmail', array(array('ids' => $ids, 'data' => &$replacer)));
+		JFactory::getApplication()->triggerEvent('onrseproNotifyUnsubscribeEmail', array(array('ids' => $ids, 'data' => &$replacer)));
 		
 		$text				= rseventsproEmails::placeholders($replacer, $ide, '', null, $ids);
 		$text['cc']			= isset($text['cc']) && !empty($text['cc']) ? explode(',',$text['cc']) : null;
@@ -819,8 +840,10 @@ class rseventsproEmails
 			$text['subject']	= str_replace(array_keys($additional_data), array_values($additional_data), $text['subject']);
 		}
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -869,8 +892,10 @@ class rseventsproEmails
 			$text['subject']	= str_replace(array_keys($additional_data), array_values($additional_data), $text['subject']);
 		}
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -890,6 +915,7 @@ class rseventsproEmails
 		$bcc		= $config->email_bcc;
 		$cc			= !empty($cc) ? $cc : null;
 		$bcc		= !empty($bcc) ? $bcc : null;
+		$total		= 0;
 		$paymentURL = '';
 		
 		$db		= JFactory::getDBO();
@@ -923,10 +949,12 @@ class rseventsproEmails
 				if ($ticket->price > 0) {
 					$price = $ticket->price * $ticket->quantity;
 					$total += $price;
-					$info .= $ticket->quantity . ' x ' .$ticket->name.' ('.rseventsproHelper::currency($ticket->price).') '.rseventsproHelper::getSeats($ids,$ticket->id).' <br />';
+					$ticketInfo = $ticket->quantity . ' x ' .$ticket->name.' ('.rseventsproHelper::currency($ticket->price).') ';
 				} else {
-					$info .= $ticket->quantity . ' x ' .$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').') <br />';
+					$ticketInfo = $ticket->quantity . ' x ' .$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').') ';
 				}
+				
+				$info .= $ticketInfo.rseventsproHelper::getSeats($ids,$ticket->id).' <br />';
 			}
 		}
 		
@@ -982,8 +1010,10 @@ class rseventsproEmails
 		$text['body']		= str_replace('{Status}',rseventsproHelper::getStatuses($subscriber->state),$text['body']);
 		$text['body']		= str_replace('{PaymentURL}',$paymentURL,$text['body']);
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $subscriber->email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $subscriber->email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -1017,9 +1047,9 @@ class rseventsproEmails
 						$barcodetext= in_array(rseventsproHelper::getBarcodeOptions('barcode', 'C39'), array('C39', 'C93')) ? strtoupper($barcodetext) : $barcodetext;
 						$layout		= $ticket->layout;
 						
-						$app->triggerEvent('rseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));
+						$app->triggerEvent('onrseproTicketPDFLayout',array(array('ids' => $ids, 'ide' => $ide, 'layout' => &$layout)));
 						
-						$app->triggerEvent('rsepro_beforeReplacePDFLayout', array(array('layout' => &$layout, 'ids' => $ids, 'idt' => $ticket->id, 'ide' => $ide, 'position' => $i)));
+						$app->triggerEvent('onrsepro_beforeReplacePDFLayout', array(array('layout' => &$layout, 'ids' => $ids, 'idt' => $ticket->id, 'ide' => $ide, 'position' => $i)));
 						
 						$layout = rseventsproEmails::placeholders($layout, $ide, $name, $optionals);
 						$layout = str_replace('{sitepath}', JPATH_SITE, $layout);
@@ -1039,9 +1069,10 @@ class rseventsproEmails
 									$secret = JFactory::getConfig()->get('secret');
 									
 									try {
-										$key	= new Key('simple',$secret, $secret);
-										$crypt	= new \JCrypt(null, $key);
-										$hash	= 'cr'.$crypt->encrypt($hash);
+										require_once JPATH_SITE.'/components/com_rseventspro/helpers/crypt.php';
+										
+										$hash = RseventsproCrypt::encrypt($hash, $secret);
+										$hash	= 'cr'.$hash;
 										$hash	= str_replace(' ', '_', $hash);
 									} catch (Exception $e) {}
 									
@@ -1064,9 +1095,10 @@ class rseventsproEmails
 							$layout = str_replace('{barcode}', $barcodeHTML, $layout);
 						}
 						
-						$layout = str_replace(array('{useremail}', '{barcodetext}', '{date}'), array($to, $barcodetext, $now), $layout);
+						$seat 	= rseventsproEmails::getSeat($ids, $ticket->id, $i);
+						$layout = str_replace(array('{useremail}', '{barcodetext}', '{date}', '{seat}'), array($to, $barcodetext, $now, $seat), $layout);
 						
-						$app->triggerEvent('rsepro_activationEmail', array(array('id' => &$ide, 'name' => $ticket->name.' '.$i, 'attachment' => &$attachments, 'layout' => &$layout)));
+						$app->triggerEvent('onrsepro_activationEmail', array(array('id' => &$ide, 'name' => $ticket->name.' '.$i, 'attachment' => &$attachments, 'layout' => &$layout)));
 					}
 				}
 			}
@@ -1118,7 +1150,7 @@ class rseventsproEmails
 				->where($db->qn('u.email').' = '.$db->q($to))
 				->where($db->qn('u.ide').' = '.(int) $ide);
 			
-			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
+			JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));
 			
 			$db->setQuery($query);
 			$userlanguage = $db->loadResult();
@@ -1246,8 +1278,10 @@ class rseventsproEmails
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		$text['body']		= str_replace(array('{claim}','{claimdate}'),array($claimURL,$claimDate),$text['body']);
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -1288,8 +1322,10 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {}
 		
 		return true;
 	}
@@ -1318,7 +1354,7 @@ class rseventsproEmails
 				$query->where($db->qn('u.state').' IN ('.$status.')');
 			}
 			
-			JFactory::getApplication()->triggerEvent('rsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));	
+			JFactory::getApplication()->triggerEvent('onrsepro_subscriptionsQuery', array(array('query' => &$query, 'rule' => 'u.ide')));	
 		} else if ($event->rsvp) {
 			$query->clear()
 				->select($db->qn('u.name'))->select($db->qn('u.email'))
@@ -1388,8 +1424,12 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		return $mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			return $mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {
+			return false;
+		}
 	}
 	
 	/*
@@ -1453,8 +1493,12 @@ class rseventsproEmails
 		$text['replyto']	= isset($text['replyto']) && !empty($text['replyto']) ? explode(',',$text['replyto']) : null;
 		$text['replyname']	= isset($text['replyname']) && !empty($text['replyname']) ? explode(',',$text['replyname']) : null;
 		
-		$mailer	= JFactory::getMailer();
-		return $mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		try {
+			$mailer	= JFactory::getMailer();
+			return $mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+		} catch(Exception $e) {
+			return false;
+		}
 	}
 	
 	/*
@@ -1483,10 +1527,12 @@ class rseventsproEmails
 				foreach ($tickets as $ticket) {
 					if ($ticket->price > 0) {
 						$total += $ticket->price * $ticket->quantity;
-						$info[] = $ticket->quantity . ' x ' .$ticket->name.' ('.rseventsproHelper::currency($ticket->price).') '.rseventsproHelper::getSeats($id,$ticket->id);
+						$ticketInfo = $ticket->quantity . ' x ' .$ticket->name.' ('.rseventsproHelper::currency($ticket->price).') ';
 					} else {
-						$info[] = $ticket->quantity . ' x ' .$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').')';
+						$ticketInfo = $ticket->quantity . ' x ' .$ticket->name.' ('.JText::_('COM_RSEVENTSPRO_GLOBAL_FREE').') ';
 					}
+					
+					$info[] = $ticketInfo.rseventsproHelper::getSeats($id,$ticket->id);
 				}
 			}
 			
@@ -1506,7 +1552,7 @@ class rseventsproEmails
 				$total = $total + $subscription->tax;
 			}
 		} else {
-			JFactory::getApplication()->triggerEvent('rsepro_paymentForm', array(array('id' => $id, 'total' => &$total, 'info' => &$info)));
+			JFactory::getApplication()->triggerEvent('onrsepro_paymentForm', array(array('id' => $id, 'total' => &$total, 'info' => &$info)));
 		}
 		
 		$ticketstotal		= !empty($total) ? rseventsproHelper::currency($total) : '';
@@ -1519,5 +1565,24 @@ class rseventsproEmails
 		$coupon				= $subscription->coupon;
 		
 		return array(implode('<br />', $info), $ticketstotal, $ticketsdiscount, $subscriptionTax, $lateFee, $earlyDiscount, $gateway, $IP, $coupon);
+	}
+	
+	protected static function getSeat($ids, $idt, $pos) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('seat'))
+			->from($db->qn('#__rseventspro_user_seats'))
+			->where($db->qn('idt').' = '.(int) $idt)
+			->where($db->qn('ids').' = '.(int) $ids);
+		
+		$db->setQuery($query);
+		if ($seats = $db->loadColumn()) {
+			$pos = $pos - 1;
+			return isset($seats[$pos]) ? $seats[$pos] : ''; 
+		}
+		
+		return '';
 	}
 }

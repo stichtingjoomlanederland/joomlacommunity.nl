@@ -10,7 +10,7 @@ JText::script('COM_RSEVENTSPRO_SUBSCRIBER_PLEASE_SELECT_TICKET_FROM_EVENT'); ?>
 
 <?php if ($this->type) { ?>
 <script type="text/javascript">
-jQuery(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
 	jQuery('#rsepro_wrapper').css('height', jQuery(window).height() - 100);
 	
 	window.parent.jQuery('#rsepro_selected_tickets input').each(function (i, el) {
@@ -28,7 +28,7 @@ jQuery(document).ready(function() {
 <div id="rsepro_wrapper">
 	<?php $left = 10; $top = 10; ?>
 	<?php foreach ($this->tickets as $ticket) { ?>
-	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px;' : rseventsproHelper::parseStyle($ticket->position); ?>
+	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px; width: 90px;' : rseventsproHelper::parseStyle($ticket->position); ?>
 	<?php $price = $ticket->price ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	<?php $selected = rseventsproHelper::getSelectedSeats($ticket->id); ?>
 	<div id="draggable<?php echo $ticket->id; ?>" class="draggable rsepro_front ui-widget-content" style="<?php echo $style; ?>">
@@ -56,14 +56,14 @@ jQuery(document).ready(function() {
 			<?php } ?>
 		</div>
 	</div>
-	<?php $left += 270; ?>
+	<?php $left += 200; ?>
 	<?php } ?>
 </div>
 
 <?php } else { ?>
 	<div id="rsepro_simple" class="rsepro_select_tickets">
 		<script type="text/javascript">
-		jQuery(document).ready(function() {
+		document.addEventListener('DOMContentLoaded', function() {
 			window.parent.jQuery('#rsepro_simple_tickets input').each(function (i, el) {
 				jQuery(jQuery(el).prop('id')).val(jQuery(el).val());
 			});
@@ -76,7 +76,7 @@ jQuery(document).ready(function() {
 		<?php $price = $ticket->price ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 		<tr>
 			<td>
-				<input type="text" name="simple_tickets[]" id="ticket<?php echo $ticket->id; ?>" value="" size="5" class="input-mini" onchange="rsepro_add_simple_ticket('<?php echo $ticket->id; ?>', '<?php echo addcslashes($ticket->name, "'"); ?>', '<?php echo $price; ?>', this.value);" onkeyup="javascript:this.value=this.value.replace(/[^0-9]/g, '');rsepro_add_simple_ticket('<?php echo $ticket->id; ?>', '<?php echo addcslashes($ticket->name, "'"); ?>', '<?php echo $price; ?>', this.value);" /> 
+				<input type="text" name="simple_tickets[]" id="ticket<?php echo $ticket->id; ?>" value="" size="5" class="input-mini form-control" onchange="rsepro_add_simple_ticket('<?php echo $ticket->id; ?>', '<?php echo addcslashes($ticket->name, "'"); ?>', '<?php echo $price; ?>', this.value);" onkeyup="javascript:this.value=this.value.replace(/[^0-9]/g, '');rsepro_add_simple_ticket('<?php echo $ticket->id; ?>', '<?php echo addcslashes($ticket->name, "'"); ?>', '<?php echo $price; ?>', this.value);" /> 
 			</td>
 			<td>
 				<?php echo $this->escape($ticket->name.' - '.$price); ?>
@@ -90,7 +90,7 @@ jQuery(document).ready(function() {
 	</div>
 <?php } ?>
 
-<div style="text-align: center;">
+<div style="text-align: center;" class="mt-3">
 	<button type="button" class="btn btn-success" onclick="window.parent.jQuery('#rseTicketModal').modal('hide');"><?php echo JText::_('COM_RSEVENTSPRO_CLOSE_TICKETS'); ?></button>
 	<button type="button" class="btn btn-primary" onclick="rsepro_reset_tickets();"><?php echo JText::_('COM_RSEVENTSPRO_RESET'); ?></button>
 </div>

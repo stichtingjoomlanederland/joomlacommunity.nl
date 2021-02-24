@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,13 +11,13 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="ed-conversations t-lg-mt--xl" data-ed-conversations-wrapper>
-	<a href="javascript:void(0);" class="btn btn-default ed-convo-sidebar-toggle t-lg-mb--lg" data-ed-conversations-toggle><?php echo JText::_('COM_EASYDISCUSS_TOGGLE_SIDEBAR');?></a>
+<div class="ed-conversations" data-ed-conversations-wrapper>
+	<a href="javascript:void(0);" class="o-btn o-btn--default-o ed-convo-sidebar-toggle t-mb--lg" data-ed-conversations-toggle><?php echo JText::_('COM_EASYDISCUSS_TOGGLE_SIDEBAR');?></a>
 
 	<div class="ed-convo">
 		<div class="ed-convo__sidebar" data-ed-conversations-sidebar>
 			<div class="ed-convo__sidebar-hd">
-				<ul class="o-nav o-nav--fit ed-convo-sidebar-tab">
+				<ul class="ed-convo-sidebar-tab">
 
 					<li class="<?php echo $type == 'inbox' || !$type ? ' active' : '';?>" data-ed-conversations-tab data-type="inbox">
 						<a href="<?php echo EDR::_('view=conversation');?>">
@@ -32,12 +32,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</ul>
 			</div>
 
-			<div class="ed-convo__sidebar-scroll-area" style="height: 800px;">
+			<div class="ed-convo__sidebar-scroll-area" style="height: 800px">
 				<div class="ed-convo-list <?php echo !$lists ? ' is-empty' : '';?>" data-ed-conversations-list>
-					<div class="ed-convo-list-items" data-ed-conversations-list-items>
-						<?php echo $this->output('site/conversations/default.lists', array('lists' => $lists, 'activeConversation' => $activeConversation)); ?>
+					<div class="o-loader-wrapper">
+						<div class="o-loader"></div>
 					</div>
-
+					
 					<div class="o-empty">
 						<div class="o-empty__content">
 							<div class="o-empty__text">
@@ -45,12 +45,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</div>
 						</div>
 					</div>
-
-					<div class="o-loading">
-						<div class="o-loading__content">
-							<i class="fa fa-spinner fa-spin" style="font-size: 48px;margin-top: 20px;"></i>
-						</div>
+					
+					<div class="ed-convo-list-items" data-ed-conversations-list-items>
+						<?php echo $this->output('site/conversations/default.lists', array('lists' => $lists, 'activeConversation' => $activeConversation, 'type' => $type)); ?>
 					</div>
+					
 				</div>
 			</div>
 		</div>
@@ -67,16 +66,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 				<div class="ed-convo__content-action">
 
-					<a href="<?php echo EDR::_('view=conversation&layout=compose');?>" class="btn btn-primary btn-xs"><?php echo JText::_('COM_EASYDISCUSS_NEW_MESSAGE');?></a>
+					<a href="<?php echo EDR::_('view=conversation&layout=compose');?>" class="o-btn o-btn--primary o-btn--sm"><?php echo JText::_('COM_EASYDISCUSS_NEW_MESSAGE');?></a>
 
-					<div class="btn-group conversation-actions">
-						<button class="btn btn-default btn-xs" type="button" data-ed-conversation-unread>
+					<div class="o-btn-group conversation-actions">
+						<button class="o-btn o-btn--default-o o-btn--sm" type="button" data-ed-conversation-unread>
 							<?php echo JText::_('COM_EASYDISCUSS_CONVERSATION_MARK_UNREAD');?>
 						</button>
-						<button class="btn btn-default btn-xs" type="button" data-ed-conversation-archive>
+						<button class="o-btn o-btn--default-o o-btn--sm" type="button" data-ed-conversation-archive>
 							<?php echo JText::_('COM_EASYDISCUSS_CONVERSATION_ARCHIVE');?>
 						</button>
-						<button class="btn btn-default btn-xs" type="button" data-ed-conversation-delete>
+						<button class="o-btn o-btn--default-o o-btn--sm" type="button" data-ed-conversation-delete>
 							<?php echo JText::_('COM_EASYDISCUSS_CONVERSATION_DELETE');?>
 						</button>
 					</div>
@@ -89,7 +88,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div class="<?php echo !$activeConversation ? ' is-empty' : '';?>" data-ed-conversation-contents-wrapper>
 
 						<div class="message-list">
-							<div class="t-lg-mt--xl" data-ed-conversation-first></div>
+							<div class="t-mt--md" data-ed-conversation-first></div>
 
 							<div data-ed-conversation-contents>
 								<?php if ($activeConversation) { ?>
@@ -115,9 +114,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</div>
 						</div>
 
-						<div class="o-loading">
-							<div class="o-loading__content">
-								<i class="fa fa-spinner fa-spin" style="font-size: 48px;margin-top: 20px;"></i>
+						<div class="o-loader">
+							<div class="o-loader__content">
 							</div>
 						</div>
 					</div>
@@ -127,14 +125,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<form name="ed-convo-reply" action="<?php echo JRoute::_('index.php');?>" method="post" data-ed-conversation-reply-form data-id="<?php echo $activeConversation ? $activeConversation->id : '';?>" class="ed-convo-reply <?php echo !$activeConversation ? 't-hidden' : '';?>">
 				<div class="ed-convo-composer">
 					<div class="ed-convo-composer__bd">
-						<div class="ed-convo-composer__editor t-lg-mb--lg">
+						<div class="ed-convo-composer__editor t-mb--md t-p--md">
 							<textarea class="input-sm form-control ed-convo-composer__textarea" name="message" autocomplete="off" placeholder="<?php echo JText::_('COM_EASYDISCUSS_WRITE_MESSAGE_PLACEHOLDER');?>" style="height: 150px;" data-ed-conversation-reply-textarea></textarea>
 						</div>
 					</div>
 
-					<div class="ed-convo-composer__ft">
-						<div class="pull-left small" data-ed-conversation-reply-form-notice></div>
-						<button class="btn btn-default pull-right reply-button" data-ed-conversation-reply-button><?php echo JText::_('COM_EASYDISCUSS_BUTTON_REPLY'); ?></button>
+					<div class="ed-convo-composer__ft t-d--flex t-align-items--c">
+						<div class="t-flex-grow--1 t-font-size--01" data-ed-conversation-reply-form-notice></div>
+						<button class="o-btn o-btn--default-o  reply-button" data-ed-conversation-reply-button><?php echo JText::_('COM_EASYDISCUSS_BUTTON_REPLY'); ?></button>
 					</div>
 				</div>
 			</form>

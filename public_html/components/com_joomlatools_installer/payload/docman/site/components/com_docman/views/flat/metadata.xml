@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<metadata>
+	<view title="COM_DOCMAN_VIEW_FLAT">
+		<message><![CDATA[COM_DOCMAN_VIEW_FLAT_DESCRIPTION]]></message>
+		<options var="layout">
+			<default name="COM_DOCMAN_VIEW_FLAT" msg="COM_DOCMAN_VIEW_FLAT_DESCRIPTION">default</default>
+		</options>
+	</view>
+	<fields name="request" addfieldpath="/components/com_docman/forms/fields">
+		<fieldset name="request">
+			<field name="layout" type="list" default="table" label="JGLOBAL_FIELD_LAYOUT_LABEL">
+				<option value="default">COM_DOCMAN_LAYOUT_LIST</option>
+				<option value="table">COM_DOCMAN_LAYOUT_TABLE</option>
+				<option value="gallery">COM_DOCMAN_LAYOUT_GALLERY</option>
+			</field>
+			<field name="category" type="docmancategories" label="JCATEGORIES"
+				   key_field="id" multiple="true" size="10" default="0" description="CATEGORIES_DESCRIPTION" />
+			<field name="category_children" type="radio" default="1"
+				   class="btn-group"
+				   label="INCLUDE_CHILD_CATEGORIES"
+				   description="INCLUDE_CHILD_CATEGORIES_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="tag" type="docmantags" label="COM_DOCMAN_FILTER_TAGS"
+				   description="COM_DOCMAN_FILTER_TAGS_DESC" />
+			<field name="created_by" type="docmanusers" multiple="true" label="OWNER" />
+			<field name="own" type="docmanown" label="COM_DOCMAN_FILTER_OWN"
+				   class="btn-group"
+				   description="COM_DOCMAN_FILTER_OWN_DESC" default="0">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+		</fieldset>
+	</fields>
+	<fields name="params" addfieldpath="/components/com_docman/forms/fields">
+		<fieldset name="basic" label="DOCman">
+			<field name="docmanmenufixer" type="docmanmenufixer" view="COM_DOCMAN_VIEW_FLAT" />
+
+			<field label="DOCUMENT_OPTIONS" type="heading" />
+
+			<field name="limit" type="docmanlimit" default="0" label="DOCUMENTS_LIMIT"
+				   description="DOCUMENTS_LIMIT_DESCRIPTION"
+			/>
+			<field name="sort" type="list"
+				   label="SORT_DOCUMENTS_BY"
+			>
+				<option value="tbl.title">JGLOBAL_TITLE_ALPHABETICAL</option>
+				<option value="reverse_title">JGLOBAL_TITLE_REVERSE_ALPHABETICAL</option>
+				<option value="reverse_created_on">JGLOBAL_MOST_RECENT_FIRST</option>
+				<option value="created_on">JGLOBAL_OLDEST_FIRST</option>
+				<option value="reverse_hits">MOST_POPULAR_FIRST</option>
+				<option value="reverse_touched_on">LAST_MODIFIED_FIRST</option>
+				<option value="ordering">DOCUMENT_ORDERING</option>
+			</field>
+			<field name="document_title_link" type="list" default="download" label="DOCUMENT_TITLES_LINK_TO">
+				<option value="0">NOTHING</option>
+				<option value="download">DIRECT_DOWNLOAD</option>
+				<option value="details">DETAILS_PAGE</option>
+			</field>
+			<field name="show_document_search" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DOCUMENT_SEARCH" description="SHOW_DOCUMENT_SEARCH_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="search_by" type="list" default="exact" label="SEARCH_DOCUMENTS_BY" description="SEARCH_DOCUMENTS_BY_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="exact">SEARCH_DOCUMENTS_BY_EXACT</option>
+				<option value="any">SEARCH_DOCUMENTS_BY_ANY</option>
+				<option value="all">SEARCH_DOCUMENTS_BY_ALL</option>
+			</field>
+			<field name="show_category_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_CATEGORY_FILTER" description="SHOW_CATEGORY_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_tag_filter" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_TAG_FILTER" description="SHOW_TAG_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_date_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DATE_FILTER" description="SHOW_DATE_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_owner_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_OWNER_FILTER" description="SHOW_OWNER_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_content_filter" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_CONTENT_FILTER" description="SHOW_CONTENT_FILTER_DESCRIPTION"
+				   showon="show_document_search:1"
+			>
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_sort_limit" type="radio" class="btn-group btn-group-yesno" default="0" label="SHOW_DOCUMENT_SORT_LIMIT"
+				   description="SHOW_DOCUMENT_SORT_LIMIT_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+            <field name="show_pagination" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PAGINATION">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+			<field name="show_document_title" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_TITLE">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_tags" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_TAGS">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_description" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_icon" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_ICON">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_image" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_IMAGE">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_recent" type="radio" class="btn-group btn-group-yesno" default="1" label="MARK_RECENT_DOCUMENTS">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+            <field name="show_document_popular" type="radio" class="btn-group btn-group-yesno" default="1" label="MARK_POPULAR_DOCUMENTS">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field name="show_document_category" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_CATEGORY">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+			<field name="show_document_created" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PUBLISHED_DATE">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_created_by" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_CREATOR_NAME">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_modified" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_LAST_MODIFIED_DATE">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_filename" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_FILE_NAME">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_size" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_SIZE">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_hits" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_HITS">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_document_extension" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_DOCUMENT_EXTENSION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="track_downloads" type="radio" class="btn-group btn-group-yesno" default="1" label="TRACK_DOWNLOADS" description="TRACK_DOWNLOADS_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="allow_multi_download" type="radio" class="btn-group btn-group-yesno" default="1" label="ALLOW_MULTI_DOWNLOAD" description="ALLOW_MULTI_DOWNLOAD_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="show_player" type="radio" class="btn-group btn-group-yesno" default="1" label="SHOW_PLAYER" description="SHOW_PLAYER_DESCRIPTION"
+				   showon="force_download:0">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+
+			<field label="JGLOBAL_FIELDSET_ADVANCED" type="heading" />
+
+			<field name="download_in_blank_page" type="radio" class="btn-group btn-group-yesno" default="0" label="DOWNLOAD_IN_BLANK_PAGE" description="DOWNLOAD_IN_BLANK_PAGE_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="force_download" type="radio" class="btn-group btn-group-yesno" default="0" label="FORCE_DOWNLOAD" description="FORCE_DOWNLOAD_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="preview_with_gdocs" type="radio" class="btn-group btn-group-yesno" default="0" label="PREVIEW_WITH_GDOCS" description="PREVIEW_WITH_GDOCS_DESCRIPTION">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="days_for_new" type="text" default="7" label="DAYS_FOR_NEW" description="DAYS_FOR_NEW_DESCRIPTION" />
+			<field name="hits_for_popular" type="text" default="100" label="HITS_FOR_POPULAR" description="HITS_FOR_POPULAR_DESCRIPTION" />
+		</fieldset>
+	</fields>
+</metadata>

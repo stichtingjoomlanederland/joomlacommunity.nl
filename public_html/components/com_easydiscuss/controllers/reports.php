@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussControllerReports extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function save()
 	{
@@ -31,7 +29,7 @@ class EasyDiscussControllerReports extends EasyDiscussController
 
 		if (!$post->id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_POST_ID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss', false));
 		}
 
 		// Get the URL to the discussion.
@@ -43,12 +41,12 @@ class EasyDiscussControllerReports extends EasyDiscussController
 
 		if (empty($message)) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_REPORT_EMPTY_TEXT'), 'error');
-			return $this->app->redirect($url);
+			return ED::redirect($url);
 		}
 
 		if (!$post->canReport()) {
             ED::setMessage(JText::_('COM_EASYDISCUSS_REPORT_POST_FAILED'), 'error');
-            return $this->app->redirect($url);
+            return ED::redirect($url);
 		}
 
 		$date = ED::date();
@@ -60,7 +58,7 @@ class EasyDiscussControllerReports extends EasyDiscussController
 
 		if (!$report->store()) {
 			ED::setMessage($report->getError(), 'error');
-			return $this->app->redirect($url);
+			return ED::redirect($url);
 		}
 
 		// Mark post as reported.
@@ -80,10 +78,11 @@ class EasyDiscussControllerReports extends EasyDiscussController
 			$emailData['postContent'] = $post->content;
 			$emailData['postAuthor'] = $owner->name;
 			$emailData['postAuthorAvatar'] = $owner->avatar;
-			$emailData['postDate'] = $date->toFormat();
+			$emailData['postDate'] = $date->format("Y-m-d-H-i-s");
 			$emailData['postLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->id, false, true);
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_REPORT_REQUIRED_YOUR_ATTENTION', JString::substr($postTbl->content, 0, 15) ) . '...';
-			$emailData['emailTemplate'] = 'email.post.attention.php';
+			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_REPORT_REQUIRED_YOUR_ATTENTION', EDJString::substr($post->title, 0, 15) ) . '...';
+			$emailData['emailTemplate'] = 'email.post.attention';
+			$emailData['cat_id'] = $post->getCategory()->id;
 
 			if ($post->isReply()) {
 				$emailData['postLink'] = EDR::getRoutedURL('index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id, false, true);
@@ -95,7 +94,7 @@ class EasyDiscussControllerReports extends EasyDiscussController
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_REPORT_SUBMITTED'), 'success');
-		return $this->app->redirect($url);
+		return ED::redirect($url);
 	}
 
 }

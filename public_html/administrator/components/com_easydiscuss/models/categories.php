@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -98,7 +98,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$db = $this->db;
 		$filter_state = $this->app->getUserStateFromRequest('com_easydiscuss.categories.filter_state', 'filter_state', '', 'word');
 		$search = $this->app->getUserStateFromRequest('com_easydiscuss.categories.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		if (isset($options['published']) && $options['published'] == true) {
 			$filter_state = 'P';
@@ -174,6 +174,8 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	{
 		$db = $this->db;
 
+		$origPublishState = $publish;
+
 		if (count($categories) > 0) {
 
 			$ids = implode( ',', $categories);
@@ -181,14 +183,29 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query	= 'UPDATE ' . $db->nameQuote('#__discuss_category') . ' '
 					. 'SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish) . ' '
 					. 'WHERE ' . $db->nameQuote('id') . ' IN (' . $ids . ')';
+
 					if ($publish = 0) {
 						$query .= 'AND ' . $db->nameQuote('default') . ' = ' . $db->Quote(0) . '';
 					}
+
 			$db->setQuery($query);
 
 			if (!$db->query()) {
 				$this->setError($this->_db->getErrorMsg());
 				return false;
+			}
+
+			$actionString = $origPublishState ? 'COM_ED_ACTIONLOGS_PUBLISHED_CATEGORY' : 'COM_ED_ACTIONLOGS_UNPUBLISHED_CATEGORY';
+
+			foreach ($categories as $catId) {
+				$category = ED::table('Category');
+				$category->load($catId);
+
+				$actionlog = ED::actionlog();
+				$actionlog->log($actionString, 'category', array(
+					'link' => 'index.php?option=com_easydiscuss&view=categories&layout=form&id=' . $category->id,
+					'categoryTitle' => JText::_($category->title)
+				));
 			}
 
 			return true;
@@ -392,7 +409,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$sortParentChild = isset($options['sortParentChild']) ? $options['sortParentChild'] : true;
 		$categoryIds = isset($options['categoryIds']) ? $options['categoryIds'] : array();
 
-		$showAllSubCats = isset($options['showSubCategories']) ? $options['showSubCategories'] : $this->config->get('layout_show_all_subcategories');
+		$showAllSubCats = isset($options['showSubCategories']) ? $options['showSubCategories'] : true;
 		$showPostCount = isset($options['showPostCount']) ? $options['showPostCount'] : false;
 
 		$limit = isset($options['limit']) ? (int) $options['limit'] : 0;
@@ -561,7 +578,6 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 *
 	 * @since	3.0
 	 * @access	public
-	 * @param	int 	If there's a parent id provided, it would load sub categories.
 	 */
 	public function getCategories($options = array())
 	{
@@ -619,8 +635,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$categories	= array();
 
 			for ($i = 0; $i < $total; $i++) {
-
-				$ignore['alias'] = true;
+				$ignore = array('alias');
 
 				$category = ED::table('Category');
 				$category->bind($rows[$i], $ignore);
@@ -634,6 +649,12 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $rows;
 	}
 
+	/**
+	 * Determines the total number of child categories
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function getChildCount($categoryId, $published = false)
 	{
 		$db = $this->db;
@@ -691,12 +712,120 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false, $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
+	/**
+	 * Retrieves the list of child categories
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getChildCategories($parentId, $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false, $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
 	{
-		$categories = ED::Category()->getChildCategories($parentId , $isPublishedOnly, $includePrivate, $exclusion, $ordering, $aclType);
+		static $categories = array();
 
-		return $categories;
+		$config = ED::config();
+		$db	= ED::db();
+		$my	= JFactory::getUser();
+		$app = JFactory::getApplication();
+
+		$sig = $parentId . '-' . (int) $isPublishedOnly . '-' . (int) $includePrivate;
+
+		if (!array_key_exists($sig, $categories)) {
+			$db	= ED::db();
+
+			$sortConfig = $config->get('layout_ordering_category','latest');
+
+			if ($ordering) {
+				$sortConfig = $ordering;
+			}
+
+			// $query  = 'SELECT a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`, a.`container`';
+			$query = 'SELECT a.*';
+			$query .= ' FROM `#__discuss_category` as a';
+			$query .= ' WHERE a.`parent_id` = ' . $db->Quote($parentId);
+
+			if (!ED::isFromAdmin()) {
+				// We don't need to check for language in backend because only frontend has the language filter
+				$filterLanguage = JFactory::getApplication()->getLanguageFilter();
+
+				if ($filterLanguage) {
+					$query .= ' AND ' . ED::getLanguageQuery('a.language');
+				}
+			}
+
+			if ($isPublishedOnly) {
+				$query	.=  ' AND a.`published` = ' . $db->Quote('1');
+			}
+
+			if (!ED::isFromAdmin()) {
+
+				if (!$includePrivate) {
+					//check categories acl here.
+					$catIds = ED::getAclCategories($aclType, $my->id, $parentId);
+
+					if (count($catIds) > 0) {
+
+						$strIds = '';
+
+						foreach ($catIds as $cat) {
+							$strIds = (empty($strIds)) ? $cat->id : $strIds . ', ' . $cat->id;
+						}
+
+						$query .= ' AND a.id NOT IN (';
+						$query .= $strIds;
+						$query .= ')';
+					}
+				}
+			}
+
+			// Exclude category list.
+			if (!empty($exclusion)) {
+
+				$excludeQuery = 'AND a.`id` NOT IN (';
+
+				for ($i = 0 ; $i < count($exclusion); $i++) {
+
+					$id = $exclusion[$i];
+
+					$excludeQuery .= $db->Quote($id);
+
+					if (next($exclusion) !== false) {
+						$excludeQuery .= ',';
+					}
+				}
+
+				$excludeQuery .= ')';
+
+				$query .= $excludeQuery;
+			}
+
+			switch($sortConfig) {
+				case 'alphabet' :
+					$orderBy = ' ORDER BY a.`title` ';
+					break;
+				case 'ordering' :
+					$orderBy = ' ORDER BY a.`lft` ';
+					break;
+				case 'latest' :
+					$orderBy = ' ORDER BY a.`created` ';
+					break;
+				default	:
+					$orderBy = ' ORDER BY a.`lft` ';
+					break;
+			}
+
+			$sort = $config->get('layout_sort_category', 'asc');
+
+			$query .= $orderBy.$sort;
+
+			$db->setQuery($query);
+			$result = $db->loadObjectList();
+
+			$categories[$sig] = $result;
+		}
+
+		return $categories[$sig];
 	}
+
 
 	public function getParentCategories($contentId, $type = 'all', $isPublishedOnly = false, $showPrivateCat = true, $exclusion = array(), $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW, $ordering = false)
 	{
@@ -721,7 +850,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query	.=  ' and a.`published` = ' . $db->Quote('1');
 		}
 
-		if (!$this->app->isAdmin()) {
+		if (!ED::isFromAdmin()) {
 			// // we do not need to see the privacy when user accessing category via backend because only admin can access it.
 			// // in a way, we do not restrict for admin.
 
@@ -777,7 +906,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$query .= $orderBy.$sort;
 
 
-		// echo $query;
+		// echo $query;exit;
 
 		$db->setQuery($query);
 		$result = $db->loadObjectList();
@@ -880,8 +1009,11 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 				$sql .= " 	( acat.`private` = 0 ) OR";
 				$sql .= " 	( (acat.`private` = 1) AND (" . $this->my->id . " > 0) ) OR";
 				// joomla groups.
-				$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl";
-				$sql .= "										WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ")) > 0 ) )";
+				$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('0') . " ) > 0 ";
+				$sql .= " OR ";
+				$sql .= " (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = " . $db->Quote('0') ." AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('1') . " ) > 0";
+
+				$sql .= ") )";
 				$sql .= " )";
 			}
 
@@ -910,21 +1042,20 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	int 	If there's a parent id provided, it would load sub categories.
 	 */
 	public function getParentCategoriesOnly($contentId = 0, $options = array())
 	{
 		$db = $this->db;
 		$config = $this->config;
 
-		$idOnly = isset($options['id_only']) ? $options['id_only'] : false;
-		$pagination = isset($options['pagination']) ? $options['pagination'] : true;
+		$idOnly = ED::normalize($options, 'id_only', false);
+		$pagination = ED::normalize($options, 'pagination', true);
 
-		$limitstart = isset($options['limitstart']) ? $options['limitstart'] : $this->input->get('limitstart', 0);
+		$limitstart = ED::normalize($options, 'limitstart', $this->input->get('limitstart', 0, 'int'));
 		$limitstart = (int) $limitstart;
 
-		$limit = isset($options['limit']) ? $options['limit'] : null;
-		$withNoPosts = isset($options['withNoPosts']) ? $options['withNoPosts'] : false;
+		$limit = ED::normalize($options, 'limit', null);
+		$withNoPosts = ED::normalize($options, 'withNoPosts', false);
 
 		$useFoundRows = $config->get('system_query', 'default') == 'default' ? true : false;
 
@@ -957,7 +1088,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$query .= ' AND ' . ED::getLanguageQuery('a.language');
 		}
 
-		if (!$this->app->isAdmin()) {
+		if (!ED::isFromAdmin()) {
 			// // we do not need to see the privacy when user accessing category via backend because only admin can access it.
 			// // in a way, we do not restrict for admin.
 
@@ -1025,10 +1156,12 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			$db->setQuery($cntQuery);
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
-		} else {
-			$this->_pagination = ED::pagination(count($result), 0, 0);
+
+			return $result;
 		}
 
+
+		$this->_pagination = ED::pagination(count($result), 0, 0);
 
 		return $result;
 	}
@@ -1080,6 +1213,14 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 		$category->default = true;
 
 		$category->store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_MAKE_DEFAULT_CATEGORY', 'category', array(
+			'link' => 'index.php?option=com_easydiscuss&view=categories&layout=form&id=' . $category->id,
+			'categoryTitle' => JText::_($category->title)
+		));
 
 		return true;
 	}

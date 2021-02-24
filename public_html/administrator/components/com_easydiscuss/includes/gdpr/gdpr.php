@@ -64,13 +64,13 @@ class EasyDiscussGdpr extends EasyDiscuss
 
 				$tmp = array();
 				$tmp['name'] = $filename;
-				$tmp['data'] = JFile::read($file);
+				$tmp['data'] = file_get_contents($file);
 				$tmp['time'] = filemtime($file);
 				$data[] = $tmp;
 			}
 		}
 
-		$zip = JArchive::getAdapter('zip');
+		$zip = EDArchive::getAdapter('zip');
 		$state = $zip->create($zipFile, $data);
 
 		if ($state) {

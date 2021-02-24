@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="o-nav__item">
 	<a href="<?php echo $this->profile->getEditProfileLink();?>" class="o-nav__link ed-toolbar__link">
-		<i class="fa fa-cog t-sm-visible"></i>
+		<i class="fa fa-cog sm:t-d--inline-block t-d--none"></i>
 		<span>
 			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_EDIT_PROFILE'); ?>
 		</span>
@@ -22,7 +22,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <div class="o-nav__item">
 	<a href="<?php echo EDR::_('view=mypost');?>" class="o-nav__link ed-toolbar__link">
-		<i class="fa fa-file-text-o t-sm-visible"></i>
+		<i class="fa fa-file-text-o sm:t-d--inline-block t-d--none"></i>
 		<span>
 			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_POSTS'); ?>
 		</span>
@@ -32,7 +32,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php if (ED::isModerator()) { ?>
 <div class="o-nav__item">
 	<a href="<?php echo EDR::_('view=assigned');?>" class="o-nav__link ed-toolbar__link">
-		<i class="fa fa-file-text-o t-sm-visible"></i>
+		<i class="fa fa-file-text-o sm:t-d--inline-block t-d--none"></i>
 		<span>
 			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_ASSIGNED_POSTS'); ?>
 		</span>
@@ -43,7 +43,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php if ($this->config->get('main_favorite')) { ?>
 <div class="o-nav__item">
 	<a href="<?php echo EDR::_('view=favourites');?>" class="o-nav__link ed-toolbar__link">
-		<i class="fa fa-heart-o t-sm-visible"></i>
+		<i class="fa fa-heart-o sm:t-d--inline-block t-d--none"></i>
 		<span>
 			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_FAVOURITES'); ?>
 		</span>
@@ -54,7 +54,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php if ($showManageSubscription) { ?>
 <div class="o-nav__item">
 	<a href="<?php echo EDR::_('view=subscription');?>" class="o-nav__link ed-toolbar__link">
-		<i class="fa fa-inbox t-sm-visible"></i>
+		<i class="fa fa-inbox sm:t-d--inline-block t-d--none"></i>
 		<span>
 			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_SUBSCRIPTION'); ?>
 		</span>
@@ -65,9 +65,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 <?php if (($this->acl->allowed('manage_holiday') && $this->config->get('main_work_schedule')) || $this->acl->allowed('manage_pending') || ED::isSiteAdmin()) { ?>
 <div class="o-nav__item">
 	<a href="<?php echo EDR::_('view=dashboard');?>" class="o-nav__link ed-toolbar__link">
-		<i class="fa fa-dashboard t-sm-visible"></i>
+		<i class="fa fa-dashboard sm:t-d--inline-block t-d--none"></i>
 		<span>
-			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_DASHBOARD'); ?>
+			<?php echo JText::_('COM_ED_MANAGE_SITE'); ?>
 		</span>
 	</a>
 </div>
@@ -75,7 +75,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 <div class="o-nav__item">
 	<a href="javascript:void(0);" class="o-nav__link ed-toolbar__link" data-ed-toolbar-logout>
-		<i class="fa fa-power-off t-sm-visible"></i>
+		<i class="fa fa-power-off sm:t-d--inline-block t-d--none"></i>
 		<span>
 			<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_LOGOUT'); ?>
 		</span>

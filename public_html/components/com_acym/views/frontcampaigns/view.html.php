@@ -1,6 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\FrontViews;
+
+use AcyMailing\Libraries\acymView;
 
 class FrontcampaignsViewFrontcampaigns extends acymView
 {
@@ -25,5 +27,9 @@ class FrontcampaignsViewFrontcampaigns extends acymView
 
         parent::__construct();
     }
-}
 
+    public function addSegmentStep($data)
+    {
+
+    }
+}

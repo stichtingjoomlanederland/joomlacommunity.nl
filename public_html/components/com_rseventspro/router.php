@@ -6,7 +6,18 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-class RseventsproRouter extends JComponentRouterBase {
+class RseventsproRouter extends JComponentRouterView {
+	
+	public function __construct($app = null, $menu = null) {
+		$rseventspro = new JComponentRouterViewconfiguration('rseventspro');
+		$this->registerView($rseventspro);
+
+		parent::__construct($app, $menu);
+
+		$this->attachRule(new JComponentRouterRulesMenu($this));
+		$this->attachRule(new JComponentRouterRulesStandard($this));
+		$this->attachRule(new JComponentRouterRulesNomenu($this));
+	}
 	
 	/**
 	 * Build the route for the com_content component
@@ -636,7 +647,7 @@ class RseventsproRouter extends JComponentRouterBase {
 			unset($query['rsemygate']);
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_buildRoute', array(array('query' => &$query, 'segments' => &$segments)));
+		JFactory::getApplication()->triggerEvent('onrsepro_buildRoute', array(array('query' => &$query, 'segments' => &$segments)));
 		
 		unset($query['view'], $query['layout'], $query['controller'], $query['task'], $query['id'], $query['pid'], $query['date'], $query['key'], $query['tmpl'], $query['method'], $query['hash']);
 		
@@ -1061,6 +1072,7 @@ class RseventsproRouter extends JComponentRouterBase {
 				$query['view']		= 'rseventspro';
 				$query['layout']	= 'waiting';
 				$query['id']		= isset($segments[1]) ? str_replace(':','-',$segments[1]) : null;
+				if ($links != 0) $query['tmpl'] = 'component';
 			break;
 			
 			case JText::_('COM_RSEVENTSPRO_WAITINGLIST_SEF'):
@@ -1135,7 +1147,7 @@ class RseventsproRouter extends JComponentRouterBase {
 			break;
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_parseRoute', array(array('query' => &$query, 'segments' => $segments)));
+		JFactory::getApplication()->triggerEvent('onrsepro_parseRoute', array(array('query' => &$query, 'segments' => $segments)));
 		
 		foreach ($segments as $segment) {
 			$segment = str_replace(':','-',$segment);
@@ -1162,7 +1174,7 @@ class RseventsproRouter extends JComponentRouterBase {
 			JText::_('COM_RSEVENTSPRO_USER_EDIT_SEF'), JText::_('COM_RSEVENTSPRO_USER_DELETE_IMAGE_SEF'), JText::_('COM_RSEVENTSPRO_REMOVE_SUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_USER_SUBSCRIPTIONS_SEF'), JText::_('COM_RSEVENTSPRO_SEND_SUBSCRIPTION_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_REMOVE_SEF'), JText::_('COM_RSEVENTSPRO_RSVP_EXPORT_SEF'), JText::_('COM_RSEVENTSPRO_WAITING_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_EDIT_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_APPROVE_SEF'), JText::_('COM_RSEVENTSPRO_WAITINGLIST_REMOVE_SEF'), JText::_('COM_RSEVENTSPRO_CLAIM_TICKET_SEF'), JText::_('COM_RSEVENTSPRO_DELETE_VOTE_SEF'), JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS_SEF'), JText::_('COM_RSEVENTSPRO_EXPORT_UNSUBSCRIBERS_SEF'), JText::_('COM_RSEVENTSPRO_REMOVE_UNSUBSCRIBER_SEF'), JText::_('COM_RSEVENTSPRO_CANCEL_SEF'), JText::_('COM_RSEVENTSPRO_INVOICE_SEF')
 		);
 		
-		JFactory::getApplication()->triggerEvent('rsepro_allRoutes', array(array('routes' => &$routes)));
+		JFactory::getApplication()->triggerEvent('onrsepro_allRoutes', array(array('routes' => &$routes)));
 		
 		return $routes;
 	}

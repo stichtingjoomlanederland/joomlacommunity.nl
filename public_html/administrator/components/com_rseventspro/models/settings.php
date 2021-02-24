@@ -31,6 +31,14 @@ class RseventsproModelSettings extends JModelAdmin
 		if (empty($form))
 			return false;
 		
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('cancel_to','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('captcha_use','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('google_calendars','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('facebook_pages','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('facebook_groups','layout','joomla.form.field.list-fancy-select');
+		}
+		
 		return $form;
 	}
 	
@@ -71,7 +79,7 @@ class RseventsproModelSettings extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function getTabs() {
-		$tabs = new RSTabs('settings');
+		$tabs = new RSEventsproAdapterTabs('settings');
 		return $tabs;
 	}
 	
@@ -237,7 +245,7 @@ class RseventsproModelSettings extends JModelAdmin
 		}
 		
 		// Save iDeal files
-		$app->triggerEvent('rseproIdealSaveSettings', array(array('data' => &$data)));
+		$app->triggerEvent('onrseproIdealSaveSettings', array(array('data' => &$data)));
 		
 		$db		= $this->getDbo();
 		$query	= $db->getQuery(true);
@@ -425,7 +433,7 @@ class RseventsproModelSettings extends JModelAdmin
 				));
 				
 				$helper = $facebook->getRedirectLoginHelper();
-				$permissions = array('user_events', 'manage_pages', 'publish_to_groups');
+				$permissions = array('user_events', 'pages_show_list', 'publish_to_groups');
 
 				return $helper->getLoginUrl($redirectURI, $permissions);
 				

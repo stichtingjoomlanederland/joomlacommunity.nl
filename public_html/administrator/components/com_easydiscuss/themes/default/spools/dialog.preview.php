@@ -12,8 +12,8 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
-    <width>680</width>
-    <height>400</height>
+    <width>1024</width>
+    <height>800</height>
     <selectors type="json">
     {
         "{closeButton}" : "[data-close-button]"
@@ -29,6 +29,6 @@ defined('_JEXEC') or die('Unauthorized Access');
     <title><?php echo JText::_('COM_EASYDISCUSS_EMAIL_PREVIEW'); ?></title>
     <content type="text"><?php echo $url;?></content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_CLOSE'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_SETTINGS_NOTIFICATIONS_EMAIL_TEMPLATES_CLOSE'); ?></button>
     </buttons>
 </dialog>

@@ -20,8 +20,6 @@ class EasyDiscussViewGroups extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
@@ -33,6 +31,7 @@ class EasyDiscussViewGroups extends EasyDiscussView
 		// Check if the group app is exists or not.
 		if (!$lib->isGroupAppExists()) {
 			ED::getErrorRedirection(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			return;
 		}
 			
 		$model = ED::model('groups');
@@ -148,7 +147,7 @@ class EasyDiscussViewGroups extends EasyDiscussView
 						'sort' => $registry->get('sort'),
 						'limitstart' => $this->input->get('limitstart', 0),
 						'filter' => $registry->get('filter'),
-						'limit' => $this->config->get('layout_post_category_limit', $limit),
+						'limit' => 10,
 						'userId' => $this->my->id,
 						'cluster_id' => $groupId
 					);

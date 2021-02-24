@@ -60,6 +60,8 @@ Desktop.ini
 
 # Backup files
 /public_html/administrator/components/com_akeeba/backup/
+/backup/*
+!/backup/index.html
 
 # RSEventsPro
 /public_html/components/com_rseventspro/assets/images/events/*

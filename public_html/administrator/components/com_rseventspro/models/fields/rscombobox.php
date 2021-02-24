@@ -42,17 +42,19 @@ class JFormFieldRSCombobox extends JFormFieldList
 
 		// Get the field options.
 		$options = $this->getOptions();
-
+		
+		if (rseventsproHelper::isJ4()) $html[] = '<div id="rsepro-combo-j4">';
+		
 		// Build the list for the combo box.
-		$html[] = '<select size="1" id="rscombobox-' . $this->id . '" class="rscomboboxoptions" onchange="document.getElementById(\''.$this->id.'\').value = this.value;">';
+		$html[] = '<select size="1" id="rscombobox-' . $this->id . '" class="rscomboboxoptions custom-select" onchange="document.getElementById(\''.$this->id.'\').value = this.value;">';
 		foreach ($options as $option) {
 			$html[] = '<option value="'. $option->value .'">' . $option->text . '</option>';
 		}
 		$html[] = '</select>';
 		
 		// Build the input for the combo box.
-		$html[] = '<input type="text" name="' . $this->name . '" id="' . $this->id . '"' . ' value="'
-			. htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8') . '"' . $attr . '/>';
+		$html[] = '<input type="text" name="' . $this->name . '" id="' . $this->id . '"' . ' value="'. htmlspecialchars($this->value, ENT_COMPAT, 'UTF-8') . '"' . $attr . '/>';
+		if (rseventsproHelper::isJ4()) $html[] = '</div>';
 
 		return implode($html);
 	}

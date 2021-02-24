@@ -44,7 +44,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </form>
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYBLOG_CLOSE_BUTTON'); ?></button>
-        <button data-submit-button type="button" class="btn btn-danger btn-sm"><?php echo JText::_('COM_EASYBLOG_DELETE_BUTTON'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYBLOG_CLOSE_BUTTON'); ?></button>
+        <button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--danger"><?php echo JText::_('COM_EASYBLOG_DELETE_BUTTON'); ?></button>
     </buttons>
 </dialog>

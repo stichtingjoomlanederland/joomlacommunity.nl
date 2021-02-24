@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,15 +11,13 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/date/date.php');
-
 class EasyDiscussControllerRanks extends EasyDiscussController
 {
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 
-		$this->checkAccess('discuss.manage.ranks');
+		$this->checkAccess('discuss.manage.settings');
 
 		$this->registerTask('publish', 'unpublish');
 	}
@@ -28,7 +26,7 @@ class EasyDiscussControllerRanks extends EasyDiscussController
 	{
 		ED::checkToken();
 
-		$post = JRequest::get('post');
+		$post = $this->input->post->getArray();
 		$ids = isset($post['id']) ? $post['id'] : '';
 		$starts	= isset($post['start']) ? $post['start'] : '';
 		$ends = isset($post['end']) ? $post['end'] : '';
@@ -36,6 +34,7 @@ class EasyDiscussControllerRanks extends EasyDiscussController
 		$removal = isset($post['itemRemove']) ? $post['itemRemove'] : '';
 
 		$model = ED::model('Ranks');
+
 		if (!empty($removal)) {
 			$rids = explode(',', $removal);
 			$model->removeRanks($rids);
@@ -45,6 +44,9 @@ class EasyDiscussControllerRanks extends EasyDiscussController
 			
 			if (count($ids) > 0) {
 				
+				// log the current action into database.
+				$actionlog = ED::actionlog();
+
 				for ($i = 0; $i < count($ids); $i++) {
 					$data = array();
 					$data['id']	= $ids[$i];
@@ -52,15 +54,25 @@ class EasyDiscussControllerRanks extends EasyDiscussController
 					$data['end'] = $ends[$i];
 					$data['title'] = $titles[$i];
 
-					$ranks	= ED::table('Ranks');
+					// determine whether this rank is the new created or not
+					$isNew = $data['id'] ? false : true;
+
+					$ranks = ED::table('Ranks');
 					$ranks->bind($data);
 					$ranks->store();
+
+					$actionlogMsg = $isNew ? 'COM_ED_ACTIONLOGS_RANKS_CREATED' : 'COM_ED_ACTIONLOGS_RANKS_UPDATED';
+					$actionlog->log($actionlogMsg, 'rank', array(
+						'link' => 'index.php?option=com_easydiscuss&view=ranks',
+						'rankTitle' => JText::_($ranks->title)
+					));
 				}
 			}
 		}
+
 		$message = JText::_('COM_EASYDISCUSS_RANKING_SUCCESSFULLY_UPDATED');
 
 		ED::setMessage($message, 'success');
-		$this->app->redirect('index.php?option=com_easydiscuss&view=ranks');
+		ED::redirect('index.php?option=com_easydiscuss&view=ranks');
 	}
 }

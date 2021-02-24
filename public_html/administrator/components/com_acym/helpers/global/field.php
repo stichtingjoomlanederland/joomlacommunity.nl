@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_radio($options, $name, $selected = null, $attributes = [], $params = [], $frontDisplay = false)
 {
@@ -38,10 +36,15 @@ function acym_radio($options, $name, $selected = null, $attributes = [], $params
         $attributes['value'] = $value;
         $attributes['id'] = $currentId;
 
+        if (isset($attributes['related'][$value])) {
+            $attributes['acym-data-related'] = $attributes['related'][$value];
+        }
+
         $checked = (string)$value == (string)$selected ? ' checked="checked"' : '';
 
         $formattedAttributes = '';
         foreach ($attributes as $attribute => $val) {
+            if ($attribute === 'related') continue;
             $formattedAttributes .= ' '.$attribute.'="'.acym_escape($val).'"';
         }
         if (!empty($params['required'])) {
@@ -71,12 +74,18 @@ function acym_boolean($name, $selected = null, $id = null, $attributes = [], $ye
         '0' => acym_translation($no),
     ];
 
+    $params = ['id' => $id];
+    if (!empty($attributes['containerClass'])) {
+        $params['containerClass'] = $attributes['containerClass'];
+        unset($attributes['containerClass']);
+    }
+
     return acym_radio(
         $options,
         $name,
         $selected ? 1 : 0,
         $attributes,
-        ['id' => $id],
+        $params,
         !acym_isAdmin()
     );
 }
@@ -191,7 +200,7 @@ function acym_selectOption($value, $text = '', $optKey = 'value', $optText = 'te
     return $option;
 }
 
-function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass = 'medium-6 small-9', $switchContainerClass = 'auto', $switchClass = 'tiny', $toggle = null, $toggleOpen = true, $vModel = '')
+function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass = 'medium-6 small-9', $switchContainerClass = 'auto', $switchClass = '', $toggle = null, $toggleOpen = true, $vModel = '', $disabled = false, $disabledMessage = '')
 {
     static $occurrence = 100;
     $occurrence++;
@@ -211,9 +220,12 @@ function acym_switch($name, $value, $label = null, $attrInput = [], $labelClass 
         $switch .= ' '.$oneAttributeName.'="'.acym_escape($oneAttributeValue).'"';
     }
     $switch .= '>';
+    $labelSwitchDisabled = !$disabled ? '' : ' disabled';
+    $inputSwitchDisabled = !$disabled ? '' : ' disabled="disabled"';
+    $disabledTooltip = !$disabled || empty($disabledMessage) ? '' : ' data-acym-tooltip="'.$disabledMessage.'"';
     $switch .= '
-        <input class="switch-input" type="checkbox" id="'.$id.'" value="1" '.$checked.'>
-        <label class="switch-paddle switch-label" for="'.$id.'">
+        <input class="switch-input" type="checkbox" id="'.$id.'" value="1" '.$checked.$inputSwitchDisabled.'>
+        <label class="switch-paddle switch-label'.$labelSwitchDisabled.'" '.$disabledTooltip.' for="'.$id.'">
             <span class="switch-active" aria-hidden="true">1</span>
             <span class="switch-inactive" aria-hidden="true">0</span>
         </label>
@@ -714,7 +726,7 @@ function acym_cancelButton($text = 'ACYM_CANCEL', $url = '', $class = 'button me
 function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $titleShownInTooltip = '', $link = '', $classText = '')
 {
     if (!empty($link)) {
-        $hoveredText = '<a href="'.$link.'" title="'.acym_escape($titleShownInTooltip).'">'.$hoveredText.'</a>';
+        $hoveredText = '<a href="'.$link.'" title="'.acym_escape($titleShownInTooltip).'" target="_blank">'.$hoveredText.'</a>';
     }
 
     if (!empty($titleShownInTooltip)) {
@@ -724,10 +736,12 @@ function acym_tooltip($hoveredText, $textShownInTooltip, $classContainer = '', $
     return '<span class="acym__tooltip '.$classContainer.'"><span class="acym__tooltip__text '.$classText.'">'.$titleShownInTooltip.$textShownInTooltip.'</span>'.$hoveredText.'</span>';
 }
 
-function acym_info($tooltipText, $class = '', $containerClass = '', $classText = '')
+function acym_info($tooltipText, $class = '', $containerClass = '', $classText = '', $warningInfo = false)
 {
+    $classWarning = $warningInfo ? 'acym__tooltip__info__warning' : '';
+
     return acym_tooltip(
-        '<span class="acym__tooltip__info__container '.$class.'"><i class="acym__tooltip__info__icon acymicon-info-circle"></i></span>',
+        '<span class="acym__tooltip__info__container '.$class.'"><i class="acym__tooltip__info__icon acymicon-info-circle '.$classWarning.'"></i></span>',
         acym_translation($tooltipText),
         'acym__tooltip__info '.$containerClass,
         '',
@@ -744,18 +758,16 @@ function acym_sortBy($options, $listing, $default = '', $defaultSortOrdering = '
     $orderingSortOrder = acym_getVar('string', $listing.'_ordering_sort_order', $defaultSortOrdering);
     $classSortOrder = $orderingSortOrder == 'asc' ? 'acymicon-sort-amount-asc' : 'acymicon-sort-amount-desc';
 
-    $display = '<span class="acym__color__dark-gray">'.acym_translation('ACYM_SORT_BY').'</span>
-				<select name="'.$listing.'_ordering" id="acym__listing__ordering">';
-
-    foreach ($options as $oneOptionValue => $oneOptionText) {
-        $display .= '<option value="'.$oneOptionValue.'"';
-        if ($selected == $oneOptionValue) {
-            $display .= ' selected';
-        }
-        $display .= '>'.$oneOptionText.'</option>';
-    }
-
-    $display .= '</select>';
+    $display = '<span class="acym__color__dark-gray">'.acym_translation('ACYM_SORT_BY').'</span>';
+    $display .= acym_select(
+        $options,
+        $listing.'_ordering',
+        $selected,
+        [
+            'id' => 'acym__listing__ordering',
+            'class' => 'acym__select acym__select__sort',
+        ]
+    );
 
     $tooltipText = $orderingSortOrder == 'asc' ? acym_translation('ACYM_SORT_ASC') : acym_translation('ACYM_SORT_DESC');
     $display .= acym_tooltip('<i class="'.$classSortOrder.' acym__listing__ordering__sort-order" aria-hidden="true"></i>', $tooltipText);
@@ -771,7 +783,10 @@ function acym_checkbox($values, $name, $selected = [], $label = '', $parentClass
     foreach ($values as $key => $value) {
         $dtAttr = '';
         if (!empty($dataAttr[$key])) $dtAttr = 'data-attr="'.$dataAttr[$key].'"';
-        echo '<label class="cell grid-x margin-top-1"><input type="checkbox" name="'.$name.'" value="'.$key.'" '.(in_array($key, $selected) ? 'checked' : '').' '.$dtAttr.'>'.$value.'</label>';
+        echo '<label class="cell grid-x margin-top-1"><input type="checkbox" name="'.$name.'" value="'.$key.'" '.(in_array(
+                $key,
+                $selected
+            ) ? 'checked' : '').' '.$dtAttr.'>'.$value.'</label>';
     }
     echo '</div></div>';
 }
@@ -780,7 +795,7 @@ function acym_switchFilter($switchOptions, $selected, $name, $addClass = '')
 {
     $return = '<input type="hidden" id="acym__type-template-'.$name.'" name="'.$name.'" value="'.$selected.'">';
     foreach ($switchOptions as $value => $text) {
-        $class = 'button hollow acym__type__choosen cell small-6 xlarge-auto large-shrink';
+        $class = 'button button-secondary acym__type__choosen cell small-6 xlarge-auto large-shrink';
         if ($value == $selected) {
             $class .= ' is-active';
         }
@@ -805,7 +820,8 @@ function acym_filterStatus($options, $selected, $name)
         if (!empty($text[2]) && 'pending' == $text[2]) {
             $extraIcon = ' <i class="acymicon-exclamation-triangle acym__color__orange" style="font-size: 15px;"></i>';
         }
-        $filterStatus .= '<button type="button" status="'.acym_escape($value).'" class="'.acym_escape($class).'"'.$disabled.'>'.acym_translation($text[0]).$extraIcon.' ('.$text[1].')</button>';
+        $filterStatus .= '<button type="button" status="'.acym_escape($value).'" class="'.acym_escape($class).'"'.$disabled.'>';
+        $filterStatus .= acym_translation($text[0]).$extraIcon.' ('.$text[1].')</button>';
     }
 
     return $filterStatus;
@@ -814,9 +830,11 @@ function acym_filterStatus($options, $selected, $name)
 function acym_filterSearch($search, $name, $placeholder = 'ACYM_SEARCH', $showClearBtn = true, $additionnalClasses = '')
 {
     $searchField = '<div class="input-group acym__search-area '.$additionnalClasses.'">
-        <input class="input-group-field acym__search-field" type="text" name="'.acym_escape($name).'" placeholder="'.acym_escape(acym_translation($placeholder)).'" value="'.acym_escape($search).'">
+        <input class="input-group-field acym__search-field" type="text" name="'.acym_escape($name).'" placeholder="'.acym_escape(
+            acym_translation($placeholder)
+        ).'" value="'.acym_escape($search).'">
         <div class="input-group-button">
-            <button class="button acym__search__button hide-for-small-only"><i class="acymicon-search"></i></button>
+            <button class="button acym__search__button"><i class="acymicon-search"></i></button>
         </div>';
     if ($showClearBtn) {
         $searchField .= '<span class="acym__search-clear"><i class="acymicon-close"></i></span>';
@@ -844,4 +862,3 @@ function acym_displayParam($type, $value, $name, $params = [])
 
     return $field->getInput();
 }
-

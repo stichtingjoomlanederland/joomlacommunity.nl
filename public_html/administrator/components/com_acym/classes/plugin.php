@@ -1,11 +1,14 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acympluginClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class PluginClass extends acymClass
 {
     var $table = 'plugin';
     var $pkey = 'id';
+    var $nameColumn = 'title';
 
     public function getNotUptoDatePlugins()
     {
@@ -29,5 +32,64 @@ class acympluginClass extends acymClass
 
         return empty($settings) ? [] : json_decode($settings, true);
     }
-}
 
+    public function addIntegrationIfMissing($plugin)
+    {
+        if (empty($plugin->pluginDescription->name)) return;
+
+        $data = $this->getOneByFolderName($plugin->name);
+
+        $newPlugin = new \stdClass();
+        $newPlugin->title = $plugin->pluginDescription->name;
+        $newPlugin->folder_name = $plugin->name;
+        $newPlugin->version = '1.0';
+        $newPlugin->active = 1;
+        $newPlugin->category = $plugin->pluginDescription->category;
+        $newPlugin->level = 'starter';
+        $newPlugin->uptodate = 1;
+        $newPlugin->features = $plugin->pluginDescription->features;
+        $newPlugin->description = $plugin->pluginDescription->description;
+        $newPlugin->latest_version = '1.0';
+        $newPlugin->type = 'PLUGIN';
+
+        if (!empty($data)) {
+            $newPlugin->id = $data->id;
+            $newPlugin->settings = $data->settings;
+
+            if ($data->type === 'ADDON') {
+
+                if (file_exists(ACYM_ADDONS_FOLDER_PATH.$plugin->name)) {
+                    acym_deleteFolder(ACYM_ADDONS_FOLDER_PATH.$plugin->name);
+                }
+            }
+        }
+
+        $this->save($newPlugin);
+    }
+
+    public function enable($folderName)
+    {
+        $plugin = $this->getOneByFolderName($folderName);
+        if (empty($plugin)) return;
+
+        $plugin->active = 1;
+        $this->save($plugin);
+    }
+
+    public function disable($folderName)
+    {
+        $plugin = $this->getOneByFolderName($folderName);
+        if (empty($plugin)) return;
+
+        $plugin->active = 0;
+        $this->save($plugin);
+    }
+
+    public function deleteByFolderName($folderName)
+    {
+        $plugin = $this->getOneByFolderName($folderName);
+        if (empty($plugin)) return;
+
+        parent::delete($plugin->id);
+    }
+}

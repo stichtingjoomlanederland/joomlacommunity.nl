@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,6 +42,7 @@ class DiscussTags extends EasyDiscussTable
 					$data = ED::cache()->get($id, 'tag');
 					$loaded[$sig] = $data;
 				} else {
+
 					parent::load($id);
 					$loaded[$sig] = $this;
 				}
@@ -60,7 +61,7 @@ class DiscussTags extends EasyDiscussTable
 				// Try replacing ':' to '-' since Joomla replaces it
 				if (!$tid) {
 					$query = 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $this->_tbl . ' '
-							. 'WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote(JString::str_ireplace(':' , '-' , $id));
+							. 'WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote(EDJString::str_ireplace(':' , '-' , $id));
 					$db->setQuery($query);
 
 					$tid = $db->loadResult();
@@ -80,84 +81,86 @@ class DiscussTags extends EasyDiscussTable
 		}
 	}
 
-	public function loadOld( $id = null , $loadByTitle = false )
+	public function loadOld($id = null, $loadByTitle = false)
 	{
-		if( !$loadByTitle)
-		{
-			return parent::load( $id );
+		if (!$loadByTitle) {
+			return parent::load($id);
 		}
 
-		$db		= DiscussHelper::getDBO();
-		$query	= 'SELECT *';
-		$query	.= ' FROM ' 	. $db->nameQuote('#__discuss_tags');
-		$query	.= ' WHERE (' 	. $db->nameQuote('title') . ' = ' .  $db->Quote( JString::str_ireplace( ':' , '-' , $id ) );
-		$query	.= ' OR ' 	. $db->nameQuote('alias') . ' = ' .  $db->Quote( JString::str_ireplace( ':' , '-' , $id ) ) . ')';
-		$query	.= ' LIMIT 1';
+		$db	= ED::db();
+		$query = 'SELECT *';
+		$query .= ' FROM ' 	. $db->nameQuote('#__discuss_tags');
+		$query .= ' WHERE (' 	. $db->nameQuote('title') . ' = ' .  $db->Quote(EDJString::str_ireplace(':', '-', $id));
+		$query .= ' OR ' 	. $db->nameQuote('alias') . ' = ' .  $db->Quote(EDJString::str_ireplace(':', '-', $id)) . ')';
+		$query .= ' LIMIT 1';
 
 		$db->setQuery($query);
 		$result	= $db->loadObject();
 
 		// Fixed if the the alias was translated
-		if( !$result ) {
+		if (!$result) {
 			$db->setQuery('SELECT * FROM `#__discuss_tags`');
-			$tags	= $db->loadObjectList();
+			$tags = $db->loadObjectList();
 
 			foreach ($tags as $tag) {
-				if( $id == DiscussHelper::permalinkSlug( $tag->alias ) ) {
-					return parent::load( $tag->id );
+				
+				$tagAlias = ED::permalinkSlug($tag->alias);
+				$hasMatched = $id == $tagAlias; 
+
+				if ($hasMatched) {
+					return parent::load($tag->id);
 				}
 			}
 		}
 
-		$this->id			= $result->id;
-		$this->title		= $result->title;
-		$this->alias		= $result->alias;
-		$this->created		= $result->created;
-		$this->published	= $result->published;
-		$this->user_id		= $result->user_id;
+		$this->id = $result->id;
+		$this->title = $result->title;
+		$this->alias = $result->alias;
+		$this->created = $result->created;
+		$this->published = $result->published;
+		$this->user_id = $result->user_id;
 
 		return true;
 	}
 
-	public function aliasExists()
+	public function aliasExists($alias = '')
 	{
-		$db		= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_tags' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'alias' ) . '=' . $db->Quote( $this->alias );
+		$alias = $alias ? $alias : $this->alias;
 
-		if( $this->id != 0 )
-		{
-			$query	.= ' AND ' . $db->nameQuote( 'id' ) . '!=' . $db->Quote( $this->id );
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_tags');
+		$query .= ' WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote($alias);
+
+		if ($this->id) {
+			$query .= ' AND ' . $db->nameQuote('id') . '!=' . $db->Quote($this->id);
 		}
-		$db->setQuery( $query );
 
-		return $db->loadResult() > 0 ? true : false;
+		$db->setQuery($query);
+		$result	= $db->loadResult() > 0 ? true : false;
+
+
+		return $result;
 	}
 
-	public function exists( $title )
+	public function exists($title)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
-		$query	= 'SELECT COUNT(1) '
-				. 'FROM ' 	. $db->nameQuote('#__discuss_tags') . ' '
-				. 'WHERE ' 	. $db->nameQuote('title') . ' = ' . $db->quote($title) . ' '
-				. 'LIMIT 1';
+		$query = 'SELECT COUNT(1)';
+		$query .= ' FROM ' 	. $db->nameQuote('#__discuss_tags');
+		$query .= ' WHERE ' . $db->nameQuote('title') . ' = ' . $db->quote($title);
+		$query .= ' LIMIT 1';
+
 		$db->setQuery($query);
-
 		$result	= $db->loadResult() > 0 ? true : false;
 
 		return $result;
 	}
 
-	/**
-	 * Overrides parent's bind method to add our own logic.
-	 *
-	 * @param Array $data
-	 **/
-	public function bind($data, $ignore = array(), $generateAlias = true)
+	public function bind($data, $ignore = array(), $generateAlias = false)
 	{
-		parent::bind( $data );
+		parent::bind($data);
 
 		if (!$this->created) {
 			$this->created = ED::date()->toSql();
@@ -169,16 +172,15 @@ class DiscussTags extends EasyDiscussTable
 			$alias = ED::permalinkSlug($alias);
 
 			$tmp = $alias;
-
 			$i = 1;
+
 			while ($this->aliasExists($tmp, $this->id) || !$tmp) {
 				$alias = !$alias ? ED::permalinkSlug($this->title) : $alias;
 				$tmp = !$tmp ? ED::permalinkSlug($this->title) : $alias . '-' . $i;
 				$i++;
 			}
-			$this->alias = $tmp;
 
-			$this->alias = ED::getAlias($this->alias, 'tag', $this->id);			
+			$this->alias = $tmp;
 		}
 	}
 
@@ -188,39 +190,46 @@ class DiscussTags extends EasyDiscussTable
 	 * @return boolean
 	 * @param object $db
 	 */
-	public function delete( $pk = null )
+	public function delete($pk = null)
 	{
-		$db		= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'tag_id' ) . '=' . $db->Quote( $this->id );
-		$db->setQuery( $query );
+		$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_posts_tags');
+		$query .= ' WHERE ' . $db->nameQuote('tag_id') . '=' . $db->Quote($this->id);
+		
+		$db->setQuery($query);
+		$count = $db->loadResult();
 
-		$count	= $db->loadResult();
-
-		if( $count > 0 )
-		{
+		if ($count > 0) {
 			$this->deletePostTag();
 		}
+		
+		$state = parent::delete();
 
-		return parent::delete();
+		if ($state) {
+			$actionlog = ED::actionlog();
+			$actionlog->log('COM_ED_ACTIONLOGS_DELETED_TAG', 'tag', array(
+				'tagTitle' => JText::_($this->title)
+			));
+		}
+
+		return $state;
 	}
 
 	public function deletePostTag()
 	{
-		$db		= DiscussHelper::getDBO();
+		$db	= ED::db();
 
-		$query	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'tag_id' ) . '=' . $db->Quote( $this->id );
-		$db->setQuery( $query );
+		$query = 'DELETE FROM ' . $db->nameQuote('#__discuss_posts_tags');
+		$query .= ' WHERE ' . $db->nameQuote('tag_id') . '=' . $db->Quote($this->id);
 
-		if($db->query($db))
-		{
-			return true;
-		}
-		else
-		{
+		$db->setQuery($query);
+		$state = $db->query();
+
+		if (!$state) {
 			return false;
 		}
+
+		return true;
 	}
 }

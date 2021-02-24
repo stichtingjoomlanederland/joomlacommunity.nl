@@ -1,9 +1,9 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -11,21 +11,22 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussToolbar extends EasyDiscuss
+class EasyDiscussToolbar
 {
+	public function __construct()
+	{
+		$this->config = ED::config();
+		$this->acl = ED::acl();
+		$this->input = ED::request();
+		$this->my = JFactory::getUser();
+	}
+
 	public function render($options = array())
 	{
-		$activeMenu = JFactory::getApplication()->getMenu()->getActive();
-		$params = new JRegistry();
-
-		if ($activeMenu) {
-			$params = $activeMenu->params;
-		}
-
-		$heading = $params->get('show_page_heading', '');
+		$app = JFactory::getApplication();
 
 		// Get a list of available views
-		$views = JFolder::folders(JPATH_COMPONENT . '/views');
+		$views = JFolder::folders(JPATH_COMPONENT . '/views');		
 
 		// Get the active view name
 		$active = $this->input->get('view', '', 'cmd');
@@ -36,10 +37,8 @@ class EasyDiscussToolbar extends EasyDiscuss
 		}
 
 		$showToolbar = isset($options['showToolbar']) ? $options['showToolbar'] : $this->config->get('layout_enabletoolbar');
-		$showHeader = isset($options['showHeader']) ? $options['showHeader'] : $this->config->get('layout_headers');
 		$showSearch = isset($options['showSearch']) ? $options['showSearch'] : $this->config->get('layout_toolbar_searchbar');
 		$showHome = isset($options['showHome']) ? $options['showHome'] : $this->config->get('layout_toolbarhome');
-		$showRecent = isset($options['showRecent']) ? $options['showRecent'] : $this->config->get('layout_toolbardiscussion');
 		$showTags = isset($options['showTags']) ? $options['showTags'] : $this->config->get('layout_toolbartags');
 		$showCategories = isset($options['showCategories']) ? $options['showCategories'] : $this->config->get('layout_toolbarcategories');
 		$showUsers = isset($options['showUsers']) ? $options['showUsers'] : $this->showUserMenu();
@@ -51,27 +50,12 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$processLogic = isset($options['processLogic']) ? $options['processLogic'] : true;
 		$renderToolbarModule = isset($options['renderToolbarModule']) ? $options['renderToolbarModule'] : true;
 
-		// Get the headers for the toolbar
-		$headers = new stdClass;
-		
-		// If user does not fill in anything from the menu's page heading field, it should load the menu title by default.
-		// If is false, it will load ED's Heading Title #590
-		$headers->title = $heading ? $params->get('page_heading', $activeMenu->title) : JText::_($this->config->get('main_title'));
-		$headers->desc = JText::_($this->config->get('main_description'));
-
-		// temporary commented this is because if toolbar and header disable together, that error message will not show out on the page
-		// if (!$showToolbar && !$showHeader) {
-		//     //skip these all together since no toolbar will be loaded.
-		//     return;
-		// }
-
 		$query = '';
 
 		if ($showSearch) {
 			// Search queries
 			$query = $this->input->get('query', '', 'string');
 		}
-
 
 		// If a user is viewing a specific category, we need to ensure that it's setting the correct active menu
 		$activeCategory = $this->input->get('category_id', 0, 'int');
@@ -130,20 +114,20 @@ class EasyDiscussToolbar extends EasyDiscuss
 		}
 
 		$notificationsCount = 0;
-		$conversationsCount = 0;
 
+		// Get total notifications for the current viewer
 		if ($showNotification) {
-			// Get total notifications for the current viewer
 			$model = ED::model('Notification');
 			$notificationsCount = $model->getTotalNotifications($this->my->id);
 		}
 
-		if ($showConversation) {
-			// Get new message count.
-			$conversationModel = ED::model('Conversation');
-			$conversationsCount = $conversationModel->getCount($this->my->id, array('filter' => 'unread'));
-		}
+		$conversationsCount = 0;
 
+		// Get total conversation for the current viewer.
+		if ($showConversation) {
+			$model = ED::model('conversation');
+			$conversationsCount = $model->getCount($this->my->id, array('filter' => 'unread'));
+		}
 
 		$postCatId = 0;
 
@@ -154,7 +138,6 @@ class EasyDiscussToolbar extends EasyDiscuss
 			$postCatId = $post->category_id;
 		}
 
-		$header = '';
 		$clusterId = '';
 
 		// Retrieve the mini header for easysocial group.
@@ -169,14 +152,6 @@ class EasyDiscussToolbar extends EasyDiscuss
 			$clusterId = $this->input->get('group_id', '', 'int');
 		}
 
-		$esLib = ED::easysocial();
-
-		if ($clusterId) {
-			$header = $esLib->renderMiniHeader($clusterId, $active);
-		}
-
-		$group = $esLib->isGroupAppExists();
-
 		// Get all the categories ids
 		$sortConfig = $this->config->get('layout_ordering_category','latest');
 
@@ -189,9 +164,6 @@ class EasyDiscussToolbar extends EasyDiscuss
 		if ($url) {
 			$return = base64_encode($url);
 		}
-
-		// Message queue
-		$messageObject = ED::getMessageQueue();
 
 		// Determines if we should use external conversations
 		$useExternalConversations = false;
@@ -215,17 +187,6 @@ class EasyDiscussToolbar extends EasyDiscuss
 			$showTags = false;
 		}
 
-		$postType = false;
-		$postTypeValue = $this->input->get('post_type', '', 'default');
-
-		// Get post types list
-		$postTypes = array();
-
-		if ($this->config->get('layout_post_types')) {
-			$postTypesModel = ED::model('PostTypes');
-			$postTypes = $postTypesModel->getPostTypes(null, 'ASC', true);
-		}
-
 		// determine which user menu link should show
 		$userMenuLink = $this->showUserMenuLink();
 		$showManageSubscription = true;
@@ -238,34 +199,31 @@ class EasyDiscussToolbar extends EasyDiscuss
 		$showNavigationMenu = true;
 
 		// determine whether need to show the mobile toolbar toggle menu icon
-		if (!$this->my->id && (ED::responsive()->isMobile() || ED::responsive()->isTablet()) && (!$showRecent && !$showCategories && !$showTags && !$showUsers && !$showBadges && !$group)) {
+		if (!$this->my->id && (ED::responsive()->isMobile() || ED::responsive()->isTablet()) && (!$showCategories && !$showTags && !$showUsers && !$showBadges && !$group)) {
 			$showNavigationMenu = false;
 		}
 
+		// Determines if user is already subsribed
+		$subscribeModel = ED::model('Subscribe');
+		$isSubscribed = $subscribeModel->isSiteSubscribed('site', $this->my->email, 0);
+
 		$theme = ED::themes();
+		$theme->set('isSubscribed', $isSubscribed);
 		$theme->set('active', $active);
-		$theme->set('messageObject', $messageObject);
 		$theme->set('conversationsCount', $conversationsCount);
 		$theme->set('notificationsCount', $notificationsCount);
 		$theme->set('return', $return );
 		$theme->set('useExternalConversations', $useExternalConversations);
 		$theme->set('categoryId', $activeCategory);
 		$theme->set('views', $views);
-		$theme->set('headers', $headers);
 		$theme->set('query', $query);
 		$theme->set('post', $post);
-		$theme->set('header', $header);
-		$theme->set('group', $group);
 		$theme->set('usernameField', $usernameField);
-		$theme->set('postTypes', $postTypes);
-		$theme->set('postTypeValue', $postTypeValue);
-
+		
 		// settings
 		$theme->set('showToolbar', $showToolbar);
-		$theme->set('showHeader', $showHeader);
 		$theme->set('showSearch', $showSearch);
 		$theme->set('showHome', $showHome);
-		$theme->set('showRecent', $showRecent);
 		$theme->set('showTags', $showTags);
 		$theme->set('showCategories', $showCategories);
 		$theme->set('showUsers', $showUsers);

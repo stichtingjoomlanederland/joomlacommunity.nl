@@ -211,7 +211,7 @@ class EasyDiscussPollChoice extends EasyDiscuss
      */
     public function hasVotedPoll( $userId, $sessionId )
     {
-        $db     = DiscussHelper::getDBO();
+        $db     = ED::db();
 
         if( $userId == 0 )
         {

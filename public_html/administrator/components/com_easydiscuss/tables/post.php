@@ -27,6 +27,7 @@ class DiscussPost extends EasyDiscussTable
 	public $ordering = null;
 	public $vote = null;
 	public $hits = null;
+	public $isnew = null;
 	public $islock = null;
 	public $locdate = null;
 	public $featured = null;
@@ -53,8 +54,8 @@ class DiscussPost extends EasyDiscussTable
 	public $post_type = null;
 	public $private = null;
 	public $ip = null;
-	public $thread_id = null;
-	public $priority = null;
+	public $thread_id = 0;
+	public $priority = 0;
 	public $fields = null;
 	public $anonymous = null;
 	public $cluster_id = null;
@@ -106,14 +107,14 @@ class DiscussPost extends EasyDiscussTable
 		}
 	}
 
-	public function load($key = null , $alias = false)
+	public function load($key = null , $alias = false, $useCache = true)
 	{
 		// static $loaded = array();
 
 		$alias = ($alias) ? true : false;
 		$sig = $key . (int) $alias;
 
-		if (!isset(self::$_loaded[$sig])) {
+		if (!$useCache || !isset(self::$_loaded[$sig])) {
 			if (!$alias) {
 				parent::load($key);
 				self::$_loaded[$sig] = $this;
@@ -126,7 +127,7 @@ class DiscussPost extends EasyDiscussTable
 				} else {
 					// Try replacing ':' to '-' since Joomla replaces it
 					$query = 'SELECT id FROM ' . $this->_tbl . ' '
-							. 'WHERE ' . $db->nameQuote('alias') . ' = ' . $db->Quote(JString::str_ireplace(':' , '-' , $key));
+							. 'WHERE ' . $db->nameQuote('alias') . ' = ' . $db->Quote(EDJString::str_ireplace(':' , '-' , $key));
 
 				}
 
@@ -321,23 +322,19 @@ class DiscussPost extends EasyDiscussTable
 		$app = JFactory::getApplication();
 		$my	= JFactory::getUser();
 
-		// Determines if we should check against the session table
-		if ($config->get('main_hits_session')) {
+		$ip = $app->input->server->get('REMOTE_ADDR');
 
-			$ip = $app->input->server->get('REMOTE_ADDR');
+		if (!empty($ip) && !empty($this->id)) {
 
-			if (!empty($ip) && !empty($this->id)) {
+			$token = md5($ip . $this->id);
+			$session = JFactory::getSession();
+			$exists = $session->get($token , false);
 
-				$token = md5($ip . $this->id);
-				$session = JFactory::getSession();
-				$exists = $session->get($token , false);
-
-				if ($exists) {
-					return true;
-				}
-
-				$session->set($token , 1);
+			if ($exists) {
+				return true;
 			}
+
+			$session->set($token , 1);
 		}
 
 		$state = parent::hit();
@@ -390,28 +387,6 @@ class DiscussPost extends EasyDiscussTable
 			}
 		}
 	}
-
-
-
-	/**
-	 * Retrieves the total number of replies for this particular discussion.
-	 *
-	 * @since	3.0
-	 * @access	public
-	 */
-	public function getTotalComments()
-	{
-		if(isset(self::$_commentTotal[$this->id]))
-			return self::$_commentTotal[$this->id];
-
-		// Get the post model.
-		$postModel 							= ED::model('Posts');
-		self::$_commentTotal[$this->id] 	= $postModel->getTotalComments($this->id);
-
-
-		return self::$_commentTotal[$this->id];
-	}
-
 
 	/**
 	 * Set the total number of replies for this particular discussion batch
@@ -622,47 +597,43 @@ class DiscussPost extends EasyDiscussTable
 	{
 		static $owners 	= null;
 
-		if(!isset($owners[$this->user_id]))
-		{
-			$owner	= new stdClass();
+		if (!isset($owners[$this->user_id])) {
+			$owner = new stdClass();
 
 			// Initialize default values first.
-			$owner->id		= 0;
-			$owner->name	= JText::_('COM_EASYDISCUSS_GUEST');
-			$owner->link	= 'javascript:void(0)';
+			$owner->id = 0;
+			$owner->name = JText::_('COM_EASYDISCUSS_GUEST');
+			$owner->link = 'javascript:void(0)';
 
 			// @TODO: Fill this with guest avatar.
-			$owner->avatar		= DISCUSS_JURIROOT . '/media/com_easydiscuss/images/default_avatar.png';
-			$owner->guest		= true;
-			$owner->signature	= '';
+			$owner->avatar = DISCUSS_JURIROOT . '/media/com_easydiscuss/images/default_avatar.png';
+			$owner->guest = true;
+			$owner->signature = '';
 
-			$owner->role		= '';
-			$owner->roleid		= '';
-			$owner->rolelabel	= '';
+			$owner->role = '';
+			$owner->roleid = '';
+			$owner->rolelabel = '';
 
 
 			if ($this->user_id > 0) {
 				$user = ED::user($this->user_id);
 
-				$owner->id			= $this->user_id;
-				$owner->name		= $user->getName();
-				$owner->link		= $user->getLink();
-				$owner->avatar		= $user->getAvatar();
-				$owner->guest		= false;
-				$owner->signature	= $user->getSignature('true');
+				$owner->id = $this->user_id;
+				$owner->name = $user->getName();
+				$owner->link = $user->getLink();
+				$owner->avatar = $user->getAvatar();
+				$owner->guest = false;
+				$owner->signature = $user->getSignature('true');
 
-				$owner->role		= $user->getRole();
-				$owner->roleid		= $user->getRoleId();
-				$owner->rolelabel	= $user->getRoleLabelClassname();
+				$owner->role = $user->getRole();
+				$owner->roleid = $user->getRoleId();
+				$owner->rolelabel = $user->getRoleLabelColour();
 			}
-
-
 
 			$owners[$this->user_id] = $owner;
 		}
 
 		return $owners[$this->user_id];
-
 	}
 
 	public function getParams($key)
@@ -1112,23 +1083,10 @@ class DiscussPost extends EasyDiscussTable
 	 */
 	public function getAssigneeId()
 	{
-		$asssignment	= ED::getTable('PostAssignment');
+		$asssignment	= ED::table('PostAssignment');
 		$asssignment->load($this->id);
 
 		return $asssignment->assignee_id;
-	}
-
-	public function getLabel()
-	{
-		$postlabel	= ED::getTable('PostLabel');
-		$postlabel->load($this->id);
-
-		$label	= ED::getTable('Label');
-		$label->load($postlabel->post_label_id);
-
-		$this->label = $label;
-
-		return $this->label;
 	}
 
 	/**

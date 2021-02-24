@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -850,10 +850,11 @@ class Html
 	 * Removes html tags from string
 	 *
 	 * @param string $string
+	 * @param bool   $remove_comments
 	 *
 	 * @return string
 	 */
-	public static function removeHtmlTags($string)
+	public static function removeHtmlTags($string, $remove_comments = false)
 	{
 		// remove pagenavcounter
 		$string = RegEx::replace('<div class="pagenavcounter">.*?</div>', ' ', $string);
@@ -870,6 +871,13 @@ class Html
 			'',
 			$string
 		);
+
+		if ($remove_comments)
+		{
+			// remove html comments
+			$string = RegEx::replace('<!--.*?-->', ' ', $string);
+		}
+
 		// replace other tags with a space
 		$string = RegEx::replace('</?[a-z].*?>', ' ', $string);
 		// remove double whitespace

@@ -75,7 +75,7 @@ class RseventsproModelPayments extends JModelList
 			}
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_paymentPluginsList', array(array('container' => &$container)));
+		JFactory::getApplication()->triggerEvent('onrsepro_paymentPluginsList', array(array('container' => &$container)));
 		
 		if (!empty($container)) {
 			foreach ($container as $element) {

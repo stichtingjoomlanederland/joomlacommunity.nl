@@ -87,16 +87,9 @@ class RSEventsProImage
 	 *
 	 */
 	public function output() {
-		$db		= JFactory::getDbo();
-		$query	= $db->getQuery(true);
 		$local	= JPATH_SITE.'/components/com_rseventspro/assets/images/events/thumbs';
 		$abs	= JUri::root().'components/com_rseventspro/assets/images/events/thumbs';
-		
-		$query->select($db->qn('icon'))
-			->from($db->qn('#__rseventspro_events'))
-			->where($db->qn('id').' = '.$db->q($this->id));
-		$db->setQuery($query);
-		$image = $db->loadResult();
+		$image	= $this->getEventIcon();
 		
 		// No image was found or the required width is 0
 		if (!$image || $this->width == 0) {
@@ -232,14 +225,20 @@ class RSEventsProImage
 	 *
 	 */
 	protected function getProperties() {
-		$db		= JFactory::getDbo();
-		$query	= $db->getQuery(true);
+		static $properties = array();
 		
-		$query->select($db->qn('properties'))
-			->from($db->qn('#__rseventspro_events'))
-			->where($db->qn('id').' = '.$db->q($this->id));
-		$db->setQuery($query);
-		return $db->loadResult();
+		if (!isset($properties[$this->id])) {
+			$db		= JFactory::getDbo();
+			$query	= $db->getQuery(true);
+			
+			$query->select($db->qn('properties'))
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('id').' = '.$db->q($this->id));
+			$db->setQuery($query);
+			$properties[$this->id] = $db->loadResult();
+		}
+		
+		return $properties[$this->id];
 	}
 	
 	
@@ -256,4 +255,27 @@ class RSEventsProImage
 			$this->default = JUri::root().'components/com_rseventspro/assets/images/blank.png';
 		}
 	}
+	
+	/**
+	 * Get event image
+	 *
+	 * @return  string The name of the event icon
+	 *
+	 */
+	 protected function getEventIcon() {
+		static $images = array();
+		
+		if (!isset($images[$this->id])) {
+			$db		= JFactory::getDbo();
+			$query	= $db->getQuery(true);
+
+			$query->select($db->qn('icon'))
+				->from($db->qn('#__rseventspro_events'))
+				->where($db->qn('id').' = '.$db->q($this->id));
+			$db->setQuery($query);
+			$images[$this->id] = $db->loadResult();
+		}
+		
+		return $images[$this->id];
+	 }
 }

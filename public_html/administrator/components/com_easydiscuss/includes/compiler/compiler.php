@@ -24,8 +24,8 @@ class EasyDiscussCompiler extends EasyDiscuss
 		$this->base = JURI::root() . 'media/com_easydiscuss/scripts';
 
 		if (!defined('ED_CLI')) {
-			$this->site = !$this->app->isAdmin();
-			$this->admin = $this->app->isAdmin();
+			$this->site = !ED::isFromAdmin();
+			$this->admin = ED::isFromAdmin();
 		} else {
 
 			$this->site = false;
@@ -54,7 +54,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 
 		// Get a list of files to be generated
 		$files = $this->files($version, $force);
-
+		
 		foreach ($files as $file => $contents) {
 
 			// Pass to closure to minify it
@@ -96,16 +96,16 @@ class EasyDiscussCompiler extends EasyDiscuss
 	{
 		$version = ED::getLocalVersion();
 
-		if ($isBuild) {
-			// we knwo this is to compile for the next release. so we need to increase the version by 1.
-			$segments = explode('.', $version);
+		// if ($isBuild) {
+		// 	// we knwo this is to compile for the next release. so we need to increase the version by 1.
+		// 	$segments = explode('.', $version);
 
-			//update last segment by 1
-			// the segments will always be 3 elemetns
-			$segments[2] = $segments[2] + 1;
+		// 	//update last segment by 1
+		// 	// the segments will always be 3 elemetns
+		// 	$segments[2] = $segments[2] + 1;
 
-			$version = implode('.', $segments);
-		}
+		// 	$version = implode('.', $segments);
+		// }
 
 		return $version;
 	}
@@ -155,7 +155,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 				}
 
 				if (!isset($loaded[$file])) {
-					$fileContents = JFile::read($file);
+					$fileContents = file_get_contents($file);
 					$contents .= $fileContents;
 
 					$items[$file] = $fileContents;
@@ -284,7 +284,7 @@ class EasyDiscussCompiler extends EasyDiscuss
 		}
 
 		// Development mode
-		if ($this->config->get('system_environment') == 'development') {
+		if ($this->config->get('system_environment') == 'development' && $this->doc->getType() == 'html') {
 
 			// On development mode we need to insert discuss_site to fix subfolder issues in requirejs
 			$siteConfig = $this->createScriptBlock($this->getConfiguration());
@@ -293,13 +293,22 @@ class EasyDiscussCompiler extends EasyDiscuss
 			$requirejs = $this->createScriptTag($this->base . '/vendors/require.js');
 			$core = $this->createScriptTag($this->base . '/' . $path . '/core.js');
 
-			// Ensure that document type is under html
-			if ($this->doc->getType() == 'html') {
-				$this->doc->addCustomTag($siteConfig);
-				$this->doc->addCustomTag($requirejs);
-				$this->doc->addCustomTag($core);
-			}
+			$this->doc->addCustomTag($siteConfig);
+			$this->doc->addCustomTag($requirejs);
+			$this->doc->addCustomTag($core);
 		}
+	}
+
+	/**
+	 * Adds a new script tag
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function addScriptUrl($uri)
+	{
+		$script = $this->createScriptTag($uri);
+		$this->doc->addCustomTag($script);
 	}
 
 	/**
@@ -343,10 +352,13 @@ class EasyDiscussCompiler extends EasyDiscuss
 	 */
 	public function getConfiguration()
 	{
+		$config = ED::config();
+
 ob_start();
 ?>
 window.ed_site = "<?php echo JURI::root();?>";
 window.ed_mobile = <?php echo (ED::responsive()->isMobile()) ? 'true' : 'false'; ?>;
+window.ed_mode = "<?php echo $config->get('layout_darkmode') ? 'dark' : 'light';?>";
 <?php
 $contents = ob_get_contents();
 ob_end_clean();

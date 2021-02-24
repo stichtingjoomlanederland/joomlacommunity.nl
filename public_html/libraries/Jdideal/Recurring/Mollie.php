@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -20,6 +20,7 @@ use Joomla\CMS\Uri\Uri;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\MollieApiClient;
 use Mollie\Api\Resources\Customer;
+use Mollie\Api\Resources\CustomerCollection;
 use Mollie\Api\Resources\Mandate;
 use Mollie\Api\Resources\MandateCollection;
 use Mollie\Api\Resources\Subscription;
@@ -83,6 +84,21 @@ class Mollie
 	}
 
 	/**
+	 * Delete a customer.
+	 *
+	 * @param   string  $customerId  The customer ID to delete
+	 *
+	 * @return  void
+	 *
+	 * @since   6.1.0
+	 * @throws  ApiException
+	 */
+	public function deleteCustomer(string $customerId): void
+	{
+		$this->mollie->customers->delete($customerId);
+	}
+
+	/**
 	 * Create a customer.
 	 *
 	 * @param   string  $name   The customer name
@@ -98,7 +114,7 @@ class Mollie
 	{
 		// Check if the customer already exists
 		/** @var $customer object */
-		if ($customer = $this->getCustomer($email))
+		if ($customer = $this->getCustomerByEmail($email))
 		{
 			return $customer->customerId;
 		}
@@ -112,7 +128,7 @@ class Mollie
 		);
 
 		// Get a Date object so we can format it to our needs
-		$created = new Date($customer->createdDatetime);
+		$created = new Date($customer->createdAt);
 
 		// Store the customer details in the database
 		$db    = Factory::getDbo();
@@ -128,7 +144,11 @@ class Mollie
 					)
 				)
 			)
-			->values($db->quote($name) . ',' . $db->quote($email) . ',' . $db->quote($customer->id) . ',' . $db->quote($created->toSql()));
+			->values(
+				$db->quote($name) . ',' . $db->quote($email) . ',' . $db->quote($customer->id) . ',' . $db->quote(
+					$created->toSql()
+				)
+			);
 		$db->setQuery($query)
 			->execute();
 
@@ -144,16 +164,16 @@ class Mollie
 	 *
 	 * @since   5.0.0
 	 */
-	private function getCustomer(string $email): ?stdClass
+	private function getCustomerByEmail(string $email): ?stdClass
 	{
 		$db    = Factory::getDbo();
 		$query = $db->getQuery(true)
 			->select(
 				$db->quoteName(
-					array(
+					[
 						'id',
 						'customerId'
-					)
+					]
 				)
 			)
 			->from($db->quoteName('#__jdidealgateway_customers'))
@@ -164,14 +184,42 @@ class Mollie
 	}
 
 	/**
+	 * Check if a customer already exists with the given email address.
+	 *
+	 * @param   string  $customerId  The email address to check
+	 *
+	 * @return  stdClass|null  The customer details or null if not found.
+	 *
+	 * @since   6.3.0
+	 */
+	private function getCustomerByCustomerId(string $customerId): ?stdClass
+	{
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select(
+				$db->quoteName(
+					[
+						'id',
+						'customerId'
+					]
+				)
+			)
+			->from($db->quoteName('#__jdidealgateway_customers'))
+			->where($db->quoteName('customerId') . ' = ' . $db->quote($customerId));
+		$db->setQuery($query);
+
+		return $db->loadObject();
+	}
+
+	/**
 	 * Create the first payment.
 	 *
-	 * @param   integer  $transactionId  The RO Payments transaction ID
-	 * @param   string   $email          The customer email address
-	 * @param   string   $currency       The currency of the payment
-	 * @param   string   $amount         The amount for the first payment
-	 * @param   string   $description    The description for the first payment
-	 * @param   string   $paymentMethod  The payment method to use for the first payment
+	 * @param   string  $transactionId  The RO Payments transaction ID
+	 * @param   string  $email          The customer email address
+	 * @param   string  $currency       The currency of the payment
+	 * @param   string  $amount         The amount for the first payment
+	 * @param   string  $description    The description for the first payment
+	 * @param   string  $paymentMethod  The payment method to use for the first payment
 	 *
 	 * @return  object  The payment details
 	 *
@@ -180,7 +228,7 @@ class Mollie
 	 * @throws  \Exception
 	 */
 	public function createFirstPayment(
-		int $transactionId,
+		string $transactionId,
 		string $email,
 		string $currency,
 		string $amount,
@@ -189,7 +237,7 @@ class Mollie
 	) {
 		// Check if the customer already exists
 		/** @var $customer object */
-		if (!$customer = $this->getCustomer($email))
+		if (!$customer = $this->getCustomerByEmail($email))
 		{
 			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_CUSTOMER_DOES_NOT_EXIST'));
 		}
@@ -286,7 +334,7 @@ class Mollie
 		string $interval = '1 months'
 	): void {
 		/** @var $customer object */
-		if (!$customer = $this->getCustomer($customerEmail))
+		if (!$customer = $this->getCustomerByEmail($customerEmail))
 		{
 			throw new InvalidArgumentException(Text::sprintf('COM_ROPAYMENTS_CUSTOMER_NOT_FOUND', $customerEmail));
 		}
@@ -317,14 +365,12 @@ class Mollie
 			$data
 		);
 
-		// Store the subscription
-		$this->storeSubscription($customer->id, $subscription);
+		$this->storeSubscription($subscription);
 	}
 
 	/**
 	 * Store a subscription.
 	 *
-	 * @param   integer       $customerId    The customer ID the subscription belongs to
 	 * @param   Subscription  $subscription  The subscription to store
 	 *
 	 * @return  void
@@ -333,7 +379,7 @@ class Mollie
 	 *
 	 * @throws  InvalidArgumentException
 	 */
-	private function storeSubscription(int $customerId, Subscription $subscription): void
+	private function storeSubscription(Subscription $subscription): void
 	{
 		if (!$this->profileId)
 		{
@@ -355,7 +401,6 @@ class Mollie
 			return;
 		}
 
-		// Store the subscription
 		$createDate = (new Date($subscription->createdAt))->toSql();
 		$startDate  = (new Date($subscription->startDate))->toSql();
 		$cancelDate = $db->getNullDate();
@@ -369,7 +414,7 @@ class Mollie
 			->insert($db->quoteName('#__jdidealgateway_subscriptions'))
 			->columns(
 				$db->quoteName(
-					array(
+					[
 						'customerId',
 						'subscriptionId',
 						'profileId',
@@ -382,11 +427,11 @@ class Mollie
 						'start',
 						'cancelled',
 						'created'
-					)
+					]
 				)
 			)
 			->values(
-				$db->quote($customerId) . ',' .
+				$db->quote($subscription->customerId) . ',' .
 				$db->quote($subscription->id) . ',' .
 				$db->quote($this->profileId) . ',' .
 				$db->quote($subscription->status) . ',' .
@@ -417,7 +462,7 @@ class Mollie
 	public function listSubscriptions($customerEmail): SubscriptionCollection
 	{
 		/** @var $customer object */
-		if (!$customer = $this->getCustomer($customerEmail))
+		if (!$customer = $this->getCustomerByEmail($customerEmail))
 		{
 			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_CUSTOMER_NOT_FOUND'));
 		}
@@ -427,10 +472,118 @@ class Mollie
 		// Store all subscriptions if needed
 		foreach ($subscriptions as $index => $subscription)
 		{
-			$this->storeSubscription($customer->id, $subscription);
+			$this->storeSubscription($subscription);
 		}
 
 		return $subscriptions;
+	}
+
+	/**
+	 * Load all the subscriptions for a given account.
+	 *
+	 * @param   string  $from        The first payment ID you want to include in your list.
+	 * @param   int     $limit       The number of items to retrieve
+	 * @param   array   $parameters  Optional parameters to pass in the request
+	 *
+	 * @return  void
+	 *
+	 * @since   6.3.0
+	 *
+	 * @throws  ApiException
+	 */
+	public function syncAllSubscriptions($from = null, $limit = null, array $parameters = []): void
+	{
+		if (!$this->profileId)
+		{
+			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_PROFILEID_NOT_SET'));
+		}
+
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->delete($db->quoteName('#__jdidealgateway_subscriptions'))
+			->where($db->quoteName('profileId') . ' = ' . (int) $this->profileId);
+		$db->setQuery($query)
+			->execute();
+
+		$subscriptions = $this->mollie->subscriptions->page($from, $limit, $parameters);
+		$this->storeSubscriptions($subscriptions);
+
+		while ($subscriptions = $subscriptions->next())
+		{
+			$this->storeSubscriptions($subscriptions);
+		}
+	}
+
+	/**
+	 * Store a subscription.
+	 *
+	 * @param   SubscriptionCollection  $subscriptions  List of subscriptions to store
+	 *
+	 * @return  void
+	 *
+	 * @since   6.2.0
+	 */
+	private function storeSubscriptions(SubscriptionCollection $subscriptions): void
+	{
+		/** @var Subscription $subscription */
+		foreach ($subscriptions->getIterator() as $subscription)
+		{
+			$this->storeSubscription($subscription);
+		}
+	}
+
+	/**
+	 * Synchronize all the customers.
+	 *
+	 * @param   string  $from        The first payment ID you want to include in your list.
+	 * @param   int     $limit       The number of items to retrieve
+	 * @param   array   $parameters  Optional parameters to pass in the request
+	 *
+	 * @return  void
+	 *
+	 * @since   6.3.0
+	 *
+	 * @throws  ApiException
+	 */
+	public function syncAllCustomers($from = null, $limit = null, array $parameters = []): void
+	{
+		if (!$this->profileId)
+		{
+			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_PROFILEID_NOT_SET'));
+		}
+
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->delete($db->quoteName('#__jdidealgateway_customers'))
+			->where($db->quoteName('profileId') . ' = ' . (int) $this->profileId);
+		$db->setQuery($query)
+			->execute();
+
+		$customers = $this->mollie->customers->page($from, $limit, $parameters);
+		$this->storeCustomers($customers);
+
+		while ($customers = $customers->next())
+		{
+			$this->storeCustomers($customers);
+		}
+	}
+
+	/**
+	 * Store a customer.
+	 *
+	 * @param   CustomerCollection  $customers  List of customers to store
+	 *
+	 * @return  void
+	 *
+	 * @since   6.2.0
+	 */
+	private function storeCustomers(CustomerCollection $customers): void
+	{
+		/** @var Customer $customer */
+		foreach ($customers->getIterator() as $customer)
+		{
+			$this->storeCustomer($customer);
+		}
 	}
 
 	/**
@@ -448,7 +601,7 @@ class Mollie
 	public function cancelSubscription($customerEmail, $subscriptionId): void
 	{
 		/** @var $customer object */
-		$customer = $this->getCustomer($customerEmail);
+		$customer = $this->getCustomerByEmail($customerEmail);
 
 		/** @var Subscription $subscription */
 		$subscription = $this->mollie->customers->get($customer->customerId)->cancelSubscription($subscriptionId);
@@ -478,7 +631,7 @@ class Mollie
 	public function listMandates(string $customerEmail): MandateCollection
 	{
 		/** @var $customer Customer */
-		if (!$customer = $this->getCustomer($customerEmail))
+		if (!$customer = $this->getCustomerByEmail($customerEmail))
 		{
 			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_CUSTOMER_NOT_FOUND'));
 		}
@@ -510,14 +663,13 @@ class Mollie
 		string $description,
 		string $paymentMethod = ''
 	) {
-		// Check if the customer already exists
 		/** @var $customer object */
-		if (!$customer = $this->getCustomer($email))
+		if (!$customer = $this->getCustomerByEmail($email))
 		{
 			throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_CUSTOMER_DOES_NOT_EXIST'));
 		}
 
-		$payment = $this->mollie->payments->create(
+		return $this->mollie->payments->create(
 			[
 				'amount'       => [
 					'currency' => 'EUR',
@@ -530,8 +682,42 @@ class Mollie
 				'webhookUrl'   => Uri::root() . 'cli/notify.php?transaction_id=' . $transactionId,
 			]
 		);
+	}
 
-		// Redirect the payment object
-		return $payment;
+	/**
+	 * Store a customer.
+	 *
+	 * @param   Customer  $customer  The customer to store
+	 *
+	 * @return  void
+	 *
+	 * @since   6.2.0
+	 */
+	private function storeCustomer(Customer $customer): void
+	{
+		$db      = Factory::getDbo();
+		$created = new Date($customer->createdAt);
+		$query   = $db->getQuery(true)
+			->insert($db->quoteName('#__jdidealgateway_customers'))
+			->columns(
+				$db->quoteName(
+					[
+						'name',
+						'email',
+						'customerId',
+						'created',
+						'profileId'
+					]
+				)
+			)
+			->values(
+				$db->quote($customer->name) . ', ' .
+				$db->quote($customer->email) . ', ' .
+				$db->quote($customer->id) . ', ' .
+				$db->quote($created->toSql()) . ', ' .
+				$db->quote($this->profileId)
+			);
+		$db->setQuery($query)
+			->execute();
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,11 +11,17 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-// Include ED engine
+// Load ED Engine
 $path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
+if (!JFile::exists($path)) {
+    return;
+}
 
-// Include module helper
-require_once(dirname(__FILE__) . '/helper.php');
+require_once ($path);
+
+ED::init();
+$lib = ED::modules($module);
+$helper = $lib->getHelper(false);
 
 $app = JFactory::getApplication();
 
@@ -30,9 +36,7 @@ if ($view != 'post' || !$postId) {
 // Load site language
 JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
-ED::init();
-
 $itemid = EDR::getItemId('post');
-$posts = EDSimilarDiscussions::getSimilarPosts($postId, $params);
+$posts = $helper->getSimilarPosts($postId, $params);
 
 require(JModuleHelper::getLayoutPath('mod_easydiscuss_similar_discussions'));

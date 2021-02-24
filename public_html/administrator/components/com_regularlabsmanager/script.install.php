@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.5
+ * @version         7.4.7
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -44,6 +44,7 @@ class Com_RegularLabsManagerInstallerScript extends Com_RegularLabsManagerInstal
 
 	public function onAfterInstall($route)
 	{
+		$this->deleteOldFiles();
 		$this->fixAssetsRules();
 
 		// Check if old NoNumber Extension Manager is still installed
@@ -63,6 +64,15 @@ class Com_RegularLabsManagerInstallerScript extends Com_RegularLabsManagerInstal
 		$this->uninstallNoNumberExtensionManager();
 
 		return parent::onAfterInstall($route);
+	}
+
+	private function deleteOldFiles()
+	{
+		$this->delete(
+			[
+				JPATH_SITE . '/components/com_regularlabsmanager',
+			]
+		);
 	}
 
 	private function uninstallNoNumberExtensionManager()

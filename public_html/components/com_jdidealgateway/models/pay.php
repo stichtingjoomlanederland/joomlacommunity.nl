@@ -3,10 +3,12 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
+
+defined('_JEXEC') or die;
 
 use Jdideal\Gateway;
 use Joomla\CMS\Date\Date;
@@ -16,8 +18,6 @@ use Joomla\CMS\MVC\Model\FormModel;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Table\Table;
 use Joomla\CMS\Uri\Uri;
-
-defined('_JEXEC') or die;
 
 /**
  * Model for handling the payment.
@@ -41,10 +41,10 @@ class JdidealgatewayModelPay extends FormModel
 	 * @since    2.0.0
 	 * @throws   Exception
 	 */
-	public function getForm($data = array(), $loadData = true)
+	public function getForm($data = [], $loadData = true)
 	{
 		// Get the form.
-		$form = $this->loadForm('com_jdidealgateway.pay', 'pay', array('control' => 'jform', 'load_data' => $loadData));
+		$form = $this->loadForm('com_jdidealgateway.pay', 'pay', ['control' => 'jform', 'load_data' => $loadData]);
 
 		if (empty($form))
 		{
@@ -136,34 +136,20 @@ class JdidealgatewayModelPay extends FormModel
 	/**
 	 * Check the payment result.
 	 *
+	 * @param   string  $trans  The transaction ID to check
+	 * @param   string  $column The column to use for the check
+	 *
 	 * @return  string  The customer message.
 	 *
-	 * @since   2.0
-	 *
-	 * @throws  RuntimeException
-	 * @throws  InvalidArgumentException
+	 * @since   2.0.0
 	 * @throws  Exception
 	 */
-	public function getResult(): string
+	public function getResult(string $trans, string $column = 'trans'): string
 	{
-		$input = Factory::getApplication()->input;
-
-		// Load the helper
 		$jdideal = new Gateway;
-		$trans   = $input->get('transactionId');
-		$column  = 'trans';
-
-		if (empty($trans))
-		{
-			$trans  = $input->get('pid');
-			$column = 'pid';
-		}
-
 		$details = $jdideal->getDetails($trans, $column, false, 'jdidealgateway');
+		$status  = $jdideal->getStatusCode($details->result);
 
-		$status = $jdideal->getStatusCode($details->result);
-
-		// Update the order status
 		if (is_object($details))
 		{
 			$db    = $this->getDbo();
@@ -174,7 +160,6 @@ class JdidealgatewayModelPay extends FormModel
 			$db->setQuery($query)->execute();
 		}
 
-		// Load the message
 		return $jdideal->getMessage($details->id);
 	}
 
@@ -190,13 +175,12 @@ class JdidealgatewayModelPay extends FormModel
 	{
 		$data = (array) Factory::getApplication()->getUserState('com_jdidealgateway.pay.data', []);
 
-		// Check if we have any data, otherwise try to get it from the URL
 		if (0 === count($data))
 		{
 			$input              = Factory::getApplication()->input;
-			$data['user_email'] = $input->getEmail('email', '');
-			$data['amount']     = $input->getEmail('amount', '');
-			$data['remark']     = $input->getEmail('remark', '');
+			$data['user_email'] = $input->getString('email', '');
+			$data['amount']     = $input->getString('amount', '');
+			$data['remark']     = $input->getString('remark', '');
 		}
 
 		return $data;

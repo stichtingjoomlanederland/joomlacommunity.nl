@@ -61,7 +61,7 @@ class EasyDiscussControllerAddonsInstallModule extends EasyDiscussSetupControlle
 		$query = implode(' ', $query);
 
 		$db->setQuery($query);
-		$db->Query();
+		$this->edQuery($db);
 
 		// Check if this module already exists on module_menu
 		$query = array();

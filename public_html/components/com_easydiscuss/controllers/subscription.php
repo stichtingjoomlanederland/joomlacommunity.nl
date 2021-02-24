@@ -1,20 +1,15 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
-
-defined('_JEXEC') or die('Restricted access');
-
-jimport('joomla.application.component.controller');
-jimport( 'joomla.mail.helper' );
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerSubscription extends EasyDiscussController
 {
@@ -54,26 +49,26 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 		// Apply filtering on the name.
 		$filter = JFilterInput::getInstance();
 		$name = $filter->clean($name, 'STRING');
-		$email = JString::trim($email);
-		$name = JString::trim($name);
+		$email = EDJString::trim($email);
+		$name = EDJString::trim($name);
 
 		if (!JMailHelper::isEmailAddress($email)) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_INVALID_EMAIL'), 'error');
-			$this->app->redirect($redirect);
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_EMAIL'), 'error');
+			ED::redirect($redirect);
 			$this->app->close();
 		}
 
 		// Check for empty email
 		if (empty($email)) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_EMAIL_IS_EMPTY'), 'error');
-			$this->app->redirect($redirect);
+			ED::setMessage(JText::_('COM_EASYDISCUSS_EMAIL_IS_EMPTY'), 'error');
+			ED::redirect($redirect);
 			$this->app->close();
 		}
 
 		// Check for empty name
 		if (empty($name)) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_NAME_IS_EMPTY'), 'error');
-			$this->app->redirect($redirect);
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NAME_IS_EMPTY'), 'error');
+			ED::redirect($redirect);
 			$this->app->close();
 		}
 
@@ -93,15 +88,15 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 		if ($subscription) {
 			// Perhaps the user tried to change the subscription interval.
 			if ($subscription->interval == $interval) {
-				ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY'), 'success');
-				$this->app->redirect($redirect);
+				ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY'), 'success');
+				ED::redirect($redirect);
 				return $this->app->close();
 			}
 
 			// User changed their subscription interval.
 			if (!$model->updateSiteSubscription($subscription->id, $data)) {
 				//if($model->updateSiteSubscription($subRecord['id'], $subscription_info))
-				ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED'), 'error');
+				ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED'), 'error');
 				$app->redirect($redirect);
 				return $app->close();
 			}
@@ -109,20 +104,20 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 			// If the user already has an existing subscription, just let them know that their subscription is already updated.
 			$intervalMessage = JText::_('COM_EASYDISCUSS_SUBSCRIPTION_INTERVAL_' . strtoupper($interval));
 
-			ED::setMessageQueue(JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED', $intervalMessage), 'success');
-			$this->app->redirect($redirect);
+			ED::setMessage(JText::sprintf('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED', $intervalMessage), 'success');
+			ED::redirect($redirect);
 			return $this->app->close();
 		}
 
 		// If there is no subscription record for this user, add it here
 		if (!$model->addSubscription($data)) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED' ), 'error');
-			$this->app->redirect($redirect);
+			ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_FAILED' ), 'error');
+			ED::redirect($redirect);
 			return $this->app->close();
 		}
 
-		ED::setMessageQueue(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY'), 'success');
-		$this->app->redirect($redirect);
+		ED::setMessage(JText::_('COM_EASYDISCUSS_SUBSCRIPTION_UPDATED_SUCCESSFULLY'), 'success');
+		ED::redirect($redirect);
 		return $this->app->close();
 	}
 
@@ -136,7 +131,7 @@ class EasyDiscussControllerSubscription extends EasyDiscussController
 			$redirectLInk = 'index.php?option=com_easydiscuss&view=index';
 		}
 
-		$data = base64_decode(JRequest::getVar('data', ''));
+		$data = base64_decode($this->input->get('data', ''));
 
 		$param = ED::registry($data);
 		$param->type = $param->get('type', '');

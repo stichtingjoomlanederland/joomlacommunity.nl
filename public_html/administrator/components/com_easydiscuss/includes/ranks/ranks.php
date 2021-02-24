@@ -34,8 +34,8 @@ class EasyDiscussRanks extends EasyDiscuss
 			}
 
 			if ($user->id != 0) {
-				$tmpNumPostCreated = $user->numPostCreated;
-				$tmpNumPostAnswered = $user->numPostAnswered;
+				$tmpNumPostCreated = $user->getNumTopicPosted();
+				$tmpNumPostAnswered = $user->getNumTopicAnswered();
 				$curUserScore = $tmpNumPostCreated + $tmpNumPostAnswered;
 			}
 		} else {
@@ -104,7 +104,7 @@ class EasyDiscussRanks extends EasyDiscuss
 			$rank->uniqueId = $userNewRank->id;
 
 			//insert into JS stream.
-			if ($this->config->get('integration_jomsocial_activity_ranks', 0 )) {
+			if ($this->config->get('integration_jomsocial_stream', 0 )) {
 				ED::jomsocial()->addActivityRanks($rank);
 			}
 
@@ -138,8 +138,8 @@ class EasyDiscussRanks extends EasyDiscuss
 
 				if ($user->id != 0) {
 
-					$tmpNumPostCreated = $user->numPostCreated;
-					$tmpNumPostAnswered = $user->numPostAnswered;
+					$tmpNumPostCreated = $user->getNumTopicPosted();
+					$tmpNumPostAnswered = $user->getNumTopicAnswered();
 					$score = $tmpNumPostCreated + $tmpNumPostAnswered;
 				}
 			} else {

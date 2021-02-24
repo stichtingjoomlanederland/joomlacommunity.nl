@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acym__users__import__from_file" class="grid-x padding-vertical-2 padding-horizontal-2">
+<div id="acym__users__import__from_file" class="grid-x padding-vertical-2 padding-horizontal-2">
 	<div class="cell grid-x text-center">
 		<h6 class="cell">
             <?php echo acym_translation('ACYM_CHOOSE_FILE_WITH_USER_DATA'); ?>
@@ -39,5 +37,4 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 	</div>
 </div>
-
 

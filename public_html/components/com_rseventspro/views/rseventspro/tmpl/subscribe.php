@@ -64,11 +64,7 @@ JText::script('ERROR'); ?>
 	}
 </script>
 
-<?php if ($this->config->modal == 1) { ?>
-<style type="text/css">
-.rs_subscribe { margin-left: 50px; margin-top: 50px; }
-</style>
-<?php } ?>
+<?php if ($this->config->modal == 1) { ?><style type="text/css">.rs_subscribe { margin-left: 50px; margin-top: 50px; }</style><?php } ?>
 
 <?php if ($this->event->form != 0 && $this->form) { ?>
 <div class="rs_subscribe">
@@ -77,90 +73,29 @@ JText::script('ERROR'); ?>
 	<?php if (!empty($this->tickets) && !$this->thankyou) { ?><script type="text/javascript"><?php if ($this->event->ticketsconfig) { ?>rsepro_update_total();<?php } else { ?>rs_get_ticket(jQuery('#RSEProTickets').val());<?php } ?></script><?php } ?>
 </div>
 <?php } else { ?>
-<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="subscribeForm" id="subscribeForm" class="form-horizontal" autocomplete="off">
+<form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe'); ?>" method="post" name="subscribeForm" id="subscribeForm" class="rsepro-horizontal form-horizontal" autocomplete="off">
 <div class="rs_subscribe">
 	<h1><?php echo JText::sprintf('COM_RSEVENTSPRO_SUBSCRIBER_JOIN',$this->event->name); ?></h1>
 	
-	<div class="control-group">
-		<div class="control-label">
-			<label for="name"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" name="name" id="name" value="<?php echo rseventsproHelper::getUser($this->user->get('id')); ?>" size="40" class="input-large" />
-		</div>
-	</div>
-	
-	<div class="control-group">
-		<div class="control-label">
-			<label for="email"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" name="email" id="email" value="<?php echo $this->user->get('email'); ?>" size="40" class="input-large" />
-		</div>
-	</div>
+	<?php echo RSEventsproAdapterGrid::renderField('<label for="name">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_NAME').'</label>', '<input type="text" name="name" id="name" value="'.rseventsproHelper::getUser($this->user->get('id')).'" size="40" class="input-large form-control" />'); ?>
+	<?php echo RSEventsproAdapterGrid::renderField('<label for="email">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_EMAIL').'</label>', '<input type="text" name="email" id="email" value="'.$this->user->get('email').'" size="40" class="input-large form-control" />'); ?>
 	
 	<?php if (!empty($this->tickets)) { ?>
 	
 	<?php if ($this->event->ticketsconfig) { ?>
-	<div class="control-group">
-		<div class="control-label">
-			<label>&nbsp;</label>
-		</div>
-		<div class="controls">
-			<a href="javascript:void(0);" onclick="RSopenModal();">
-				<i class="fa fa-shopping-cart"></i> <span id="rsepro_cart"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_TICKETS'); ?></span>
-			</a>
-		</div>
-	</div>
-	
+	<?php echo RSEventsproAdapterGrid::renderField('', '<a href="javascript:void(0);" onclick="RSopenModal();"><i class="fa fa-shopping-cart"></i> <span id="rsepro_cart">'.JText::_('COM_RSEVENTSPRO_SELECT_TICKETS').'</span></a>'); ?>
 	<?php } else { ?>
-	
-	<div class="control-group">
-		<div class="control-label">
-			<label for="ticket"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SELECT_TICKETS'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" id="numberinp" name="numberinp" value="1" size="3" style="display: none;" onkeyup="<?php echo $this->js; ?>" class="input-mini" />
-			<select name="number" id="number" class="input-mini" onchange="<?php echo $this->js; ?>"><option value="1">1</option></select>
-			<select name="ticket" id="ticket" onchange="<?php echo $this->js; ?>" size="1" class="input-large">
-				<?php echo JHtml::_('select.options', $this->tickets); ?>
-			</select>
-			<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rs_loader', 'style' => 'vertical-align: middle; display: none;'), true); ?> 
-			<?php if ($this->config->multi_tickets) { ?>
-			<a href="javascript:void(0);" onclick="rsepro_add_multiple_tickets();"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_TICKET'); ?></a>
-			<?php } ?>
-		</div>
-	</div>
-	
+	<?php $input = '<select name="ticket" id="ticket" onchange="'.$this->js.'" size="1" class="input-large custom-select">'.JHtml::_('select.options', $this->tickets).'</select>'; ?>
+	<?php $prepend = '<input type="text" id="numberinp" name="numberinp" value="1" size="3" style="display: none;" onkeyup="'.$this->js.'" class="input-mini form-control" /><select name="number" id="number" class="input-mini custom-select" onchange="'.$this->js.'"><option value="1">1</option></select>'; ?>
+	<?php $append = $this->config->multi_tickets ? '<a href="javascript:void(0);" onclick="rsepro_add_multiple_tickets();">'.JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rs_loader', 'style' => 'vertical-align: middle; display: none;'), true).JText::_('COM_RSEVENTSPRO_SUBSCRIBER_ADD_TICKET').'</a>' : null; ?>
+	<?php echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_SUBSCRIBER_SELECT_TICKETS'), RSEventsproAdapterGrid::inputGroup($input, $prepend, $append)); ?>
 	<?php } ?>
 	
 	<?php if ($this->payment && $this->payments) { ?>
-	
-	<div class="control-group" id="rsepro_payment">
-		<div class="control-label">
-			<label for="payment"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_METHOD'); ?></label>
-		</div>
-		<div class="controls">
-			<?php echo $this->lists['payments']; ?>
-		</div>
-	</div>
-	
+	<?php echo RSEventsproAdapterGrid::renderField('<label for="payment">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_METHOD').'</label>', $this->lists['payments']); ?>
 	<?php if ($this->event->discounts) { ?>
-	
-	<div class="control-group">
-		<div class="control-label">
-			<label for="coupon"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_COUPON'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" name="coupon" id="coupon" value="" size="40" class="input-large" />
-			<a href="javascript:void(0)" onclick="rse_verify_coupon(<?php echo $this->event->id; ?>,document.getElementById('coupon').value)">
-				<i class="fa fa-refresh"></i>
-			</a>
-		</div>
-	</div>
-	
+	<?php echo RSEventsproAdapterGrid::renderField('<label for="coupon">'.JText::_('COM_RSEVENTSPRO_SUBSCRIBER_PAYMENT_COUPON').'</label>', RSEventsproAdapterGrid::inputGroup('<input type="text" name="coupon" id="coupon" value="" size="40" class="input-large form-control" />', null, '<a href="javascript:void(0)" onclick="rse_verify_coupon('.$this->event->id.',document.getElementById(\'coupon\').value)"><i class="fa fa-refresh"></i></a>')); ?>
 	<?php } ?>
-	
 	<?php } ?>
 	
 	<?php if (in_array(2,$this->captcha_use)) { ?>
@@ -172,7 +107,7 @@ JText::script('ERROR'); ?>
 			<span class="explain">
 				<?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_TEXT'); ?> <?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_RELOAD'); ?>
 			</span>
-			<input type="text" id="rsepro_subscribe_secret" name="secret" value="" class="input-large" />
+			<input type="text" id="rsepro_subscribe_secret" name="secret" value="" class="input-large form-control" />
 		</div>
 		<?php } elseif ($this->config->captcha == 2) { ?>
 		<div class="controls">
@@ -236,7 +171,7 @@ JText::script('ERROR'); ?>
 			<span class="explain">
 				<?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_TEXT'); ?> <?php echo JText::_('COM_RSEVENTSPRO_CAPTCHA_RELOAD'); ?>
 			</span>
-			<input type="text" id="rsepro_subscribe_secret" name="secret" value="" class="input-large" />
+			<input type="text" id="rsepro_subscribe_secret" name="secret" value="" class="input-large form-control" />
 		</div>
 		<?php } elseif ($this->config->captcha == 2) { ?>
 		<div class="controls">

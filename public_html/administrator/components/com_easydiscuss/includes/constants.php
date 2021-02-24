@@ -21,30 +21,46 @@ define('DISCUSS_JOOMLA_ADMIN_TEMPLATES_URI', DISCUSS_JURIROOT . '/administrator/
 define('DISCUSS_JOOMLA_MODULES', JPATH_ROOT . '/modules');
 define('DISCUSS_JOOMLA_MODULES_URI', DISCUSS_JURIROOT . '/modules');
 
-define('DISCUSS_ROOT', JPATH_ROOT . '/components/com_easydiscuss');
+define('ED_ROOT', JPATH_ROOT . '/components/com_easydiscuss');
+define('DISCUSS_ROOT', ED_ROOT);
+
 define('DISCUSS_ROOT_URI', DISCUSS_JURIROOT . '/components/com_easydiscuss');
-define('DISCUSS_ADMIN_ROOT', JPATH_ADMINISTRATOR . '/components/com_easydiscuss');
+define('ED_ADMIN', JPATH_ADMINISTRATOR . '/components/com_easydiscuss');
+define('DISCUSS_ADMIN_ROOT', ED_ADMIN);
+define('ED_MODELS', ED_ADMIN . '/models');
+define('DISCUSS_MODELS', ED_MODELS);
+
 define('DISCUSS_ADMIN_ROOT_URI', DISCUSS_JURIROOT . '/administrator/components/com_easydiscuss');
+define('ED_LIB', ED_ADMIN . '/includes');
+define('DISCUSS_ADMIN_INCLUDES', ED_LIB);
+
+define('ED_DEFAULTS', ED_ADMIN . '/defaults');
 define('DISCUSS_MEDIA', JPATH_ROOT . '/media/com_easydiscuss');
 define('DISCUSS_MEDIA_URI', DISCUSS_JURIROOT . '/media/com_easydiscuss');
 define('DISCUSS_EMOTICONS_URI', DISCUSS_MEDIA_URI . '/images/markitup');
-define('DISCUSS_MODELS', DISCUSS_ADMIN_ROOT . '/models');
-define('DISCUSS_THEMES', DISCUSS_ROOT . '/themes');
+
+define('ED_THEMES', ED_ROOT . '/themes');
+define('DISCUSS_THEMES', ED_THEMES);
+
 define('DISCUSS_THEMES_URI', DISCUSS_ROOT_URI . '/themes');
 define('DISCUSS_CONTROLLERS', DISCUSS_ROOT . '/controllers');
 define('DISCUSS_CLASSES', DISCUSS_ROOT . '/classes');
 define('DISCUSS_HELPERS', DISCUSS_ROOT . '/helpers');
 define('DISCUSS_TABLES', DISCUSS_ADMIN_ROOT . '/tables');;
-
 define('DISCUSS_ASSETS', DISCUSS_ROOT . '/assets');
 define('DISCUSS_ASSETS_URI', DISCUSS_ROOT_URI . '/assets');
 define('DISCUSS_ADMIN_ASSETS', DISCUSS_ADMIN_ROOT . '/assets');
 define('DISCUSS_ADMIN_ASSETS_URI', DISCUSS_ADMIN_ROOT_URI . '/assets');
 define('DISCUSS_ADMIN_UPDATES', DISCUSS_ADMIN_ROOT . '/updates');
-define('DISCUSS_ADMIN_INCLUDES', DISCUSS_ADMIN_ROOT . '/includes');
+
 define('DISCUSS_ADMIN_THEMES', DISCUSS_ADMIN_ROOT . '/themes');
 define('DISCUSS_ADMIN_THEMES_URI', DISCUSS_ADMIN_ROOT_URI . '/themes');
-define('DISCUSS_POWERED_BY', '<div style="text-align: center; padding: 20px 0;"><a href="https://stackideas.com">Powered by EasyDiscuss for Joomla!</a></div>');
+define('DISCUSS_POWERED_BY', '<div class="t-font-size--01 t-text--center"><a href="https://stackideas.com/easydiscuss" target="_blank">Discussions Powered by EasyDiscuss For Joomla!</a></div>');
+
+// Optimizer
+define('ED_OPTIMIZER_SERVER', 'https://services.stackideas.com/optimizer');
+define('ED_OPTIMIZER_FAILED', -1);
+define('ED_OPTIMIZER_SUCCESS', 1);
 
 // GDPR Download Folder
 define('DISCUSS_GDPR_DOWNLOADS', DISCUSS_MEDIA . '/downloads');
@@ -75,7 +91,7 @@ define('DISCUSS_ENTRY_UNRESOLVED'   , 0);
 
 // Notification queue types
 define('DISCUSS_QUEUE_SUCCESS', 'success');
-define('DISCUSS_QUEUE_ERROR', 'error');
+define('DISCUSS_QUEUE_ERROR', 'danger');
 define('DISCUSS_QUEUE_WARNING', 'warning');
 
 // Post status ID
@@ -98,6 +114,8 @@ define('DISCUSS_CATEGORY_ACL_ACTION_VIEW', 2);
 define('DISCUSS_CATEGORY_ACL_ACTION_REPLY', 3);
 define('DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY'  , 4);
 define('DISCUSS_CATEGORY_ACL_MODERATOR', 5);
+define('DISCUSS_CATEGORY_ACL_ACTION_UPLOAD_ATTACHMENT', 6);
+define('DISCUSS_CATEGORY_ACL_ACTION_COMMENT', 7);
 
 // Notifications constants
 define('DISCUSS_NOTIFICATIONS_MENTIONED', 'mention');
@@ -157,8 +175,6 @@ define('DISCUSS_HISTORY_POINTS', 'points');
 //
 define('DISCUSS_POSTER_GUEST', 'guest');
 define('DISCUSS_POSTER_MEMBER', 'member');
-
-// Like type
 define('DISCUSS_ENTITY_TYPE_POST', 'post');
 
 // Access types for category
@@ -197,6 +213,8 @@ define('DISCUSS_TAGS_LIMIT', 18);
 define('ED_UPDATER', 'https://stackideas.com/updater/manifests/easydiscuss');
 define('ED_SERVICE_VERSION', 'https://stackideas.com/updater/manifests/easydiscuss');
 define('ED_JUPDATE_SERVICE', 'https://stackideas.com/jupdates/manifest/easydiscuss');
+define('ED_SERVICE_PACKAGES_DISCOVER', 'https://services.stackideas.com/packages/discover/easydiscuss');
+define('ED_SERVICE_PACKAGES_DOWNLOAD', 'https://services.stackideas.com/packages/download/easydiscuss');
 
 // Language server
 define('ED_LANGUAGES_SERVER', 'https://services.stackideas.com/translations/easydiscuss');
@@ -221,7 +239,25 @@ define('DISCUSS_DOWNLOAD_REQ_READY', 3);
 define('DISCUSS_SYNC_THREAD_REPLY', 'thread.reply');
 
 // Meta type
+define('ED_META_TYPE_POST', 'post');
 define('ED_META_TYPE_CATEGORY', 'category');
 define('ED_META_TYPE_FORUM_CATEGORY', 'forumCategory');
+define('ED_META_TYPE_TAG', 'tag');
+define('ED_META_TYPE_PROFILE', 'profile');
+define('ED_META_TYPE_BADGES', 'badges');
 
+define('ED_JROUTER_MODE_SEF', 1);
 
+// Exceptions
+define('ED_EXCEPTION_MESSAGE', 'message');
+define('ED_EXCEPTION_UPLOAD', 'upload');
+define('ED_MSG_SUCCESS', 'success');
+define('ED_MSG_WARNING', 'warning');
+define('ED_MSG_ERROR', 'danger');
+define('ED_MSG_INFO', 'info');
+define('ED_ERROR_CODE_FIELDS', -500);
+
+// Packages
+define('ED_PACKAGE_INSTALLED', 1);
+define('ED_PACKAGE_NOT_INSTALLED', 0);
+define('ED_PACKAGE_NEEDS_UPDATING', 3);

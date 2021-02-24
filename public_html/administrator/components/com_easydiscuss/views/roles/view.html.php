@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewRoles extends EasyDiscussAdminView
 {
@@ -23,10 +21,10 @@ class EasyDiscussViewRoles extends EasyDiscussAdminView
 	 */
 	public function display($tpl = null)
 	{
-		$this->checkAccess('discuss.manage.roles');
+		$this->checkAccess('discuss.manage.users');
 
-		// Page attributes
 		$this->title('COM_EASYDISCUSS_ROLES');
+		$this->addHelpButton('/docs/easydiscuss/administrators/configuration/adding-new-user-roles');
 
 		JToolbarHelper::addNew();
 		JToolBarHelper::divider();
@@ -35,10 +33,7 @@ class EasyDiscussViewRoles extends EasyDiscussAdminView
 		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
 
-		// Filtering
 		$filter = $this->getUserState('roles.filter_state', 'filter_state', '*', 'word');
-
-		// Search
 		$search = $this->getUserState('roles.search', 'search', '', 'string');
 		$search = trim(strtolower($search));
 
@@ -69,7 +64,7 @@ class EasyDiscussViewRoles extends EasyDiscussAdminView
 	 */
 	public function form($tpl = null)
 	{
-		$this->checkAccess('discuss.manage.roles');
+		$this->checkAccess('discuss.manage.users');
 
 		$id = $this->input->get('id', 0, 'int');
 

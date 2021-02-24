@@ -1,23 +1,26 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task='.acym_getVar('string', 'task').'&id='.acym_getVar('string', 'id')); ?>" method="post" name="acyForm" class="acym__form__campaign__edit">
+<form id="acym_form"
+	  action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl').'&task='.acym_getVar('string', 'task').'&id='.acym_getVar('string', 'id')); ?>"
+	  method="post"
+	  name="acyForm"
+	  class="acym__form__campaign__edit">
 	<input type="hidden" name="id" value="<?php echo acym_escape($data['id']); ?>">
 	<div class="cell grid-x">
 		<div class="cell medium-auto"></div>
 		<div id="acym__campaigns__tests" class="cell xxlarge-9 grid-x acym__content">
             <?php
-            $workflow = acym_get('helper.workflow');
+            $this->addSegmentStep($data['displaySegmentTab']);
+            $workflow = $data['workflowHelper'];
             echo $workflow->display($this->steps, $this->step);
             ?>
 			<div class="cell grid-x grid-margin-x" id="campaigns_tests_step">
 				<div id="spam_test_zone" class="cell large-5">
-					<h6 class="acym_zone_title"><?php echo acym_translation('ACYM_SAFE_CHECK'); ?></h6>
+					<h6 class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_SAFE_CHECK').acym_info('ACYM_INTRO_SAFE_CHECK'); ?></h6>
 					<p class="margin-bottom-1"><?php echo acym_translation('ACYM_SAFE_CHECK_DESC'); ?></p>
 					<div class="grid-x align-center">
 						<div class="cell">
                             <?php
                             if (empty($data['upgrade'])) { ?>
-								<button id="launch_spamtest" class="button hollow" type="button"><?php echo acym_translation('ACYM_RUN_SPAM_TEST'); ?></button>
+								<button id="launch_spamtest" class="button button-secondary" type="button"><?php echo acym_translation('ACYM_RUN_SPAM_TEST'); ?></button>
                             <?php }
                             ?>
 						</div>
@@ -39,7 +42,7 @@ defined('_JEXEC') or die('Restricted access');
 							<div class="cell acym_check_results"></div>
 
                             <?php
-                            $spamtestRow = '<div class="cell grid-x acym_vcenter" id="check_spam" data-iframe="spamtestpopup">
+                            $spamtestRow = '<div class="cell grid-x acym_vcenter" id="check_spam" data-iframe="spamtestpopup" data-iframe-class="acym__iframe_spamtest">
 													<div class="cell small-10">'.acym_translation('ACYM_TESTS_SPAM').'</div>
 													<div class="cell small-2 text-center acym_icon_container">'.$iconSpamTest.'</div>
 												</div>';
@@ -66,7 +69,9 @@ defined('_JEXEC') or die('Restricted access');
                             $getProBtn = acym_buttonGetProVersion('cell shrink', 'ACYM_GET_ENTERPRISE_VERSION');
                         }
                         echo '<div class="cell grid-x grid-margin-x margin-top-2 align-center acym__campaigns__test__pro" '.$blocDisplay.'>';
-                        echo '<a href="https://docs.acymailing.com/main-pages/campaigns/tests" target="_blank" class="button button-secondary cell shrink">'.acym_translation('ACYM_SEE_MORE').'</a>';
+                        echo '<a href="'.ACYM_DOCUMENTATION.'main-pages/campaigns/tests" target="_blank" class="button button-secondary cell shrink">'.acym_translation(
+                                'ACYM_SEE_MORE'
+                            ).'</a>';
                         echo $getProBtn;
                         echo '</div>';
                         ?>
@@ -74,7 +79,7 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<div class="cell large-1 margin-top-2 acym_zone_separator"></div>
 				<div id="send_test_zone" class="cell large-6">
-					<h6 class="acym_zone_title"><?php echo acym_translation('ACYM_SEND_TEST_TO'); ?></h6>
+					<h6 class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_SEND_TEST_TO'); ?></h6>
                     <?php
 
                     echo acym_selectMultiple(
@@ -90,12 +95,20 @@ defined('_JEXEC') or die('Restricted access');
                     ?>
 					<label class="margin-top-1">
                         <?php echo acym_translation('ACYM_TEST_NOTE'); ?>
-						<textarea class="acym__blue" id="acym__wysid__send__test__note" name="test_note" type="text" placeholder="<?php echo acym_translation('ACYM_TEST_NOTE_PLACEHOLDER', true); ?>"></textarea>
+						<textarea
+								id="acym__wysid__send__test__note"
+								name="test_note"
+								type="text"
+								placeholder="<?php echo acym_translation('ACYM_TEST_NOTE_PLACEHOLDER', true); ?>"></textarea>
 					</label>
-					<button id="acym__campaign__send-test" type="button" class="button hollow">
-                        <?php echo acym_translation('ACYM_SEND_TEST'); ?>
-					</button>
-					<i class="acymicon-circle-o-notch acymicon-spin" id="acym__campaigns__send-test__spinner" style="display: none"></i>
+					<div class="grid-x">
+						<button id="acym__campaign__send-test" type="button" class="button button-secondary margin-top-1">
+                            <?php echo acym_translation('ACYM_SEND_TEST'); ?>
+						</button>
+						<div class="cell shrink margin-top-1 margin-left-1" id="acym__campaigns__send-test__spinner" style="display: none">
+							<i class="acymicon-circle-o-notch acymicon-spin"></i>
+						</div>
+					</div>
 				</div>
 			</div>
 
@@ -105,7 +118,10 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 				<div class="cell medium-auto grid-x text-right">
 					<div class="cell medium-auto"></div>
-					<button data-task="save" data-step="listing" type="submit" class="cell button-secondary medium-shrink button medium-margin-bottom-0 margin-right-1 acy_button_submit">
+					<button data-task="save"
+							data-step="listing"
+							type="submit"
+							class="cell button-secondary medium-shrink button medium-margin-bottom-0 margin-right-1 acy_button_submit">
                         <?php echo acym_translation('ACYM_SAVE_EXIT'); ?>
 					</button>
 					<button data-task="save" data-step="summary" type="submit" class="cell medium-shrink button margin-bottom-0 acy_button_submit">
@@ -118,4 +134,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(true, 'edit', 'tests'); ?>
 </form>
-

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,31 +11,36 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<input type="text" 
-	name="order[]" 
-	value="<?php echo $index; ?>" 
-	class="order-value input-xsmall" disabled="disabled"
-/>
+<div class="app-order-group">
+	<div class="app-order-group__item">
+		<input type="text" 
+			name="order[]" 
+			value="<?php echo $index; ?>" 
+			class="order-value input-xsmall" disabled="disabled"
+		/>
+	</div>
 
-<?php if ($allowed) { ?>
-	
-	<span class="order-up">
-		<?php if ($index > 1) { ?>
-		<a href="javascript:void(0);" data-ed-ordering data-task="orderup" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('Move Up');?>">
-			<i class="fa fa-chevron-up"></i>
-		</a>
-		<?php } else { ?>
-			&#160;
-		<?php } ?>
-	</span>
+	<?php if ($allowed) { ?>
+		<div class="app-order-group__item">
+			<span class="order-up">
+				<?php if ($index > 1) { ?>
+				<a href="javascript:void(0);" class="o-btn" data-ed-ordering data-task="orderup" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('Move Up');?>">
+					<i class="fa fa-chevron-up"></i>
+				</a>
+				<?php } else { ?>
+					&#160;
+				<?php } ?>
+			</span>
 
-	<span class="order-down">
-		<?php if ($index < $total) { ?>
-		<a href="javascript:void(0);" data-ed-ordering data-task="orderdown" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('Move Down');?>">
-			<i class="fa fa-chevron-down"></i>
-		</a>
-		<?php } else { ?>
-			&#160;
-		<?php } ?>
-	</span>
-<?php } ?>
+			<span class="order-down">
+				<?php if ($index < $total) { ?>
+				<a href="javascript:void(0);" class="o-btn" data-ed-ordering data-task="orderdown" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('Move Down');?>">
+					<i class="fa fa-chevron-down"></i>
+				</a>
+				<?php } else { ?>
+					&#160;
+				<?php } ?>
+			</span>
+		</div>
+	<?php } ?>
+</div>

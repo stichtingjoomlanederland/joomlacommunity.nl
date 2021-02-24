@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if (empty($data['allCampaigns'])) { ?>
+<?php if (empty($data['allCampaigns'])) { ?>
 	<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
 <?php } else { ?>
 	<div class="cell margin-bottom-1 acym__listing__actions grid-x">
@@ -30,7 +28,9 @@ defined('_JEXEC') or die('Restricted access');
                         'draft' => ['ACYM_DRAFT', $data['allStatusFilter']->draft],
                     ];
                 }
-                echo acym_filterStatus($options, $data['status'], 'campaigns_status');
+                if (isset($data['campaign_type'])) {
+                    echo acym_filterStatus($options, $data['status'], $data['campaign_type'].'_status');
+                }
                 ?>
 			</div>
 		</div>
@@ -38,7 +38,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell acym_listing_sort-by">
                 <?php echo acym_sortBy(
                     [
-                        'id' => strtolower(acym_translation('ACYM_ID')),
+                        'id' => acym_strtolower(acym_translation('ACYM_ID')),
                         'name' => acym_translation('ACYM_NAME'),
                         'sending_date' => acym_translation('ACYM_SENDING_DATE'),
                         'creation_date' => acym_translation('ACYM_DATE_CREATED'),
@@ -46,7 +46,9 @@ defined('_JEXEC') or die('Restricted access');
                         'active' => acym_translation('ACYM_ACTIVE'),
                         'sent' => acym_translation('ACYM_SENT'),
                     ],
-                    'campaigns'
+                    $data['campaign_type'],
+                    $data['ordering'],
+                    $data['orderingSortOrder']
                 ); ?>
 			</div>
 		</div>
@@ -60,7 +62,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="medium-auto small-11 cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_CAMPAIGNS'); ?>
 				</div>
-				<div class="large-2 medium-3 hide-for-small-only cell acym__listing__header__title">
+				<div class="<?php echo $data['campaign_type'] == 'campaigns_auto' ? 'large-1' : 'large-2'; ?> medium-3 hide-for-small-only cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_LISTS'); ?>
 				</div>
 				<div class="large-2 medium-4 hide-for-small-only cell acym__listing__header__title text-center">
@@ -80,6 +82,16 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="large-1 hide-for-small-only hide-for-medium-only text-center cell acym__listing__header__title">
                     <?php echo acym_translation('ACYM_CLICK'); ?>
 				</div>
+                <?php if (acym_isTrackingSalesActive()) { ?>
+					<div class="large-1 hide-for-small-only hide-for-medium-only text-center cell acym__listing__header__title">
+                        <?php echo acym_translation('ACYM_INCOME'); ?>
+					</div>
+                <?php } ?>
+                <?php if (acym_isAdmin()) { ?>
+					<div class="large-1 cell hide-for-small-only hide-for-medium-only text-center acym__listing__header__title">
+                        <?php echo acym_translation('ACYM_VISIBLE').acym_info('ACYM_VISIBLE_CAMPAIGN_DESC', 'acym__tooltip__in__listing__header'); ?>
+					</div>
+                <?php } ?>
 				<div class="large-1 cell hide-for-small-only hide-for-medium-only text-center acym__listing__header__title">
                     <?php echo acym_translation('ACYM_ID'); ?>
 				</div>
@@ -107,12 +119,12 @@ defined('_JEXEC') or die('Restricted access');
                                 echo acym_translation('ACYM_SENDING_DATE').' : '.acym_date($campaign->sending_date, 'M. j, Y');
                             } elseif ($data['statusAuto'] === $campaign->sending_type) {
                                 $numberCampaignsGenerated = empty($campaign->sending_params['number_generated']) ? '0' : $campaign->sending_params['number_generated'];
-                                echo acym_translation_sprintf('ACYM_X_CAMPAIGN_GENERATED', $numberCampaignsGenerated);
+                                echo acym_translationSprintf('ACYM_X_CAMPAIGN_GENERATED', $numberCampaignsGenerated);
                             }
                             ?>
 						</p>
 					</div>
-					<div class="large-2 medium-3 small-5 cell">
+					<div class="<?php echo $data['campaign_type'] == 'campaigns_auto' ? 'large-1' : 'large-2'; ?> medium-3 small-5 cell">
                         <?php
                         if (!empty($campaign->lists)) {
                             echo '<div class="grid-x cell text-center">';
@@ -121,7 +133,11 @@ defined('_JEXEC') or die('Restricted access');
                             }
                             echo '</div>';
                         } else {
-                            echo '<div class="cell medium-12">'.(empty($campaign->automation) ? acym_translation('ACYM_NO_LIST_SELECTED') : acym_translation('ACYM_SENT_WITH_AUTOMATION')).'</div>';
+                            echo '<div class="cell medium-12">'.(empty($campaign->automation)
+                                    ? acym_translation('ACYM_NO_LIST_SELECTED')
+                                    : acym_translation(
+                                        'ACYM_SENT_WITH_AUTOMATION'
+                                    )).'</div>';
                         }
                         ?>
 					</div>
@@ -134,12 +150,22 @@ defined('_JEXEC') or die('Restricted access');
                                 echo acym_translation('ACYM_SENT').' : '.acym_escape($campaign->subscribers).' '.acym_translation('ACYM_RECIPIENTS');
                                 echo '</span></div>';
                             } elseif ($campaign->scheduled && !$campaign->draft) {
-                                echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_SCHEDULED').' : '.acym_date($campaign->sending_date, 'M. j, Y').'</span></div>';
-                                $target = '<div class="acym__campaign__listing__scheduled__stop grid-x cell xlarge-shrink acym_vcenter" data-campaignid="'.acym_escape($campaign->id).'"><i class="acymicon-times-circle cell shrink show-for-xlarge"></i><span class="cell xlarge-shrink">'.acym_translation('ACYM_CANCEL_SCHEDULING').'</span></div>';
-                                echo '<div class="cell acym__campaign__listing__status__controls"><div class="grid-x text-center"><div class="cell auto"></div>'.acym_tooltip($target, acym_translation('ACYM_STOP_THE_SCHEDULING_AND_SET_CAMPAIGN_AS_DRAFT')).'<div class="cell auto"></div></div></div>';
+                                echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_SCHEDULED').' : '.acym_date(
+                                        $campaign->sending_date,
+                                        'M. j, Y'
+                                    ).'</span></div>';
+                                $target = '<div class="acym__campaign__listing__scheduled__stop grid-x cell xlarge-shrink acym_vcenter" data-campaignid="'.acym_escape(
+                                        $campaign->id
+                                    ).'"><i class="acymicon-times-circle cell shrink show-for-xlarge"></i><span class="cell xlarge-shrink">'.acym_translation(
+                                        'ACYM_CANCEL_SCHEDULING'
+                                    ).'</span></div>';
+                                echo '<div class="cell acym__campaign__listing__status__controls"><div class="grid-x text-center"><div class="cell auto"></div>'.acym_tooltip(
+                                        $target,
+                                        acym_translation('ACYM_STOP_THE_SCHEDULING_AND_SET_CAMPAIGN_AS_DRAFT')
+                                    ).'<div class="cell auto"></div></div></div>';
                             } elseif ($data['statusAuto'] === $campaign->sending_type && !$campaign->draft) {
                                 $numberCampaignsGenerated = empty($campaign->sending_params['number_generated']) ? '0' : $campaign->sending_params['number_generated'];
-                                $tooltip = acym_translation_sprintf('ACYM_X_CAMPAIGN_GENERATED', $numberCampaignsGenerated);
+                                $tooltip = acym_translationSprintf('ACYM_X_CAMPAIGN_GENERATED', $numberCampaignsGenerated);
 
                                 echo acym_tooltip(
                                     '<div class="cell acym__campaign__status__status acym__background-color__purple">
@@ -148,9 +174,15 @@ defined('_JEXEC') or die('Restricted access');
                                     $tooltip,
                                     'cell'
                                 );
-                                $target = '<div class="acym__campaign__listing__automatic__deactivate grid-x cell xlarge-shrink acym_vcenter" data-campaignid="'.acym_escape($campaign->id).'">
+                                $target = '<div class="acym__campaign__listing__automatic__deactivate grid-x cell xlarge-shrink acym_vcenter" data-campaignid="'.acym_escape(
+                                        $campaign->id
+                                    ).'">
 															<i class="'.($campaign->active ? 'acymicon-times-circle' : 'acymicon-power-off').' cell shrink show-for-xlarge"></i>
-															<span class="cell xlarge-shrink">'.($campaign->active ? acym_translation('ACYM_DEACTIVATE') : acym_translation('ACYM_ACTIVATE')).'</span>
+															<span class="cell xlarge-shrink">'.($campaign->active
+                                        ? acym_translation('ACYM_DEACTIVATE')
+                                        : acym_translation(
+                                            'ACYM_ACTIVATE'
+                                        )).'</span>
 														</div>';
                                 echo '<div class="cell acym__campaign__listing__status__controls">
 													<div class="grid-x text-center">
@@ -158,9 +190,13 @@ defined('_JEXEC') or die('Restricted access');
 													</div>
 												</div>';
                             } elseif ('generated' == $data['status'] && $campaign->draft) {
-                                echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_WAITING_FOR_CONFIRMATION').'</span></div>';
+                                echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation(
+                                        'ACYM_WAITING_FOR_CONFIRMATION'
+                                    ).'</span></div>';
                             } elseif ('generated' == $data['status'] && !$campaign->active) {
-                                echo '<div class="cell acym__campaign__status__status acym__background-color__red"><span class="acym__color__white">'.acym_translation('ACYM_DISABLED').'</span></div>';
+                                echo '<div class="cell acym__campaign__status__status acym__background-color__red"><span class="acym__color__white">'.acym_translation(
+                                        'ACYM_DISABLED'
+                                    ).'</span></div>';
                             } elseif ($campaign->draft) {
                                 echo '<div class="cell acym__campaign__status__status acym__campaign__status__draft"><span>'.acym_translation('ACYM_DRAFT').'</span></div>';
                             }
@@ -205,6 +241,35 @@ defined('_JEXEC') or die('Restricted access');
                         }
                         ?>
 					</div>
+                    <?php if (acym_isTrackingSalesActive()) { ?>
+						<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center">
+                            <?php
+                            if (!empty($campaign->sale) && !empty($campaign->currency)) {
+                                echo round($campaign->sale, 2).' '.$campaign->currency;
+                            } else {
+                                echo '-';
+                            }
+                            ?>
+						</div>
+                    <?php } ?>
+                    <?php if (acym_isAdmin()) { ?>
+						<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center">
+                            <?php
+                            if ($campaign->visible == 1) {
+                                $class = 'acymicon-eye" data-acy-newvalue="0';
+                                $tooltip = 'ACYM_VISIBLE';
+                            } else {
+                                $class = 'acymicon-eye-slash acym__color__dark-gray" data-acy-newvalue="1';
+                                $tooltip = 'ACYM_INVISIBLE';
+                            }
+                            echo acym_tooltip(
+                                '<i data-acy-table="campaign" data-acy-field="visible" data-acy-elementid="'.acym_escape($campaign->id).'" class="acym_toggleable '.$class.'"></i>',
+                                acym_translation($tooltip),
+                                'secondary_status'
+                            );
+                            ?>
+						</div>
+                    <?php } ?>
 					<h6 class="large-1 hide-for-medium-only hide-for-small-only cell text-center acym__listing__text"><?php echo acym_escape($campaign->id); ?></h6>
 				</div>
 			</div>
@@ -214,4 +279,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php echo $data['pagination']->display('campaigns');
 }
-

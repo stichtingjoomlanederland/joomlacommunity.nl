@@ -8,11 +8,12 @@
  * @link       https://extensions.perfectwebteam.com
  */
 
+defined('_JEXEC') or die;
+
+use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Form\FormField;
 use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Layout\FileLayout;
-
-defined('_JEXEC') or die;
 
 /**
  * The PWT Image form field Image.
@@ -54,7 +55,7 @@ class PwtimageFormFieldCanvas extends FormField
 			$modalId = uniqid();
 
 			// Check if the image exists
-			if (JFile::exists('../' . $value))
+			if (File::exists('../' . $value))
 			{
 				$value = '../' . $value;
 			}
@@ -132,7 +133,12 @@ class PwtimageFormFieldCanvas extends FormField
 
 			if (isset($this->element['showRotationTools']))
 			{
-				$data['showRotationTools'] = (string) $this->element['showRotationTools'] === 'false' ? false : true;
+				$data['showRotationTools'] = (string) $this->element['showRotationTools'];
+			}
+
+			if (isset($this->element['showAspectRatioTools']))
+			{
+				$data['showAspectRatioTools'] = (string) $this->element['showAspectRatioTools'] === 'false' ? false : true;
 			}
 
 			if (isset($this->element['showFlippingTools']))

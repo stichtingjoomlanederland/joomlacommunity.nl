@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,60 +13,64 @@ defined('_JEXEC') or die('Restricted access');
 
 class EasyDiscussControllerBans extends EasyDiscussController
 {
-	function __construct()
-	{
-		parent::__construct();
-	}
-
 	public function purge()
 	{
 		ED::checkToken();
 
-		$db = ED::db();
-		$query = 'DELETE FROM ' . $db->quoteName('#__discuss_users_banned');
+		$model = ED::model('Bans');
+		$model->purge();
 
-		$db->setQuery($query);
-		$db->Query();
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_PURGED_BANNED_USER', 'user');
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_BANS_PURGED'), 'success');
-
-		$this->setRedirect('index.php?option=com_easydiscuss&view=bans');
+		return ED::redirect('index.php?option=com_easydiscuss&view=bans');
 	}
 
-	function remove()
+	public function remove()
 	{
 		// Check for request forgeries
 		ED::checkToken();
 
-		$bans = JRequest::getVar('cid', '', 'POST');
+		$bannedUsers = $this->input->get('cid', array(), 'array');
+		$redirection = 'index.php?option=com_easydiscuss&view=bans';
 
 		$message = '';
 		$type = 'success';
 
-		if (empty($bans)) {
+		if (empty($bannedUsers)) {
 			$message = JText::_('COM_EASYDISCUSS_NO_BAN_ID_PROVIDED');
-			$type = 'error';
+			$type = ED_MSG_ERROR;
 		}
 
-		$table = ED::table('Ban');
+		$banTbl = ED::table('Ban');
 
-		foreach ($bans as $id) {
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		foreach ($bannedUsers as $banId) {
 			
-			$table->load($id);
+			$banTbl->load($banId);
 
-			if (!$table->delete()) {
-				
-				ED::setMessage(JText::_('COM_EASYDISCUSS_SPOOLS_DELETE_ERROR'), 'error');
+       		// Delete the banned user record now
+			$state = $banTbl->delete();
 
-				$this->setRedirect('index.php?option=com_easydiscuss&view=bans');
-				return;
+			if (!$state) {
+				ED::setMessage(JText::_('COM_EASYDISCUSS_SPOOLS_DELETE_ERROR'), ED_MSG_ERROR);
+				return ED::redirect($redirection);
 			}
+
+	        $actionlogUserPermalink = $actionlog->normalizeActionLogUserPermalink($banTbl->userid);
+			$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_DELETED_BANNED_USER', 'user', array(
+				'authorLink' => $actionlogUserPermalink,
+				'authorName' => $banTbl->banned_username
+			));
 		}
 
 		$message = JText::_('COM_EASYDISCUSS_BAN_LISTS_DELETED');
 
 		ED::setMessage($message, $type);
-
-		$this->setRedirect('index.php?option=com_easydiscuss&view=bans');
+		return ED::redirect($redirection);
 	}
 }

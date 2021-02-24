@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -13,23 +13,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.filesystem.file');
 
-// Include main engine
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+require_once(ED_ROOT . '/views/views.php');
 
-// What is this for?
-ED::getUserGids();
-ED::getSAUsersIds();
+require_once(JPATH_COMPONENT . '/controllers/controller.php');
 
-// AJAX calls
 ED::ajax()->process();
-
-// Check for environment changes
 ED::checkEnvironment();
 
-require_once(dirname(__FILE__) . '/services.php');
-
-// Load default controller
-require_once(JPATH_COMPONENT . '/controllers/controller.php');
+require_once(__DIR__ . '/services.php');
 
 $app = JFactory::getApplication();
 $input = $app->input;
@@ -44,7 +36,7 @@ if ($controller) {
 	$path = JPATH_COMPONENT . '/controllers/' . $controller . '.php';
 
 	if (!JFile::exists($path)) {
-		return JError::raiseError(500, JText::_('Invalid Controller name "' . $controller . '".<br /> File does not exists in this context.'));
+		throw ED::exception('Invalid Controller name "' . $controller . '".<br /> File does not exists in this context.', ED_MSG_ERROR);
 	}
 
 	require_once($path);
@@ -53,7 +45,7 @@ if ($controller) {
 $class = 'EasyDiscussController' . ucfirst($controller);
 
 if (!class_exists($class)) {
-	return JError::raiseError(500, 'Invalid Controller Object. Class definition does not exists in this context.');
+	throw ED::exception('Invalid Controller Object. Class definition does not exists in this context.', ED_MSG_ERROR);
 }
 
 $controller = new $class();

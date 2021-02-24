@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,43 +17,22 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php echo $this->html('panel.head', 'COM_ED_SETTINGS_ATTACHMENTS_GENERAL'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'attachment_questions', 'COM_EASYDISCUSS_ENABLE_FILE_ATTACHMENTS_QUESTIONS'); ?>
 					<?php echo $this->html('settings.toggle', 'enable_attachment_limit', 'COM_EASYDISCUSS_FILE_ENABLE_ATTACHMENTS_LIMIT'); ?>
+					<?php echo $this->html('settings.textbox', 'attachment_limit', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_LIMIT', '', array('size' => 7, 'postfix' => 'COM_EASYDISCUSS_FILE_ATTACHMENTS_FILES'), '', '', 'text-center'); ?>
+					<?php echo $this->html('settings.textbox', 'attachment_maxsize', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_MAXSIZE', '', array('size' => 7, 'postfix' => 'COM_EASYDISCUSS_MB'), '', '', 'text-center'); ?>
 
-					<div class="form-group <?php echo !$this->config->get('enable_attachment_limit') ? 't-hidden' : ''; ?>" data-ed-attachment-limit>
-						<div class="col-md-5 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_LIMIT'); ?>
-						</div>
-						<div class="col-md-7">
-							<input type="text" name="attachment_limit" class="form-control form-control-sm text-center" value="<?php echo $this->config->get('attachment_limit', 0 );?>" />&nbsp;<?php echo JText::_( 'COM_EASYDISCUSS_FILE_ATTACHMENTS_FILES' );?>
-						</div>
-					</div>
-					<div class="form-group">
-						<div class="col-md-5 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_MAXSIZE'); ?>
-						</div>
-						<div class="col-md-7">
-							<input type="text" name="attachment_maxsize" class="form-control form-control-sm text-center" value="<?php echo $this->config->get('attachment_maxsize' );?>" />&nbsp;<?php echo JText::_( 'COM_EASYDISCUSS_FILE_ATTACHMENTS_MAXSIZE_MEGABYTES' );?>
-						</div>
-					</div>
-
-					<div class="form-group">
-						<div class="col-md-5 control-label">
+					<div class="o-form-group">
+						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_STORAGE_PATH'); ?>
 						</div>
 						<div class="col-md-7">
 							<?php echo $this->html('form.textbox', 'storage_path', $this->config->get('storage_path', '/media/com_easydiscuss/' . $this->config->get('attachment_path')));?>
 						</div>
 					</div>
-					<div class="form-group">
-						<div class="col-md-5 control-label">
-							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_ALLOWED_EXTENSION'); ?>
-						</div>
-						<div class="col-md-7">
-							<textarea name="main_attachment_extension" class="form-control" cols="65" rows="5"><?php echo $this->config->get( 'main_attachment_extension' ); ?></textarea>
-						</div>
-					</div>
+
+					<?php echo $this->html('settings.textarea', 'main_attachment_extension', 'COM_EASYDISCUSS_FILE_ATTACHMENTS_ALLOWED_EXTENSION', '', array(), ''); ?>
 				</div>
 			</div>
 		</div>
@@ -61,10 +40,24 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_SETTINGS_IMAGE_ATTACHMENTS'); ?>
+			<?php echo $this->html('panel.heading', 'COM_ED_IMAGE_OPTIMIZER', '', '/dashboard/optimizer'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<?php echo $this->html('panel.info', 'COM_ED_IMAGE_OPTIMIZER_INFO'); ?>
+
+				<div class="o-form-horizontal">
+					<?php echo $this->html('settings.toggle', 'optimize_image', 'COM_ED_ENABLE_IMAGE_OPTIMIZATION_FOR_ATTACHMENTS'); ?>
+					<?php echo $this->html('settings.toggle', 'optimize_cron', 'COM_ED_ENABLE_IMAGE_OPTIMIZATION_DURING_CRON'); ?>
+					<?php echo $this->html('settings.textbox', 'optimize_key', 'COM_ED_IMAGE_COMPRESSION_SERVICE_KEY'); ?>
+				</div>
+			</div>
+		</div>
+
+		<div class="panel">
+			<?php echo $this->html('panel.heading', 'COM_EASYDISCUSS_SETTINGS_IMAGE_ATTACHMENTS'); ?>
+
+			<div class="panel-body">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'attachment_image_title', 'COM_EASYDISCUSS_IMAGE_ATTACHMENTS_TITLE'); ?>
 				</div>
 			</div>

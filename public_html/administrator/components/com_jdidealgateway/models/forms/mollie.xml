@@ -35,7 +35,7 @@
                description="COM_ROPAYMENTS_WAIT_TIME_MOLLIE_DESC"
                required="true"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="payment"
@@ -46,7 +46,7 @@
                default="all"
                multiple="true"
                labelclass="config"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                size="7">
             <option value="all">COM_ROPAYMENTS_ALL</option>
             <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
@@ -74,8 +74,8 @@
                default="1"
                class="btn-group btn-group-yesno"
                labelclass="config">
-            <option value="1">JYES</option>
             <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field name="languageMap"
@@ -90,13 +90,13 @@
                         name="joomlaLanguage"
                         type="language"
                         label="COM_ROPAYMENTS_MOLLIE_JOOMLALANGUAGE_LABEL"
-                        class="advancedSelect"
+                        class="advancedSelect custom-select"
                 />
                 <field
                         name="mollieLanguage"
                         type="list"
                         label="COM_ROPAYMENTS_MOLLIE_MOLLIELANGUAGE_LABEL"
-                        class="advancedSelect"
+                        class="advancedSelect custom-select"
                 >
                     <option value="en_US">en_US</option>
                     <option value="nl_NL">nl_NL</option>
@@ -133,7 +133,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="verifiedStatus"
@@ -143,7 +143,7 @@
                required="false"
                size="1"
                default="C"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="cancelledStatus"
@@ -153,7 +153,7 @@
                required="false"
                size="1"
                default="X"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="failureStatus"
@@ -163,7 +163,7 @@
                required="false"
                size="1"
                default="F"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="expiredStatus"
@@ -173,7 +173,7 @@
                required="false"
                size="1"
                default="E"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="refundStatus"
@@ -183,7 +183,7 @@
                required="false"
                size="1"
                default="R"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="chargebackStatus"
@@ -193,7 +193,7 @@
                required="false"
                size="1"
                default="B"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="openStatus"
@@ -203,7 +203,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="transferStatus"
@@ -213,7 +213,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS" />
@@ -225,7 +225,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config" />
 
         <field name="recurring-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_RECURRING"/>
@@ -238,8 +238,8 @@
                default="0"
                class="btn-group btn-group-yesno"
                labelclass="config">
-            <option value="1">JYES</option>
             <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field name="recurringDescription"

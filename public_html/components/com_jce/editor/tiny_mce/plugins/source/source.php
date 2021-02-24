@@ -45,15 +45,21 @@ final class WFSourcePlugin extends WFEditorPlugin
 
         $document->addScript(array(
             'editor.min',
-            'format.min',
-            'codemirror/codemirror.min'
         ), 'plugins');
+
+        $document->addScript(array(
+            'libraries/pro/vendor/beautify/beautify.min',
+            'libraries/pro/vendor/codemirror/js/codemirror.min'
+        ), 'jce');
 
         $document->addStyleSheet(array(
             'editor.min',
-            'codemirror/codemirror.min',
-            'codemirror/theme/' . $theme,
         ), 'plugins');
+
+        $document->addStyleSheet(array(
+            'libraries/pro/vendor/codemirror/css/codemirror.min',
+            'libraries/pro/vendor/codemirror/css/theme/' . $theme,
+        ), 'jce');
 
         // keep as ltr for source code
         $document->setDirection('ltr');

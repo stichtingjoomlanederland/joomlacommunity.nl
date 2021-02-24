@@ -8,14 +8,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewEmail extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	
 	public function display($tpl = null) {
 		$this->form 		= $this->get('Form');
 		$this->item 		= $this->get('Item');
-		
-		JHtml::_('rseventspro.chosen','select');
 		
 		parent::display($tpl);
 	}

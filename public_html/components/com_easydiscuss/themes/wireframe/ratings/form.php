@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<meta itemprop="worstRating" content="1">
 	<meta itemprop="bestRating" content="5">
 
-	<div class="o-col ed-ratings__note-col" data-ed-ratings-message>
+	<div class="ed-ratings__note-col" data-ed-ratings-message>
 		<?php if ($voted) { ?>
 			<?php echo JText::_('COM_EASYDISCUSS_RATINGS_ALREADY_RATED');?>
 		<?php } ?>
@@ -25,10 +25,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php echo JText::_('COM_EASYDISCUSS_RATINGS_PLEASE_RATE');?>
 		<?php } ?>
 	</div>
-	<div class="o-col ed-ratings__star-col">
+	<div class="ed-ratings__star-col">
 		<div class="ed-rating" data-ed-ratings-stars data-id="<?php echo $post->id; ?>" data-score="<?php echo $score; ?>" data-locked="<?php echo $locked; ?>"></div>
 	</div>
-	<div class="o-col">
+	<div class="">
 		<div class="ed-ratings__link">
 			<span class="ed-ratings__value">
 				<?php if ($ratingSchemaHasTotal) { ?>

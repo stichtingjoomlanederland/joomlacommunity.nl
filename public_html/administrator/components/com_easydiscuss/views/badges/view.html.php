@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewBadges extends EasyDiscussAdminView
 {
@@ -26,14 +24,10 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.badges');
 
 		JToolbarHelper::addNew();
-		JToolBarHelper::divider();
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
-		JToolBarHelper::divider();
 		JToolbarHelper::deleteList();
-		JToolbarHelper::divider();
-		JToolBarHelper::custom( 'rules' , 'cog' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
-		JToolBarHelper::custom('assign', 'checkbox-checked', '' , JText::_('COM_EASYDISCUSS_BADGES_MASS_ASSIGN_BUTTON'), false);
+		JToolBarHelper::custom('rules', 'cog' , '' , JText::_( 'COM_EASYDISCUSS_MANAGE_RULES_BUTTON' ) , false );
 
 		// Get the states
 		$filter = $this->getUserState('badges.filter_state', 'filter_state', '*', 'word');
@@ -56,22 +50,18 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 		// Determines if the current request is shown in a modal window.
 		$browse = $this->input->get('browse', 0, 'int');
 		$browseFunction = $this->input->get('browseFunction', '', 'default');
+		$userIds = $this->input->get('userIds', '', 'default');
 
 		if (!$browse) {
 			$this->title('COM_EASYDISCUSS_BADGES_TITLE');
 		}
 
 		if ($badges) {
+			
 			foreach ($badges as &$badge) {
-
 				$badge->date = ED::date($badge->created);
 				$badge->totalUsers = $this->getTotalUsers($badge->id);
-
-				if ($browse) {
-					$badge->editLink = 'javascript:parent.' . $browseFunction . '(' . $badge->id . ')';
-				} else {
-					$badge->editLink = JRoute::_('index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $badge->id);
-				}
+				$badge->editLink = JRoute::_('index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $badge->id);
 			}
 		}
 
@@ -83,6 +73,7 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 		$this->set('search', $search);
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
+		$this->set('userIds', $userIds);
 
 		parent::display('badges/default');
 	}
@@ -114,22 +105,21 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 		}
 
 		// There could be some errors here.
-		if (JRequest::getMethod() == 'POST') {
-
-			$post = JRequest::get('post');
+		if ($this->input->getMethod() == 'POST') {
+			$post = $this->input->post->getArray();
 			$badge->bind($post);
 
 			// Description might contain html codes
-			$description = JRequest::getVar('description' , '' , 'post' , 'string' , JREQUEST_ALLOWRAW );
+			$description = $this->input->get('description' , '' , 'string');
 			$badge->description = $description;
 		}
 
 
 		// Get the editor
-		$editor = JFactory::getEditor($this->jconfig->get('editor'));
+		$editor = ED::getEditor($this->jconfig->get('editor'));
 
-		$model	= ED::model('Badges');
-		$rules	= $model->getRules();
+		$model = ED::model('Badges');
+		$rules = $model->getRules();
 		$badges	= $this->getBadges();
 
 		$this->set('editor', $editor);
@@ -151,7 +141,7 @@ class EasyDiscussViewBadges extends EasyDiscussAdminView
 
 	public function getTotalUsers( $badgeId )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_badges_users' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'badge_id' ) . '=' . $db->Quote( $badgeId );
 		$db->setQuery( $query );

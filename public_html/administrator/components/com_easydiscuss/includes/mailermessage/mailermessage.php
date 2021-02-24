@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,27 +11,23 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-/**
- * PHP IMAP Class for Mailbox Messages
- */
 class EasyDiscussMailerMessage extends JObject
 {
-	protected $stream		= null;
-	protected $sequence		= 0;
-	protected $structure	= null;
-	protected $body			= null;
-	protected $plain_data	= '';
-	protected $html_data	= '';
-	protected $parameters	= array();
-	protected $attachment	= array();
+	protected $stream = null;
+	protected $sequence = 0;
+	protected $structure = null;
+	protected $body = null;
+	protected $plain_data = '';
+	protected $html_data = '';
+	protected $parameters = array();
+	protected $attachment = array();
 
 	public function __construct($options = array())
 	{
 		$this->stream = isset($options[0]) ? $options[0] : null;
 		$this->sequence = isset($options[1]) ? $options[1] : null;
 
-		if (!$this->fetchStructure())
-		{
+		if (!$this->fetchStructure()) {
 			return false;
 		}
 
@@ -63,28 +59,28 @@ class EasyDiscussMailerMessage extends JObject
 
 	private function fetchStructure()
 	{
-		$this->structure	= @imap_fetchstructure($this->stream, $this->sequence);
+		$this->structure = @imap_fetchstructure($this->stream, $this->sequence);
 
 		return $this->structure;
 	}
 
 	private function fetchBody($section)
 	{
-		if ($section)
-		{
-			$data	= @imap_fetchbody($this->stream, $this->sequence, $section);
+		if ($section) {
+			$data = @imap_fetchbody($this->stream, $this->sequence, $section);
+
+			return $data;
 		}
-		else
-		{
-			$data	= @imap_body($this->stream, $this->sequence);
-		}
+		
+		$data = @imap_body($this->stream, $this->sequence);
 
 		return $data;
 	}
 
 	private function getParts($part, $section=0)
 	{
-		$partData	= $this->fetchBody($section);
+		$partData = $this->fetchBody($section);
+
 
 		$this->extractPart($part, $partData);
 

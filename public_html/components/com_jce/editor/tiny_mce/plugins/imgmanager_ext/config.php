@@ -28,6 +28,8 @@ class WFImgmanager_extPluginConfig
             );
         }
 
+        $config['always_include_dimensions'] = (bool) $plugin->getParam('always_include_dimensions', 1);
+
         $settings['imgmanager_ext'] = $config;
     }
 }

@@ -3,14 +3,14 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
-use Joomla\CMS\MVC\Model\ListModel;
-
 defined('_JEXEC') or die;
+
+use Joomla\CMS\MVC\Model\ListModel;
 
 /**
  * Emails model.
@@ -20,6 +20,35 @@ defined('_JEXEC') or die;
  */
 class JdidealgatewayModelEmails extends ListModel
 {
+	/**
+	 * Load a list of emails to send a test for.
+	 *
+	 * @return  array  List of emails.
+	 *
+	 * @since   6.2.0
+	 */
+	public function getEmails(): array
+	{
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+			->select(
+				$db->quoteName(
+					[
+						'id',
+						'subject',
+					],
+					[
+						'value',
+						'text',
+					]
+				)
+			)
+			->from($db->quoteName('#__jdidealgateway_emails'));
+		$db->setQuery($query);
+
+		return $db->loadObjectList() ?? [];
+	}
+
 	/**
 	 * Method to auto-populate the model state.
 	 *
@@ -34,7 +63,6 @@ class JdidealgatewayModelEmails extends ListModel
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
-		// List state information.
 		parent::populateState('id', 'desc');
 	}
 
@@ -43,9 +71,8 @@ class JdidealgatewayModelEmails extends ListModel
 	 *
 	 * @return  \JDatabaseQuery
 	 *
-	 * @throws  \RuntimeException
-	 *
 	 * @since   4.0.0
+	 * @throws  \RuntimeException
 	 */
 	protected function getListQuery()
 	{
@@ -60,7 +87,7 @@ class JdidealgatewayModelEmails extends ListModel
 					'id',
 					'subject',
 					'body',
-					'trigger'
+					'trigger',
 				)
 			)
 		);

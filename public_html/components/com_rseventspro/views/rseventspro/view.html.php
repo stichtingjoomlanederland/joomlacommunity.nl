@@ -36,6 +36,11 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$this->modal_width 	= !empty($this->config->modal_width) ? (int) $this->config->modal_width : 800;
 		$this->modal_height = !empty($this->config->modal_height) ? (int) $this->config->modal_height : 600;
 		$this->captcha_use	= $this->config->captcha_use ? explode(',',$this->config->captcha_use) : array();
+		$this->mask			= empty($this->config->payment_mask) ? '%p %c' : $this->config->payment_mask;
+		$this->currency		= empty($this->config->payment_currency_sign) ? $this->config->payment_currency : $this->config->payment_currency_sign;
+		$this->decimals		= $this->config->payment_decimals;
+		$this->decimal		= $this->config->payment_decimal;
+		$this->thousands	= $this->config->payment_thousands;
 		
 		$this->timezoneReturn	= base64_encode(JUri::getInstance());
 		$this->timezone			= JFactory::getConfig()->get('offset');
@@ -58,7 +63,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 		// Add search bar
 		if ($this->params->get('search',1)) {
 			if ($this->document->getType() == 'html') {
-				$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+				$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.filter.'.(rseventsproHelper::isJ4() ? 'j4' : 'j3').'.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 			}
 		}
 		
@@ -107,7 +112,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if ($modifyTitle) {
 				$title = null;
 				
-				if (rseventsproHelper::getConfig('seo_title','int',1)) {
+				if ($this->config->seo_title) {
 					if ($this->category) {
 						$skipMeta = true;
 						$title = JText::sprintf('COM_RSEVENTSPRO_EVENTS_CATEGORY_TITLE_SEO',$this->category->title);
@@ -136,12 +141,6 @@ class RseventsproViewRseventspro extends JViewLegacy
 			JHtml::script('com_rseventspro/bootstrap-slider.js', array('relative' => true, 'version' => 'auto'));
 			$this->maxPrice = $this->get('MaxPrice');
 			
-			$this->mask		= empty($this->config->payment_mask) ? '%p %c' : $this->config->payment_mask;
-			$this->currency	= empty($this->config->payment_currency_sign) ? $this->config->payment_currency : $this->config->payment_currency_sign;
-			$this->decimals	= $this->config->payment_decimals;
-			$this->decimal	= $this->config->payment_decimal;
-			$this->thousands= $this->config->payment_thousands;
-			
 			//set the pathway
 			if (!$menu) 
 				$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_EVENTS'));
@@ -154,6 +153,10 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$this->tab	= $app->input->getInt('tab');
 			$this->item	= $this->get('Event');
+			$this->form	= $this->get('Form');
+			$this->dependencies	= $this->get('FormDependencies');
+			$this->ticketsform	= $this->get('FormTickets');
+			$this->couponsform	= $this->get('FormCoupons');
 			
 			$permission_denied = false;
 			if (!$this->admin) {
@@ -180,6 +183,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 			
 			if ($id == 0) {
+				
+				if (!empty($this->permissions['limit_events'])) {
+					if (rseventsproHelper::getUserEventCount() >= $this->permissions['limit_events']) {
+						rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_CREATE_LIMIT'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=default',false, RseventsproHelperRoute::getEventsItemid('999999')));
+					}
+				}
+				
 				if ($date = $app->input->get('date')) {
 					$time = JFactory::getDate()->format('H:i:s');
 					$start = JFactory::getDate($date.' '.$time);
@@ -202,13 +212,12 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			// Load scripts
 			if (!$tpl) {
-				JHtml::_('rseventspro.chosen');
 				if ($this->document->getType() == 'html') {
 					$this->document->addCustomTag('<script src="'.JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
-				JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
+				JHtml::stylesheet('com_rseventspro/edit'.(rseventsproHelper::isJ4() ? '.j4' : '').'.css', array('relative' => true, 'version' => 'auto'));
 				
-				if (rseventsproHelper::getConfig('modaltype','int') == 2) {
+				if ($this->config->modaltype == 2) {
 					$modalInit = array();
 					
 					$modalInit[] = 'jQuery("a[rel=\'rs_rsform\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_SELECT_FORM',true).'\'});';
@@ -226,10 +235,16 @@ class RseventsproViewRseventspro extends JViewLegacy
 				}
 			}
 			
-			JHtml::_('jquery.ui', array('core', 'sortable'));
+			if (rseventsproHelper::isJ4()) {
+				JHtml::script('com_rseventspro/jquery-ui.min.js', array('relative' => true, 'version' => 'auto'));
+			} else {
+				JHtml::_('formbehavior.chosen', '#speakers, #sponsors, #groups, #categories, #jform_payments, #ticket_groups, #coupon_groups, #jform_repeat_also, #jform_exclude_dates, #repeat_days, .rsepro-chosen');
+				JHtml::_('jquery.ui', array('core', 'sortable'));
+				JHtml::_('rseventspro.tags', '#tags');
+			}
 			
 			// Load custom scripts
-			$app->triggerEvent('rsepro_addCustomScripts');
+			$app->triggerEvent('onrsepro_addCustomScripts');
 			
 			if (!$tpl) {
 				if ($this->config->map && (!empty($this->permissions['can_add_locations']) || $this->admin)) {
@@ -253,9 +268,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->files		= $this->eventClass->getFiles();
 			$this->repeats		= $this->eventClass->getRepeats();
 			$this->categories	= $this->eventClass->getCategoriesOptions();
-			$this->form			= JForm::getInstance('event', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/event.xml', array('control' => 'jform'));
 			
-			$this->form->bind($this->item);
+			$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_EDIT_EVENT',$this->item->name));
 			
 			//set the pathway
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -349,8 +363,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->pagination	= $this->get('formspagination');
 			
 		} elseif ($layout == 'location') {
+			$this->row	= $this->get('location');
 			
-			$this->row = $this->get('location');
+			$this->setTitle($this->row->name);
 			
 			$marker = array(
 				'title' => $this->row->name,
@@ -403,17 +418,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			rseventsproMapHelper::loadMap($mapParams);
 			
-			JHtml::_('rseventspro.chosen','.rschosen');
-			
 			// Load custom scripts
-			$app->triggerEvent('rsepro_addCustomScripts');
+			$app->triggerEvent('onrsepro_addCustomScripts');
 			
-			$this->row = $this->get('location');
+			$this->row  = $this->get('location');
+			$this->form = $this->get('LocationForm');
 			
-			$form = JForm::getInstance('location', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/location.xml', array('control' => 'jform'));
-			$form->bind($this->row);
-			
-			$this->form = $form;
+			$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_EDIT_LOCATION', $this->row->name));
 			
 			//set the pathway
 			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_EDIT_LOCATION'));
@@ -429,6 +440,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->columns		= $filters[0];
 			$this->operators	= $filters[1];
 			$this->values		= $filters[2];
+			$this->extra		= $this->get('ExtraFilters');
+			$this->showCondition= $this->get('Conditions');
+			
+			// Price slider assets
+			JHtml::stylesheet('com_rseventspro/bootstrap-slider.css', array('relative' => true, 'version' => 'auto'));
+			JHtml::script('com_rseventspro/bootstrap-slider.js', array('relative' => true, 'version' => 'auto'));
+			$this->maxPrice = $this->get('MaxPrice');
 			
 			$this->location	= $this->params->get('default_location', 'Statue of Liberty National Monument, New York, NY 10004, United States');
 			$this->radius	= (int) $this->params->get('default_radius', '100');
@@ -521,8 +539,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			// Load jQuery Colorbox modal
 			$modalInit = array();
 			if ($layout == 'show') {
-				if (rseventsproHelper::getConfig('modaltype','int') == 2) {
-					if (rseventsproHelper::getConfig('modal','int') == 1) {
+				if ($this->config->modaltype == 2) {
+					if ($this->config->modal == 1) {
 						$modalInit[] = 'jQuery("a[rel=\'rs_subscribe\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.' , title:\''.JText::_('COM_RSEVENTSPRO_EVENT_JOIN',true).'\'});';
 						$modalInit[] = 'jQuery("a[rel=\'rs_invite\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_INVITE',true).'\'});';
 						$modalInit[] = 'jQuery("a[rel=\'rs_message\']").colorbox({iframe:true, maxWidth:\'95%\', maxHeight:\'95%\', innerWidth:'.$this->modal_width.', innerHeight:'.$this->modal_height.', title:\''.JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS',true).'\'});';
@@ -595,9 +613,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->thankyou = $thankyou;
 			
 			// If the Force login option is enabled and the current user is not logged in redirect the user
-			if (rseventsproHelper::getConfig('must_login','int') && $user->get('id') == 0) {
-				$link = rseventsproHelper::getConfig('modal','int');
-				if ($link == 0) {
+			if ($this->config->must_login && $user->get('id') == 0) {
+				if ($this->config->modal == 0) {
 					$app->enqueueMessage(JText::_('COM_RSEVENTSPRO_PLEASE_LOGIN'));
 					$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
 				} else {
@@ -618,7 +635,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 				}
 			}
 			
-			if (rseventsproHelper::getConfig('modal','int') == 1)
+			if ($this->config->modal == 1)
 				$app->input->set('tmpl','component');
 			
 			$this->form = rseventsproHelper::rsform();
@@ -640,10 +657,10 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$payments = rseventsproHelper::getPayments(false,$this->event->payments);
 			if (!empty($payments)) {
-				$default = rseventsproHelper::getConfig('default_payment');
+				$default = $this->config->default_payment;
 				
-				if (rseventsproHelper::getConfig('payment_type','int')) {
-					$lists['payments']      = JHTML::_('select.genericlist', $payments, 'payment', 'class="input-large" onchange="'.$this->updatefunction.'"', 'value' ,'text',$default);
+				if ($this->config->payment_type) {
+					$lists['payments']      = JHTML::_('select.genericlist', $payments, 'payment', 'class="input-large custom-select" onchange="'.$this->updatefunction.'"', 'value' ,'text',$default);
 				} else {
 					$default				= $default == 'none' ? @$payments[0]->value : $default;
 					$lists['payments']      = JHTML::_('select.radiolist', $payments, 'payment', 'class="inputbox" onchange="'.$this->updatefunction.'"', 'value' ,'text',$default);
@@ -662,6 +679,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 					rseventsproHelper::hCaptcha('subscribe');
 				}
 			}
+			
+			$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_SUBSCRIBE_TO',$this->event->name));
 			
 			//set the pathway
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -698,6 +717,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 				}
 			}
 			
+			$this->setTitle($this->payment->name);
+			
 			$pathway->addItem(JText::_('COM_RSEVENTSPRO_BC_WIRE'));
 			
 		} elseif ($layout == 'subscriptions') {
@@ -709,20 +730,25 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$this->subscriptions = $this->get('subscriptions');
 				$this->rsvpsubscriptions = $this->get('rsvpsubscriptions');
 			}
+			
+			$this->setTitle(JText::_('COM_RSEVENTSPRO_TITLE_MY_SUBSCRIPTIONS'));
+			
 		} elseif ($layout == 'subscribers') {
 			
 			$this->row = $this->get('event');
 			
 			if ($this->admin || $this->row->owner == $user->get('id')) {
 				$states = array_merge(array(JHTML::_('select.option', '-', JText::_('COM_RSEVENTSPRO_GLOBAL_SELECT_STATE'))), $this->get('statuses'));
-				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="input-large"','value','text',$app->getUserState('com_rseventspro.subscriptions.state.frontend'));
+				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="custom-select"','value','text',$app->getUserState('com_rseventspro.subscriptions.state.frontend'));
 				
-				$lists['tickets'] = JHTML::_('select.genericlist', $this->get('ticketsfromevent'), 'ticket', 'size="1" onchange="document.adminForm.submit();" class="input-large"','value','text',$app->getUserState('com_rseventspro.subscriptions.ticket.frontend'));
+				$lists['tickets'] = JHTML::_('select.genericlist', $this->get('ticketsfromevent'), 'ticket', 'size="1" onchange="document.adminForm.submit();" class="custom-select"','value','text',$app->getUserState('com_rseventspro.subscriptions.ticket.frontend'));
 				
 				$this->data			= $this->get('subscribers');
 				$this->total		= $this->get('totalsubscribers');
 				$this->tickets		= rseventsproHelper::getTickets($this->row->id, false);
 				$this->filter_word	= $app->getUserState('com_rseventspro.subscriptions.search_frontend');
+				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_SUBSCRIBERS',$this->row->name));
 				
 				//set the pathway
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -744,16 +770,15 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$userid		 = $user->get('id');
 			
 			if ($this->admin || $this->data['event']->owner == $user->get('id') || ($userid > 0 && $this->data['data']->idu == $userid) || $this->data['data']->email == $this->email) {
-				$lists['status'] = JHTML::_('select.genericlist', $this->get('statuses'), 'jform[state]', 'size="1" class="input-small"','value','text', $this->data['data']->state);
-				$lists['confirmed'] = JHTML::_('select.genericlist', $this->get('YesNo'), 'jform[confirmed]', 'size="1" class="input-small"','value','text', $this->data['data']->confirmed);
-				
+				$this->form  = $this->get('SubscriberForm');
 				$this->fields	= $this->get('fields');
+				
 				$tparams = $this->data['data']->gateway == 'offline' ? $this->get('card') : $this->data['data']->params;
 				$this->tparams = $tparams;
 				
 				$this->user = ($this->data['data']->idu == $user->get('id') || $this->data['data']->email == $this->email) && $this->data['event']->owner != $user->get('id');
 				
-				if (rseventsproHelper::getConfig('modaltype','int') == 2) {
+				if ($this->config->modaltype == 2) {
 					$modalJS = array();
 					$modalJS[] = '<script type="text/javascript">';
 					$modalJS[] = 'jQuery(document).ready(function(){';
@@ -762,6 +787,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 					$modalJS[] = '</script>';
 					$this->document->addCustomTag(implode("\n", $modalJS));
 				}
+				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_EDIT_SUBSCRIBER',$this->data['data']->name));
 				
 				//set the pathway
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -781,6 +808,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if ($this->admin || $this->event->owner == $user->get('id')) {
 				$this->subscribers = $this->get('people');
 				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_MESSAGE_GUESTS', $this->event->name));
+				
 				//set the pathway
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
 				if (($menu && $theview != 'show') || !$menu)
@@ -793,6 +822,7 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 		} elseif ($layout == 'invite') {
 		
+			$this->form		= $this->get('InviteForm');
 			$this->event	= $this->get('event');
 			$options = rseventsproHelper::options($this->event->id);
 			
@@ -800,7 +830,6 @@ class RseventsproViewRseventspro extends JViewLegacy
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
 			}
 			
-			// date helping functions
 			$nowunix 	= JFactory::getDate()->toUnix();
 			
 			if ($this->event->allday) {
@@ -836,6 +865,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 					rseventsproHelper::hCaptcha('rseInvite');
 				}
 			}
+			
+			$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_INVITE_FRIENDS',$this->event->name));
 			
 			//set the pathway
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -895,6 +926,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			$this->tickets = rseventsproHelper::getTickets(JFactory::getApplication()->input->getInt('id',0));
 		} elseif ($layout == 'seats') {
+			$this->owner = $this->get('owner');
+			
 			$id = JFactory::getApplication()->input->getInt('id',0);
 			$permission_denied = false;
 			if (!$this->admin) {
@@ -927,6 +960,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if ($this->admin || $this->event->owner == $user->get('id')) {
 				$this->reports	= rseventsproHelper::getReports($this->event->id);
+				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_REPORTS', $this->event->name));
+				
 			} else {
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_ERROR_REPORTS'), rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
 			}
@@ -939,6 +975,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if ($this->event->id && ($this->admin || $this->event->owner == $user->get('id'))) {
 				$this->scan			= rseventsproHelper::getScan();
+				
+				$this->setTitle(JText::_('COM_RSEVENTSPRO_TITLE_SCAN'));
 				
 				//set the pathway
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
@@ -977,6 +1015,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			$this->data		= rseventsproHelper::getUserProfile($app->input->getInt('id', 0));
 			$this->created	= rseventsproHelper::getUserEvents($app->input->getInt('id', 0));
 			$this->joined	= rseventsproHelper::getUserEvents($app->input->getInt('id', 0), 'join');
+			
+			$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_USER_PROFILE', $this->data->name));
+			
 		} elseif ($layout == 'edituser') {
 			
 			if ($app->input->getInt('id', 0) == 0) {
@@ -988,6 +1029,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$form		= JForm::getInstance('user', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/user.xml', array('control' => 'jform'));
 				$form->bind($this->data);
 				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_EDIT_USER_PROFILE', $this->data->name));
+				
 				$this->form = $form;
 			} else {
 				rseventsproHelper::error(JText::_('COM_RSEVENTSPRO_GLOBAL_PERMISSION_DENIED'), rseventsproHelper::route('index.php?option=com_rseventspro',false));
@@ -997,11 +1040,13 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if ($this->admin || $this->row->owner == $user->get('id')) {
 				$states = array_merge(array(JHTML::_('select.option', '-', JText::_('COM_RSEVENTSPRO_GLOBAL_SELECT_STATE'))), $this->get('RSVPstatuses'));
-				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="input-large"','value','text',$app->getUserState('com_rseventspro.rsvp.state'));
+				$lists['state'] = JHTML::_('select.genericlist', $states, 'state', 'size="1" onchange="document.adminForm.submit();" class="custom-select"','value','text',$app->getUserState('com_rseventspro.rsvp.state'));
 				
 				$this->filter_word	= $app->getUserState('com_rseventspro.rsvp.search');
 				$this->data			= $this->get('RSVPData');
 				$this->total		= $this->get('RSVPTotal');
+				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_RSVP', $this->row->name));
 				
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
 				if (($menu && $theview != 'show') || !$menu)
@@ -1023,6 +1068,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 				$app->enqueueMessage(JText::sprintf('COM_RSEVENTSPRO_USER_IN_WAITINGLIST', $user->get('email')));
 			}
 			
+			$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_WAITINGLIST', $this->event->name));
+			
 			$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
 			if (($menu && $theview != 'show') || !$menu)
 				$pathway->addItem($this->event->name,rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->event->id,$this->event->name),false,rseventsproHelper::itemid($this->event->id)));
@@ -1034,6 +1081,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			if ($this->admin || $this->event->owner == $user->get('id')) {
 				$this->data			= $this->get('WaitingData');
 				$this->total		= $this->get('WaitingTotal');
+				
+				$this->setTitle(JText::sprintf('COM_RSEVENTSPRO_TITLE_WAITINGLIST', $this->event->name));
 				
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
 				if (($menu && $theview != 'show') || !$menu)
@@ -1048,6 +1097,8 @@ class RseventsproViewRseventspro extends JViewLegacy
 			
 			if ($this->admin || $this->event->owner == $user->get('id')) {
 				$this->row			= $this->get('WaitingUser');
+				
+				$this->setTitle(JText::_('COM_RSEVENTSPRO_TITLE_EDIT_WAITINGLIST'));
 				
 				$theview = isset($menu->query['layout']) ? $menu->query['layout'] : 'rseventspro';
 				if (($menu && $theview != 'show') || !$menu) {
@@ -1078,9 +1129,9 @@ class RseventsproViewRseventspro extends JViewLegacy
 			}
 		}
 		
-		$this->lists	= $lists;
+		$this->lists = $lists;
 		
-		$app->triggerEvent('rsepro_siteDisplayLayout', array(array('view' => &$this)));
+		$app->triggerEvent('onrsepro_siteDisplayLayout', array(array('view' => &$this)));
 		
 		// Add menu metadata
 		if (!$skipMeta) {
@@ -1131,39 +1182,47 @@ class RseventsproViewRseventspro extends JViewLegacy
 		$events	= 0;
 		
 		if ($type == 'categories') {
-			$query->clear()
-				->select($db->qn('e.id'))
-				->from($db->qn('#__rseventspro_events','e'))
-				->join('left', $db->qn('#__rseventspro_taxonomy','t').' ON '.$db->qn('e.id').' = '.$db->qn('t.ide'))
-				->where($db->qn('t.type').' = '.$db->q('category'))
-				->where($db->qn('t.id').' = '.(int) $id)
-				->where($db->qn('e.completed').' = 1')
-				->where($db->qn('e.published').' = 1');
+			static $eventCategoriesIds = array();
 			
-			$db->setQuery($query);
-			$eventids = $db->loadColumn();
+			if (!isset($eventCategoriesIds[$id])) {
+				$query->clear()
+					->select($db->qn('e.id'))
+					->from($db->qn('#__rseventspro_events','e'))
+					->join('left', $db->qn('#__rseventspro_taxonomy','t').' ON '.$db->qn('e.id').' = '.$db->qn('t.ide'))
+					->where($db->qn('t.type').' = '.$db->q('category'))
+					->where($db->qn('t.id').' = '.(int) $id)
+					->where($db->qn('e.completed').' = 1')
+					->where($db->qn('e.published').' = 1');
+				
+				$db->setQuery($query);
+				$eventCategoriesIds[$id] = $db->loadColumn();
+			}
 			
-			if (!empty($eventids)) {
-				foreach ($eventids as $eid) {
+			if (!empty($eventCategoriesIds[$id])) {
+				foreach ($eventCategoriesIds[$id] as $eid) {
 					if (!rseventsproHelper::canview($eid)) 
 						continue;
 					$events++;
 				}
 			}
 		} else if ($type == 'locations') {
-			$query->clear()
-				->select($db->qn('id'))
-				->from($db->qn('#__rseventspro_events'))
-				->where($db->qn('location').' = '.(int) $id)
-				->where($db->qn('completed').' = 1')
-				->where($db->qn('published').' = 1');
+			static $eventLocationsIds = array();
 			
+			if (!isset($eventLocationsIds[$id])) {
+				$query->clear()
+					->select($db->qn('id'))
+					->from($db->qn('#__rseventspro_events'))
+					->where($db->qn('location').' = '.(int) $id)
+					->where($db->qn('completed').' = 1')
+					->where($db->qn('published').' = 1');
+				
+				
+				$db->setQuery($query);
+				$eventLocationsIds[$id] = $db->loadColumn();
+			}
 			
-			$db->setQuery($query);
-			$eventids = $db->loadColumn();
-			
-			if (!empty($eventids)) {
-				foreach ($eventids as $eid) {
+			if (!empty($eventLocationsIds[$id])) {
+				foreach ($eventLocationsIds[$id] as $eid) {
 					if (!rseventsproHelper::canview($eid)) 
 						continue;
 					$events++;
@@ -1173,5 +1232,17 @@ class RseventsproViewRseventspro extends JViewLegacy
 		
 		if (!$events) return;
 		return $events.' '.JText::plural('COM_RSEVENTSPRO_CALENDAR_EVENTS',$events);
+	}
+	
+	protected function setTitle($title) {
+		$jconfig = JFactory::getConfig();
+		
+		if ($jconfig->get('sitename_pagetitles', 0) == 1) {
+			$title = JText::sprintf('JPAGETITLE', $jconfig->get('sitename'), $title);
+		} elseif ($jconfig->get('sitename_pagetitles', 0) == 2) {
+			$title = JText::sprintf('JPAGETITLE', $title, $jconfig->get('sitename'));
+		}
+		
+		$this->document->setTitle($title);
 	}
 }

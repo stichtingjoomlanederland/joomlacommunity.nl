@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -91,7 +91,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 				$postTitle = $title[1];
 				$action = str_ireplace($postTitle, '', $item->title);
 
-				$item->title = $action . '<a href="' . $item->permalink .'">' . $postTitle . '</a>';
+				$item->title = $action . '<a href="' . $item->permalink .'" class="si-link">' . $postTitle . '</a>';
 			}
 
 			// Get the lapsed time
@@ -249,7 +249,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 		$db->setQuery($query);
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), ED_MSG_ERROR);
 		}
 
 		$result = $db->loadObjectList();
@@ -270,7 +270,7 @@ class EasyDiscussNotifications extends EasyDiscuss
 		$db->setQuery($query);
 
 		if ($db->getErrorNum()) {
-			JError::raiseError(500, $db->stderr());
+			throw ED::exception($db->stderr(), ED_MSG_ERROR);
 		}
 
 		$result = $db->loadObjectList();
@@ -288,9 +288,8 @@ class EasyDiscussNotifications extends EasyDiscuss
 		$config = ED::config();
 
 		// Modify the from name to the user that generated this activity
-		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
-
-			return $data['senderObject']->user->email;
+		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject'] && ($data['senderObject'] instanceof DiscussProfile)) {
+			return $data['senderObject']->getEmail();
 		}
 
 		static $mailfrom = null;
@@ -328,7 +327,13 @@ class EasyDiscussNotifications extends EasyDiscuss
 		return $fromname;
 	}
 
-	public function addQueue($toEmails, $subject = '', $body = '', $template='', $data = array())
+	/**
+	 * Creates a new queue in the mail queue
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function addQueue($toEmails, $subject = '', $body = '', $template = '', $data = array())
 	{
 		$mainframe = JFactory::getApplication();
 		$config = ED::config();
@@ -347,28 +352,19 @@ class EasyDiscussNotifications extends EasyDiscuss
 		}
 
 		//load the email template
-		$tplBody = '';
+		$tplBody = $body;
+
 		if (!empty($template)) {
 			$tplBody = $this->getEmailTemplateContent($template, $data);
-		} else {
-			$tplBody = $body;
-		}
-
-		//send as html or plaintext
-		$asHtml	= (bool) $config->get('notify_html_format');
-
-		if (!$asHtml) {
-			$tplBody = strip_tags($tplBody);
 		}
 
 		//now we process the email sending.
 		foreach ($emailTo as $recipient) {
-			// Porcess the message and title
 			$search = array('{actor}', '{target}');
 			$replace = array($fromname, '');
 
-			$emailSubject = JString::str_ireplace($search, $replace, $subject);
-			$emailBody = JString::str_ireplace($search, $replace, $tplBody);
+			$emailSubject = EDJString::str_ireplace($search, $replace, $subject);
+			$emailBody = EDJString::str_ireplace($search, $replace, $tplBody);
 
 			$date = ED::date();
 			$mailq = ED::table('MailQueue');
@@ -379,13 +375,12 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$mailq->subject = $emailSubject;
 			$mailq->body = $emailBody;
 			$mailq->created = $date->toMySQL();
-			$mailq->ashtml = $asHtml;
+			$mailq->ashtml = true;
 			$mailq->store();
 		}
-
 	}
 
-	public function add($from='', $to, $subject = '', $body = '', $template='', $data = array())
+	public function add($from, $to, $subject = '', $body = '', $template='', $data = array())
 	{
 		$mainframe = JFactory::getApplication();
 		$mailfrom = $mainframe->getCfg( 'mailfrom' );
@@ -436,8 +431,8 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$search = array('{actor}', '{target}');
 			$replace = array($fromname, $recipient->getName());
 
-			$emailSubject = JString::str_ireplace($search, $replace, $subject);
-			$emailBody = JString::str_ireplace($search, $replace, $tplBody);
+			$emailSubject = EDJString::str_ireplace($search, $replace, $subject);
+			$emailBody = EDJString::str_ireplace($search, $replace, $tplBody);
 
 			$date = ED::date();
 			$mailq = ED::table('MailQueue');
@@ -452,6 +447,12 @@ class EasyDiscussNotifications extends EasyDiscuss
 		}
 	}
 
+	/**
+	 * Retrieve contents from e-mail template
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function getEmailTemplateContent($template, $data)
 	{
 		$config = ED::config();
@@ -462,42 +463,34 @@ class EasyDiscussNotifications extends EasyDiscuss
 			$data['unsubscribeLink'] = '';
 		}
 
-		$replyBreakText = $config->get('mail_reply_breaker');
+		$replySeparator = $config->get('mail_reply_breaker');
 
-		if ($replyBreakText) {
-			$replyBreakText = JText::sprintf('COM_EASYDISCUSS_EMAILTEMPLATE_REPLY_BREAK', $replyBreakText);
+		if ($replySeparator) {
+			$replySeparator = JText::sprintf('COM_EASYDISCUSS_EMAILTEMPLATE_REPLY_BREAK', $replySeparator);
 		}
 
-		// If this uses html, we need to switch the template file
-		if ($config->get('notify_html_format')) {
-			$template .= '.html';
-		}
-
-		$logo = ED::getLogo();
+		$logo = ED::getLogo('emails');
 		$theme = ED::themes();
 
 		foreach ($data as $key => $val) {
 			$theme->set($key, $val);
 		}
 
-		$contents = $theme->output('site/emails/' . $template, array('emails' => true));
+		$namespace = 'site/emails/' . $template;
+		$contents = $theme->output($namespace);
+		
 		unset($theme);
 
 		$theme = ED::themes();
 		$jConfig = ED::jconfig();
 
 		$theme->set('logo', $logo);
-
 		$theme->set('contents', $contents);
 		$theme->set('unsubscribeLink', $data['unsubscribeLink']);
 		$theme->set('subscriptionsLink', ED::mailer()->getSubscriptionsManagerLink());
-		$theme->set('replyBreakText', $replyBreakText);
+		$theme->set('replySeparator', $replySeparator);
 
-		if ($config->get('notify_html_format')) {
-			$output = $theme->output('site/emails/email.template.html', array('emails'=> true));
-		} else {
-			$output = $theme->output('site/emails/email.template.text', array('emails'=> true));
-		}
+		$output = $theme->output('site/emails/structure');
 
 		return $output;
 	}
@@ -559,7 +552,11 @@ class EasyDiscussNotifications extends EasyDiscuss
 
 		$query .= 'select distinct(a.`email`) ' . $collation . ' AS `email` from `#__users` as a';
 		$query .= ' INNER JOIN #__user_usergroup_map as b on b.`user_id` = a.`id`';
-		$query .= ' WHERE b.`group_id` IN (' . $userGroupIds. ')';
+
+		if (!empty($userGroupIds)) {
+			$query .= ' WHERE b.`group_id` IN (' . $userGroupIds. ')';
+		}
+
 		$query .= ' AND a.`block` = 0';
 
 		if ($includesGuest) {

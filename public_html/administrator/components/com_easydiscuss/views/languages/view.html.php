@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewLanguages extends EasyDiscussAdminView
 {
 	/**
@@ -20,13 +18,12 @@ class EasyDiscussViewLanguages extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function display($tpl = null)
 	{
 		// Set page attributes
 		$this->title('COM_EASYDISCUSS_LANGUAGES_TITLE');
+		$this->addHelpButton('/docs/easydiscuss/administrators/translations/languages');
 
 		JToolbarHelper::custom('discover' , 'refresh' , '' , JText::_('COM_EASYDISCUSS_TOOLBAR_BUTTON_DISCOVER') , false);
 		JToolbarHelper::custom('purge' , 'purge' , '' , JText::_('COM_EASYDISCUSS_TOOLBAR_BUTTON_PURGE_CACHE'), false);

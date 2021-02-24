@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_absoluteURL($text)
 {
@@ -103,4 +101,3 @@ function acym_isLocalWebsite()
 {
     return strpos(ACYM_LIVE, 'localhost') !== false || strpos(ACYM_LIVE, '127.0.0.1') !== false;
 }
-

@@ -1,4 +1,4 @@
-ed.define('jquery.scrollto', ['edjquery', 'lodash'], function($, _) {
+ed.define('jquery.scrollto', ['edjquery'], function($) {
 
 var jQuery = $;
 

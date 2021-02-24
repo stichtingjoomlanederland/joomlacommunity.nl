@@ -1,0 +1,399 @@
+/** 
+* @package      EasyDiscuss
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license      Proprietary Use License https://stackideas.com/licensing
+**/
+@import "scss/variables";
+@import "scss/reset";
+@import "scss/buttons";
+@import "scss/table";
+@import "scss/flexbox";
+@import "scss/spacing";
+
+body {
+	padding: 0;
+	margin: 0;
+	color: var(--si-font-color);
+}
+.si-installer {
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	@media (max-width: 1023px) {
+		flex-direction: column;
+	}
+	&__left {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding: 1rem;
+		position: relative;
+		@media (min-width: 1024px) {
+			width: 34vw;
+			height: 100%;
+			padding: 0;
+		}
+		// 11163-gradients-background
+		background: rgb(21,42,91);
+		background: linear-gradient(165deg, rgba(49,49,94,1) 0%, rgba(11,162,103,1) 100%);
+	}
+	&__left-ani-bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 80%;
+		opacity: .35;
+		@media (max-width: 780px) {
+			display: none;
+		}
+	}
+	&__left-bd,
+	&__right-bd {
+		z-index: 2;
+		flex-grow: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		text-align: center;
+	}
+	&__left-ft {
+		padding: 2rem 1rem;
+		@media (max-width: 1023px) {
+			padding: 0 1rem 1rem;
+		}
+	}
+	&__help {
+		text-align: center;
+		padding: 1rem;
+	}
+	&__right {
+		@media (min-width: 1024px) {
+			width: 66vw;
+		}
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+	}
+	&__right-bd {
+		// max-width: 37.5rem;
+		overflow-y: auto;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+	}
+	&__right-ft {
+		display: flex;
+		padding: 2rem 1rem;
+		border-top: 1px solid var(--si-border-color);
+	}
+	
+	&__brand {
+		@media (min-width: 1024px) {
+			max-width: 18.5rem;
+		}
+		
+		color: #fff;
+	}
+	&__help {
+
+	}
+	&__content {
+
+	}
+	&__content-ft {
+
+	}
+}
+.si-installer-content {
+	padding: 1rem;
+	@media (min-width: 1024px) {
+		width: 37.5rem;
+		padding: 0;
+	}
+	height: 50vh;
+	&__title {
+		font-size: 1.5rem;
+	}
+	&__hd {
+		margin-bottom: 2.5rem;
+	}
+	&__bd {
+		text-align: left;
+		padding-bottom: 1rem;
+	}
+
+}
+.si-installer-links-group {
+	display: flex;
+	justify-content: center;
+	// padding-bottom: 1rem;
+	&__item {
+		// padding: 1rem;
+	}
+	a {
+		display: inline-flex;
+		align-items: center;
+		border: 1px solid transparent;
+		line-height: 1.5;
+		padding: 0.375rem 0.75rem;
+
+		
+		img {
+			margin-right: .35rem;
+			width: 1rem;
+			height: 1rem;
+			flex-shrink: 0;
+		}
+		span {
+			white-space: pre;
+			@media (max-width: 480px) {
+				display: none;
+			}
+
+		}
+		&,
+		&:hover {
+			color: #fff;
+		}
+		&:focus {
+			box-shadow: none;
+			outline: 0;
+		}
+	}
+}
+.si-container-overflow {
+	max-height: 30vh;
+	overflow-y: auto;
+}
+
+.si-install-logs { // ol
+	margin: 0;
+	padding: 0;
+	// height: 1000px;
+	// background: red;
+	> li {
+		display: flex;
+		align-items: center;
+		+ li {
+			margin-top: 1rem;
+		}
+	}
+	&__state {
+		margin-left: auto;
+		.si-ins-icon,
+		.si-ins-loader {
+			display: none;
+		}
+	}
+}
+
+.is-complete {
+	.si-install-logs {
+		&__title {
+			color: var(--si-font-color--d);
+		}
+	}
+	.si-install-logs__state .si-ins-icon--check {
+		display: block;
+	}
+}
+.is-error {
+	.si-install-logs__state .si-ins-icon--error {
+		display: block;
+	}
+}
+.is-loading {
+	.si-install-logs__state .si-ins-loader{
+		display: flex;
+	}
+}
+
+// Never use Joomla default icons due to J3 and J4 are difference icons library.
+.si-ins-icon {
+	font-style: normal;
+	position: relative;
+	width: 1rem;
+	height: 1rem;
+	display: inline-block;
+	text-align: center;
+	background-size: contain;
+	background-repeat: no-repeat;
+	&:before {
+		display: block;
+		// content: '\2713';
+	}
+}
+.si-ins-icon--check {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='17px' height='12px' viewBox='0 0 17 12' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3EPath%3C/title%3E%3Cg id='Installation-Progress-UI' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg id='Installation-1-Copy' transform='translate(-1259.000000, -646.000000)' stroke='%2347BA46' stroke-width='2'%3E%3Cg id='Content' transform='translate(577.000000, 212.000000)'%3E%3Cg id='List' transform='translate(321.000000, 136.000000)'%3E%3Cg id='check-copy-6' transform='translate(357.000000, 292.000000)'%3E%3Cpolyline id='Path' points='5 12 10 17 20 7'%3E%3C/polyline%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+	
+}
+.si-ins-icon--error {
+	background-image: url("data:image/svg+xml,%3C%3Fxml version='1.0' encoding='UTF-8'%3F%3E%3Csvg width='18px' height='15px' viewBox='0 0 18 15' version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E%3Ctitle%3Eexclamation-triangle.1%3C/title%3E%3Cg id='Installation-Progress-UI' stroke='none' stroke-width='1' fill='none' fill-rule='evenodd'%3E%3Cg id='Installation-1' transform='translate(-1258.000000, -560.000000)' fill='%23E65F59' fill-rule='nonzero'%3E%3Cg id='Content' transform='translate(577.000000, 212.000000)'%3E%3Cg id='List' transform='translate(321.000000, 136.000000)'%3E%3Cg id='exclamation-triangle.1' transform='translate(360.000000, 212.000000)'%3E%3Cpath d='M17.8180669,12.8916556 C17.9848388,13.2040031 18.0369551,13.5212315 17.9744157,13.8433409 C17.9118764,14.1654492 17.7451044,14.4387524 17.4741,14.6632505 C17.2030955,14.8877502 16.8799743,15 16.5047362,15 L1.49526378,15 C1.12002608,15 0.796904822,14.8877502 0.525900013,14.6632505 C0.254895561,14.4387508 0.0881236448,14.1654476 0.0255842652,13.8433409 C-0.0369551144,13.5212325 0.0151611538,13.2040041 0.18193307,12.8916556 L7.68666929,0.710104709 C7.87428779,0.397757249 8.14008042,0.18789807 8.48404718,0.0805271732 C8.8280143,-0.0268423911 9.17198071,-0.0268423911 9.51594641,0.0805271732 C9.85991353,0.187896737 10.1257062,0.397755916 10.3133243,0.710104709 L17.8180669,12.8916556 Z M9.00002188,10.3733555 C8.60393902,10.3733555 8.26518301,10.5051271 7.98375385,10.7686704 C7.70232611,11.0322137 7.56161224,11.3494421 7.56161224,11.7203557 C7.56161224,12.0912679 7.70232611,12.4084963 7.98375385,12.6720409 C8.26518159,12.9355842 8.6039376,13.0673558 9.00002188,13.0673558 C9.39610474,13.0673558 9.73486075,12.9355842 10.0162899,12.6720409 C10.2977177,12.4084976 10.4384315,12.0912692 10.4384315,11.7203557 C10.4384315,11.3494435 10.2977177,11.0322151 10.0162899,10.7686704 C9.73486217,10.5051271 9.39610616,10.3733555 9.00002188,10.3733555 Z M7.62415624,5.5417301 L7.87431412,9.52416022 C7.87431412,9.60224708 7.91079545,9.6754535 7.98375812,9.74377946 C8.05672079,9.81210543 8.14531839,9.84626841 8.24955093,9.84626841 L9.75049817,9.84626841 C9.85473071,9.84626841 9.94332831,9.81210543 10.016291,9.74377946 C10.0892536,9.6754535 10.125735,9.60224708 10.125735,9.52416022 L10.3758929,5.5417301 C10.3758929,5.42459997 10.3394115,5.33187176 10.2664489,5.26354546 C10.1934862,5.19521949 10.1048886,5.16105651 10.000656,5.16105651 L7.99939305,5.16105651 C7.89516052,5.16105651 7.80656291,5.19521949 7.73360024,5.26354546 C7.66063758,5.33187143 7.62415624,5.42459964 7.62415624,5.5417301 L7.62415624,5.5417301 Z' id='Shape'%3E%3C/path%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+	
+}
+
+.si-text-success {
+	color: var(--si-success-color);
+}
+.si-text-error {
+	color: var(--si-error-color);
+}
+
+.si-ins-loader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.si-ins-dot {
+	min-width: .375rem;
+	width: .375rem;
+	height: .375rem;
+	border-radius: 50%;
+	background: var(--si-font-color--l);
+	margin: 0 .1rem;
+}
+.si-ins-dot__1,
+.si-ins-dot__2,
+.si-ins-dot__3 {
+	animation: pp-dot-ani 1.4s infinite both;
+}
+
+.si-ins-dot__2 {
+	animation-delay: 0.2s;
+}
+
+.si-ins-dot__3 {
+	animation-delay: 0.4s;
+}
+
+@keyframes pp-dot-ani {
+0% {
+	background: #f7fafc;
+}
+50% {
+	background: var(--si-font-color--l)
+}
+100% {
+	background: #f7fafc;
+}
+}
+
+.si-card {
+	border: 1px solid var(--si-border-color);
+	padding: 1rem;
+}
+
+.si-alert {
+	position: relative;
+	padding: .75rem 1.25rem;
+	margin-bottom: 1rem;
+	border: 1px solid transparent;
+	border-radius: .25rem;
+}
+.si-alert--success {
+	color: var(--si-success-text);
+	background-color: var(--si-success-bg);
+	border-color: var(--si-success-border);
+}
+.si-alert--danger {
+	color: var(--si-alert-text);
+	background-color: var(--si-alert-bg);
+	border-color: var(--si-alert-border);
+}
+
+.si-progress {
+	display: flex;
+	height: .725rem;
+	overflow: hidden;
+	font-size: .75rem;
+	background-color: #e9ecef;
+	border-radius: .5rem;
+}
+.si-progress__bar {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	color: #fff;
+	text-align: center;
+	background-color: var(--si-primary-color);
+	transition: width .6s ease;
+}
+
+.custom-control {
+	position: relative;
+	display: block;
+	min-height: 1.5rem;
+	padding-left: 1.5rem;
+}
+.custom-control-input {
+	position: absolute;
+	z-index: -1;
+	opacity: 0;
+}
+input[type=checkbox], input[type=radio] {
+	box-sizing: border-box;
+	padding: 0;
+}
+
+.custom-control-label {
+	margin-bottom: 0;
+	display: inline-block;
+
+	&:before {
+		position: absolute;
+		top: .25rem;
+		left: 0;
+		display: block;
+		width: 1rem;
+		height: 1rem;
+		pointer-events: none;
+		content: "";
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		background-color: #fff;
+		border: 1px solid var(--si-border-color);
+	}
+	&:after {
+		position: absolute;
+		top: .25rem;
+		left: 0;
+		display: block;
+		width: 1rem;
+		height: 1rem;
+		content: "";
+		background-repeat: no-repeat;
+		background-position: center center;
+		background-size: 50% 50%;
+	}
+}
+.custom-checkbox .custom-control-label::before {
+	border-radius: .25rem;
+}
+$custom-control-indicator-checked-color:        white;
+.custom-checkbox .custom-control-input:checked~.custom-control-label::after {
+	background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'><path fill='#{$custom-control-indicator-checked-color}' d='M6.564.75l-3.59 3.612-1.538-1.55L0 4.26l2.974 2.99L8 2.193z'/></svg>");
+}
+
+.custom-control-input:checked~.custom-control-label::before {
+	color: #fff;
+	background-color: var(--si-primary-color);
+	border: 1px solid var(--si-primary-color);
+}
+
+
+div#svg__ani {width: 280px; height: auto; margin: 0 auto;}
+
+.text-left {
+	text-align: left !important;
+}
+.text-center {
+	text-align: center !important;
+}
+.text-right {
+	text-align: right !important;
+}

@@ -15,7 +15,7 @@ class RseventsproViewBackup extends JViewLegacy
 		$this->files	 = $backup->getBackups();
 		$this->hash		 = JFactory::getApplication()->input->getString('hash');
 		$this->overwrite = JFactory::getApplication()->input->getInt('overwrite',0);
-		$this->tabs		 = new RSTabs('backuprestore');
+		$this->tabs		 = new RSEventsproAdapterTabs('backuprestore');
 		
 		JText::script('COM_RSEVENTSPRO_BACKUP_OVERWRITE_RESTORE');
 		JText::script('COM_RSEVENTSPRO_BACKUP_RESTORE');

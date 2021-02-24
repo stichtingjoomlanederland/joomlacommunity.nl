@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><h2 class="cell acym__walkthrough__title"><?php echo acym_translation('ACYM_FIRST_LIST'); ?></h2>
+<h2 class="cell acym__title text-center"><?php echo acym_translation('ACYM_FIRST_LIST'); ?></h2>
 <div class="cell margin-top-1 margin-bottom-2">
 	<p class="acym__walkthrough__text">
         <?php echo acym_translation('ACYM_TEST_LIST_TEXT_1'); ?><br />
@@ -22,15 +20,14 @@ defined('_JEXEC') or die('Restricted access');
 	</table>
 </div>
 <div class="cell margin-bottom-3">
-	<button type="button" class="button light_button light_button_grey" id="acym__walkthrough__list__new"><?php echo acym_translation('ACYM_ADD_NEW'); ?></button>
+	<button type="button" class="button button-secondary" id="acym__walkthrough__list__new"><?php echo acym_translation('ACYM_ADD_NEW'); ?></button>
 	<div id="acym__walkthrough__list__add-zone" style="display: none;">
 		<label for="acym__walkthrough__list__new-address"><?php echo acym_translation('ACYM_EMAIL_ADDRESS'); ?></label>
-		<input type="text" id="acym__walkthrough__list__new-address" class="acym__light__input" />
-		<button type="button" class="button light_button light_button_grey" id="acym__walkthrough__list__add"><?php echo acym_translation('ACYM_ADD'); ?></button>
+		<input type="text" id="acym__walkthrough__list__new-address" />
+		<button type="button" class="button button-secondary" id="acym__walkthrough__list__add"><?php echo acym_translation('ACYM_ADD'); ?></button>
 	</div>
 </div>
 
 <div class="cell text-center margin-top-3">
 	<button type="button" class="acy_button_submit button" data-task="saveStepList" data-condition="walkthroughList"><?php echo acym_translation('ACYM_SAVE_CONTINUE'); ?></button>
 </div>
-

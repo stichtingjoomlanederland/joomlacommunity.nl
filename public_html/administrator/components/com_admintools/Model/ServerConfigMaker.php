@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -15,7 +15,7 @@ use FOF30\Model\Model;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Uri\Uri;
 
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 /**
  * Abstract class for .htaccess Maker and similar server configuration file makers

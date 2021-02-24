@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,130 +11,80 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewSearch extends EasyDiscussView
 {
 	public function display($tmpl = null)
 	{
 		// Set page attributes
 		ED::setPageTitle('COM_EASYDISCUSS_SEARCH');
-		ED::setMeta();
 		ED::breadcrumbs('COM_EASYDISCUSS_SEARCH');
-
-		$post = $this->input->getArray('get');
-
-		// Get the category?
-		$category = $this->input->get('category_id', 0, 'int');
-		$catfilters = $this->input->get('categories', array(), 'array');
-		$postType = $this->input->get('post_type', '', 'default');
-
-		$cats = array();
-		$tags = array();
-
-		$tagItems = array();
-		$catItems = array();
-
-		if ($category) {
-			$cats[] = $category;
-		}
-
-		if ($catfilters) {
-			foreach($catfilters as $item) {
-				$id = (int) $item;
-
-				$cats[] = $id;
-
-				$category = ED::table('Category');
-				$category->load($id);
-
-				$obj = new stdClass();
-				$obj->id = (int) $item;
-				$obj->title = JText::_($category->title);
-
-				$catItems[] = $obj;
-
-			}
-			array_unique($cats);
-		}
-
-		if ($cats) {
-
-			$catOptions = array('idOnly' => true, 'includeChilds' => true);
-			$catModel = ED::model('Categories');
-			$cats = $catModel->getCategoriesTree($cats, $catOptions);
-		}
-
-		$tagfilters = $this->input->get('tags', array(), 'array');
-
-		if ($tagfilters) {
-
-			foreach($tagfilters as $item) {
-				$id = (int) $item;
-				$tags[] = $id;
-
-				$tag = ED::table('Tags');
-				$tag->load($id);
-
-				$obj = new stdClass();
-				$obj->id = (int) $item;
-				$obj->title = JText::_($tag->title);
-
-				$tagItems[] = $obj;
-			}
-		}
+		ED::setMeta();
 
 		// Search query
 		$query = $this->input->get('query', '', 'string');
-		$limitstart	= null;
-		$items = array();
-		$pagination	= null;
 
-		$options = array();
-		$options['usePagination'] = true;
-		$options['sort'] = 'latest';
-		$options['filter'] = 'allpost';
-		$options['category'] = $cats;
-		$options['tags'] = $tags;
-		$options['post_type'] = $postType;
+		// Determines how we should be filtering the posts
+		$filter = $this->input->get('filter', 'all', 'string');
+		
+		// Allows caller to filter posts by post types
+		$postTypes = $this->input->get('types', array(), 'string');
+
+		// Allows caller to filter posts by labels
+		$postLabels = $this->input->get('labels', array(), 'int');
+
+		// Allows caller to filter posts by priority
+		$postPriorities = $this->input->get('priorities', array(), 'int');
+
+		// Get active category
+		$activeCategory = $this->input->get('category', 0, 'int');
+
+		// Determines if we should be sorting the view
+		$activeSort = $this->input->get('sort', 'latest', 'string');
+
+		// Get the pagination limit
+		$options = [
+			'category' => $activeCategory,
+			'sort' => $activeSort,
+			'filter' => $filter,
+			'postTypes' => $postTypes,
+			'postLabels' => $postLabels,
+			'postPriorities' => $postPriorities,
+			'search' => $query,
+			'searchIncludeReplies' => true
+		];
+
+		$posts = [];
+		$pagination = null;
 
 		if ($query) {
-			// Get the result
-			$model = ED::model('Search');
-			$results = $model->getData($options);
-			$pagination = $model->getPagination();
+			$postsModel = ED::model('Posts');
+			$posts = $postsModel->getDiscussions($options);
+			$pagination = $postsModel->getPagination();
 
-			if ($results) {
-				foreach($results as $result) {
-					$items[] = ED::searchitem($result);
+			// Only load the data when we really have data
+			if ($posts) {
+				ED::post($posts);
+
+				// Format normal entries
+				if ($posts) {
+					$posts = ED::formatPost($posts, false, true);
 				}
 			}
 		}
 
-		$postTypes = false;
-		$postTypeValue = $this->input->get('post_type', '', 'default');
+		$baseUrl = 'view=search&query=' . $query;
 
-		// Get post types list
-		if ($this->config->get('layout_post_types')) {
-			$postTypesModel = ED::model('PostTypes');
-			$postTypes = $postTypesModel->getPostTypes(null, 'ASC', true);
-		}
-
-		// This fix for elements with non-unique id. #818
-		$uid = uniqid();
-
-		$this->set('query', $query);
-		$this->set('posts', $items);
-		$this->set('paginationType', DISCUSS_SEARCH_TYPE);
-		$this->set('pagination', $pagination);
-		$this->set('parent_id', $query);
+		$this->set('activeSort', $activeSort);
+		$this->set('activeCategory', $activeCategory);
+		$this->set('filter', $filter);
+		$this->set('postLabels', $postLabels);
 		$this->set('postTypes', $postTypes);
-		$this->set('postTypeValue', $postTypeValue);
-
-		$this->set('tagFilters', $tagItems);
-		$this->set('catFilters', $catItems);
-		$this->set('uid', $uid);
+		$this->set('postPriorities', $postPriorities);
+		$this->set('baseUrl', $baseUrl);
+		$this->set('query', $query);
+		$this->set('posts', $posts);
+		$this->set('pagination', $pagination);
 		
-		parent::display('search/default');
+		parent::display('search/listings/default');
 	}
 }

@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class uploadfileType extends acymObject
+namespace AcyMailing\Types;
+
+use AcyMailing\Libraries\acymObject;
+
+class UploadfileType extends acymObject
 {
     public function display($map, $value)
     {
@@ -15,7 +17,10 @@ class uploadfileType extends acymObject
             '',
             'acym__campaign__email__'.$map.$value,
             'width="800" style="width:800px;" data-reveal-larger',
-            'class="hollow button acym__campaign__attach__button margin-top-0 margin-bottom-0 cell medium-shrink" data-iframe="'.acym_completeLink($ctrlFile.'&task=select&id='.$map.$value, true).'" data-ajax="false"'
+            'class="button-secondary button acym__campaign__attach__button margin-top-0 margin-bottom-0 cell medium-shrink" data-iframe="'.acym_completeLink(
+                $ctrlFile.'&task=select&id='.$map.$value,
+                true
+            ).'" data-ajax="false"'
         );
 
         $result .= '<span id="'.$map.$value.'selection" class="acy_selected_attachment cell medium-shrink"></span>';
@@ -23,4 +28,3 @@ class uploadfileType extends acymObject
         return $result;
     }
 }
-

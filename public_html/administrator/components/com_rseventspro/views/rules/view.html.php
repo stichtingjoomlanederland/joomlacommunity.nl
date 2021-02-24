@@ -8,9 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewRules extends JViewLegacy
 {
-	protected $items;
-	protected $sidebar;
-	
 	public function display($tpl = null) {
 		$this->items 		= $this->get('Items');
 		
@@ -22,8 +19,6 @@ class RseventsproViewRules extends JViewLegacy
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_PAYMENT_RULES'),'rseventspro48');
 		JToolBar::getInstance('toolbar')->appendButton('Link', 'arrow-left', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=payments'));
 		JToolBarHelper::deleteList('','rules.delete');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getSubject($id) {

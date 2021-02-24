@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Exception;
 use FOF30\Input\Input;
@@ -344,7 +344,7 @@ class ImportAndExport extends Model
 
 		// Did we grow over the limit or are forced to flush it? If so let's build the actual query
 		// and execute it
-		if (count($cache) >= 100 || !$data)
+		if ((is_array($cache) || $cache instanceof \Countable ? count($cache) : 0) >= 100 || !$data)
 		{
 			$db = $this->container->db;
 

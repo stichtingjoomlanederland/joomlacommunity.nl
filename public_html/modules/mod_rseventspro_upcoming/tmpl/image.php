@@ -12,13 +12,13 @@ $open = !$links ? 'target="_blank"' : ''; ?>
 <?php if ($items) { ?>
 <div id="rsepro-upcoming-module">
 	<?php foreach ($items as $block => $events) { ?>
-	<ul class="rsepro_upcoming<?php echo $suffix; ?> row-fluid">
+	<ul class="rsepro_upcoming<?php echo $suffix; ?> <?php echo RSEventsproAdapterGrid::row(); ?>">
 		<?php foreach ($events as $id) { ?>
 		<?php $details = rseventsproHelper::details($id); ?>
 		<?php $image = !empty($details['image_s']) ? $details['image_s'] : rseventsproHelper::defaultImage(); ?>
 		
 		<?php if (isset($details['event']) && !empty($details['event'])) $event = $details['event']; else continue; ?>
-		<li class="clearfix span<?php echo 12 / $columns; ?>">
+		<li class="clearfix <?php echo RSEventsproAdapterGrid::column(12 / $columns); ?>">
 			<div class="rsepro-image">
 				<img src="<?php echo $image; ?>" alt="<?php echo $event->name; ?>" width="70" />
 			</div>

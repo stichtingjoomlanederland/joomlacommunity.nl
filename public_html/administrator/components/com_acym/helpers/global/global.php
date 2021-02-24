@@ -1,6 +1,6 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Classes\ConfigurationClass;
 
 function acydump($arg, $ajax = false, $indent = true)
 {
@@ -16,7 +16,7 @@ function acydump($arg, $ajax = false, $indent = true)
     }
 }
 
-function acym_debug($file = false)
+function acym_debug($file = false, $indent = true)
 {
     $debug = debug_backtrace();
     $takenPath = [];
@@ -24,14 +24,14 @@ function acym_debug($file = false)
         if (empty($step['file']) || empty($step['line'])) continue;
         $takenPath[] = $step['file'].' => '.$step['line'];
     }
-    acydump(implode('<br/>', $takenPath), $file);
+    acydump(implode($file ? "\n" : '<br/>', $takenPath), $file, $indent);
 }
 
 function acym_config($reload = false)
 {
     static $configClass = null;
     if ($configClass === null || $reload) {
-        $configClass = acym_get('class.configuration');
+        $configClass = new ConfigurationClass();
         $configClass->load();
     }
 
@@ -42,19 +42,32 @@ function acym_get($path)
 {
     list($group, $class) = explode('.', $path);
 
-    $className = $class.ucfirst(str_replace('_front', '', $group));
-    if ($group == 'class' || ($group == 'helper' && strpos($className, 'acym') !== 0)) {
-        $className = 'acym'.$className;
-    }
+    $className = ucfirst($class).ucfirst(str_replace('_front', '', $group));
 
     if (substr($group, 0, 4) == 'view') {
-        $className = $className.ucfirst($class);
+        $className .= ucfirst($class);
         $class .= DS.'view.html';
+    }
+
+    if ($group === 'class') {
+        $className = 'AcyMailing\\Classes\\'.$className;
+    } elseif ($group === 'controller') {
+        $className = 'AcyMailing\\Controllers\\'.$className;
+    } elseif ($group === 'view') {
+        $className = 'AcyMailing\\Views\\'.$className;
+    } elseif ($group === 'helper') {
+        $className = 'AcyMailing\\Helpers\\'.$className;
+    } elseif ($group === 'controller_front') {
+        $className = 'AcyMailing\\FrontControllers\\'.$className;
+    } elseif ($group === 'type') {
+        $className = 'AcyMailing\\Types\\'.$className;
+    } elseif ($group === 'view_front') {
+        $className = 'AcyMailing\\FrontViews\\'.$className;
     }
 
     if (!class_exists($className)) {
         $classFile = constant(strtoupper('ACYM_'.$group)).$class.'.php';
-        if (file_exists($classFile)) include_once $classFile;
+        if (file_exists($classFile)) require_once $classFile;
 
         if (!class_exists($className)) return null;
     }
@@ -95,18 +108,6 @@ function acym_session()
     }
 }
 
-function acym_getSvg($svgPath)
-{
-    $xml = @simplexml_load_file($svgPath);
-
-    if (class_exists('SimpleXMLElement') && $xml !== false) {
-        $res = $xml->asXML();
-        if (!empty($res)) return $res;
-    }
-
-    return acym_fileGetContent($svgPath);
-}
-
 function acym_getCID($field = '')
 {
     $oneResult = acym_getVar('array', 'cid', [], '');
@@ -126,3 +127,6 @@ function acym_header($header, $replace = true)
     header($header, $replace);
 }
 
+function acym_getSocialMedias(){
+    return json_decode(ACYM_SOCIAL_MEDIA, true);
+}

@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.5
+ * @version         7.4.7
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -53,6 +53,17 @@ class Com_RegularLabsManagerInstallerScriptHelper
 		{
 			$this->install_type = 'update';
 		}
+
+//		if ($this->extension_type == 'component')
+//		{
+//			// Remove admin menu to prevent error on creating it again
+//			$query = $this->db->getQuery(true)
+//				->delete('#__menu')
+//				->where($this->db->quoteName('path') . ' = ' . $this->db->quote('com-' . $this->extname))
+//				->where($this->db->quoteName('client_id') . ' = 1');
+//			$this->db->setQuery($query);
+//			$this->db->execute();
+//		}
 
 		if ($this->onBeforeInstall($route) === false)
 		{
@@ -110,8 +121,9 @@ class Com_RegularLabsManagerInstallerScriptHelper
 			->select($this->db->quoteName('extension_id'))
 			->from('#__extensions')
 			->where($this->db->quoteName('type') . ' = ' . $this->db->quote($this->extension_type))
-			->where($this->db->quoteName('element') . ' = ' . $this->db->quote($this->getElementName()));
-		$this->db->setQuery($query, 0, 1);
+			->where($this->db->quoteName('element') . ' = ' . $this->db->quote($this->getElementName()))
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$result = $this->db->loadResult();
 
 		return empty($result) ? false : true;
@@ -321,8 +333,9 @@ class Com_RegularLabsManagerInstallerScriptHelper
 		$query->clear()
 			->select($this->db->quoteName('moduleid'))
 			->from('#__modules_menu')
-			->where($this->db->quoteName('moduleid') . ' = ' . (int) $id);
-		$this->db->setQuery($query, 0, 1);
+			->where($this->db->quoteName('moduleid') . ' = ' . (int) $id)
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$exists = $this->db->loadResult();
 
 		if ($exists)
@@ -563,8 +576,9 @@ class Com_RegularLabsManagerInstallerScriptHelper
 		$query = $this->db->getQuery(true)
 			->select($this->db->quoteName('rules'))
 			->from('#__assets')
-			->where($this->db->quoteName('title') . ' = ' . $this->db->quote('com_' . $this->extname));
-		$this->db->setQuery($query, 0, 1);
+			->where($this->db->quoteName('title') . ' = ' . $this->db->quote('com_' . $this->extname))
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$rules = $this->db->loadResult();
 
 		$rules = json_decode($rules);
@@ -636,8 +650,9 @@ class Com_RegularLabsManagerInstallerScriptHelper
 			->select($this->db->quoteName('id'))
 			->from('#__assets')
 			->where($this->db->quoteName('name') . ' = ' . $this->db->quote('com_modules.module.' . (int) $module_id))
-			->where($this->db->quoteName('title') . ' LIKE ' . $this->db->quote('NoNumber%'));
-		$this->db->setQuery($query, 0, 1);
+			->where($this->db->quoteName('title') . ' LIKE ' . $this->db->quote('NoNumber%'))
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$asset_id = $this->db->loadResult();
 
 		if (empty($asset_id))
@@ -730,8 +745,9 @@ class Com_RegularLabsManagerInstallerScriptHelper
 			->from('#__update_sites')
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%download.regularlabs.com%'))
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%e=' . $this->alias . '%'))
-			->where($this->db->quoteName('location') . ' NOT LIKE ' . $this->db->quote('%pro=1%'));
-		$this->db->setQuery($query, 0, 1);
+			->where($this->db->quoteName('location') . ' NOT LIKE ' . $this->db->quote('%pro=1%'))
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$id = $this->db->loadResult();
 
 		// Otherwise just get the first match

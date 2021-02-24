@@ -1,0 +1,19 @@
+// Block
+.docman_block {
+  @include clearfix();
+  position: relative;
+  display: table;
+  width: 100%;
+}
+
+.docman_block__item {
+  display: table-cell;
+
+  .koowa_header {
+    margin: 0;
+  }
+}
+
+.docman_block--top_margin {
+  margin-top: $smallMargin;
+}

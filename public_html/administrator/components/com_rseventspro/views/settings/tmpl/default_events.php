@@ -7,8 +7,11 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 $fieldsets = array('generalsettings','moderation','maintenance','registration', 'comments', 'media');
+
 foreach ($fieldsets as $fieldset) {
-	echo JHtml::_('rsfieldset.start', 'adminform', JText::_($this->fieldsets[$fieldset]->label));
+	echo '<fieldset class="options-form">';
+	echo '<legend>'.JText::_($this->fieldsets[$fieldset]->label).'</legend>';
+	
 	foreach ($this->form->getFieldset($fieldset) as $field) {
 		$extra = '';
 		if ($field->fieldname == 'archive_days')
@@ -17,12 +20,17 @@ foreach ($fieldsets as $fieldset) {
 			$extra = '<span class="rsextra">'.JText::_('COM_RSEVENTSPRO_MINUTES').'</span>';
 		else if ($field->fieldname == 'icon_small_width' || $field->fieldname == 'icon_big_width' || $field->fieldname == 'seats_width' || $field->fieldname == 'seats_height')
 			$extra = '<span class="rsextra">px</span>';
-		else if ($field->fieldname == 'default_image') {
+		
+		$input = $extra ? RSEventsproAdapterGrid::inputGroup($field->input, null, $extra) : $field->input;
+		
+		echo RSEventsproAdapterGrid::renderField($field->label, $input, false, JText::_($field->description));
+		
+		if ($field->fieldname == 'default_image') {
 			if ($field->value) {
-				$extra = '<span class="btn btn-info rsextra '.rseventsproHelper::tooltipClass().'" title="'.htmlentities('<img src="'.JUri::root().'components/com_rseventspro/assets/images/default/'.$field->value.'" alt="" width="100" />').'"><i class="fa fa-image"></i> '.JText::_('COM_RSEVENTSPRO_PREVIEW').'</span> ';
+				echo RSEventsproAdapterGrid::renderField('&nbsp;', '<span data-bs-toggle="tooltip" class="btn btn-info rsextra '.rseventsproHelper::tooltipClass().'" title="'.htmlentities('<img src="'.JUri::root().'components/com_rseventspro/assets/images/default/'.$field->value.'" alt="" width="100" />').'"><i class="fa fa-image"></i> '.JText::_('COM_RSEVENTSPRO_PREVIEW').'</span>');
 			}
 		}
-		echo JHtml::_('rsfieldset.element', $field->label, $field->input.$extra);
 	}
-	echo JHtml::_('rsfieldset.end');
+	
+	echo '</fieldset>';
 }

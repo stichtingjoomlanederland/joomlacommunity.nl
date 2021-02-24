@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -16,6 +16,7 @@ use Joomla\CMS\Plugin\CMSPlugin as JPlugin;
 use Joomla\CMS\Uri\Uri as JUri;
 use Joomla\Registry\Registry;
 use RegularLabs\Library\Document as RL_Document;
+use RegularLabs\Library\Extension as RL_Extension;
 use RegularLabs\Library\Parameters as RL_Parameters;
 use RegularLabs\Library\Uri as RL_Uri;
 use RegularLabs\Plugin\System\RegularLabs\AdminMenu as RL_AdminMenu;
@@ -36,6 +37,26 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 }
 
 JFactory::getLanguage()->load('plg_system_regularlabs', __DIR__);
+
+$config = new JConfig;
+
+$input = JFactory::getApplication()->input;
+
+// Deal with error reporting when loading pages we don't want to break due to php warnings
+if ( ! in_array($config->error_reporting, ['none', '0'])
+	&& (
+		($input->get('option') == 'com_regularlabsmanager'
+			&& ($input->get('task') == 'update' || $input->get('view') == 'process')
+		)
+		||
+		($input->getInt('rl_qp') == 1 && $input->get('url') != '')
+	)
+)
+{
+	RL_Extension::orderPluginFirst('regularlabs');
+
+	error_reporting(E_ERROR);
+}
 
 class PlgSystemRegularLabs extends JPlugin
 {

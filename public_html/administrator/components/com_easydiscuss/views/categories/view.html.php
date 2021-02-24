@@ -10,9 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewCategories extends EasyDiscussAdminView
 {
 	/**
@@ -27,12 +24,10 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 		$this->title('COM_EASYDISCUSS_CATEGORIES_TITLE');
 
 		JToolbarHelper::addNew();
-		JToolBarHelper::divider();
-		JToolBarHelper::makeDefault('makeDefault');
-		JToolBarHelper::divider();
+		JToolBarHelper::makeDefault('makeDefault');;
 		JToolbarHelper::publishList();
 		JToolbarHelper::unpublishList();
-		JToolBarHelper::divider();
+		JToolbarHelper::custom('copy', 'copy', '', JText::_('COM_ED_COPY'));
 		JToolbarHelper::deleteList();
 
 		$filter_state = $this->getUserState('categories.filter_state', 'filter_state', '*', 'word');
@@ -53,8 +48,7 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 
 		foreach ($rows as $row) {
 
-			$category = ED::table('Category');
-			$category->bind($row);
+			$category = ED::category($row);
 
 			$category->depth = $row->depth;
 			$category->count = $model->getUsedCount($category->id, false);
@@ -62,7 +56,6 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 
 			$category->link = 'index.php?option=com_easydiscuss&view=categories&layout=form&id='. $category->id;
 
-			$category->user = JFactory::getUser($category->created_by);
 			$categories[] = $category;
 			$ordering[$category->parent_id][] = $category->id;
 		}
@@ -113,19 +106,39 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 		JToolBarHelper::cancel();
 
 		// // Get assigned group acl
-		$parentList = ED::populateCategories('', '', 'select', 'parent_id', $category->parent_id, true, false, false, false, '', array($category->id));
+		$parentList = ED::populateCategories('', '', 'select', 'parent_id', $category->parent_id, true, false, false, false, 'o-form-select', array($category->id), DISCUSS_CATEGORY_ACL_ACTION_VIEW, false, false, false, array('data-ed-select'));
 
 		// Get the default WYSIWYG editor
-		$editor = JFactory::getEditor($this->jconfig->get('editor'));
+		$editor = ED::getEditor($this->jconfig->get('editor'));
+
+		// Get the Custom fields
+		$customFieldModel = ED::model('CustomFields');
+		$data = $customFieldModel->getData();
+		$customFields = [];
+
+		foreach ($data as $item) {
+			$field = ED::field($item->id);
+
+			$customFields[$field->id] = $field->title;
+		}
+
+		// Get the inherited ACL params
+		// $inheritAcl = $category->id ? $category->getParam('cat_acl_use_global') : true;
 
 		// Get active tab
 		$active = $this->input->get('active', 'general', 'word');
+
+		// Get the selected custom fields if there is
+		$selectedCF = $category->getParam('custom_fields', false);
 
 		$this->set('active', $active);
 		$this->set('editor', $editor);
 		$this->set('category', $category);
 		$this->set('categories', $parentList);
+		$this->set('customFields', $customFields);
+		// $this->set('inheritAcl', $inheritAcl);
+		$this->set('selectedCF', $selectedCF);
 
-		parent::display('categories/form');
+		parent::display('categories/form/default');
 	}
 }

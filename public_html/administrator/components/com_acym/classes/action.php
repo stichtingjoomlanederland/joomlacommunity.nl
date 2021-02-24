@@ -1,22 +1,28 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymactionClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class ActionClass extends acymClass
 {
     var $table = 'action';
     var $pkey = 'id';
 
     public function getActionsByStepId($stepId)
     {
-        $query = 'SELECT action.* FROM #__acym_action AS action LEFT JOIN #__acym_condition AS conditionT ON action.condition_id = conditionT.id WHERE conditionT.step_id = '.intval($stepId).' ORDER BY action.order';
+        $query = 'SELECT action.* FROM #__acym_action AS action LEFT JOIN #__acym_condition AS conditionT ON action.condition_id = conditionT.id WHERE conditionT.step_id = '.intval(
+                $stepId
+            ).' ORDER BY action.order';
 
         return acym_loadObjectList($query);
     }
 
     public function getActionsByConditionId($id)
     {
-        $query = 'SELECT action.* FROM #__acym_action as action LEFT JOIN #__acym_condition as acycondition ON acycondition.id = action.condition_id WHERE acycondition.id = '.intval($id);
+        $query = 'SELECT action.* FROM #__acym_action as action LEFT JOIN #__acym_condition as acycondition ON acycondition.id = action.condition_id WHERE acycondition.id = '.intval(
+                $id
+            );
 
         return acym_loadObjectList($query);
     }
@@ -24,18 +30,18 @@ class acymactionClass extends acymClass
     public function getAllActionsIdByConditionsId($elements)
     {
         acym_arrayToInteger($elements);
-        $actions = acym_loadResultArray('SELECT id FROM #__acym_action WHERE condition_id IN ('.implode(',', $elements).')');
 
-        return $actions;
+        return acym_loadResultArray('SELECT id FROM #__acym_action WHERE condition_id IN ('.implode(',', $elements).')');
     }
 
     public function delete($elements)
     {
         acym_arrayToInteger($elements);
+        if (empty($elements)) return 0;
         $actions = acym_loadObjectList('SELECT * FROM #__acym_action WHERE id IN ('.implode(',', $elements).')');
-        if (empty($actions)) return;
+        if (empty($actions)) return 0;
 
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
 
         foreach ($actions as $action) {
             $action->actions = json_decode($action->actions, true);
@@ -46,7 +52,12 @@ class acymactionClass extends acymClass
             }
         }
 
-        parent::delete($elements);
+        return parent::delete($elements);
+    }
+
+    public function save($element)
+    {
+        if (!isset($element->order)) $element->order = 1;
+        parent::save($element);
     }
 }
-

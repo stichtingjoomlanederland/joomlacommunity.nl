@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,51 +9,21 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 ED::import('admin:/tables/table');
 
 class DiscussCategoryAclMap extends EasyDiscussTable
 {
-	/*
-	 * The id of the category acl
-	 * @var int
-	 */
-	public $id			= null;
-
-	/*
-	* The category id
-	* @var int
-	*/
+	public $id = null;
 	public $category_id	= null;
+	public $content_id = null;
+	public $acl_id = null;
+	public $type = null;
+	public $status = null;
 
-	/*
-	* Category acl content id (joomla group id)
-	* @var int
-	*/
-	public $content_id	= null;
-
-
-	/*
-	* Category acl type (group)
-	* @var string
-	*/
-	public $type		= null;
-
-	/*
-	* Category status
-	* @var int
-	*/
-	public $status		= null;
-
-	/**
-	 * Constructor for this class.
-	 *
-	 * @return
-	 * @param object $db
-	 */
-	public function __construct(& $db )
+	public function __construct(&$db)
 	{
-		parent::__construct( '#__discuss_category_acl_map' , 'id' , $db );
+		parent::__construct('#__discuss_category_acl_map' , 'id', $db);
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\Model\Scanner;
 use Joomla\CMS\Language\Text;
 use RuntimeException;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * PHP port of http://github.com/danpalmer/jquery.complexify.js
@@ -308,7 +308,7 @@ class Complexify
 		}
 
 		// Use natural log to produce linear scale
-		$complexity = log(pow($complexity, mb_strlen($password, $this->encoding))) * (1 / $this->strengthScaleFactor);
+		$complexity = log($complexity ** mb_strlen($password, $this->encoding)) * (1 / $this->strengthScaleFactor);
 
 		if ($complexity <= self::$MIN_COMPLEXITY)
 		{
@@ -324,7 +324,7 @@ class Complexify
 		$complexity = ($complexity / self::$MAX_COMPLEXITY) * 100;
 		$complexity = ($complexity > 100) ? 100 : $complexity;
 
-		return (object) ['valid' => count($error) === 0, 'complexity' => $complexity, 'errors' => $error];
+		return (object) ['valid' => (is_array($error) || $error instanceof \Countable ? count($error) : 0) === 0, 'complexity' => $complexity, 'errors' => $error];
 	}
 
 	/**

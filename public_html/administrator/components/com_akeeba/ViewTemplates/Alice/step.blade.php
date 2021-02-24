@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,10 +13,12 @@ defined('_JEXEC') || die;
 /** @var  \Akeeba\Backup\Admin\View\Alice\Html $this */
 
 $js = <<< JS
-akeeba.System.documentReady(function(){
-	window.setTimeout(function() {
-	  document.forms.adminForm.submit()
-	}, 500);
+akeeba.Loader.add('akeeba.System', function(){
+	akeeba.System.documentReady(function(){
+		window.setTimeout(function() {
+		  document.forms.adminForm.submit()
+		}, 500);
+	});
 });
 
 JS;

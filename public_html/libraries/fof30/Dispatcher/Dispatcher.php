@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -67,6 +67,8 @@ class Dispatcher
 		{
 			$this->defaultView = $config['defaultView'];
 		}
+
+		$this->supportCustomViewAndTaskParameters();
 
 		// Get the default values for the view and layout names
 		$this->view   = $this->input->getCmd('view', null);
@@ -346,5 +348,34 @@ class Dispatcher
 		}
 
 		$this->container->platform->logoutUser();
+	}
+
+	/**
+	 * Adds support for akview/aktask in lieu of view and task.
+	 *
+	 * This is for future-proofing FOF in case Joomla assigns special meaning to view and task, e.g. by trying to find a
+	 * specific controller / task class instead of letting the component's front-end router handle it. If that happens
+	 * FOF components can have a single Joomla-compatible view/task which launches the Dispatcher and perform internal
+	 * routing using akview/aktask.
+	 *
+	 * @return  void
+	 * @since   3.6.3
+	 */
+	private function supportCustomViewAndTaskParameters()
+	{
+		$view = $this->input->getCmd('akview', null);
+		$task = $this->input->getCmd('aktask', null);
+
+		if (!is_null($view))
+		{
+			$this->input->remove('akview');
+			$this->input->set('view', $view);
+		}
+
+		if (!is_null($task))
+		{
+			$this->input->remove('aktask');
+			$this->input->set('task', $task);
+		}
 	}
 }

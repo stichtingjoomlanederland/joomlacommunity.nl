@@ -3,7 +3,7 @@
  * Akeeba Engine
  *
  * @package   akeebaengine
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -67,7 +67,7 @@ class Box extends Base
 
 		return <<< HTML
 <script type="application/javascript">
-	window.opener.{$this->callbackMethod}($serialisedData;)
+	window.opener.{$this->callbackMethod}($serialisedData);
 </script>
 HTML;
 	}
@@ -76,6 +76,7 @@ HTML;
 	{
 		/** @var ConnectorBox $connector */
 		$connector = $this->getConnector();
+		$connector->ping();
 
 		// Store the absolute remote path in the property
 		$directory        = $this->directory;
@@ -141,6 +142,7 @@ HTML;
 
 		/** @var ConnectorBox $connector */
 		$connector = $this->getConnector();
+		$connector->ping();
 		$connector->download($remotePath, $localFile);
 	}
 
@@ -148,6 +150,7 @@ HTML;
 	{
 		/** @var ConnectorBox $connector */
 		$connector = $this->getConnector();
+		$connector->ping();
 		$connector->deleteFileByName($path);
 	}
 

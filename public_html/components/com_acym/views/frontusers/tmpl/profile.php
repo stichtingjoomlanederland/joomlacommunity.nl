@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acym_fulldiv_acyprofileform" class="acym_front_page">
+<div id="acym_fulldiv_acyprofileform" class="acym_front_page">
     <?php
     if (!empty($data['show_page_heading'])) {
         echo '<h1 class="contentheading'.$data['suffix'].'">'.$data['page_heading'].'</h1>';
@@ -11,7 +9,12 @@ defined('_JEXEC') or die('Restricted access');
     }
     ?>
 
-	<form enctype="multipart/form-data" action="<?php echo acym_frontendLink('frontusers'.(acym_isNoTemplate() ? '&'.acym_noTemplate() : '')); ?>" method="post" name="acyprofileform" id="acyprofileform" onsubmit="this.querySelector('input[type=submit]').click(); return false;">
+	<form enctype="multipart/form-data"
+		  action="<?php echo acym_frontendLink('frontusers'.(acym_isNoTemplate() ? '&'.acym_noTemplate() : '')); ?>"
+		  method="post"
+		  name="acyprofileform"
+		  id="acyprofileform"
+		  onsubmit="this.querySelector('input[type=submit]').click(); return false;">
 		<fieldset class="adminform acy_user_info">
 			<legend><span><?php echo acym_translation('ACYM_USER_INFORMATION'); ?></span></legend>
             <?php
@@ -46,7 +49,6 @@ defined('_JEXEC') or die('Restricted access');
                     echo $data['fieldClass']->displayField($field, $field->default_value, $size, $valuesArray, true, true, $data['user']);
                     echo '</span>';
                 }
-
                 ?>
 			</div>
 
@@ -73,7 +75,8 @@ defined('_JEXEC') or die('Restricted access');
                             if ($deleteButton == 1) {
                                 ?>
 								<td id="acybutton_subscriber_delete_data">
-									<button class="btn" onclick="if(confirm(ACYM_JS_TXT.ACYM_ARE_YOU_SURE + '\n' + ACYM_JS_TXT.ACYM_DELETE_MY_DATA_CONFIRM)){ this.form.task.value = 'delete'; this.form.submit(); } return false;">
+									<button class="btn"
+											onclick="if(confirm(ACYM_JS_TXT.ACYM_ARE_YOU_SURE + '\n' + ACYM_JS_TXT.ACYM_DELETE_MY_DATA_CONFIRM)){ this.form.task.value = 'delete'; this.form.submit(); } return false;">
                                         <?php echo acym_translation('ACYM_DELETE_MY_DATA'); ?>
 									</button>
 								</td>
@@ -152,8 +155,7 @@ defined('_JEXEC') or die('Restricted access');
 
         if (empty($data['user']->id) && $data['config']->get('captcha', '') == 1) {
             echo '<div id="trcaptcha" class="acy_onefield">';
-            $captchaHelper = acym_get('helper.captcha');
-            echo $captchaHelper->display('acyprofileform');
+            echo $data['captchaHelper']->display('acyprofileform');
             echo '</div>';
         }
 
@@ -178,11 +180,13 @@ defined('_JEXEC') or die('Restricted access');
 		<input type="hidden" name="ajax" value="1" />
 
 		<p class="acymodifybutton">
-			<input class="btn btn-primary" type="submit" onclick="return submitAcymForm('savechanges', 'acyprofileform', 'acym_checkChangeForm');" value="<?php echo acym_escape(acym_translation(empty($data['user']->id) ? 'ACYM_SUBSCRIBE' : 'ACYM_SAVE_CHANGES')); ?>" />
+			<input class="btn btn-primary"
+				   type="submit"
+				   onclick="return submitAcymForm('savechanges', 'acyprofileform', 'acym_checkChangeForm');"
+				   value="<?php echo acym_escape(acym_translation(empty($data['user']->id) ? 'ACYM_SUBSCRIBE' : 'ACYM_SAVE_CHANGES')); ?>" />
 		</p>
 	</form>
     <?php if (!empty($data['posttext'])) {
         echo '<span class="acym_posttext">'.$data['posttext'].'</span>';
     } ?>
 </div>
-

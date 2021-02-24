@@ -17,8 +17,8 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 	<?php if (!empty($this->reports['data'])) { ?>
 	<div class="rs_table_layout rs_table_header">
-		<span class="rs_table_id"><input type="checkbox" name="checkall-toggle" id="rscheckbox" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this);"/></span>
-		<span style="width:70%;"><?php echo JText::_('COM_RSEVENTSPRO_REPORT_MESSAGE_TEXT'); ?></span>
+		<span class="rs_table_id"><?php echo JHtml::_('grid.checkall'); ?></span>
+		<span style="width:67%;"><?php echo JText::_('COM_RSEVENTSPRO_REPORT_MESSAGE_TEXT'); ?></span>
 		<span style="width:10%; text-align: center;"><?php echo JText::_('COM_RSEVENTSPRO_REPORT_NAME'); ?></span>
 		<span style="width:10%; text-align: center;"><?php echo JText::_('COM_RSEVENTSPRO_REPORT_IP'); ?></span>
 	</div>
@@ -27,7 +27,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php foreach ($this->reports['data'] as $i => $report) { ?>
 	<div class="rs_table_layout">
 		<span class="rs_table_id"><?php echo JHTML::_('grid.id',$i,$report->id); ?></span>
-		<span style="width:70%;"><?php echo $report->text; ?></span>
+		<span style="width:67%;"><?php echo $report->text; ?></span>
 		<span style="width:10%; text-align: center;"><?php echo $report->idu ? $report->name : JText::_('COM_RSEVENTSPRO_GLOBAL_GUEST'); ?></span>
 		<span style="width:10%; text-align: center;"><?php echo $report->ip; ?></span>
 	</div>

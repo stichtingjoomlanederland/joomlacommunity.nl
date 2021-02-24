@@ -150,7 +150,8 @@ class RseventsproModelSubscription extends JModelAdmin
 			->select($db->qn('name','text'))
 			->select($db->qn('start'))
 			->from($db->qn('#__rseventspro_events'))
-			->where($db->qn('registration').' = 1');
+			->where($db->qn('registration').' = 1')
+			->order($db->qn('start').' ASC');
 		
 		$today = JFactory::getDate();
 		$today->setTime(0,0,0);
@@ -246,7 +247,7 @@ class RseventsproModelSubscription extends JModelAdmin
 		$db->setQuery($query);
 		$state = (int) $db->loadResult();
 		
-		JFactory::getApplication()->triggerEvent('rsepro_adminBeforeStoreSubscription', array(array('table' => $table)));
+		JFactory::getApplication()->triggerEvent('onrsepro_adminBeforeStoreSubscription', array(array('table' => $table)));
 		
 		// Store the data.
 		if (!$table->store()) {

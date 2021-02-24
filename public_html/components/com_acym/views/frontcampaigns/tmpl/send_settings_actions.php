@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="cell grid-x acym__campaign__sendsettings__save">
+<div class="cell grid-x margin-top-1">
 	<div class="cell medium-shrink medium-margin-bottom-0 margin-bottom-1">
         <?php echo acym_backToListing(); ?>
 	</div>
@@ -20,4 +18,3 @@ defined('_JEXEC') or die('Restricted access');
         <?php } ?>
 	</div>
 </div>
-

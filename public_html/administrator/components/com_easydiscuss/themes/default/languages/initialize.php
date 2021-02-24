@@ -12,14 +12,14 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form name="adminForm" id="adminForm" method="post" data-ed-table-grid>
-    <div class="panel languages-loader">
-        <div class="panel-body text-center">
-            <div class="t-lg-mb--xl">
-                <i class="fa fa-refresh fa-spin" style="font-size: 48px;"></i>
-            </div>
+	<div class="panel languages-loader">
+		<div class="panel-body text-center">
+			<div class="t-lg-mb--xl">
+				<i class="fa fa-refresh fa-spin" style="font-size: 48px;"></i>
+			</div>
 
-            <?php echo JText::_('COM_EASYDISCUSS_INITIALIZING_LANGUAGE_LIST');?>
-            <div class="alert alert-danger hide" data-ed-initialize-error style="margin-top:50px;"></div>
-        </div>
-    </div>
+			<?php echo JText::_('COM_EASYDISCUSS_INITIALIZING_LANGUAGE_LIST');?>
+			<div class="alert alert-danger hide" data-ed-initialize-error style="margin-top:50px;"></div>
+		</div>
+	</div>
 </form>

@@ -1,33 +1,31 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<input type="hidden" name="filename" id="filename" value="<?php echo acym_getVar('cmd', 'filename'); ?>" />
 	<input type="hidden" name="import_columns" id="import_columns" value="" />
 	<input type="hidden" name="new_list" id="acym__import__new-list" value="" />
 	<div id="acym__users__import__generic" class="acym__content">
 		<div class="grid-x grid-margin-y acym_area">
 			<div class="">
-				<div class="acym_area_title"><?php echo acym_translation('ACYM_FIELD_MATCHING'); ?></div>
+				<div class="acym__title"><?php echo acym_translation('ACYM_FIELD_MATCHING'); ?></div>
 				<p class="acym__users__import__generic__instructions"><?php echo acym_translation('ACYM_ASSIGN_COLUMNS'); ?></p>
 			</div>
-			<div class="cell">
+			<div class="cell acym_vcenter">
 				<input type="checkbox" id="acym__users__import__from_file__ignore__checkbox" name="acym__users__import__from_file__ignore__checkbox">
 				<label for="acym__users__import__from_file__ignore__checkbox"><?php echo acym_translation('ACYM_IGNORE_UNASSIGNED'); ?></label>
 			</div>
 
 			<div class="cell grid-x" id="acym__users__import__generic__matchdata">
-                <?php include_once(ACYM_BACK.'views'.DS.'users'.DS.'tmpl'.DS.'ajaxencoding.php'); ?>
+                <?php include_once ACYM_BACK.'views'.DS.'users'.DS.'tmpl'.DS.'ajaxencoding.php'; ?>
 			</div>
 		</div>
 
 		<div class="grid-x acym_area">
-			<div class="acym_area_title"><?php echo acym_translation('ACYM_PARAMETERS'); ?></div>
-			<div class="cell grid-x">
+			<div class="acym__title"><?php echo acym_translation('ACYM_PARAMETERS'); ?></div>
+			<div class="cell grid-x grid-margin-x margin-y">
 				<div class="cell large-6 grid-x">
 					<label for="acyencoding" class="cell medium-6">File charset</label>
 					<div class="cell medium-6">
                         <?php
-                        $encodingHelper = acym_get('helper.encoding');
+                        $encodingHelper = new AcyMailing\Helpers\EncodingHelper();
                         $default = $encodingHelper->detectEncoding($this->content);
                         $urlEncodedFilename = urlencode($filename);
                         $attribs = [
@@ -38,8 +36,6 @@ defined('_JEXEC') or die('Restricted access');
                         ?>
 					</div>
 				</div>
-			</div>
-			<div class="cell grid-x">
                 <?php if ($this->config->get('require_confirmation')) { ?>
 					<div class="cell large-6 grid-x">
                         <?php
@@ -81,9 +77,8 @@ defined('_JEXEC') or die('Restricted access');
                 'button medium-6 large-shrink margin-bottom-0'
             );
 
-            $entityHelper = acym_get('helper.entitySelect');
-            $importHelper = acym_get('helper.import');
-
+            $entityHelper = new AcyMailing\Helpers\EntitySelectHelper();
+            $importHelper = new AcyMailing\Helpers\ImportHelper();
             $modalData = $entityHelper->entitySelect(
                 'list',
                 ['join' => ''],
@@ -93,7 +88,7 @@ defined('_JEXEC') or die('Restricted access');
                 $importHelper->additionalDataUsersImport(true)
             );
             echo acym_modal(
-                acym_translation('ACYM_IMPORT_USERS'),
+                acym_translation('ACYM_IMPORT_SUBSCRIBERS'),
                 $modalData,
                 'acym__user__import__add-subscription__modal',
                 '',
@@ -105,4 +100,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(true, 'finalizeImport'); ?>
 </form>
-

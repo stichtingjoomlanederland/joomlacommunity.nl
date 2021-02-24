@@ -80,14 +80,6 @@
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#faa51a', endColorstr='#f47a20') !important;
 }
 
-#paybox_button a:before {
-	content: '\e286';
-	font-family: icomoon, sans-serif;
-	speak: none;
-	margin-right: 5px;
-	display: inline-block;
-}
-
 #paybox_button a:hover {
 	color: #fef4e9 !important;
 	border: solid 1px #d0710c !important;

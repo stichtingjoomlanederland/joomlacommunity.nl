@@ -3,10 +3,12 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Helper\ContentHelper;
 use Joomla\CMS\Language\Text;
@@ -14,8 +16,6 @@ use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Pagination\Pagination;
 use Joomla\CMS\Toolbar\ToolbarHelper;
-
-defined('_JEXEC') or die;
 
 /**
  * Emails list.
@@ -34,12 +34,20 @@ class JdidealgatewayViewEmails extends HtmlView
 	protected $jdidealgatewayHelper;
 
 	/**
-	 * List of properties
+	 * List of emails
 	 *
 	 * @var    array
 	 * @since  1.0.0
 	 */
-	protected $items = array();
+	protected $items = [];
+
+	/**
+	 * List of emails for sending tests
+	 *
+	 * @var    array
+	 * @since  6.2.0
+	 */
+	protected $emails = [];
 
 	/**
 	 * The pagination object
@@ -81,18 +89,19 @@ class JdidealgatewayViewEmails extends HtmlView
 		/** @var JdidealgatewayModelEmails $model */
 		$model            = $this->getModel();
 		$this->items      = $model->getItems();
+		$this->emails     = $model->getEmails();
 		$this->pagination = $model->getPagination();
 		$this->canDo      = ContentHelper::getActions('com_jdidealgateway');
 
-		// Show the toolbar
 		$this->toolbar();
 
-		// Render the sidebar
-		$this->jdidealgatewayHelper = new JdidealGatewayHelper;
-		$this->jdidealgatewayHelper->addSubmenu('emails');
-		$this->sidebar = JHtmlSidebar::render();
+		if (JVERSION < 4)
+		{
+			$this->jdidealgatewayHelper = new JdidealGatewayHelper;
+			$this->jdidealgatewayHelper->addSubmenu('emails');
+			$this->sidebar = JHtmlSidebar::render();
+		}
 
-		// Display it all
 		return parent::display($tpl);
 	}
 
@@ -103,7 +112,7 @@ class JdidealgatewayViewEmails extends HtmlView
 	 *
 	 * @since   2.0.0
 	 */
-	private function toolbar()
+	private function toolbar(): void
 	{
 		ToolbarHelper::title(Text::_('COM_ROPAYMENTS_JDIDEAL_EMAILS'), 'mail');
 
@@ -122,9 +131,16 @@ class JdidealgatewayViewEmails extends HtmlView
 			ToolbarHelper::deleteList('JGLOBAL_CONFIRM_DELETE', 'emails.delete', 'JTOOLBAR_DELETE');
 		}
 
-		if ($this->canDo->get('core.create'))
+		if ($this->emails && $this->canDo->get('core.create'))
 		{
-			ToolbarHelper::custom('emails.testemail', 'mail', 'mail', Text::_('COM_ROPAYMENTS_SEND_TESTMAIL'));
+			$icon = 'fas fa-envelope';
+
+			if (JVERSION < 4)
+			{
+				$icon = 'icon-mail';
+			}
+
+			ToolbarHelper::modal('testEmail', $icon, 'COM_ROPAYMENTS_SEND_TESTMAIL');
 		}
 	}
 }

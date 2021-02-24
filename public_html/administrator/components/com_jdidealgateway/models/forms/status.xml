@@ -15,7 +15,7 @@
 			   type="jdideal.status"
 			   label="COM_ROPAYMENTS_STATUS_JDIDEAL_LABEL"
 			   description="COM_ROPAYMENTS_STATUS_JDIDEAL_DESC"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   required="true"
 			   default=""/>
 

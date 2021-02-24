@@ -46,12 +46,11 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentBeforeSave($context = 'post', &$data = '', $isNew)
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		self::beforeTrigger( $data );
 
-		$result = $dispatcher->trigger('onContentBeforeSave', array($context, &$data, $isNew));
+		$result = EDDispatcher::trigger('onContentBeforeSave', array($context, &$data, $isNew));
 
 		self::afterTrigger( $data );
 
@@ -60,11 +59,10 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentAfterSave($context = 'post', &$data = '', $isNew)
 	{
-		$dispatcher = JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentAfterSave', array($context, &$data, $isNew));
+		$result = EDDispatcher::trigger('onContentAfterSave', array($context, &$data, $isNew));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -72,11 +70,10 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentBeforeDelete($context = 'post', &$data = '')
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentBeforeDelete', array($context, &$data));
+		$result = EDDispatcher::trigger('onContentBeforeDelete', array($context, &$data));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -84,11 +81,10 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentAfterDelete($context = 'post', &$data = '')
 	{
-		$dispatcher			= JDispatcher::getInstance();
-		$context			= 'com_easydiscuss.'.$context;
+		$context = 'com_easydiscuss.'.$context;
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentAfterDelete', array($context, &$data));
+		$result = EDDispatcher::trigger('onContentAfterDelete', array($context, &$data));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -96,15 +92,14 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentBeforeDisplay($context = 'post', &$data = '', &$params = array(), $limitstart = 0)
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		if (empty($params)) {
-			$params	= DiscussHelper::getRegistry( '' );
+			$params = ED::registry();
 		}
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentBeforeDisplay', array($context, &$data, &$params, $limitstart));
+		$result = EDDispatcher::trigger('onContentBeforeDisplay', array($context, &$data, &$params, $limitstart));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -112,15 +107,14 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentAfterDisplay($context = 'post', &$data = '', &$params = array(), $limitstart = 0)
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		if (empty($params)) {
-			$params	= DiscussHelper::getRegistry( '' );
+			$params = ED::registry();
 		}
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentAfterDisplay', array($context, &$data, &$params, $limitstart));
+		$result = EDDispatcher::trigger('onContentAfterDisplay', array($context, &$data, &$params, $limitstart));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -128,15 +122,14 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentAfterTitle($context, &$data, &$params = array(), $limitstart = 0)
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		if (empty($params)) {
-			$params	= DiscussHelper::getRegistry( '' );
+			$params = ED::registry();
 		}
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentAfterTitle', array($context, &$data, &$params, $limitstart));
+		$result = EDDispatcher::trigger('onContentAfterTitle', array($context, &$data, &$params, $limitstart));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -144,15 +137,14 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentPrepare($context = 'post', &$data = '', &$params = array(), $limitstart = 0)
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		if (empty($params)) {
-			$params	= DiscussHelper::getRegistry( '' );
+			$params = ED::registry();
 		}
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentPrepare', array($context, &$data, &$params, $limitstart));
+		$result = EDDispatcher::trigger('onContentPrepare', array($context, &$data, &$params, $limitstart));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -160,11 +152,10 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentPrepareData($context = 'post', &$data = '')
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		self::beforeTrigger( $data );
-		$result = $dispatcher->trigger('onContentPrepareData', array($context, &$data));
+		$result = EDDispatcher::trigger('onContentPrepareData', array($context, &$data));
 		self::afterTrigger( $data );
 
 		return $result;
@@ -172,11 +163,10 @@ class EasyDiscussEvents extends EasyDiscuss
 
 	public static function onContentPrepareForm($form, &$data)
 	{
-		$dispatcher	= JDispatcher::getInstance();
 		$context = 'com_easydiscuss.'.$context;
 
 		self::beforeTrigger($data);
-		$result = $dispatcher->trigger('onContentPrepareForm', array($form, &$data));
+		$result = EDDispatcher::trigger('onContentPrepareForm', array($form, &$data));
 		self::afterTrigger($data);
 
 		return $result;

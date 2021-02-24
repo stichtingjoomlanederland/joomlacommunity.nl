@@ -1,17 +1,15 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once dirname( __FILE__ ) . '/model.php';
 
 class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 {
@@ -64,7 +62,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 		$filter_state = $mainframe->getUserStateFromRequest('com_easydiscuss.post_types.filter_state', 'filter_state', '', 'word');
 		$search = $mainframe->getUserStateFromRequest('com_easydiscuss.post_types.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -125,11 +123,20 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 		// You need this in order limit to work.
 		if ($frontend) {
-			$this->_data = $this->_getList($query);
-		} else {
-			$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
-		}
+			$result = $this->_getList($query);
 
+			$this->_data = [];
+
+			if ($result) {
+				foreach ($result as $row) {
+					$this->_data[] = ED::PostType($row);
+				}
+			}
+
+			return $this->_data;
+		}
+		
+		$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
 		return $this->_data;
 	}
 
@@ -177,8 +184,6 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotal()
 	{
@@ -277,7 +282,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 	public function setPostTagsBatch( $ids )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		if( count( $ids ) > 0 )
 		{
@@ -333,7 +338,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		}
 
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query	= 'SELECT a.`id`, a.`title`, a.`alias`';
 		$query .= ' FROM `#__discuss_tags` AS a';
@@ -344,9 +349,8 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 		$db->setQuery($query);
 
-		if($db->getErrorNum() > 0)
-		{
-			JError::raiseError( $db->getErrorNum() , $db->getErrorMsg() . $db->stderr());
+		if ($db->getErrorNum() > 0) {
+			throw ED::exception($db->getErrorMsg() . $db->stderr(), ED_MSG_ERROR);
 		}
 
 		$result	= $db->loadObjectList();
@@ -358,7 +362,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 	public function add( $tagId , $postId , $creationDate )
 	{
-		$db				= DiscussHelper::getDBO();
+		$db				= ED::db();
 
 		$obj			= new stdClass();
 		$obj->tag_id	= $tagId;
@@ -370,7 +374,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 
 	public function deletePostTag($postId)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query	= ' DELETE FROM ' . $db->nameQuote('#__discuss_posts_tags')
 				. ' WHERE ' . $db->nameQuote('post_id') . ' =  ' . $db->quote($postId);
@@ -378,8 +382,8 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$db->setQuery($query);
 		$result	= $db->Query();
 
-		if($db->getErrorNum()){
-			JError::raiseError( 500, $db->stderr());
+		if ($db->getErrorNum()) {
+			throw ED::exception($db->stderr(), ED_MSG_ERROR);
 		}
 
 		return $result;

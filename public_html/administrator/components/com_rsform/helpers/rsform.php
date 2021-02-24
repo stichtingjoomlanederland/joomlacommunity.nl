@@ -1321,7 +1321,7 @@ class RSFormProHelper
 		// mail users
 		if ($userEmail['to'])
 		{
-			$recipients = explode(',', $userEmail['to']);
+			$recipients = !is_array($userEmail['to']) ? explode(',', $userEmail['to']) : $userEmail['to'];
 
 			RSFormProHelper::sendMail($userEmail['from'], $userEmail['fromName'], $recipients, $userEmail['subject'], $userEmail['text'], $userEmail['mode'], !empty($userEmail['cc']) ? $userEmail['cc'] : null, !empty($userEmail['bcc']) ? $userEmail['bcc'] : null, $userEmail['files'], !empty($userEmail['replyto']) ? $userEmail['replyto'] : '', !empty($userEmail['replytoName']) ? $userEmail['replytoName'] : null);
 		}
@@ -1334,7 +1334,7 @@ class RSFormProHelper
 		//mail admins
 		if ($adminEmail['to'])
 		{
-			$recipients = explode(',', $adminEmail['to']);
+			$recipients = !is_array($adminEmail['to']) ? explode(',', $adminEmail['to']) : $adminEmail['to'];
 
 			RSFormProHelper::sendMail($adminEmail['from'], $adminEmail['fromName'], $recipients, $adminEmail['subject'], $adminEmail['text'], $adminEmail['mode'], !empty($adminEmail['cc']) ? $adminEmail['cc'] : null, !empty($adminEmail['bcc']) ? $adminEmail['bcc'] : null, $adminEmail['files'], !empty($adminEmail['replyto']) ? $adminEmail['replyto'] : '', !empty($adminEmail['replytoName']) ? $adminEmail['replytoName'] : null);
 		}
@@ -1416,7 +1416,7 @@ class RSFormProHelper
 				// mail users
 				if ($additionalEmail['to'])
 				{
-					$recipients = explode(',', $additionalEmail['to']);
+					$recipients = !is_array($additionalEmail['to']) ? explode(',', $additionalEmail['to']) : $additionalEmail['to'];
 
 					RSFormProHelper::sendMail($additionalEmail['from'], $additionalEmail['fromName'], $recipients, $additionalEmail['subject'], $additionalEmail['text'], $additionalEmail['mode'], !empty($additionalEmail['cc']) ? $additionalEmail['cc'] : null, !empty($additionalEmail['bcc']) ? $additionalEmail['bcc'] : null, $additionalEmail['files'], !empty($additionalEmail['replyto']) ? $additionalEmail['replyto'] : '', !empty($additionalEmail['replytoName']) ? $additionalEmail['replytoName'] : null);
 				}
@@ -2966,11 +2966,18 @@ class RSFormProHelper
 			}
 
 			// Some cleanup
-			if (is_array($recipient)) {
-				foreach ($recipient as $i => $r) {
-					if (empty($r)) {
-						unset($recipient[$i]);
-					}
+			foreach (array('recipient', 'cc', 'bcc') as $array)
+			{
+				if (is_array($$array))
+				{
+					// Remove empty values
+					$$array = array_filter($$array);
+
+					// Remove whitespace
+					$$array = array_filter(array_map('trim', $$array));
+
+					// If it's not an email, remove it
+					$$array = array_filter($$array, array('JMailHelper', 'isEmailAddress'));
 				}
 			}
 

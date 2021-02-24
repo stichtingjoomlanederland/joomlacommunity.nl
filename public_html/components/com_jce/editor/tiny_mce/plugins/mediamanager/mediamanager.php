@@ -246,40 +246,27 @@ class WFMediaManagerPlugin extends WFMediaManager
     public function getEmbedData($provider, $url, $type = '')
     {
         $providers = array(
-            'youtube' => 'https://www.youtube.com/oembed',
-            'vimeo' => 'https://vimeo.com/api/oembed.json',
-            'dailymotion' => 'http://www.dailymotion.com/services/oembed',
-            'scribd' => 'https://www.scribd.com/services/oembed/?format=json',
+            'youtube' => 'https://www.youtube.com/oembed?url=',
+            'vimeo' => 'https://vimeo.com/api/oembed.json?url=',
+            'dailymotion' => 'http://www.dailymotion.com/services/oembed?url=',
+            'scribd' => 'https://www.scribd.com/services/oembed/?format=json&url=',
             'facebook' => array(
-                'posts' => 'https://www.facebook.com/plugins/post/oembed.json/',
-                'videos' => 'https://www.facebook.com/plugins/video/oembed.json/',
+                'posts' => 'https://www.facebook.com/plugins/post/oembed.json?url=',
+                'videos' => 'https://www.facebook.com/plugins/video/oembed.json?url=',
             ),
-            'instagram' => 'https://api.instagram.com/oembed/',
-            'reddit' => 'https://www.reddit.com/oembed',
-            'slideshare' => 'https://www.slideshare.net/api/oembed/2?format=json',
-            'soundcloud' => 'https://soundcloud.com/oembed?format=json',
-            'spotify' => 'https://embed.spotify.com/oembed/',
-            'ted' => 'http://www.ted.com/talks/oembed.json',
-            'twitch' => 'https://api.twitch.tv/v4/oembed',
-            'twitter' => 'https://publish.twitter.com/oembed',
+            'instagram' => 'https://api.instagram.com/oembed?url=',
+            'reddit' => 'https://www.reddit.com/oembed?url=',
+            'slideshare' => 'https://www.slideshare.net/api/oembed/2?format=json&url=',
+            'soundcloud' => 'https://soundcloud.com/oembed?format=json&url=',
+            'spotify' => 'https://embed.spotify.com/oembed?url=',
+            'ted' => 'http://www.ted.com/talks/oembed.json?url=',
+            'twitch' => 'https://api.twitch.tv/v4/oembed?url=',
+            'twitter' => 'https://publish.twitter.com/oembed?url=',
+            'audio'   => '',
+            'video'   => ''
         );
 
-        // custom
-        if (!array_key_exists($provider, $providers)) {
-            $data = JFactory::getApplication()->triggerEvent('onWfGetCustomEmbedData', array(&$url));
-
-            if (empty($data)) {
-                return false;
-            }
-
-            foreach ($data as $item) {
-                if (isset($item[$provider]) && is_array($item[$provider])) {
-                    return $item[$provider];
-                }
-            }
-
-            return false;
-        }
+        $params = (object) $this->getParam('mediamanager', array());
 
         // decode url
         $url = rawurldecode($url);
@@ -287,26 +274,71 @@ class WFMediaManagerPlugin extends WFMediaManager
         // clean the url
         $url = filter_var($url, FILTER_SANITIZE_URL);
 
-        // encode url
-        $url = rawurlencode($url);
+        // custom or not supported
+        $custom = JFactory::getApplication()->triggerEvent('onWfGetCustomEmbedData', array(&$url));
 
-        if (array_key_exists($provider, $providers) === false) {
+        if (!empty($custom)) {
+            foreach ($custom as $item) {
+                if (isset($item[$provider]) && is_array($item[$provider])) {
+                    return $item[$provider];
+                }
+            }
+        }
+
+        if (!array_key_exists($provider, $providers)) {
             return false;
         }
 
+        $data   = array();
         $source = $providers[$provider];
 
-        if (is_array($source) && $type) {
-            $source = (array_key_exists($type, $source)) ? $source[$type] : $source[0];
+        if ($source) {
+            if (is_array($source) && $type) {
+                $source = (array_key_exists($type, $source)) ? $source[$type] : $source[0];
+            }
+    
+            $source .= rawurlencode($url);
+
+            $data = $this->getDataFromOEmbed($source);
+
+            $data = json_decode($data, true);
+
+            if (empty($data)) {
+                $data['src'] = $url;
+            }
         }
 
-        if (strpos($source, '?') === false) {
-            $url = $source . '?url=' . $url;
-        } else {
-            $url = $source . '&url=' . $url;
+        $extension = WFAggregatorExtension::getInstance(array('format' => 'video'));
+
+        foreach ($extension->getAggregators() as $aggregator) {
+            if ($aggregator->getName() === $provider) {
+                $data = $aggregator->getEmbedData($data, $url);
+            }
         }
 
-        $options = array(
+        return $data;
+    }
+
+    private function getData($url)
+    {
+        $http = JHttpFactory::getHttp();
+
+        try {
+            $response = $http->get($url);
+        } catch (\RuntimeException $e) {
+            $response = null;
+        }
+
+        if ($response === null || $response->code !== 200) {
+            return array('error' => JText::_('Unable to get OEmbed Data - Invalid response from ' . $url));
+        }
+
+        return $response->body;
+    }
+
+    private function getDataFromOEmbed($url)
+    {                       
+        /*$options = array(
             'http' => array(
                 'method' => "GET",
                 'header' => "Accept-language: en\r\n" .
@@ -317,6 +349,8 @@ class WFMediaManagerPlugin extends WFMediaManager
 
         $context = stream_context_create($options);
 
-        return @file_get_contents($url, false, $context);
+        return @file_get_contents($url, false, $context);*/
+
+        return $this->getData($url);
     }
 }

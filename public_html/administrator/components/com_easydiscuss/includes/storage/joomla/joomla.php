@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -36,8 +36,6 @@ class EasyDiscussStorageJoomla implements EasyDiscussStorageInterface
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	int		The storage id
-	 * @return	string	The absolute URI to the object
 	 */
 	public function getPermalink( $relativePath )
 	{
@@ -49,8 +47,6 @@ class EasyDiscussStorageJoomla implements EasyDiscussStorageInterface
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The relative path to the file
-	 * @return
 	 */
 	public function upload($fileName, $source, $destination, $deleteOriginalFile = false)
 	{
@@ -69,8 +65,6 @@ class EasyDiscussStorageJoomla implements EasyDiscussStorageInterface
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function download($relativePath, $saveTo = '')
 	{
@@ -81,8 +75,6 @@ class EasyDiscussStorageJoomla implements EasyDiscussStorageInterface
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The relative path to the file
-	 * @return
 	 */
 	public function delete($path)
 	{

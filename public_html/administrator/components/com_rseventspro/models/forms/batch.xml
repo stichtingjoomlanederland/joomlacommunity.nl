@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="basic" addfieldpath="/administrator/components/com_rseventspro/models/fields">
+		<field name="locations" type="rslocations" default="" label="COM_RSEVENTSPRO_EVENT_LOCATION" class="rs200 rschosen" show_root="false">
+			<option value="0">COM_RSEVENTSPRO_SELECT_LOCATION</option>
+		</field>
+		<field name="categories" type="category" extension="com_rseventspro" label="COM_RSEVENTSPRO_EVENT_CATEGORIES" multiple="multiple" class="rs200 rschosen" />
+		<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_EVENT_TAGS" multiple="multiple" class="rs200 rschosen" />
+		<field name="itemid" type="text" default="" label="COM_RSEVENTSPRO_EVENT_ITEMID" />
+		<field name="type" type="radio" label="" default="a">
+			<option value="a">COM_RSEVENTSPRO_ADD</option>
+			<option value="r">COM_RSEVENTSPRO_REPLACE</option>
+		</field>
+	</fieldset>
+</form>

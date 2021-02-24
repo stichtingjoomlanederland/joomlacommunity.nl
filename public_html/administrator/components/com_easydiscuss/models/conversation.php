@@ -1,7 +1,7 @@
 <?php
 /**
  * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+ * @copyright	Copyright (C) Stack Ideas Private Limited. All rights reserved.
  * @license		GNU/GPL, see LICENSE.php
  *
  * EasyDiscuss is free software. This version may have been modified pursuant
@@ -208,27 +208,48 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Archiving a conversation simply means modifying the state :)
+	 * Toggling archiving a conversation. Simply modifying the state.
 	 *
-	 * @since	1.0
+	 * @since	5.0
 	 * @access	public
-	 * @param	int $conversationId
-	 * @param	int $nodeId
-	 * @return	boolean
 	 */
-	public function archive( $conversationId , $userId , $state = DISCUSS_CONVERSATION_ARCHIVED )
+	public function toggleArchive($conversationId, $userId, $state)
 	{
-		$db 	= ED::db();
+		$db = ED::db();
+		$query = array();
 
-		$query	= 'UPDATE ' . $db->nameQuote( '#__discuss_conversations_message_maps' ) . ' '
-				. 'SET ' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( $state ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'conversation_id' ) . ' = ' . $db->Quote( $conversationId ) . ' '
-				. 'AND ' . $db->nameQuote( 'user_id' ) . ' = ' . $db->Quote( $userId );
-		$db->setQuery( $query );
+		$query[] = 'UPDATE `#__discuss_conversations_message_maps` SET `state` = ' . $db->Quote($state);
+		$query[] = 'WHERE `conversation_id` = ' . $db->Quote($conversationId);
+		$query[] = 'AND `user_id` = ' . $db->Quote($userId);
+
+		$db->setQuery(implode(' ', $query));
 		$db->Query();
 
 		return true;
 	}
+
+	/**
+	 * Archiving a conversation.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function archive($conversationId, $userId)
+	{
+		return $this->toggleArchive($conversationId, $userId, DISCUSS_CONVERSATION_ARCHIVED);
+	}
+	
+	/**
+	 * Unarchiving a conversation.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function unArchive($conversationId, $userId)
+	{
+		return $this->toggleArchive($conversationId, $userId, DISCUSS_CONVERSATION_PUBLISHED);
+	}
+
 	/**
 	 * Remove the child message mapping for the particular node.
 	 *
@@ -461,7 +482,7 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 		$messages = array();
 
 		foreach ($rows as $row) {
-			$message = DiscussHelper::getTable( 'ConversationMessage' );
+			$message = ED::table( 'ConversationMessage' );
 			$message->bind($row);
 			$message->daydiff = $row->daydiff;
 			$messages[]	= $message;
@@ -532,73 +553,55 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 	 */
 	public function getConversations($userId , $options = array())
 	{
-		$db		= ED::db();
-		$query	= 'SELECT a.*,b.' . $db->nameQuote( 'message' ) . ',c.' . $db->nameQuote( 'isread' )
-				. 'FROM ' . $db->nameQuote( '#__discuss_conversations' ) . ' AS a '
-				. 'INNER JOIN ' . $db->nameQuote( '#__discuss_conversations_message' ) . ' AS b '
-				. 'ON a.' . $db->nameQuote( 'id' ) . ' = b.' . $db->nameQuote( 'conversation_id' ) . ' '
-				. 'INNER JOIN ' . $db->nameQuote( '#__discuss_conversations_message_maps' ) . ' AS c '
-				. 'ON c.' . $db->nameQuote( 'message_id' ) . ' = b.' . $db->nameQuote( 'id' ) . ' '
-				. 'WHERE c.' . $db->nameQuote( 'user_id' ) . ' = ' . $db->Quote( $userId );
+		$db = ED::db();
 
-		// @rule: Process any additional filters here.
-		if( isset( $options[ 'archives' ] ) && $options[ 'archives' ] )
-		{
-			$query	.= ' AND c.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( DISCUSS_CONVERSATION_ARCHIVED );
-		}
-		else
-		{
-			$query	.= ' AND c.' . $db->nameQuote( 'state' ) . ' = ' . $db->Quote( DISCUSS_CONVERSATION_PUBLISHED );
+		$query = array();
+		$query[] = 'SELECT a.*, b.`message`, c.`isread`';
+		$query[] = 'FROM `#__discuss_conversations` as `a`';
+		$query[] = 'INNER JOIN `#__discuss_conversations_message` as `b` ON a.`id` = b.`conversation_id`';
+		$query[] = 'INNER JOIN `#__discuss_conversations_message_maps` as `c` on c.`message_id` = b.`id`';
+		$query[] = 'WHERE c.`user_id` = ' . $db->Quote($userId);
+
+		$archives = ED::normalize($options, 'archives', false);
+
+		if ($archives) {
+			$query[] = 'AND c.`state` = ' . $db->Quote(DISCUSS_CONVERSATION_ARCHIVED);
+		} else {
+			$query[] = 'AND c.`state` = ' . $db->Quote(DISCUSS_CONVERSATION_PUBLISHED);
 		}
 
-		// @rule: Respect filter options
-		if( isset( $options['filter'] ) )
-		{
-			switch( $options[ 'filter' ] )
-			{
-				case 'unread':
-					$query	.= ' AND c.' . $db->nameQuote( 'isread' ) . '=' . $db->Quote( DISCUSS_CONVERSATION_UNREAD );
-				break;
-			}
+		$filter = ED::normalize($options, 'filter', false);
+
+		if ($filter == 'unread') {
+			$query[] = 'AND c.`isread` = ' . $db->Quote(DISCUSS_CONVERSATION_UNREAD);
+			$query[] = 'AND b.`created_by` != ' . $db->Quote($userId);
 		}
 
-		$query		.= ' GROUP BY b.' . $db->nameQuote( 'conversation_id' );
+		$query[] = 'GROUP BY b.`conversation_id`';
 
-		$sorting 	= isset( $options[ 'sorting' ] ) ? $options[ 'sorting' ] : 'latest';
+		$sorting = ED::normalize($options, 'sorting', 'latest');
 
-		switch( $sorting )
-		{
-			case 'latest':
-			default:
-				$query	.= ' ORDER BY a.' . $db->nameQuote( 'lastreplied' ) . ' DESC';
-			break;
+		if ($sorting == 'latest') {
+			$query[] = 'ORDER BY a.`lastreplied` DESC';
 		}
 
+		$limit = ED::normalize($options, 'limit', false);
 
-		// If limit is provided, only show certain number of items.
-		if (isset($options['limit'])) {
-			$limit 	= $options[ 'limit' ];
-			$query 	.= ' LIMIT 0,' . $limit;
-
-			// $limitstart 	= $this->getState( 'limitstart' );
-			// $limit 			= $this->getState( 'limit' );
-			// $paginationQuery	= str_ireplace( 'SELECT a.*,b.' . $db->nameQuote( 'message' ) . ',c.' . $db->nameQuote( 'isread' ) , 'SELECT COUNT(1) AS count FROM ( SELECT a.* ' , $query );
-			// $paginationQuery 	.= ') AS x';
-
-			// $db->setQuery( $paginationQuery );
-			// $total 				= $db->loadResult();
-
-			// $this->_pagination = ED::getPagination( $total , $limitstart , $limit );
-
-			// $query 			.= ' LIMIT ' . $limitstart . ' , ' . $limit;
+		if ($limit) {
+			$query[] = 'LIMIT 0, ' . $limit;
 		}
 
-		$db->setQuery( $query );
-		$rows	= $db->loadObjectList();
+		$query = implode(' ', $query);
+		// dump(str_replace('#_', 'jos', $query));
+
+		$db->setQuery($query);
+		$rows = $db->loadObjectList();
 
 		if (!$rows) {
 			return $rows;
 		}
+
+		$conversations = array();
 
 		foreach ($rows as $row) {
 			$conversation = ED::conversation($row);
@@ -700,8 +703,8 @@ class EasyDiscussModelConversation extends EasyDiscussAdminModel
 			$intro = $conversation->getLastMessage($my->id);
 
 			// @TODO: Configurable length.
-			$length = JString::strlen($intro);
-			$intro = JString::substr(strip_tags($intro), 0, 10);
+			$length = EDJString::strlen($intro);
+			$intro = EDJString::substr(strip_tags($intro), 0, 10);
 
 			// Append ellipses if necessary.
 			if ($length > 10) {

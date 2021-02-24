@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -21,8 +21,8 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 
 		$this->checkAccess('discuss.manage.posttypes');
 		$this->registerTask('add', 'edit');
-		$this->registerTask('publish', 'unpublish');
-		$this->registerTask('unpublish', 'unpublish');
+		$this->registerTask('publish', 'togglePublish');
+		$this->registerTask('unpublish', 'togglePublish');
 		$this->registerTask('apply', 'save');
 		$this->registerTask('savepublishnew', 'save');
 		$this->registerTask('save2new', 'save');
@@ -30,33 +30,33 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 
 	public function edit()
 	{
-		$this->app->redirect('index.php?option=com_easydiscuss&view=types&layout=form');
+		ED::redirect('index.php?option=com_easydiscuss&view=types&layout=form');
 	}
 
 	public function cancel()
 	{
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=types');
+		return ED::redirect('index.php?option=com_easydiscuss&view=types');
 	}
 
-	public function unpublish()
+	public function togglePublish()
 	{
 		ED::checkToken();
+
+		// Get the current task
+		$task = $this->getTask();
+		$ids = $this->input->get('cid', '', 'array');
+
 		$postTypes = ED::table('Post_types');
-		$ids = $this->input->get('cid', '', 'var');
-		$state = $this->input->get('task', '', 'var') == 'publish' ? 1 : 0;
 
 		foreach ($ids as $id) {
-			$id	= (int) $id;
-			$postTypes->load($id);
-			$postTypes->set('published', $state);
-			$postTypes->store();
+			$postTypes->load((int) $id);
+			$postTypes->$task();
 		}
 
-		$message = $state ? JText::_('COM_EASYDISCUSS_POST_TYPES_PUBLISHED') : JText::_('COM_EASYDISCUSS_POST_TYPES_UNPUBLISHED');
+		$message = $task == 'publish' ? JText::_('COM_EASYDISCUSS_POST_TYPES_PUBLISHED') : JText::_('COM_EASYDISCUSS_POST_TYPES_UNPUBLISHED');
 
 		ED::setMessage($message, 'success');
-
-		$this->app->redirect('index.php?option=com_easydiscuss&view=types');
+		ED::redirect('index.php?option=com_easydiscuss&view=types');
 	}
 
 	public function apply()
@@ -113,6 +113,15 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 			$model->createAssociation($postTypes, $categories);
 		}
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogMsg = $isNew ? 'COM_ED_ACTIONLOGS_CREATED_POSTTYPES' : 'COM_ED_ACTIONLOGS_UPDATED_POSTTYPES';
+
+		$actionlog->log($actionlogMsg, 'postTypes', array(
+			'link' => 'index.php?option=com_easydiscuss&view=types&layout=form&id=' . $postTypes->id,
+			'postTypeTitle' => $postTypes->title
+		));
+
 		// Get the current task
 		$task = $this->getTask();
 
@@ -127,7 +136,7 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		$message = !empty($postTypes->id) ? JText::_('COM_EASYDISCUSS_POST_TYPES_UPDATED') : JText::_('COM_EASYDISCUSS_POST_TYPES_CREATED');
 
 		ED::setMessage($message, 'success');
-		$this->app->redirect($redirect);
+		ED::redirect($redirect);
 		$this->app->close();
 	}
 
@@ -143,27 +152,26 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		ED::checkToken();
 
 		// Get the categories
-		$ids = $this->input->get('cid', '', 'default');
+		$ids = $this->input->get('cid', '', 'array');
 
 		$redirect = 'index.php?option=com_easydiscuss&view=types';
 
+		$types = ED::table('post_types');
+
 		foreach ($ids as $id) {
-			$id = (int) $id;
 
-			$types = ED::table('post_types');
-
-			// Try to delete the category
-			$state = $types->delete($id);
+			$types->load((int) $id);
+			$state = $types->delete();
 
 			if (!$state) {
-				ED::setMessage($types->getError(), 'error');
-				return $this->app->redirect($redirect);
+				ED::setMessage($types->getError(), ED_MSG_ERROR);
+				return ED::redirect($redirect);
 			}
 		}
 
 		ED::setMessage('COM_EASYDISCUSS_CATEGORIES_DELETE_SUCCESS', 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	public function saveOrder()
@@ -177,7 +185,7 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 		$message = JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_ORDERING_SAVED');
 
 		ED::setMessage($message, 'success');
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=types');
+		return ED::redirect('index.php?option=com_easydiscuss&view=types');
 	}
 
 	public function orderdown()
@@ -210,7 +218,7 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 			$types->moveOrder($id, $direction);
 		}
 
-		$this->app->redirect('index.php?option=com_easydiscuss&view=types');
+		ED::redirect('index.php?option=com_easydiscuss&view=types');
 		exit;
 	}
 }

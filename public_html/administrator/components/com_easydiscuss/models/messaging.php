@@ -1,19 +1,17 @@
 <?php
 /**
- * @package		EasyDiscuss
- * @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
- * @license		GNU/GPL, see LICENSE.php
- *
- * EasyDiscuss is free software. This version may have been modified pursuant
- * to the GNU General Public License, and as distributed it includes or
- * is derivative of works licensed under the GNU General Public License or
- * other free or open source software licenses.
- * See COPYRIGHT.php for copyright notices and details.
- */
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
 
-defined('_JEXEC') or die('Restricted access');
-
-require_once dirname( __FILE__ ) . '/model.php';
+require_once(__DIR__ . '/model.php');
 
 class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 {
@@ -42,7 +40,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-		$limit		= ($this->app->getCfg('list_limit') == 0) ? 5 : DiscussHelper::getListLimit();
+		$limit		= ($this->app->getCfg('list_limit') == 0) ? 5 : ED::getListLimit();
 		$limitstart = $this->input->get('limitstart', 0, 'int');
 
 		// In case limit has been changed, adjust it
@@ -62,7 +60,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function delete( $messageId , $userId )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 		$query 		= array();
 
 		// Try to detect how many deletion occured.
@@ -117,7 +115,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	public function reply( DiscussMessage $message , $content , $userId )
 	{
 		// Update all records in {#__discuss_messages_states} to ensure that `deleted` column is false.
-		$db 			= DiscussHelper::getDBO();
+		$db 			= ED::db();
 		$query 			= array();
 		$query[]		= 'UPDATE ' . $db->nameQuote( '#__discuss_messages_states' );
 		$query[]		= 'SET ' . $db->nameQuote( 'deleted' ) . '=' . $db->Quote( 0 );
@@ -128,7 +126,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 
 
 		// Store the message meta.
-		$meta 		= DiscussHelper::getTable( 'MessageMeta' );
+		$meta 		= ED::table( 'MessageMeta' );
 		$meta->message_id	= $message->id;
 		$meta->message 		= $content;
 		$meta->created = ED::date()->toSql();
@@ -149,7 +147,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function deleteMessage( $messageId )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 
 		$query		= array();
 		$query[]	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_messages' );
@@ -172,7 +170,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function deleteMessageStates( $messageId )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 
 		$query		= array();
 		$query[]	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_messages_states' );
@@ -195,7 +193,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function deleteMeta( $messageId )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 
 		$query		= array();
 		$query[]	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_messages_meta' );
@@ -219,7 +217,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function isParticipant( $userId , $messageId )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 
 		$query 		= array();
 		$query[]	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_messages_states' );
@@ -260,7 +258,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 		}
 
 		// Store creator's state
-		$state 	= DiscussHelper::getTable( 'MessageState' );
+		$state 	= ED::table( 'MessageState' );
 		$state->message_id 	= $message->id;
 		$state->user_id 	= $message->created_by;
 
@@ -269,7 +267,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 		$state->store();
 
 		// Store recipient state
-		$state 	= DiscussHelper::getTable( 'MessageState' );
+		$state 	= ED::table( 'MessageState' );
 		$state->message_id 	= $message->id;
 		$state->user_id 	= $message->recipient;
 		$state->store();
@@ -285,7 +283,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function getMessages( $options = array() )
 	{
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 
 		$query		= array();
 
@@ -339,7 +337,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	public function getReplies( $messageId , DiscussMessageState $state )
 	{
 		// Load the first initial message tied to the message object.
-		$db 	= DiscussHelper::getDBO();
+		$db 	= ED::db();
 
 		$query		= array();
 		$query[] 	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_messages_meta' ) . ' AS a';
@@ -367,7 +365,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 
 		foreach( $result as $row )
 		{
-			$meta	= DiscussHelper::getTable( 'MessageMeta' );
+			$meta	= ED::table( 'MessageMeta' );
 			$meta->bind( $row );
 
 			$replies[]	= $meta;
@@ -387,7 +385,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	public function getMessage( $messageId )
 	{
 		// Load the first initial message tied to the message object.
-		$db 	= DiscussHelper::getDBO();
+		$db 	= ED::db();
 
 		$query		= array();
 
@@ -403,7 +401,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 
 		$result 	= $db->loadObject();
 
-		$messageMeta 	= DiscussHelper::getTable( 'MessageMeta' );
+		$messageMeta 	= ED::table( 'MessageMeta' );
 		$messageMeta->bind( $result );
 
 		return $messageMeta;
@@ -419,7 +417,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function getNewMessagesCount( $userId )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 		$query		= array();
 
 		$query[]	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_messages' ) . ' AS a';
@@ -460,7 +458,7 @@ class EasyDiscussModelMessaging extends EasyDiscussAdminModel
 	 */
 	public function markRead( $messageId , $userId , $state = DISCUSS_MESSAGING_READ )
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 		$query		= array();
 		$query[]	= 'UPDATE ' . $db->nameQuote( '#__discuss_messages_states' );
 		$query[]	= 'SET ' . $db->nameQuote( 'isread' ) . '=' . $db->Quote( $state );

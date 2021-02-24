@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymmailStatClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class MailStatClass extends acymClass
 {
     var $table = 'mail_stat';
     var $pkey = 'mail_id';
@@ -46,6 +48,10 @@ class acymmailStatClass extends acymClass
 
         if (!empty($mailStat['total_subscribers'])) {
             $onDuplicate[] = 'total_subscribers = '.intval($mailStat['total_subscribers']);
+        }
+
+        if (!empty($mailStat['unsubscribe_total'])) {
+            $onDuplicate[] = ' unsubscribe_total = unsubscribe_total + '.intval($mailStat['unsubscribe_total']);
         }
 
         if (!empty($onDuplicate)) {
@@ -95,7 +101,7 @@ class acymmailStatClass extends acymClass
 
     public function getAllMailsForStats($search = '')
     {
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
 
         $query = 'SELECT mail.* 
                   FROM #__acym_mail AS mail 
@@ -123,9 +129,7 @@ class acymmailStatClass extends acymClass
         }
 
         $query = 'SELECT SUM(sent) AS sent, SUM(open_unique) AS open, SUM(fail) AS fails, SUM(bounce_unique) AS bounces FROM #__acym_mail_stat '.$condMailIds;
-        $result = acym_loadObject($query);
 
-        return $result;
+        return acym_loadObject($query);
     }
 }
-

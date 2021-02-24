@@ -21,279 +21,188 @@ class DiscussProfile extends EasyDiscussTable
 	public $description	= null;
 	public $url = null;
 	public $params = null;
-	public $user = null;
 	public $alias = null;
 	public $points = null;
 	public $latitude = null;
 	public $longitude = null;
 	public $location = null;
 	public $signature = null;
-	public $site = null;
-	public $auth = null;
 
 	/**
 	* Determines if the user's profile has been edited or not.
 	* @var bool
 	*/
-	public $edited		= null;
-
+	public $edited = null;
+	
 	/**
 	* store the posts that has been read by user
 	* @var serialized string.
 	*/
-	public $posts_read	= null;
+	public $posts_read = null;
 
+	public $site = null;
+	public $auth = null;
 
-	private $_data		= array();
-
-	static $instances 	= array();
-	/*
-	 * Below attribute are the virtual which created when user is being loaded.
-	 *
-	 * numPostCreated
-	 * numPostAnswered
-	 * created
-	 */
-
-	/**
-	 * Constructor for this class.
-	 *
-	 * @return
-	 * @param object $db
-	 */
-	public function __construct(& $db )
+	public function __construct(&$db)
 	{
-		parent::__construct( '#__discuss_users' , 'id' , $db );
-
-		$this->numPostCreated = 0;
-		$this->numPostAnswered = 0;
-		$this->profileLink = '';
-		$this->avatarLink = '';
-
-		$this->config = ED::config();
-
-
+		parent::__construct('#__discuss_users', 'id', $db);
 	}
 
 	public function bind($data , $ignore = array())
 	{
-		parent::bind( $data );
+		parent::bind($data);
 
-		$this->url	= $this->_appendHTTP($this->url);
+		$this->url = $this->_appendHTTP($this->url);
 
-		$this->user	= JFactory::getUser($this->id);
-
-		//default to nickname for blogger alias if empty
+		// Default to nickname if alias is empty.
 		if (empty($this->alias)) {
 			$this->alias = $this->nickname;
 		}
 
+		// If the alias still empty, then we'll use username.
 		if (empty($this->alias)) {
-			$this->alias = $this->user->username;
+			$user = JFactory::getUser();
+			$this->alias = $user->username;
 		}
 
-		$this->alias = DiscussHelper::permalinkSlug($this->alias);
+		// Clean the alias.
+		$this->alias = ED::permalinkSlug($this->alias);
+
 		return true;
 	}
 
-	public function _createDefault( $id )
+	public function bindAvatar($file, $acl = array()) 
 	{
-		$db = ED::db();
+		// TODO: Check ACL.
 
-		$date = ED::date();
-		$user = JFactory::getUser($id);
+		// Try to upload the avatar
+		$avatar = ED::avatar();
 
-		if ($user->id) {
-			$obj = new stdClass();
-			$obj->id = $user->id;
-			$obj->nickname = $user->name;
-			$obj->avatar = 'default.png';
-			$obj->description = '';
-			$obj->url = '';
-			$obj->params = '';
+		// Get the avatar path
+		$this->avatar = $avatar->upload($file, $this->id);
 
-			//default to username for blogger alias
-			$obj->alias = DiscussHelper::permalinkSlug( $user->username );
+		// Assign points.
+		// @rule: If this is the first time the user is changing their profile picture, give a different point
+		if ($this->avatar == 'default.png') {
 
-			$isCreated = $db->insertObject('#__discuss_users', $obj);
-			if ($isCreated) {
-				$this->bind($obj);
-			}
+			// @rule: Process AUP integrations
+			ED::Aup()->assign(DISCUSS_POINTS_NEW_AVATAR, $this->id, $this->avatar);
+		} else {
+			// @rule: Process AUP integrations
+			ED::Aup()->assign(DISCUSS_POINTS_UPDATE_AVATAR, $this->id, $this->avatar);
 		}
+
+		// @rule: Badges when they change their profile picture
+		ED::history()->log('easydiscuss.new.avatar', $this->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_AVATAR'));
+
+		ED::badges()->assign('easydiscuss.new.avatar', $this->id);
+		ED::points()->assign('easydiscuss.new.avatar', $this->id);
+
+		// Reset the points
+		$this->updatePoints();
+
 	}
-
-
-	public function init( $id = null )
-	{
-		if (is_array($id)) {
-			$tmpArr = array();
-
-			foreach ($id as $uid) {
-				if (!isset(self::$instances[$uid])) {
-					$tmpArr[] = $uid;
-				}
-			}
-
-			if (empty($tmpArr)) {
-				return;
-			}
-
-			if (count($tmpArr) == 1) {
-				$id = array_pop( $tmpArr );
-				self::load( $id );
-			} else {
-				$db = ED::db();
-				$ids = implode(',', $tmpArr);
-
-				$query  = 'select a.*';
-
-				$query .= ', (select count(1) from  `#__discuss_posts` as p1 where p1.`user_id` = a.`id` and p1.`parent_id` = 0 and p1.`published` = 1) as `numPostCreated`';
-				$query .= ', (select count(1) from  `#__discuss_posts` as p2 where p2.`user_id` = a.`id` and p2.`parent_id` != 0 and p2.`published` = 1) as `numPostAnswered`';
-
-				$query .= ' from `#__discuss_users` as a';
-				$query .= ' where a.`id` IN (' . $ids . ')';
-
-				$db->setQuery($query);
-				$results = $db->loadObjectList();
-
-				// $numPostCreated	 = self::getNumTopicPostedGroup( $tmpArr );
-				// $numPostAnswered = self::getNumTopicAnsweredGroup( $tmpArr );
-
-				foreach ($results as $row) {
-
-					$user   = new DiscussProfile($db);
-					$user->bind($row);
-
-					// $user->numPostCreated	= isset( $numPostCreated[$row->id] ) ? $numPostCreated[$row->id] : 0;
-					// $user->numPostAnswered	= isset( $numPostAnswered[$row->id] ) ? $numPostAnswered[$row->id] : 0;
-
-					$juser	= JFactory::getUser($row->id);
-					$user->user	= $juser;
-
-					self::$instances[ $row->id ]	= $user;
-				}
-			}
-		}
-		else
-		{
-			self::load( $id );
-		}
-	}
-
 
 	/**
-	 * override load method.
-	 * if user record not found in eblog_profile, create one record.
+	 * Deprecated. Use @load instead
 	 *
+	 * @deprecated	5.0
 	 */
-	public function load($id = null , $reset = true , $reload = false, $skipGuestChecking = false)
+	public function init($id = null)
 	{
-		if (!isset(self::$instances[$id])) {
-			$createNew  = false;
+		return $this->load($id);
+	}
+
+	/**
+	 * Load user profile record. If user profile not exists, create new record.
+	 *
+	 * @update	5.0.0
+	 */
+	public function load($id = null, $skipGuestChecking = false)
+	{
+		static $users = array();
+
+		if (!isset($users[$id])) {
 			$user = JFactory::getUser($id);
 
+			// If this is a guest, then do not process further.
 			if ($id && $user->guest && !$skipGuestChecking) {
-				//do not process any further;
-				$this->user = $user;
-				self::$instances[ $id ]	= $this;
+				$users[$id] = $this;
 
-				return self::$instances[ $id ];
+				return $users[$id];
 			}
 
 			if (!empty($id)) {
-				$state = parent::load( $id );
+				$state = parent::load($id);
 
+				// If the user is not found, then we'll create new.
 				if (!$state) {
-					$this->_createDefault($id);
-					$createNew  = true;
+					$obj = new stdClass();
+					$obj->id = $user->id;
+					$obj->nickname = $user->name;
+					$obj->avatar = 'default.png';
+					$obj->description = '';
+					$obj->url = '';
+					$obj->params = '';
+					$obj->location = '';
+					$obj->signature = '';
+					$obj->site = '';
+					$obj->auth = '';
+					$obj->edited = '';
+					$obj->alias = ED::permalinkSlug($user->username);
+
+					$db = ED::db();
+
+					if ($db->insertObject('#__discuss_users', $obj)) {
+						$this->bind($obj);
+					}
 				}
 			}
 
-			if (!$createNew) {
-				$this->numPostCreated	= $this->getNumTopicPosted();
-				$this->numPostAnswered	= $this->getNumTopicAnswered();
-			}
-
-			$this->user	= $user;
-
-			self::$instances[ $id ]	= $this;
-		} else {
-			// At times we might want to reload the user's data.
-			if ($reload) {
-				parent::load( $id );
-
-				$this->numPostCreated	= $this->getNumTopicPosted();
-				$this->numPostAnswered	= $this->getNumTopicAnswered();
-
-				$user = JFactory::getUser($id);
-				$this->user	= $user;
-
-				$users[ $id ]		= $this;
-			} else {
-				$this->bind(self::$instances[$id]);
-			}
+			$users[$id] = $this;
 		}
 
-		return self::$instances[ $id ];
+		return $users[$id];
 	}
 
-	public function store( $updateNulls = false )
+	public function store($updateNulls = false)
 	{
-		// we need to check if the user exists in joomla or not before we can store this record.
-		$juser = $this->user;
-		if ($juser->guest && !$this->id && !$this->nickname) {
+		$user = JFactory::getUser($this->id);
+
+		// Check if the user existed in Joomla.
+		if ($user->guest && !$this->id && !$this->nickname) {
 			return;
 		}
 
-		$tmpNumPostCreated	= $this->numPostCreated;
-		$tmpNumPostAnswered	= $this->numPostAnswered;
-		$tmpProfileLink		= $this->profileLink;
-		unset($this->numPostCreated);
-		unset($this->numPostAnswered);
-		unset($this->profileLink);
-		unset($this->avatarLink);
-
-		$result	= parent::store();
-
-		if ($result) {
-			$this->numPostCreated	= $tmpNumPostCreated;
-			$this->numPostAnswered	= $tmpNumPostAnswered;
-			$this->profileLink		= $tmpProfileLink;
-		}
+		$result = parent::store($updateNulls);
 
 		return $result;
-	}
-
-	public function setUser( $my )
-	{
-		$this->load($my->id);
-		$this->user = $my;
 	}
 
 	/**
 	 * Retrieves the user's link
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getPermalink($anchor = '', $external = false)
+	public function getPermalink($anchor = '', $external = false, $xhtml = false)
 	{
 		static $items = array();
 
 		$key = $this->id . $anchor . (int) $external;
 
 		if (!isset($items[$key])) {
-			$field = ED::integrate()->getField($this);
-
+			$integration = ED::integrate();
 			$config = ED::config();
 
-			if (!$config->get('layout_avatarLinking') && $this->id) {
-				$items[$key] = EDR::_('view=profile&id=' . $this->id, false) . $anchor;
-			} else {
-				$items[$key] = $field['profileLink'];
-			}
+			$field = $integration->getField($this);
+
+			if ($this->id && $field['integration'] == 'easydiscuss') {
+				$items[$key] = EDR::_('view=profile&id=' . $this->id, $xhtml) . $anchor;
+
+				return $items[$key];
+			} 
+
+			$items[$key] = $field['profileLink'];
 		}
 
 		return $items[$key];
@@ -303,9 +212,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the user's edit profile link
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getEditProfileLink($anchor = '')
 	{
@@ -320,7 +226,7 @@ class DiscussProfile extends EasyDiscussTable
 
 			$items[$key] = EDR::_('view=profile&layout=edit');
 
-			if ($config->get('layout_avatarLinking') && (isset($field['editProfileLink']) && $field['editProfileLink']))  {
+			if ((isset($field['editProfileLink']) && $field['editProfileLink']))  {
 				$items[$key] = $field['editProfileLink'];
 			}
 		}
@@ -331,10 +237,7 @@ class DiscussProfile extends EasyDiscussTable
 	/**
 	 * Deprecated. Use @getPermalink instead
 	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
+	 * @deprecated	5.0
 	 */
 	public function getLink($anchor = '')
 	{
@@ -346,6 +249,7 @@ class DiscussProfile extends EasyDiscussTable
 		if ($this->id == 0) {
 			return $this->getName($defaultGuestName);
 		}
+
 		return '<a href="'.$this->getLink().'" title="'.$this->getName().'">'.$this->getName().'</a>';
 	}
 
@@ -353,7 +257,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Adds a badge for a specific user.
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function addBadge($badgeId)
 	{
@@ -378,7 +281,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Method to remove badge
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function removeBadge($badgeId)
 	{
@@ -392,7 +294,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Method to add point
 	 *
 	 * @since	4.1.3
-	 * @access	public
 	 */
 	public function addPoint($point, $isUndoVote = false, $isVotedBefore = false, $offsetPoint = false)
 	{
@@ -428,50 +329,38 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the name of the user
 	 *
 	 * @since	4.0
-	 * @access	public
 	 */
 	public function getName($default = '')
 	{
-		// render the guest poster name if there has store any name for this.
-		if (!$this->id) {
+		static $cache = array();
 
-			if ($default) {
-				return $default;
+		if (!isset($cache[$this->id])) {
+
+			// If this is a guest.
+			if (!$this->id) {
+				if ($default) {
+					return $default;
+				}
+
+				return JText::_('COM_EASYDISCUSS_GUEST');
 			}
 
-			if (isset($this->user->name) && $this->user->name) {
-				return $this->user->name;
+			$user = JFactory::getUser($this->id);
+			$displayName = ED::config()->get('layout_nameformat');
+			$name = $user->name;
+
+			if ($displayName == 'username') {
+				$name = $user->username;
 			}
 
-			if (isset($this->name) && $this->name) {
-				return $this->name;
-			}			
-
-			$name = JText::_('COM_EASYDISCUSS_GUEST'); 
-
-			return $name;
-		}
-
-		$config = ED::config();
-		$displayName = $config->get('layout_nameformat');
-
-		if ($displayName == 'name') {
-			$name = $this->user->name;
-		}
-
-		if ($displayName == 'username') {
-			$name = $this->user->username;
-		}
-
-		if ($displayName == 'nickname') {
-			$name = $this->nickname;
-
-			if (!$name) {
-				$name = $this->user->name;
+			if ($displayName == 'nickname') {
+				$name = $this->nickname;
 			}
+			
+			$cache[$this->id] = $name;
 		}
 
-		return $name;
+		return $cache[$this->id];
 	}
 
 	public function getNameInitial($isAnonymous = false, $debug = false)
@@ -513,13 +402,11 @@ class DiscussProfile extends EasyDiscussTable
 			$text = $initial->text;
 
 		} else {
-			$initial->text = JString::substr($name, 0, 1);
+			// If the name given is not ascii, then we'll need to format the name appropriately.
+			$name = $this->getEmail() ?: $name;
 
-			$text = ($this->id) ? $this->user->email : '';
-			if (!$text && isset($this->poster_email)) {
-				$text = $this->poster_email;
-				$text = strtoupper($text);
-			}
+			$initial->text = strtoupper(EDJString::substr($name, 0, 1));
+			$text = $initial->text;
 		}
 
 		// get the color code
@@ -556,15 +443,38 @@ class DiscussProfile extends EasyDiscussTable
 
 	public function getUsername()
 	{
-		return $this->user->username;
+		$user = JFactory::getUser($this->id);
+
+		return $user->username;
+	}
+
+	/**
+	 * Retrieves the JUser object
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getUser()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$user = JFactory::getUser($this->id);
+
+			$cache[$this->id] = $user;
+		}
+
+		return $cache[$this->id];
 	}
 
 	public function getEmail()
 	{
-		return $this->user->email;
+		$user = JFactory::getUser($this->id);
+		return $user->email;
 	}
 
-	public function getId(){
+	public function getId()
+	{
 		return $this->id;
 	}
 
@@ -604,11 +514,8 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieve the author's avatar
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getAvatar( $isThumb = true )
+	public function getAvatar($isThumb = true)
 	{
 		$config = ED::config();
 		$db = ED::db();
@@ -616,7 +523,7 @@ class DiscussProfile extends EasyDiscussTable
 		static $avatar;
 
 		// Ensure that avatars are enabled
-		if (!$config->get('layout_avatar')) {
+		if ($config->get('layout_avatarIntegration') == 'default' && $config->get('layout_text_avatar')) {
 			return false;
 		}
 
@@ -628,40 +535,60 @@ class DiscussProfile extends EasyDiscussTable
 			$avatar[$key] = $field['avatarLink'];
 		}
 
-		$this->avatarLink = $avatar[$key];
+		$avatarLink = $avatar[$key];
 
-		return $this->avatarLink;
+		return $avatarLink;
 	}
 
 	public function getNickname()
 	{
-		$nickname = $this->nickname ? $this->nickname : $this->user->name;
+		$user = JFactory::getUser();
+
+		$nickname = $this->nickname ? $this->nickname : $user->name;
 		return $nickname;
 	}
 
-	public function getDescription($raw = false){
+	public function getDescription($raw = false)
+	{
+		static $cache = [];
 
-		if ($raw) {
-			return $this->description;
+		$key = $this->id . (int) $raw;
+
+		if (!isset($cache[$key])) {
+			
+			if ($raw) {
+				$cache[$key] = $this->description;
+				return $cache[$key];
+			}
+
+			if (ED::config()->get('layout_editor') == 'bbcode') {
+				$cache[$key] = nl2br(ED::parser()->bbcode($this->description));
+			} else {
+				$cache[$key] = EDJString::trim($this->description);
+			}
 		}
 
-		if ($this->config->get('layout_editor') == 'bbcode') {
-			return nl2br(ED::parser()->bbcode($this->description));
+		return $cache[$key];
+	}
+
+	public function getParams($registry = false)
+	{
+		if ($registry) {
+			return ED::registry($this->params);
 		}
 
-		return trim($this->description);
-	}
-
-	public function getWebsite(){
-		return $this->url;
-	}
-
-	public function getParams(){
 		return $this->params;
 	}
 
-	public function getUserType(){
-		return $this->user->usertype;
+	/**
+	 * https://docs.joomla.org/Potential_backward_compatibility_issues_in_Joomla_3_and_Joomla_Platform_12.2
+	 * JUser::$usertype has been removed.
+	 *
+	 * @deprecated	5.0
+	 */
+	public function getUserType()
+	{
+		throw new Exception(sprintf('%s() is deprecated. JUser::$usertype has been removed.', __METHOD__));
 	}
 
 	public function _appendHTTP($url)
@@ -681,9 +608,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the rss feed for a user
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getRSS($atom = false)
 	{
@@ -696,9 +620,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the atom rss feed for a user
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAtom()
 	{
@@ -709,7 +630,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Returns a total number of topics a user has marked as favourite.
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function getTotalFavourites()
 	{
@@ -740,7 +660,7 @@ class DiscussProfile extends EasyDiscussTable
 			// if there is no categories return, means this user has no permission to view all the categories.
 			// if that is the case, just return empty array.
 			if (! $catIds) {
-				return array();
+				return 0;
 			}
 
 			$query[] = " and b.`category_id` IN (" . implode(',', $catIds) . ")";
@@ -762,7 +682,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Returns a total number of topic posted by the current user.
 	 *
 	 * @since	2.0
-	 * @access	public
 	 */
 	public function getNumTopicPosted()
 	{
@@ -807,7 +726,8 @@ class DiscussProfile extends EasyDiscussTable
 				// if there is no categories return, means this user has no permission to view all the categories.
 				// if that is the case, just return empty array.
 				if (! $catIds) {
-					return array();
+					$cache[$index] = '0';
+					return $cache[$index];
 				}
 
 				$query .= " and a.`category_id` IN (" . implode(',', $catIds) . ")";
@@ -828,11 +748,12 @@ class DiscussProfile extends EasyDiscussTable
 		return $cache[ $index ];
 	}
 
+
+
 	/**
 	 * Returns a total number of topic posted by group of users.
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function getNumTopicPostedGroup( $userIds )
 	{
@@ -862,7 +783,6 @@ class DiscussProfile extends EasyDiscussTable
 	/**
 	 * Retrieve the number of replies the user has posted
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function getNumTopicAnsweredGroup( $userIds )
 	{
@@ -891,89 +811,113 @@ class DiscussProfile extends EasyDiscussTable
 		return $result;
 	}
 
+	/**
+	 * Determines if the user is able to access dashboard in frontend
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function canAccessDashboard()
+	{
+		static $cache = [];
+
+		if (!isset($cache[$this->id])) {
+			$canAccess = false;
+
+			if (ED::isSiteAdmin()) {
+				$cache[$this->id] = true;
+
+				return $cache[$this->id];
+			}
+
+			$acl = ED::acl($this->id);
+			$config = ED::config();
+
+			if ($acl->allowed('manage_pending') || ($config->get('main_work_schedule') && $acl->allowed('manage_holiday'))) {
+				$cache[$this->id] = true;
+
+				return $cache[$this->id];
+			}
+
+			$cache[$this->id] = false;
+		}
+
+		return $cache[$this->id];
+	}
 
 	/**
 	 * Retrieve the number of replies the user has posted
 	 * @since	2.0
-	 * @access	public
 	 */
 	public function getNumTopicAnswered()
 	{
-		static $cache 	= array();
+		static $cache = array();
+		$user = JFactory::getUser();
 
-		if( empty( $this->id ) )
-			return '0';
+		// If this guest, then return 0.
+		if ($this->id && $user->guest) {
+			return 0;
+		}
 
-		$index 	= $this->id;
-
-		if( !isset( $cache[ $index ] ) )
-		{
+		if (!isset($cache[$this->id])) {
 			$db = ED::db();
 
 			$my = JFactory::getUser();
 			$respectAnonymous = ($my->id == $this->id) ? false : true;
 
-			$query	= 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` AS a ';
-			$query	.= ' INNER JOIN #__discuss_posts AS b ';
-			$query	.= ' ON a.`parent_id`=b.`id`';
-			$query	.= ' AND a.`parent_id` > 0';
-			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
-			$query	.= ' AND a.`published` = 1';
-			$query	.= ' AND b.`published` = 1';
+			$query = 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` as a';
+			$query .= ' INNER JOIN `#__discuss_posts` as b';
+			$query .= ' ON a.`parent_id` = b.`id`';
+			$query .= ' AND a.`parent_id` > 0';
+			$query .= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
+			$query .= ' AND a.`published` = 1';
+			$query .= ' AND b.`published` = 1';
 
 			if ($respectAnonymous) {
-				$query	.= ' AND a.`anonymous` = 0';
+				$query .= ' AND a.`anonymous` = 0';
 			}
 
 			$db->setQuery($query);
+			$result = $db->loadResult();
 
-			$data 	= $db->loadResult();
-			$cache[ $index ]	= $data;
+			$cache[$this->id] = $result;
 		}
-		return $cache[ $index ];
+
+		return $cache[$this->id];
 	}
 
 	/**
 	 * Get number of unresolved posts
 	 *
 	 * @since   4.0
-	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getNumTopicUnresolved()
 	{
 		static $cache = array();
 
-		$index = $this->id;
-
-		if (!isset($cache[$index])) {
+		if (!isset($cache[$this->id])) {
 			$db = ED::db();
 
 			$my = JFactory::getUser();
 			$respectPrivacy = ($my->id == $this->id) ? false : true;
 
-			$query	= 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` AS a ';
-			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
-			$query	.= ' AND a.`published` = 1';
-			$query	.= ' AND a.`isresolve` = 0';
-			$query	.= ' AND a.`parent_id` = 0';
+			$query = 'SELECT COUNT(a.`id`) AS CNT FROM `#__discuss_posts` AS a';
+			$query .= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
+			$query .= ' AND a.`published` = 1';
+			$query .= ' AND a.`isresolve` = 0';
+			$query .= ' AND a.`parent_id` = 0';
 
 			// Do not include anything from cluster.
-			$query .= ' AND a.'. $db->nameQuote('cluster_id') . '=' . $db->Quote('0');
+			$query .= ' AND a.`cluster_id` = 0';
 
-			// If the post is anonymous we shouldn't show to public.
+			// If the post is anonymous/private we shouldn't show to public.
 			if (ED::user()->id != $this->id) {
-				$query .=' AND a.' . $db->nameQuote('anonymous') . '=' . $db->Quote('0');
-			}
-
-			if (ED::user()->id != $this->id) {
-				$query .=' AND a.' . $db->nameQuote('private') . '=' . $db->Quote('0');
+				$query .= ' AND a.`anonymous` = 0';
+				$query .= ' AND a.`private` = 0';
 			}
 
 			if ($respectPrivacy) {
-
-				// category ACL:
+				// Category ACL.
 				$catOptions = array();
 				$catOptions['idOnly'] = true;
 				$catOptions['includeChilds'] = true;
@@ -981,59 +925,46 @@ class DiscussProfile extends EasyDiscussTable
 				$catModel = ED::model('Categories');
 				$catIds = $catModel->getCategoriesTree(0, $catOptions);
 
-				// if there is no categories return, means this user has no permission to view all the categories.
-				// if that is the case, just return empty array.
-				if (! $catIds) {
-					return array();
+				// If there is no category return, means this user has no permission to view all the categories.
+				// If that is the case, then just return empty array.
+				if (!$catIds) {
+					return 0;
 				}
 
-				$query .= " and a.`category_id` IN (" . implode(',', $catIds) . ")";
-
+				$query .= ' AND a.`category_id` IN (' . implode(',', $catIds) . ')';
 			}
 
 			$db->setQuery($query);
+			$result = $db->loadResult();
 
-			$result	= $db->loadResult();
-
-			$cache[ $index ]	= $result;
+			$cache[$this->id] = $result;
 		}
 
-		return $cache[ $index ];
+		return $cache[$this->id];
 	}
 
 	/**
-	 * Returns the total number of posts a user has made on the site.
+	 * Retrieves the total number of posts user made on the site (questions)
 	 *
-	 * @since	3.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function getTotalPosts()
 	{
-		static $cache 	= array();
+		static $cache = array();
 
-		$index 	= $this->id;
-
-		if( !isset( $cache[ $index ] ) )
-		{
-			$db 	= ED::db();
-			$query	= 'SELECT COUNT(1) FROM `#__discuss_posts` AS a ';
-			$query	.= ' WHERE a.`user_id` = ' . $db->Quote($this->id);
-			$query	.= ' AND a.`published` = 1';
-			$db->setQuery($query);
-
-			$count 	= $db->loadResult();
-
-			$cache[ $index ]	= $count;
+		if (!isset($cache[$this->id])) {
+			$model = ED::model('Users');
+			$cache[$this->id] = $model->getTotalQuestions($this->id);
 		}
 
-		return $cache[ $index ];
+		return $cache[$this->id];
 	}
 
 	/**
 	 * Returns the total number of posts a user has made on the site.
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function getTotalQuestions()
 	{
@@ -1054,9 +985,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the total number of replies the user made
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalReplies($options = array())
 	{
@@ -1074,9 +1002,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the total number of assigned post the user made
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalAssigned()
 	{
@@ -1097,9 +1022,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the total number of pending post the user made
 	 *
 	 * @since	4.1
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalPending()
 	{
@@ -1119,9 +1041,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the total number of resolved post the user made
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalResolved()
 	{
@@ -1139,9 +1058,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieves the total number of subscription the user made
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalSubscriptions()
 	{
@@ -1165,7 +1081,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieve the total number of tags created by the user
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function getTotalTags()
 	{
@@ -1192,81 +1107,95 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieve the joined date of a user
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getDateJoined()
 	{
-		$date = ED::date($this->user->registerDate);
+		static $cache = array();
 
-		return $date->display(JText::_('DATE_FORMAT_LC1'));
+		if (!isset($cache[$this->id])) {
+			$user = JFactory::getUser($this->id);
+			$date = ED::date($user->registerDate);
+
+			$cache[$this->id] = $date->display(JText::_('DATE_FORMAT_LC1'));
+		}
+
+		return $cache[$this->id];
 	}
 
 	/**
 	 * Get last online date
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getLastOnline($front = false)
+	public function getLastOnline($front = false, $timelapse = true)
 	{
-		$date = ED::date($this->user->lastvisitDate);
-		$config = ED::config();
-		$timelapse = $config->get('layout_timelapse', 1);
-		$format = JText::_('DATE_FORMAT_LC1');
+		static $cache = array();
+		$key = $this->id . '.' . (int) $front . '.' . (int) $timelapse;
 
-		if ($front && $timelapse) {
-			return $date->toLapsed($this->user->lastvisitDate);
+		if (!isset($cache[$key])) {
+			$user = JFactory::getUser($this->id);
+
+			if ($front && $timelapse) {
+				$cache[$key] = ED::date()->toLapsed($user->lastvisitDate);
+
+				return $cache[$key];
+			}
+
+			$cache[$key] = ED::date($user->lastvisitDate)->display(JText::_('DATE_FORMAT_LC1'));
 		}
 
-		return $date->display($format);
+		return $cache[$key];
 	}
 
+	/**
+	 * Deprecated. Use @getPermalink instead.
+	 *
+	 * @deprecated	5.0
+	 */
 	public function getURL( $raw = false , $xhtml = false )
 	{
-		$url	= 'index.php?option=com_easydiscuss&view=profile&id=' . $this->id;
-		$url	= $raw ? $url : DiscussRouter::_( $url , $xhtml );
-
-		return $url;
+		return $this->getPermalink();
 	}
 
 	/**
 	 * Determines if the user is an admin on the site.
 	 *
 	 * @since	3.0
-	 * @access	public
 	 */
 	public function isAdmin()
 	{
-		return DiscussHelper::isSiteAdmin( $this->id );
+		return ED::isSiteAdmin($this->id);
 	}
 
-	public function isOnline()
+	/**
+	 * Determines if the user is currently online or not
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function isOnline($useCache = true)
 	{
-		static	$loaded	= array();
+		static $loaded = array();
 
-		if (! $this->id) {
+		if (!$this->id) {
 			//guest, also return false
 			return false;
 		}
 
-		if (!isset($loaded[$this->id])) {
-
+		if (!$useCache || !isset($loaded[$this->id])) {
 			$jConfig = ED::jconfig();
 			$sharedSess = $jConfig->get('shared_session', 0);
 			$db = ED::db();
 
 			$query = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__session');
 			$query .= ' WHERE ' . $db->nameQuote('userid') . ' = ' . $db->Quote($this->id);
+
 			if (!$sharedSess) {
 				$query .= ' AND ' . $db->nameQuote('client_id') . ' <> ' . $db->Quote(1);
 			}
-			$db->setQuery($query);
 
-			$loaded[$this->id]	= $db->loadResult() > 0 ? true : false;
+			$db->setQuery($query);
+			$loaded[$this->id] = $db->loadResult() > 0 ? true : false;
 		}
 
 		return $loaded[$this->id];
@@ -1292,11 +1221,11 @@ class DiscussProfile extends EasyDiscussTable
 	}
 
 	/**
-	 * Get a list of badges for this user.
+	 * Retrieves a list of badges earned by the user
 	 *
+	 * @since	5.0.0
 	 * @access	public
-	 * @return	Array	An array of DiscussTableBadges
-	 **/
+	 */
 	public function getBadges()
 	{
 		static $loaded = array();
@@ -1316,7 +1245,6 @@ class DiscussProfile extends EasyDiscussTable
 				$badge = ED::table('Badges');
 				$badge->bind($res);
 
-				// $badge->custom = $res->custom;
 				$badges[] = $badge;
 			}
 
@@ -1330,7 +1258,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Determine whether this user have any badges or not
 	 *
 	 * @since	4.1.2
-	 * @access	public
 	 */
 	public function hasUserBadges()
 	{
@@ -1385,57 +1312,144 @@ class DiscussProfile extends EasyDiscussTable
 		$db->query();
 	}
 
-	public function getSignature( $raw = false )
+	/**
+	 * Retrieves the skype social field for a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getFacebook()
 	{
-		if (!array_key_exists('signature', $this->_data)) {
+		$params = $this->getParams(true);
 
+		$facebook = $params->get('facebook', '');
+
+		return $facebook;
+	}
+
+	/**
+	 * Retrieves the skype social field for a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getTwitter()
+	{
+		$params = $this->getParams(true);
+
+		$twitter = $params->get('twitter', '');
+
+		return $twitter;
+	}
+
+	/**
+	 * Retrieves the skype social field for a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getLinkedin()
+	{
+		$params = $this->getParams(true);
+
+		$linkedin = $params->get('linkedin', '');
+
+		return $linkedin;
+	}
+
+	/**
+	 * Retrieves the skype social field for a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getWebsite()
+	{
+		$params = $this->getParams(true);
+
+		$value = $params->get('website', '');
+
+		return $value;
+	}
+
+	/**
+	 * Retrieves the skype social field for a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getSkype()
+	{
+		$params = $this->getParams(true);
+
+		$skype = $params->get('skype', '');
+
+		return $skype;
+	}
+
+	public function getSignature($raw = false)
+	{
+		static $signature = array();
+
+		$key = $this->id . $raw;
+
+		if (!isset($signature[$key])) {
 			if ($raw) {
-				$this->_data['signature'] = $this->signature;
+				$signature[$key] = $this->signature;
+				return $signature[$key];
+			}
+
+			if (ED::config()->get('layout_editor') == 'bbcode') {
+				$signature[$key] = nl2br(ED::parser()->bbcode($this->signature));
 			} else {
-				if ($this->config->get('layout_editor') == 'bbcode') {
-					$this->_data['signature'] = nl2br(ED::parser()->bbcode($this->signature));
-				} else {
-					$this->_data['signature'] = trim($this->signature);
-				}
+				$signature[$key] = trim($this->signature);
 			}
 		}
 
-		return $this->_data['signature'];
+		return $signature[$key];
 	}
 
 	/**
 	 * Retrieve's user points
 	 *
 	 * @since	4.0
-	 * @access	public
 	 */
 	public function getPoints()
 	{
-		if (ED::aup()->exists()) {
-			return ED::aup()->getUserPoints($this->id);
-		}
+		static $cache = [];
 
-		if (ED::easysocial()->exists()) {
+		if (!isset($cache[$this->id])) {
+			$cache[$this->id] = $this->points;
 
-			$esUserPoint = ED::easysocial()->getUserPoints($this->id);
-
-			if ($esUserPoint === false) {
-				return $this->points;
+			if (ED::aup()->exists()) {
+				$cache[$this->id] = ED::aup()->getUserPoints($this->id);
 			}
 			
-			return $esUserPoint;
+			if (ED::easysocial()->exists()) {
+				$esUserPoint = ED::easysocial()->getUserPoints($this->id);
+
+				if ($esUserPoint) {
+					$cache[$this->id] = $esUserPoint;
+				}
+			}
 		}
 
-		return $this->points;
+		return $cache[$this->id];
 	}
 
+	/**
+	 * Retrieves the role of a user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function getRole()
 	{
-		static $_cache = array();
+		static $cache = array();
 
 		$key = $this->id;
 
-		if (! isset($_cache[$key])) {
+		if (!isset($cache[$key])) {
 			$id = $this->id;
 
 			// If the id is null (guest), asign to use 0
@@ -1448,13 +1462,19 @@ class DiscussProfile extends EasyDiscussTable
 
 			$role = ED::table('Role');
 			$title = $role->getTitle($userGroupId);
-			$_cache[$key] = $title;
+			
+			$cache[$key] = $title;
 		}
 
-		return $_cache[$key];
+		return $cache[$key];
 	}
 
-	public function getRoleLabelClassname()
+	/**
+	 * Retrieve the label colour of the role
+	 *
+	 * @since	5.0
+	 */
+	public function getRoleLabelColour()
 	{
 		$id = $this->id;
 
@@ -1467,11 +1487,24 @@ class DiscussProfile extends EasyDiscussTable
 		$userGroupId = ED::getUserGroupId($user, false);
 
 		$role = ED::table('Role');
-		$color = $role->getRoleColor($userGroupId);
+		$colour = $role->getRoleColor($userGroupId);
 
-		$classname = $color;
+		// Fixed colour code from the previous version
+		$colourToFix = array(
+			'success' => '#39b54a',
+			'warning' => '#c77c11',
+			'danger' => '#d9534f',
+			'info' => '#5bc0de',
+			'default' => '#777777'
+		);
 
-		return $classname;
+		$colourCode = $colour;
+
+		if (array_key_exists($colourCode, $colourToFix)) {
+			$colourCode = $colourToFix[$colour];
+		} 
+
+		return $colourCode;
 	}
 
 	public function getRoleId()
@@ -1480,10 +1513,12 @@ class DiscussProfile extends EasyDiscussTable
 			return '0';
 		}
 
-		$userGroupId = ED::getUserGroupId( $this->user );
+		$user = JFactory::getUser();
 
-		$role	= ED::table( 'Role' );
-		$roleid	= $role->getRoleId( $userGroupId );
+		$userGroupId = ED::getUserGroupId($user);
+
+		$role = ED::table('Role');
+		$roleid	= $role->getRoleId($userGroupId);
 		return $roleid;
 	}
 
@@ -1492,8 +1527,9 @@ class DiscussProfile extends EasyDiscussTable
 		$posts = array();
 		$doAdd = true;
 
-		if (empty($this->id))
+		if (empty($this->id)) {
 			return false;
+		}
 
 		if ($this->posts_read) {
 			$posts = unserialize($this->posts_read);
@@ -1515,9 +1551,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Deletes the user's avatar
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function deleteAvatar()
 	{
@@ -1551,9 +1584,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Determine if the user already read the post
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function isRead($postId)
 	{
@@ -1569,9 +1599,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieve user id from jfbconnect table
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getJfbconnectUserId($userId)
 	{
@@ -1600,9 +1627,6 @@ class DiscussProfile extends EasyDiscussTable
 	 * Retrieve user details from jfbconnect table
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getJfbconnectUserDetails($userId)
 	{
@@ -1633,15 +1657,12 @@ class DiscussProfile extends EasyDiscussTable
 		return $result;
 	}
 
-		/**
+	/**
 	 * This determines if the user should be moderated when they make a new posting
 	 *
 	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function moderateUsersPost()
+	public function moderateUsersPost($isQuestion)
 	{
 		static $items = array();
 
@@ -1649,14 +1670,19 @@ class DiscussProfile extends EasyDiscussTable
 			$config = ED::config();
 
 			$moderationEnabled = $config->get('main_moderatepost');
+			$moderationReplyEnabled = $config->get('main_moderatereply');
 			$moderationAutomatedEnabled = $config->get('main_moderation_automated');
 			$limit = $config->get('moderation_threshold');
+
+			if (!$isQuestion) {
+				$limit = $config->get('moderation_reply_threshold');
+			}
 
 			if (($moderationAutomatedEnabled && !$limit) || (!$moderationAutomatedEnabled)) {
 
 				$items[$this->id] = false;
 
-				if ($moderationEnabled) {
+				if ($moderationEnabled || $moderationReplyEnabled) {
 					$items[$this->id] = true;
 				}
 
@@ -1669,7 +1695,7 @@ class DiscussProfile extends EasyDiscussTable
 			$items[$this->id] = true;
 
 			// If exceeded, they shouldn't be moderated
-			if ($model->exceededModerationThreshold($this->id)) {
+			if ($model->exceededModerationThreshold($this->id, $isQuestion, $limit)) {
 				$items[$this->id] = false;
 			}
 		}
@@ -1705,5 +1731,33 @@ class DiscussProfile extends EasyDiscussTable
 
 			return $this->$functionName();
 		}
+	}
+
+	public function markRead($postId)
+	{
+		// Get the posts_read by user.
+		$posts = $this->posts_read;
+
+		if ($posts) {
+			$posts = unserialize($posts);
+
+			if (!in_array($postId, $posts)) {
+				$posts[] = $postId;
+			} else {
+				// We'll return if the post is already in table.
+				return true;
+			}
+		} else {
+			$posts = array($postId);
+		}
+
+		$posts = serialize($posts);
+
+		$db = ED::db();
+
+		$query = 'UPDATE `#__discuss_users` SET `posts_read` = ' . $db->Quote($posts) . ' WHERE `id` = ' . $db->Quote($this->id);
+		$db->setQuery($query);
+
+		return $db->execute();
 	}
 }

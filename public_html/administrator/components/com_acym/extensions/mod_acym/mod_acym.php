@@ -1,8 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-if (!include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
+use AcyMailing\Classes\FieldClass;
+use AcyMailing\Classes\ListClass;
+use AcyMailing\Classes\UserClass;
+
+$ds = DIRECTORY_SEPARATOR;
+if (!include_once(rtrim(JPATH_ADMINISTRATOR, $ds).$ds.'components'.$ds.'com_acym'.$ds.'helpers'.$ds.'helper.php')) {
     echo 'This module cannot work without AcyMailing';
 
     return;
@@ -13,7 +16,7 @@ acym_initModule($params);
 $identifiedUser = null;
 $currentUserEmail = acym_currentUserEmail();
 if ($params->get('userinfo', '1') == '1' && !empty($currentUserEmail)) {
-    $userClass = acym_get('class.user');
+    $userClass = new UserClass();
     $identifiedUser = $userClass->getOneByEmail($currentUserEmail);
 }
 
@@ -28,10 +31,10 @@ acym_arrayToInteger($visibleLists);
 acym_arrayToInteger($hiddenLists);
 acym_arrayToInteger($allfields);
 
-$listClass = acym_get('class.list');
-$fieldClass = acym_get('class.field');
+$listClass = new ListClass();
+$fieldClass = new FieldClass();
 
-$allLists = $listClass->getAllWIthoutManagement();
+$allLists = $listClass->getAllWithoutManagement(true);
 $visibleLists = array_intersect($visibleLists, array_keys($allLists));
 $hiddenLists = array_intersect($hiddenLists, array_keys($allLists));
 $allfields = $fieldClass->getFieldsByID($allfields);
@@ -88,9 +91,11 @@ $unsubscribeText = $params->get('unsubtext', 'ACYM_UNSUBSCRIBE');
 $listPosition = $params->get('listposition', 'before');
 $displayOutside = $params->get('textmode') == '0';
 
+$successMode = $params->get('successmode', 'replace');
+
 $redirectURL = $params->get('redirect', '');
 $unsubRedirectURL = $params->get('unsubredirect', '');
-$ajax = empty($redirectURL) && empty($unsubRedirectURL) ? '1' : '0';
+$ajax = empty($redirectURL) && empty($unsubRedirectURL) && $successMode != 'standard' ? '1' : '0';
 
 $formClass = $params->get('formclass', '');
 $alignment = $params->get('alignment', 'none');
@@ -112,23 +117,23 @@ $privacyURL = acym_getArticleURL(
 if (empty($termsURL) && empty($privacyURL)) {
     $termslink = '';
 } elseif (empty($privacyURL)) {
-    $termslink = acym_translation_sprintf('ACYM_I_AGREE_TERMS', $termsURL);
+    $termslink = acym_translationSprintf('ACYM_I_AGREE_TERMS', $termsURL);
 } elseif (empty($termsURL)) {
-    $termslink = acym_translation_sprintf('ACYM_I_AGREE_PRIVACY', $privacyURL);
+    $termslink = acym_translationSprintf('ACYM_I_AGREE_PRIVACY', $privacyURL);
 } else {
-    $termslink = acym_translation_sprintf('ACYM_I_AGREE_BOTH', $termsURL, $privacyURL);
+    $termslink = acym_translationSprintf('ACYM_I_AGREE_BOTH', $termsURL, $privacyURL);
 }
 
 
 $formName = acym_getModuleFormName();
 $formAction = htmlspecialchars_decode(acym_completeLink('frontusers', true, true));
 
-$js = "window.addEventListener('DOMContentLoaded', (event) => {";
-$js .= "\n"."acymModule['excludeValues".$formName."'] = [];";
+$js = 'window.addEventListener("DOMContentLoaded", (event) => {';
+$js .= "\n".'acymModule["excludeValues'.$formName.'"] = [];';
 $fieldsToDisplay = [];
 foreach ($fields as $field) {
     $fieldsToDisplay[$field->id] = $field->name;
-    $js .= "\n"."acymModule['excludeValues".$formName."']['".$field->id."'] = '".acym_translation($field->name, true)."';";
+    $js .= "\n".'acymModule["excludeValues'.$formName.'"]["'.$field->id.'"] = \''.acym_translation($field->name, true)."';";
 }
 $js .= "  });";
 echo "<script type=\"text/javascript\">
@@ -139,7 +144,12 @@ echo "<script type=\"text/javascript\">
 ?>
 	<div class="acym_module <?php echo acym_escape($formClass); ?>" id="acym_module_<?php echo $formName; ?>">
 		<div class="acym_fulldiv" id="acym_fulldiv_<?php echo $formName; ?>" <?php echo $style; ?>>
-			<form enctype="multipart/form-data" id="<?php echo acym_escape($formName); ?>" name="<?php echo acym_escape($formName); ?>" method="POST" action="<?php echo acym_escape($formAction); ?>" onsubmit="return submitAcymForm('subscribe','<?php echo $formName; ?>', 'acySubmitSubForm')">
+			<form enctype="multipart/form-data"
+				  id="<?php echo acym_escape($formName); ?>"
+				  name="<?php echo acym_escape($formName); ?>"
+				  method="POST"
+				  action="<?php echo acym_escape($formAction); ?>"
+				  onsubmit="return submitAcymForm('subscribe','<?php echo $formName; ?>', 'acymSubmitSubForm')">
 				<div class="acym_module_form">
                     <?php
                     $introText = $params->get('introtext', '');
@@ -181,11 +191,13 @@ echo "<script type=\"text/javascript\">
                 ?>
 
 				<input type="hidden" name="ajax" value="<?php echo acym_escape($ajax); ?>" />
+				<input type="hidden" name="successmode" value="<?php echo acym_escape($successMode); ?>" />
 				<input type="hidden" name="acy_source" value="<?php echo acym_escape($params->get('source', 'Module n°'.$module->id)); ?>" />
 				<input type="hidden" name="hiddenlists" value="<?php echo implode(',', $hiddenLists); ?>" />
 				<input type="hidden" name="fields" value="<?php echo 'name,email'; ?>" />
 				<input type="hidden" name="acyformname" value="<?php echo acym_escape($formName); ?>" />
 				<input type="hidden" name="acysubmode" value="mod_acym" />
+				<input type="hidden" name="confirmation_message" value="<?php echo acym_escape($params->get('confirmation_message', '')); ?>" />
 
                 <?php
                 $postText = $params->get('posttext', '');
@@ -197,4 +209,3 @@ echo "<script type=\"text/javascript\">
 		</div>
 	</div>
 <?php
-

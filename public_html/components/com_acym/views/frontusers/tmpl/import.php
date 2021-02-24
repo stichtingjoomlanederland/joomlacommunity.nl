@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" enctype="multipart/form-data" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" enctype="multipart/form-data" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="acym__content acym__content__tab">
         <?php
         $data['tab']->startTab(acym_translation('ACYM_IMPORT_FROM_FILE'));
@@ -15,19 +13,20 @@ defined('_JEXEC') or die('Restricted access');
         ?>
 	</div>
     <?php
-    $entityHelper = acym_get('helper.entitySelect');
-    $importHelper = acym_get('helper.import');
-    $modalData = $entityHelper->entitySelect(
+    $modalData = $data['entitySelect']->entitySelect(
         'list',
         ['join' => ''],
-        $entityHelper->getColumnsForList(),
-        ['text' => acym_translation('ACYM_IMPORT_USERS'), 'class' => 'acym__users__import__button'],
+        $data['entitySelect']->getColumnsForList(),
+        [
+            'text' => acym_translation('ACYM_IMPORT_SUBSCRIBERS'),
+            'class' => 'acym__users__import__button',
+        ],
         true,
-        $importHelper->additionalDataUsersImport(true)
+        $data['importHelper']->additionalDataUsersImport(true)
     );
 
     echo acym_modal(
-        acym_translation('ACYM_IMPORT_USERS'),
+        acym_translation('ACYM_IMPORT_SUBSCRIBERS'),
         $modalData,
         'acym__user__import__add-subscription__modal',
         '',
@@ -38,4 +37,3 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="import_from" />
     <?php acym_formOptions(true, "doImport"); ?>
 </form>
-

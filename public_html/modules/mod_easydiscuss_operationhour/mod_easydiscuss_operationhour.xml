@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="module" version="3.0" client="site" method="upgrade">
+	<name>EasyDiscuss - Operation Hour</name>
+	<author>Stack Ideas Sdn Bhd</author>
+	<creationDate>22nd February 2021</creationDate>
+	<copyright>Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
+	<authorEmail>support@stackideas.com</authorEmail>
+	<authorUrl>http://stackideas.com</authorUrl>
+	<version>5.0.1</version>
+	<description><![CDATA[This module will help displaying business operation hours which may help to manage, retain users and getting leads from community.]]></description>
+	<files>
+		<folder>tmpl</folder>
+		<filename module="mod_easydiscuss_operationhour">mod_easydiscuss_operationhour.php</filename>
+		<filename>mod_easydiscuss_operationhour.xml</filename>
+	</files>
+	<languages>
+		<language tag="en-GB">en-GB.mod_easydiscuss_operationhour.ini</language>
+	</languages>
+
+	<config>
+		<fields name="params">
+			<fieldset name="basic">
+				<field name="online_message" type="textarea" default="We're back! We are here to assist you. Please be patient, we will respond to your tickets shortly." label="MOD_ED_OPERATIONHOUR_ONLINE_MESSAGE" description="MOD_ED_OPERATIONHOUR_ONLINE_MESSAGE_DESC" />
+
+				<field name="offline_message" type="textarea" default="Today is our off day. We are taking some rest and will come back stronger tomorrow" label="MOD_ED_OPERATIONHOUR_OFFLINE_MESSAGE" description="MOD_ED_OPERATIONHOUR_OFFLINE_MESSAGE_DESC" />
+			</fieldset>
+		</fields>
+		<fields name="params">
+			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
+				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
+					<option value="1">JGLOBAL_USE_GLOBAL</option>
+					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>
+				</field>
+				<field name="cache_time" type="text" default="900" label="COM_MODULES_FIELD_CACHE_TIME_LABEL" description="COM_MODULES_FIELD_CACHE_TIME_DESC" />
+			</fieldset>
+		</fields>
+	</config>
+</extension>

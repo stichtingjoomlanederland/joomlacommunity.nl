@@ -26,14 +26,20 @@ class JFormFieldGroups extends JFormFieldList
 	 * @since   11.1
 	 */
 	protected function getOptions() {
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
+		static $groups;
 		
-		$query->clear()
-			->select($db->qn('id','value'))->select($db->qn('name','text'))
-			->from($db->qn('#__rseventspro_groups'));
+		if (!isset($groups)) {
+			$db = JFactory::getDbo();
+			$query = $db->getQuery(true);
+			
+			$query->clear()
+				->select($db->qn('id','value'))->select($db->qn('name','text'))
+				->from($db->qn('#__rseventspro_groups'));
+			
+			$db->setQuery($query);
+			$groups = $db->loadObjectList();
+		}
 		
-		$db->setQuery($query);
-		return $db->loadObjectList();
+		return $groups;
 	}
 }

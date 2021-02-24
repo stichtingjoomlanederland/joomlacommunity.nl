@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -16,7 +16,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_FIELDS_PERMISSIONS_VIEW'); ?>
 
-			<div class="panel-body">
+			<div class="panel-body" data-permissions-container>
+				<ol class="g-list-inline g-list-inline--dashed t-ml--md">
+					<li>
+						<?php echo JText::_('Enable');?>:
+					</li>
+					<li style="border-left: 0;">
+						<a href="javascript:void(0);" data-select-all>All</a>
+					</li>
+					<li>
+						<a href="javascript:void(0);" data-select-none>None</a>
+					</li>
+				</ol>
+
 				<?php echo $this->html('form.usergroups', 'acl_group_view', $field->getAssignedGroups('view'));?>
 			</div>
 		</div>
@@ -26,7 +38,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_FIELDS_PERMISSIONS_POST'); ?>
 
-			<div class="panel-body">
+			<div class="panel-body" data-permissions-container>
+				<ol class="g-list-inline g-list-inline--dashed t-ml--md">
+					<li>
+						<?php echo JText::_('Enable');?>:
+					</li>
+					<li style="border-left: 0;">
+						<a href="javascript:void(0);" data-select-all>All</a>
+					</li>
+					<li>
+						<a href="javascript:void(0);" data-select-none>None</a>
+					</li>
+				</ol>
+				
 				<?php echo $this->html('form.usergroups', 'acl_group_input', $field->getAssignedGroups('input'));?>
 			</div>
 		</div>

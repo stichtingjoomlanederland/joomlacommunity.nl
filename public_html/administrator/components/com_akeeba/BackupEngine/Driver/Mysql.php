@@ -3,7 +3,7 @@
  * Akeeba Engine
  *
  * @package   akeebaengine
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -236,6 +236,22 @@ class Mysql extends Base
 	public function escape($text, $extra = false)
 	{
 		$result = @mysql_real_escape_string($text, $this->getConnection());
+
+		if ($result === false)
+		{
+			// Attempt to reconnect.
+			try
+			{
+				$this->connection = null;
+				$this->open();
+
+				$result = @mysql_real_escape_string($text, $this->getConnection());
+			}
+			catch (RuntimeException $e)
+			{
+				$result = $this->unsafe_escape($text);
+			}
+		}
 
 		if ($extra)
 		{
@@ -819,7 +835,7 @@ class Mysql extends Base
 				$all_entries = [];
 			}
 
-			if (count($all_entries))
+			if (is_array($all_entries) || $all_entries instanceof \Countable ? count($all_entries) : 0)
 			{
 				foreach ($all_entries as $entry)
 				{
@@ -1016,5 +1032,14 @@ class Mysql extends Base
 		{
 			return version_compare($client_version, '5.5.3', '>=');
 		}
+	}
+
+	protected function unsafe_escape($string)
+	{
+		if (function_exists('mb_ereg_replace')) {
+			return mb_ereg_replace('[\x00\x0A\x0D\x1A\x22\x27\x5C]', '\\\0', $string);
+		}
+
+		return preg_replace('~[\x00\x0A\x0D\x1A\x22\x27\x5C]~u', '\\\$0', $string);
 	}
 }

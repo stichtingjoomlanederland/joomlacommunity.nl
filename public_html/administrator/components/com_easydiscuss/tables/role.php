@@ -93,12 +93,12 @@ class DiscussRole extends EasyDiscussTable
 	public function rebuildOrdering()
 	{
 		// Get the input
-		$pks = JRequest::getVar('cid', null, 'post', 'array');
-		$order = JRequest::getVar('order', null, 'post', 'array');
+		$pks = $this->input->get('cid', null, 'array');
+		$order = $this->input->get('order', null, 'array');
 
 		// Sanitize the input
-		JArrayHelper::toInteger($pks);
-		JArrayHelper::toInteger($order);
+		EDArrayHelper::toInteger($pks);
+		EDArrayHelper::toInteger($order);
 
 		if (is_array($pks) && is_array($order) && count($pks) == count($order)) {
 			$db = ED::db();

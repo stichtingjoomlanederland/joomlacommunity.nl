@@ -39,7 +39,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</a>
 				<?php } ?>
 
-				<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && $post->getCategory()->canViewReplies()) { ?>
+				<?php if (ED::isModerator($post->category_id) || $post->getCategory()->canViewReplies()) { ?>
 				<a href="<?php echo JRequest::getURI();?>#replies" class="btn btn-default btn-xs">
 					<?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLIES');?> (<span data-ed-post-reply-counter><?php echo $post->getTotalReplies(); ?></span>)
 				</a>
@@ -265,7 +265,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php } ?>
 	<?php } ?>
 
-	<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && ($post->canReply() || $post->getCategory()->canViewReplies())) { ?>
+	<?php if (ED::isModerator($post->category_id) || $post->canReply() || $post->getCategory()->canViewReplies()) { ?>
 	<div class="ed-post-replies-wrapper <?php echo !$replies && !$onlyAcceptedReply ? ' is-empty' : '';?>"
 		data-ed-post-replies-wrapper
 	>
@@ -299,11 +299,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php if ($replies && $pagination) { ?>
 			<div class="ed-pagination">
 				<?php
-					if (ED::getDefaultRepliesSorting() == $sort) {
-						$sort = '';
+					$pageLinkOptions = array('id' => $post->id);
+					if ($sort && ED::getDefaultRepliesSorting() != $sort) {
+						$pageLinkOptions['sort'] = $sort;
 					}
 				?>
-				<?php echo $pagination->getPagesLinks('post', array('id' => $post->id, 'sort' => $sort), true);?>
+				<?php echo $pagination->getPagesLinks('post', $pageLinkOptions, true);?>
 			</div>
 		<?php } ?>
 

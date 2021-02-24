@@ -20,4 +20,18 @@ class RseventsproControllerUsers extends JControllerAdmin
 		echo (int) $model->deleteimage();
 		JFactory::getApplication()->close();
 	}
+	
+	public function reset() {
+		// Get the model
+		$model = $this->getModel();
+		
+		$pks = JFactory::getApplication()->input->get('cid', array(), 'array');
+		$pks = array_map('intval', $pks);
+		
+		$model->reset($pks);
+		
+		JFactory::getApplication()->enqueueMessage(JText::_('COM_RSEVENTSPRO_EVENTS_CREATED_RESET_OK'));
+		
+		$this->setRedirect(JRoute::_('index.php?option=com_rseventspro&view=users',false));
+	}
 }

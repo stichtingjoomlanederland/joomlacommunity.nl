@@ -84,7 +84,8 @@ class RsformViewSubmissions extends JViewLegacy
             {
                 $options[] = JHtml::_('select.option', $header);
             }
-            $this->options = JHtml::_('select.options', $options);
+            $this->options = $options;
+			$this->selected = $this->get('previewSelectedData');
 
             JToolbarHelper::title('RSForm! Pro <small>['.JText::sprintf('COM_RSFORM_IMPORTING', $this->formTitle).']</small>','rsform');
         }

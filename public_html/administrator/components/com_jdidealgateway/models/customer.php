@@ -3,7 +3,7 @@
  * @package    RO Payments
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -14,6 +14,7 @@ use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 use Mollie\Api\Resources\MandateCollection;
 use Mollie\Api\Resources\SubscriptionCollection;
 
@@ -35,9 +36,9 @@ class JdidealgatewayModelCustomer extends AdminModel
 	 *
 	 * @return  mixed  A JForm object on success | False on failure.
 	 *
+	 * @since   5.0.0
 	 * @throws  Exception
 	 *
-	 * @since   5.0.0
 	 */
 	public function getForm($data = array(), $loadData = true)
 	{
@@ -45,7 +46,7 @@ class JdidealgatewayModelCustomer extends AdminModel
 		$form = $this->loadForm(
 			'com_jdidealgateway.customer',
 			'customer',
-			array('control' => 'jform', 'load_data' => $loadData)
+			['control' => 'jform', 'load_data' => $loadData]
 		);
 
 		if (!$form)
@@ -79,20 +80,19 @@ class JdidealgatewayModelCustomer extends AdminModel
 	 * Retrieve the mandates for the given customer.
 	 *
 	 * @param   string  $customerEmail  The customer ID to get the mandates for
+	 * @param   int     $profileId      The profile ID the customer belongs to
 	 *
 	 * @return  MandateCollection List of mandates.
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   5.0.0
+	 * @throws \Mollie\Api\Exceptions\ApiException
 	 */
-	public function getMandates(string $customerEmail): MandateCollection
+	public function getMandates(string $customerEmail, int $profileId): MandateCollection
 	{
-		// Load RO Payments
-		$jdideal = new Gateway('mollie');
-
-		// Load the Mollie class
-		$mollie = new Mollie;
+		$profileTable = $this->getTable('Profile');
+		$profileTable->load($profileId);
+		$jdideal = new Gateway($profileTable->get('alias'));
+		$mollie  = new Mollie;
 		$mollie->setApiKey($jdideal->get('profile_key'))
 			->setProfileId($jdideal->getProfileId());
 
@@ -103,20 +103,22 @@ class JdidealgatewayModelCustomer extends AdminModel
 	 * Retrieve the subscriptions for the given customer.
 	 *
 	 * @param   string  $customerEmail  The customer ID to get the subscriptions for
+	 * @param   int     $profileId      The profile ID the customer belongs to
 	 *
 	 * @return  SubscriptionCollection List of subscriptions.
 	 *
+	 * @since   5.0.0
 	 * @throws  Exception
 	 *
-	 * @since   5.0.0
 	 */
-	public function getSubscriptions(string $customerEmail): SubscriptionCollection
-	{
-		// Load RO Payments
-		$jdideal = new Gateway('mollie');
-
-		// Load the Mollie class
-		$mollie = new Mollie;
+	public function getSubscriptions(
+		string $customerEmail,
+		int $profileId
+	): SubscriptionCollection {
+		$profileTable = $this->getTable('Profile');
+		$profileTable->load($profileId);
+		$jdideal = new Gateway($profileTable->get('alias'));
+		$mollie  = new Mollie;
 		$mollie->setApiKey($jdideal->get('profile_key'))
 			->setProfileId($jdideal->profileId);
 
@@ -124,21 +126,56 @@ class JdidealgatewayModelCustomer extends AdminModel
 	}
 
 	/**
+	 * Method to delete one or more records.
+	 *
+	 * @param   array  &$pks  An array of record primary keys.
+	 *
+	 * @return  boolean  True if successful, false if an error occurs.
+	 *
+	 * @since   6.1.0
+	 * @throws  Exception
+	 */
+	public function delete(&$pks)
+	{
+		$jdideal = new Gateway;
+		$mollie  = new Mollie;
+		$mollie->setApiKey($jdideal->get('profile_key'))
+			->setProfileId($jdideal->profileId);
+
+		foreach ($pks as $pk)
+		{
+			$customer = $this->getItem($pk);
+
+			try
+			{
+				$mollie->deleteCustomer($customer->get('customerId'));
+			}
+			catch (Exception $exception)
+			{
+				$this->setError($exception->getMessage());
+
+				return false;
+			}
+		}
+
+		return parent::delete($pks);
+	}
+
+	/**
 	 * Method to get the data that should be injected in the form.
 	 *
 	 * @return  array  The data for the form.
 	 *
-	 * @throws  Exception
 	 * @since   5.0.0
 	 *
+	 * @throws  Exception
 	 */
 	protected function loadFormData()
 	{
 		/** @var CMSApplication $app */
 		$app = Factory::getApplication();
 
-		// Check the session for previously entered form data.
-		$data = $app->getUserState('com_jdidealgateway.edit.customer.data', array());
+		$data = $app->getUserState('com_jdidealgateway.edit.customer.data', []);
 
 		if (empty($data))
 		{
@@ -146,5 +183,35 @@ class JdidealgatewayModelCustomer extends AdminModel
 		}
 
 		return $data;
+	}
+
+	/**
+	 * Sync the subscriptions.
+	 *
+	 * @return  void
+	 *
+	 * @since   6.3.0
+	 * @throws  Exception
+	 */
+	public function sync(): void
+	{
+		/** @var JdidealgatewayModelProfiles $profilesModel */
+		$profilesModel = BaseDatabaseModel::getInstance('Profiles', 'JdidealgatewayModel', ['ignore_request' => true]);
+		$profiles      = $profilesModel->getItems();
+
+		foreach ($profiles as $profile)
+		{
+			$jdideal = new Gateway($profile->alias);
+
+			if ($jdideal->get('recurring', false) === false)
+			{
+				continue;
+			}
+
+			$mollie = new Mollie;
+			$mollie->setProfileId($jdideal->getProfileId());
+			$mollie->setApiKey($jdideal->get('profile_key'));
+			$mollie->syncAllCustomers();
+		}
 	}
 }

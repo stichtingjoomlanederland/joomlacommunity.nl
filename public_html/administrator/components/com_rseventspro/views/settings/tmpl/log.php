@@ -8,14 +8,10 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <form method="post" action="<?php echo $this->escape(JUri::getInstance()); ?>" id="adminForm" name="adminForm">
 	<?php if ($this->logs) { ?>
-	<div class="pull-left">
-		<div class="input-append" style="margin-bottom:0;">
-			<input type="text" id="search" name="search" value="<?php echo $this->escape(JFactory::getApplication()->input->getString('search')); ?>" placeholder="Search" />
-			<button type="button" class="btn" onclick="this.form.submit();"><i class="icon-search"></i></button>
-		</div>
-		<button type="button" class="btn" onclick="jQuery('#search').val('');this.form.submit();"><?php echo JText::_('COM_RSEVENTSPRO_CLEAR'); ?></button>
+	<div class="<?php echo RSEventsproAdapterGrid::styles(array('pull-left')); ?>">
+		<?php echo RSEventsproAdapterGrid::inputGroup('<input type="text" id="search" class="form-control" name="search" value="'.$this->escape(JFactory::getApplication()->input->getString('search')).'" />', null, '<button type="button" class="btn btn-secondary" onclick="this.form.submit();"><i class="icon-search"></i></button><button type="button" class="btn btn-secondary" onclick="jQuery(\'#search\').val(\'\');this.form.submit();">'.JText::_('COM_RSEVENTSPRO_CLEAR').'</button>'); ?>
 	</div>
-	<div class="pull-right">
+	<div class="<?php echo RSEventsproAdapterGrid::styles(array('pull-right')); ?>">
 		<button type="button" class="btn btn-danger" onclick="if (confirm('<?php echo JText::_('COM_RSEVENTSPRO_SYNC_CLEAR_LOG_INFO',true); ?>')) Joomla.submitbutton('settings.clear<?php echo ucfirst(JFactory::getApplication()->input->get('from')); ?>Log');"><?php echo JText::_('COM_RSEVENTSPRO_SYNC_CLEAR_LOG'); ?></button>
 	</div>
 	<div class="clearfix"></div>
@@ -47,7 +43,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 		</tfoot>
 	</table>
 	<?php } else { ?>
-		<div class="well">
+		<div class="alert alert-info">
 			<?php echo JText::_('COM_RSEVENTSPRO_SYNC_LOG_EMPTY'); ?>
 		</div>
 	<?php } ?>

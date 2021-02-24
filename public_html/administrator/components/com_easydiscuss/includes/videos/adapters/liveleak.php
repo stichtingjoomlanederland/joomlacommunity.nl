@@ -25,15 +25,19 @@ class DiscussVideoLiveLeak
 		return false;
 	}
 	
-	public function getEmbedHTML($url)
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		$code = $this->getCode($url);
 
 		$config	= ED::config();
 		$width	= $config->get('bbcode_video_width');
 		$height	= $config->get('bbcode_video_height');
-		
+
 		if ($code) {
+			if ($isAmp) {
+				return '<amp-iframe  src="https://www.liveleak.com/e/' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0" layout="responsive" sandbox="allow-scripts allow-same-origin"></amp-iframe>';
+			}
+
 			return '<iframe width="' . $width . '" height="' . $height . '" src="https://www.liveleak.com/e/' . $code . '" frameborder="0" allowfullscreen></iframe>';
 		}
 

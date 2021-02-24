@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -80,29 +80,6 @@ class DiscussComment extends EasyDiscussTable
 		}
 
 		return true;
-	}
-
-	/**
-	 * Determines if a comment can be deleted
-	 *
-	 * @since	4.2.0
-	 * @access	public
-	 */
-	public function canDeleteComment($pk = null, $joins = null)
-	{
-		$aclHelper = ED::acl();
-
-		// If the user is site admin or able to delete all comments
-		if (ED::isSiteAdmin() || $aclHelper->allowed('delete_comment')) {
-			return true;
-		}
-
-		// If the user is the comment's owner and has permission to delete own comment
-		if ($aclHelper->isOwner($this->user_id) && $aclHelper->allowed('delete_own_comment')) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**
@@ -190,7 +167,7 @@ class DiscussComment extends EasyDiscussTable
 		}
 
 		// Add notification to the post owner.
-		if ($post->user_id != $my->id && $this->published && $config->get('main_notifications_comments')) {
+		if ($post->user_id != $my->id && $this->published && $config->get('main_notifications')) {
 			$notification = ED::table('Notifications');
 
 			// for the live notification part have to store non-sef
@@ -258,8 +235,8 @@ class DiscussComment extends EasyDiscussTable
 		// exit;
 
 		$subTitle = $question->title;
-		if (JString::strlen($question->title) > 100) {
-			$subTitle = JString::substr($question->title, 0, 100) . '...';
+		if (EDJString::strlen($question->title) > 100) {
+			$subTitle = EDJString::substr($question->title, 0, 100) . '...';
 		}
 
 		$isGroup = $question->cluster_id;
@@ -379,4 +356,44 @@ class DiscussComment extends EasyDiscussTable
 			$this->comment = $this->content;
 		}
 	}
+
+	/**
+	 * Method to publish for the comments
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function publish($items = array(), $state = 1, $userId = 0)
+	{
+		$this->published = 1;
+
+		$state = parent::store();
+
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_PUBLISHED_COMMENT', 'comment', array(
+			'link' => 'index.php?option=com_easydiscuss&view=comments&layout=form&id=' . $this->id
+		));
+
+		return $state;	
+	}
+
+	/**
+	 * Method to unpublish for the comments
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function unpublish($items = array())
+	{
+		$this->published = 0;
+
+		$state = parent::store();
+
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_UNPUBLISHED_COMMENT', 'comment', array(
+			'link' => 'index.php?option=com_easydiscuss&view=comments&layout=form&id=' . $this->id
+		));
+
+		return $state;		
+	}	
 }

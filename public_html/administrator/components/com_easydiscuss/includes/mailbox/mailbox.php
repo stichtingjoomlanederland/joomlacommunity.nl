@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -108,7 +108,7 @@ class EasyDiscussMailbox extends EasyDiscuss
 		$flags	= true ? $flags.'/novalidate-cert' : $flags;
 
 		if (!function_exists('imap_open') || !function_exists('imap_fetchheader') || !function_exists('imap_body')) {
-			$result	= '<span style="color:red;">Failed, imap is not compiled with PHP</span>';
+			$result	= '<span class="t-text--danger">Failed, imap is not compiled with PHP</span>';
 			return $result;
 		}
 
@@ -125,7 +125,7 @@ class EasyDiscussMailbox extends EasyDiscuss
 				$result = 'Failed';
 			}
 		} else {
-			$result	= '<span style="color:green">Success</span>';
+			$result	= '<span class="t-text--success">Connection was successful. E-mails will be parsed when the cronjob executes</span>';
 			imap_close($stream);
 		}
 
@@ -179,18 +179,15 @@ class EasyDiscussMailbox extends EasyDiscuss
 
 	public function getMessageInfo($sequence)
 	{
-		$headers	= @imap_headerinfo($this->stream, $sequence);
+		$headers = @imap_headerinfo($this->stream, $sequence);
 
-		if (empty($headers))
-		{
+		if (empty($headers)) {
 			return false;
 		}
 
 		// decode headers
-		foreach($headers as $key => $value)
-		{
-			if (!is_array($value))
-			{
+		foreach($headers as $key => $value) {
+			if (!is_array($value)) {
 				$header	= imap_mime_header_decode($value);
 				$header	= $header[0];
 				$header->charset	= strtoupper($header->charset);
