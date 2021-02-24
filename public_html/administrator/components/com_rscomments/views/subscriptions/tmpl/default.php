@@ -21,7 +21,7 @@ $listDirn	= $this->escape($this->state->get('list.direction', 'DESC')); ?>
 			</caption>
 			<thead>
 				<tr>
-					<th width="2%"><input type="checkbox" name="checkall-toggle" value="" onclick="Joomla.checkAll(this);"/></th>
+					<th width="2%"><?php echo JHtml::_('grid.checkall'); ?></th>
 					<th width="3%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_SUBSCRIPTION_ID'), 'IdSubscription', $listDirn, $listOrder); ?></th>
 					<th width="30%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_SUBSCRIPTION_NAME'), 'name', $listDirn, $listOrder); ?></th>
 					<th width="30%"><?php echo JHtml::_('searchtools.sort', JText::_('COM_RSCOMMENTS_SUBSCRIPTION_EMAIL'), 'email', $listDirn, $listOrder); ?></th>

@@ -21,8 +21,8 @@ $description = empty($event->description) ? $event->small_description : $event->
 JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
 
 // Get organizers of event, JC custom
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
-$profile = DiscussHelper::getTable('Profile');
+//require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
+//$profile = DiscussHelper::getTable('Profile');
 
 $categoriesinfo = rseventsproHelper::categories($this->event->id);
 
@@ -218,7 +218,7 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
             <div class="panel panel-agenda">
                 <div class="panel-heading">Organisatoren</div>
                 <div class="list-group list-group-flush panel-agenda">
-					<?php foreach ($organisers as $organiser) : ?>
+					<?php /* foreach ($organisers as $organiser) : ?>
 						<?php $profile->load($organiser); ?>
                         <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
                             <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px" height="50px"/>
@@ -228,7 +228,7 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 								<?php echo $profile->user->username; ?>
 							<?php endif; ?>
                         </a>
-					<?php endforeach; ?>
+					<?php endforeach; */ ?>
                 </div>
             </div>
 		<?php endif; ?>

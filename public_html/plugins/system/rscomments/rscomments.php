@@ -154,7 +154,7 @@ class plgSystemRSComments extends JPlugin
 				
 				if (RSCommentsHelper::isJ4()) {
 					$wa = JFactory::getApplication()->getDocument()->getWebAssetManager();
-					$bootstrapScript = $wa->getAsset('script','bootstrap.init.legacy')->getUri();
+					$bootstrapScript = $wa->getAsset('script','bootstrap.es5')->getUri();
 				} else {
 					$bootstrapScript = JURI::root(true).'/media/jui/js/bootstrap.min.js';
 				}
@@ -176,6 +176,21 @@ class plgSystemRSComments extends JPlugin
 						$css[] = '<link rel="stylesheet" href="'.JURI::root(true).'/media/jui/bootstrap-extended.css" type="text/css" />';
 					}
 				}
+			}
+		}
+		
+		if (RSCommentsHelper::isJ4()) {
+			$wa = JFactory::getApplication()->getDocument()->getWebAssetManager();
+			$bootstrapModalJs = $wa->getAsset('script','bootstrap.modal')->getUri();
+			
+			if (strpos($body, $bootstrapModalJs) === false) {
+				$scripts[] = '<script src="'.$bootstrapModalJs.'" type="module"></script>';
+			}
+			
+			$bmodaljs = JHtml::script('com_rscomments/modal.js', array('relative' => true, 'version' => 'auto', 'pathOnly' => true));
+		
+			if (strpos($body, $bmodaljs) === false) {
+				$scripts[] = '<script src="'.$bmodaljs.'?'.$version.'" type="text/javascript"></script>';
 			}
 		}
 		
@@ -253,22 +268,30 @@ class plgSystemRSComments extends JPlugin
 		if ($config->captcha == 2 && isset($permissions['captcha']) && $permissions['captcha']) {
 			$scripts[] = '<script type="text/javascript">';
 			$scripts[] = "RSCommentsReCAPTCHAv2.loaders.push(function(){";
-			$scripts[] = "\tvar id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {";
-			$scripts[] = "\t\t'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',";
-			$scripts[] = "\t\t'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',";
-			$scripts[] = "\t\t'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."',";
 			
 			if ($config->recaptcha_new_size == 'invisible') {
+				$scripts[] = "\tdocument.getElementById('rscomments-".$hash."').onclick = function() {";
+				$scripts[] = "\tvar id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {";
+				$scripts[] = "\t\t'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',";
+				$scripts[] = "\t\t'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',";
+				$scripts[] = "\t\t'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."',";
 				$scripts[] = "\t\t'badge': '".htmlentities($config->recaptcha_new_badge, ENT_QUOTES, 'UTF-8')."',";
-			}
-			
-			$scripts[] = "\t\t'size': '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."'";
-			$scripts[] = "\t});";
-			$scripts[] = "\tRSCommentsReCAPTCHAv2.ids['$hash'] = id;";
-			$scripts[] = "\tRSCommentsReCAPTCHAv2.type['$hash'] = '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."';";
-			
-			if ($config->recaptcha_new_size == 'invisible') {
-				$scripts[] = "\tgrecaptcha.execute(id);";
+				$scripts[] = "\t\t'size': '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."'";
+				$scripts[] = "\t});";
+				$scripts[] = "\tRSCommentsReCAPTCHAv2.ids['$hash'] = id;";
+				$scripts[] = "\tRSCommentsReCAPTCHAv2.type['$hash'] = '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."';";
+				$scripts[] = "\t\tgrecaptcha.execute(id);";
+				$scripts[] = "\t\tdocument.getElementById('rscomments-".$hash."').onclick = null;";
+				$scripts[] = "\t}";
+			} else {
+				$scripts[] = "\tvar id = grecaptcha.render('rsc-g-recaptcha-".$hash."', {";
+				$scripts[] = "\t\t'sitekey': '".htmlentities($config->recaptcha_new_site_key, ENT_QUOTES, 'UTF-8')."',";
+				$scripts[] = "\t\t'theme': '".htmlentities($config->recaptcha_new_theme, ENT_QUOTES, 'UTF-8')."',";
+				$scripts[] = "\t\t'type': '".htmlentities($config->recaptcha_new_type, ENT_QUOTES, 'UTF-8')."',";
+				$scripts[] = "\t\t'size': '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."'";
+				$scripts[] = "\t});";
+				$scripts[] = "\tRSCommentsReCAPTCHAv2.ids['$hash'] = id;";
+				$scripts[] = "\tRSCommentsReCAPTCHAv2.type['$hash'] = '".htmlentities($config->recaptcha_new_size, ENT_QUOTES, 'UTF-8')."';";
 			}
 			
 			$scripts[] = "});";

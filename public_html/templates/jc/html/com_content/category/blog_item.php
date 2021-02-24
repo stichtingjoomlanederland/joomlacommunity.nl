@@ -15,11 +15,6 @@ use Joomla\CMS\Router\Route;
 
 defined('_JEXEC') or die;
 
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
-
-$profile = DiscussHelper::getTable('Profile');
-$profile->load($this->item->created_by);
-
 // Create a shortcut for params.
 $params = $this->item->params;
 $images = json_decode($this->item->images);
@@ -101,16 +96,13 @@ $showArticleInformation = ($params->get('show_create_date') || $params->get('sho
 					<?php if ($params->get('show_author')) : ?>
                         <div class="article-meta auteur-info">
                             <p class="article-meta-label">door</p>
-							<?php if (!empty($this->item->created_by_alias)) : ?>
-                                <p><?php echo $this->item->created_by_alias; ?></p>
-							<?php else: ?>
-                                <p><?php
-									$href = $profile->getLink();
-									$text = $profile->user->get('name');
-									echo HTMLHelper::_('link', $href, $text);
-									?></p>
-							<?php endif; ?>
-
+                            <p><?php
+                                if (!empty($this->item->created_by_alias)) :
+                                    echo $this->item->created_by_alias;
+                                else:
+                                    echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $this->item->created_by]);
+                                endif;
+                                ?></p>
                         </div>
 					<?php endif; ?>
 

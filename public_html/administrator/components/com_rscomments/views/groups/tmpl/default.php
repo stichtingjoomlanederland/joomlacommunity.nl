@@ -12,7 +12,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 		<table class="table table-striped">
 			<thead>
 				<tr>
-					<th width="1%"><input type="checkbox" name="checkall-toggle" id="rscheckbox" value="" title="<?php echo JText::_('JGLOBAL_CHECK_ALL'); ?>" onclick="Joomla.checkAll(this);"/></th>
+					<th width="1%"><?php echo JHtml::_('grid.checkall'); ?></th>
 					<th><?php echo JText::_('COM_RSCOMMENTS_GROUP_NAME'); ?></th>
 					<th width="1%"><?php echo JText::_('JGRID_HEADING_ID'); ?></th>
 				</tr>

@@ -1,5 +1,5 @@
 ﻿jQuery(document).ready(function($) {
-   if (typeof $._data($("#rscomments-terms")[0], 'events') == 'undefined') {
+   if ($("#rscomments-terms").length && typeof $._data($("#rscomments-terms")[0], 'events') == 'undefined') {
 	   $('#rscomments-terms').on('show.bs.modal', function() {
 		   $('body').addClass('modal-open');
 		   var modalBody = $(this).find('.modal-body');
@@ -27,7 +27,7 @@
 	   });
    }
    
-   if (typeof $._data($("#rscomments-subscribe")[0], 'events') == 'undefined') {
+   if ($("#rscomments-subscribe").length && typeof $._data($("#rscomments-subscribe")[0], 'events') == 'undefined') {
 	   $('#rscomments-subscribe').on('show.bs.modal', function() {
 		   $('body').addClass('modal-open');
 		   var modalBody = $(this).find('.modal-body');
@@ -55,7 +55,7 @@
 	   });
    }
    
-   if (typeof $._data($("#rscomments-report")[0], 'events') == 'undefined') {
+   if ($("#rscomments-report").length && typeof $._data($("#rscomments-report")[0], 'events') == 'undefined') {
 	   $('#rscomments-report').on('show.bs.modal', function() {
 		   $('body').addClass('modal-open');
 		   var modalBody = $(this).find('.modal-body');
@@ -83,7 +83,7 @@
 	   });
    }
    
-   if (typeof $._data($("#rscomments-mycomments")[0], 'events') == 'undefined') {
+   if ($("#rscomments-mycomments").length && typeof $._data($("#rscomments-mycomments")[0], 'events') == 'undefined') {
 	   $('#rscomments-mycomments').on('show.bs.modal', function() {
 		   $('body').addClass('modal-open');
 		   var modalBody = $(this).find('.modal-body');

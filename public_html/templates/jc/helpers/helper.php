@@ -46,7 +46,8 @@ class ThisTemplateHelper
 	 */
 	public $settings = array(
 		'debug'       => true,
-		'unset_css'   => array('com_finder', 'foundry', 'com_rseventspro', 'com_rscomments', 'com_easydiscuss'),
+		//'unset_css'   => array('com_finder', 'foundry', 'com_rseventspro', 'com_rscomments', 'com_easydiscuss'),
+		'unset_css'   => array('com_finder', 'foundry', 'com_rseventspro', 'com_rscomments'),
 		'analytics'   => 0, // 0 = none, GA = Universal Google Analytics, GTM = Google Tag Manager, Mix = Mixpanel
 		'analyticsid' => '',
 	);
@@ -198,6 +199,18 @@ class ThisTemplateHelper
 		return $activeMenu->title;
 	}
 
+    /**
+     * Method to get current Template Name
+     *
+     * @return string
+     * @since 1.0.0
+     * @throws Exception
+     */
+    static public function template()
+    {
+        return Factory::getApplication()->getTemplate();
+    }
+
 	/**
 	 * Generate a list of useful CSS classes for the body
 	 *
@@ -305,12 +318,15 @@ class ThisTemplateHelper
 	 */
 	public function loadCss()
 	{
-		HTMLHelper::_('stylesheet', 'template.css', ['version' => 'auto', 'relative' => true]);
+		HTMLHelper::_('stylesheet', 'template.css', ['version' => $this->getFileMTime(JPATH_THEMES . '/' . $this->template() . '/css/template.css'), 'relative' => true]);
 
 		if ($this->isEasyDiscuss())
 		{
-			HTMLHelper::_('stylesheet', 'easydiscuss.css', ['version' => 'auto', 'relative' => true]);
+			//HTMLHelper::_('stylesheet', 'easydiscuss.css', ['version' => $this->getFileMTime(JPATH_THEMES . '/' . $this->template() . '/css/easydiscuss.css'), 'relative' => true]);
 		}
+
+        // Check for a custom CSS file
+        HTMLHelper::_('stylesheet', 'user.css', ['version' => $this->getFileMTime(JPATH_THEMES . '/' . $this->template() . '/css/user.css'), 'relative' => true]);
 	}
 
 	/**
@@ -389,6 +405,25 @@ class ThisTemplateHelper
 
         $newScript = array($googleMapsScript => $scriptArgs);
         $this->doc->_scripts = array_merge($newScript, $this->doc->_scripts);
+    }
+
+    /**
+     * Get file modification time
+     *
+     * @param $file
+     *
+     * @return false|int|null
+     *
+     * @since PerfectSite 5.11.0
+     */
+    static public function getFileMTime($file)
+    {
+        if (!file_exists($file) || filesize($file) == 0)
+        {
+            return null;
+        }
+
+        return filemtime($file);
     }
 
 	/**
@@ -562,24 +597,4 @@ class ThisTemplateHelper
 				break;
 		}
 	}
-
-	/**
-	 * Get file modification time
-	 *
-	 * @param $file
-	 *
-	 * @return false|int|null
-	 *
-	 * @since PerfectSite 5.11.0
-	 */
-	public function getFileMTime($file)
-	{
-		if (!file_exists($file) || filesize($file) == 0)
-		{
-			return null;
-		}
-
-		return filemtime($file);
-	}
-
 }
