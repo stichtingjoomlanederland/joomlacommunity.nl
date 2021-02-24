@@ -1,12 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model\Scanner;
 
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\Scanner\Exception\WarningException;
 use Akeeba\AdminTools\Admin\Model\Scanner\Logger\Logger;
@@ -17,8 +18,6 @@ use DirectoryIterator;
 use Exception;
 use FOF30\Timer\Timer;
 use RuntimeException;
-
-defined('_JEXEC') or die;
 
 /**
  * Filesystem crawler

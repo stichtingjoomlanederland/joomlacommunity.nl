@@ -148,7 +148,7 @@ class EasyDiscussRegistry extends EasyDiscuss
 	{
 		// Get the contents of the file
 		jimport('joomla.filesystem.file');
-		$data = JFile::read($file);
+		$data = file_get_contents($file);
 
 		return $this->loadString($data, $format, $options);
 	}
@@ -240,7 +240,7 @@ class EasyDiscussRegistry extends EasyDiscuss
 
 		foreach ($data as $k => $v)
 		{
-			if ((is_array($v) && JArrayHelper::isAssociative($v)) || is_object($v))
+			if ((is_array($v) && EDArrayHelper::isAssociative($v)) || is_object($v))
 			{
 				$parent->$k = new stdClass;
 				$this->bindData($parent->$k, $v);

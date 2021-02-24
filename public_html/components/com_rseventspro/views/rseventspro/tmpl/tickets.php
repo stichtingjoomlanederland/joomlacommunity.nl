@@ -58,7 +58,7 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 	<?php foreach ($this->tickets as $ticket) { ?>
 	<?php $checkticket = rseventsproHelper::checkticket($ticket->id); ?>
 	<?php if ($checkticket == -1) continue; ?>
-	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px;' : rseventsproHelper::parseStyle($ticket->position); ?>
+	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px; width: 90px;' : rseventsproHelper::parseStyle($ticket->position); ?>
 	<?php $price = $ticket->price ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	<?php $selected = rseventsproHelper::getSelectedSeats($ticket->id); ?>
 	<div id="draggable<?php echo $ticket->id; ?>" class="draggable rsepro_front ui-widget-content" style="<?php echo $style; ?>">
@@ -90,7 +90,7 @@ var ticket_limit_<?php echo $ticket->id; ?> = <?php echo (int) rseventsproHelper
 			<?php } ?>
 		</div>
 	</div>
-	<?php $left += 270; ?>
+	<?php $left += 200; ?>
 	<?php } ?>
 </div>
 

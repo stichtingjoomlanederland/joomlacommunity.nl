@@ -51,18 +51,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span></li>
 						<?php } ?>
 
-						<?php if ($post->isPostRejected()) { ?>
-							<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_REJECT');?></span></li>
-						<?php } ?>
-						<?php if ($post->isPostOnhold()) { ?>
-							<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_ON_HOLD');?></span></li>
-						<?php } ?>
-						<?php if ($post->isPostAccepted()) { ?>
-							<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_ACCEPTED');?></span></li>
-						<?php } ?>
-						<?php if ($post->isPostWorkingOn()) { ?>
-							<li><span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_WORKING_ON');?></span></li>
-						<?php } ?>
+						<?php echo $this->output('site/post/default.label', array('post' => $post)); ?>
 
 						<!-- post type here -->
 						<?php if ($post->getTypeTitle()) { ?>
@@ -73,7 +62,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<?php if ($this->config->get('main_master_tags')) { ?>
 					<?php if ($post->getTags()) { ?>
-					<ol class="g-list-inline ed-post-meta-tag t-lg-mt--md">
+					<ol class="g-list-inline o-meta t-lg-mt--md">
 						<?php foreach ($post->getTags() as $tag) { ?>
 						<li>
 							<a href="<?php echo EDR::getTagRoute($tag->id);?>">

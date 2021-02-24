@@ -1,14 +1,13 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_prepareAjaxURL(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" action="<?php echo acym_prepareAjaxURL(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div class="grid-x acym__content" id="acym__users__export">
 		<!--<div class="cell grid-x align-right margin-bottom-1">-->
 		<!--	<h5 class="cell auto font-bold">--><?php //echo acym_translation('ACYM_EXPORT'); ?><!--</h5>-->
 		<!--</div>-->
 		<div class="cell grid-x grid-margin-x">
 			<div class="cell acym_area medium-6 acym__content">
-				<div class="acym_area_title"><?php echo acym_translation('ACYM_FIELDS_TO_EXPORT'); ?></div>
-				<p><span id="acym__users__export__check_all_field"><?php echo strtolower(acym_translation('ACYM_ALL')); ?></span> | <span id="acym__users__export__check_default_field"><?php echo strtolower(acym_translation('ACYM_DEFAULT')); ?></span></p>
+				<div class="acym__title"><?php echo acym_translation('ACYM_FIELDS_TO_EXPORT'); ?></div>
+				<p><span id="acym__users__export__check_all_field"><?php echo acym_strtolower(acym_translation('ACYM_ALL')); ?></span> |
+					<span id="acym__users__export__check_default_field"><?php echo acym_strtolower(acym_translation('ACYM_DEFAULT')); ?></span></p>
 				<div class="margin-bottom-1">
                     <?php
                     $defaultFields = explode(',', $this->config->get('export_fields', 'name,email'));
@@ -16,7 +15,7 @@ defined('_JEXEC') or die('Restricted access');
                         if (in_array($fieldName, ['id', 'automation'])) continue;
 
                         $checked = in_array($fieldName, $defaultFields) ? 'checked="checked"' : '';
-                        echo '<input '.$checked.' id="checkbox_'.$fieldName.'" class="acym__users__export__export_fields smaller-checkbox" type="checkbox" name="export_fields[]" value="'.$fieldName.'">
+                        echo '<input '.$checked.' id="checkbox_'.$fieldName.'" class="acym__users__export__export_fields" type="checkbox" name="export_fields[]" value="'.$fieldName.'">
                         	<label for="checkbox_'.$fieldName.'">'.$fieldName.'</label><br/>';
                     }
 
@@ -26,8 +25,8 @@ defined('_JEXEC') or die('Restricted access');
                         $checked = in_array($field->id, $defaultFields) ? 'checked="checked"' : '';
                         $fieldName = $field->name;
 
-                        echo '<input '.$checked.' id="checkbox_'.$fieldName.'" class="acym__users__export__export_fields smaller-checkbox" type="checkbox" name="export_fields[]" value="'.$field->id.'">
-                        	<label for="checkbox_'.$fieldName.'">'.$fieldName.'</label><br/>';
+                        echo '<input '.$checked.' id="checkbox_'.$fieldName.'" class="acym__users__export__export_fields" type="checkbox" name="export_fields[]" value="'.$field->id.'">
+                        	<label for="checkbox_'.$fieldName.'">'.acym_translation($fieldName).'</label><br/>';
                     }
                     ?>
 				</div>
@@ -42,11 +41,10 @@ defined('_JEXEC') or die('Restricted access');
                     ?>
 					<div class="cell medium-auto"></div>
 				</div>
-				<div class="grid-x">
+				<div class="grid-x margin-bottom-1">
 					<label class="cell medium-6 xxlarge-3"><?php echo acym_translation('ACYM_ENCODING'); ?>
                         <?php
-                        $encodingHelper = acym_get('helper.encoding');
-                        echo $encodingHelper->charsetField(
+                        echo $data['encodingHelper']->charsetField(
                             'export_charset',
                             $this->config->get('export_charset', 'UTF-8'),
                             'class="acym__select"'
@@ -56,7 +54,7 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="cell medium-auto"></div>
 				</div>
 				<div class="grid-x" id="userField_excel">
-					<label class="cell"><?php echo acym_translation('ACYM_EXCEL_SECURITY').acym_info(acym_translation('ACYM_EXCEL_SECURITY_DESC')); ?></label>
+					<label class="cell"><?php echo acym_translation('ACYM_EXCEL_SECURITY').acym_info('ACYM_EXCEL_SECURITY_DESC'); ?></label>
                     <?php
                     echo acym_boolean(
                         'export_excelsecurity',
@@ -67,13 +65,22 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
 			</div>
 			<div class="cell acym_area medium-6 acym__content">
-				<div class="acym_area_title"><?php echo acym_translation('ACYM_USERS_TO_EXPORT'); ?></div>
+				<div class="acym__title"><?php echo acym_translation('ACYM_SUBSCRIBERS_TO_EXPORT'); ?></div>
                 <?php if (empty($data['checkedElements']) || $data['isPreselectedList']) { ?>
 					<fieldset id="acym__users__export__users-to-export" class="margin-bottom-1">
-                        <?php echo acym_radio(['all' => acym_translation('ACYM_ALL_USERS'), 'list' => acym_translation('ACYM_USERS_FROM_LISTS')], 'export_users-to-export', $data['isPreselectedList'] ? 'list' : 'all'); ?>
+                        <?php
+                        echo acym_radio(
+                            [
+                                'all' => acym_translation('ACYM_ALL_SUBSCRIBERS'),
+                                'list' => acym_translation('ACYM_SUBSCRIBERS_FROM_LISTS'),
+                            ],
+                            'export_users-to-export',
+                            $data['isPreselectedList'] ? 'list' : 'all'
+                        );
+                        ?>
 					</fieldset>
 					<div id="acym__users__export__select_all" style="display: <?php echo $data['isPreselectedList'] ? 'none' : 'block'; ?>">
-                        <?php echo acym_translation('ACYM_ALL_USER_WILL_BE_EXPORTED'); ?>
+                        <?php echo acym_translation('ACYM_ALL_SUBSCRIBER_WILL_BE_EXPORTED'); ?>
 					</div>
 					<div id="acym__users__export__select_lists" class="margin-bottom-1" style="display: <?php echo $data['isPreselectedList'] ? 'block' : 'none'; ?>">
                         <?php echo $data['entitySelect']; ?>
@@ -97,9 +104,8 @@ defined('_JEXEC') or die('Restricted access');
 					<div class="grid-x">
                         <?php
                         if (!$data['isPreselectedList']) {
-                            $userClass = acym_get('class.user');
                             foreach ($data['checkedElements'] as $id) {
-                                $user = $userClass->getOneById($id);
+                                $user = $data['userClass']->getOneById($id);
                                 echo '<div class="cell grid-x acym__listing__row">';
                                 echo '    <div class="cell small-6">'.$user->name.'</div>
                                       <div class="cell small-6">'.$user->email.'</div>';
@@ -111,12 +117,12 @@ defined('_JEXEC') or die('Restricted access');
                 <?php } ?>
 			</div>
 		</div>
-		<div class="cell grid-x grid-margin-x margin-top-2">
+		<div class="cell grid-x grid-margin-x margin-top-1">
 			<div class="cell hide-for-small-only medium-auto"></div>
             <?php
             echo acym_cancelButton();
             $exportButton = '<button type="button" data-task="doexport" class="cell button acy_button_submit" id="acym__export__button">';
-            $exportButton .= acym_translation('ACYM_EXPORT_USERS');
+            $exportButton .= acym_translation('ACYM_EXPORT_SUBSCRIBERS');
             $exportButton .= '</button>';
             echo acym_tooltip(
                 $exportButton,
@@ -129,4 +135,3 @@ defined('_JEXEC') or die('Restricted access');
 
     <?php acym_formOptions(); ?>
 </form>
-

@@ -22,12 +22,16 @@ class DiscussVideoSmule
 	 * @param	string
 	 * @return	
 	 */
-	public function getEmbedHTML($url)
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		// For smule embed widgets, it always uses the url
-		$config = DiscussHelper::getConfig();
+		$config = ED::config();
 
 		$html = '<div class="ed-video ed-video--16by9"><iframe src="' . $url . '/frame" frameborder="0"></iframe></div>';
+
+		if ($isAmp) {
+			$html = '<amp-iframe src="' . $url . '" width="300" height="300" frameborder="0" layout="responsive" sandbox="allow-scripts allow-same-origin"></amp-iframe>';
+		}
 
 		return $html;
 	}

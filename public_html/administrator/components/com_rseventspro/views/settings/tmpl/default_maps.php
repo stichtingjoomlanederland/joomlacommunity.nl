@@ -6,6 +6,4 @@
 */
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
-echo JHtml::_('rsfieldset.start', 'adminform');
 echo $this->form->renderFieldset('maps');
-echo JHtml::_('rsfieldset.end');

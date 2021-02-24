@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,8 +20,6 @@ class EasyDiscussLikes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function unlike(EasyDiscussPost $post)
 	{
@@ -29,7 +27,6 @@ class EasyDiscussLikes extends EasyDiscuss
 		if (!$post->isPublished()) {
 			return false;
 		}
-
 
 		// If the user previously did not like the post, they shouldn't be able to unlike the post
 		$liked = $post->isLikedBy($this->my->id);
@@ -86,8 +83,6 @@ class EasyDiscussLikes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function like(EasyDiscussPost $post)
 	{
@@ -179,10 +174,8 @@ class EasyDiscussLikes extends EasyDiscuss
 	/**
 	 * Generates the like button
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function button(EasyDiscussPost $post)
 	{
@@ -193,17 +186,8 @@ class EasyDiscussLikes extends EasyDiscuss
 			return;
 		}
 
-		// Load likes lib
-		$button->authors = $this->html($post->id, $this->my->id, 'post');
-
 		// Get the total like from the post
-		$model = ED::model('Likes');
-		$button->total = $model->getTotalLikes($post->id);
-
-		// If there are no authors, we need to set a default value
-		if (!$button->authors) {
-			$button->authors = JText::_('COM_EASYDISCUSS_BE_THE_FIRST_TO_LIKE');
-		}
+		$total = $post->getTotalLikes();
 
 		// By default, we treat all users as never liked the post before
 		$liked = false;
@@ -213,18 +197,8 @@ class EasyDiscussLikes extends EasyDiscuss
 			$liked = $post->isLikedBy($this->my->id);
 		}
 
-		if ($this->my->id && !$button->authors) {
-			$button->message = 'COM_EASYDISCUSS_LIKE_THIS_POST';
-			$button->label = 'COM_EASYDISCUSS_LIKES';
-
-			if ($liked) {
-				$button->message = 'COM_EASYDISCUSS_UNLIKE_THIS_POST';
-				$button->label = 'COM_EASYDISCUSS_UNLIKE';
-			}
-		}
-
 		$theme = ED::themes();
-		$theme->set('button', $button);
+		$theme->set('total', $total);
 		$theme->set('liked', $liked);
 		$theme->set('post', $post);
 
@@ -241,7 +215,7 @@ class EasyDiscussLikes extends EasyDiscuss
 	 */
 	private function likeNotify($post)
 	{
-		if (!$this->config->get('main_notifications_liked')) {
+		if (!$this->config->get('main_notifications')) {
 			return;
 		}
 
@@ -375,31 +349,32 @@ class EasyDiscussLikes extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public static function getLikes($contentId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)
+	public static function getLikes($postId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)
 	{
-		static $loaded = array();
+		static $users = [];
 
-		if (is_null($userId)) {
-			$userId = ED::user()->id;
+		if (!isset($users[$postId])) {
+			$likers = [];
+
+			if (is_null($userId)) {
+				$userId = ED::user()->id;
+			}
+
+			if (is_null($preloadedObj)) {
+				$model = ED::model('Likes');
+				$lists = $model->getPostLikes($postId, $type);
+			} else {
+				$lists = $preloadedObj;
+			}
+
+			foreach ($lists as $key => $list) {
+				$likers[] = ED::user($list->user_id);
+			}
+
+			$users[$postId] = $likers;
 		}
 
-		if (is_null($preloadedObj)) {
-			$model = ED::model('Likes');
-			$lists = $model->getPostLikes($contentId, $type);
-		} else {
-			$lists = $preloadedObj;
-		}
-
-		if (count($lists) <= 0) {
-			return '';
-		}
-
-		$user = array();
-		foreach ($lists as $key => $list) {
-			$user[] = ED::user($list->user_id);
-		}
-
-		return $user;
+		return $users[$postId];
 	}
 
 	public static function html($contentId, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST, $preloadedObj = null)

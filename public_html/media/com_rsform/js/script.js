@@ -587,8 +587,14 @@ RSFormPro.getValue = function(formId, name) {
 									typeof RSFormPro.jQueryCalendar.calendars[formId] != 'undefined' &&
 									typeof RSFormPro.jQueryCalendar.calendars[formId][name] != 'undefined')
 									{
-										var selectedDate = Date.parseDate(RSFormPro.jQueryCalendar.calendars[formId][name].currentDate, RSFormPro.jQueryCalendar.calendars[formId][name].hiddenFormat);
-										return (selectedDate.getTime() / 1000).toString();
+										var tmpDate = RSFormPro.jQueryCalendar.calendars[formId][name].calendarInstance.getValue();
+
+										if (RSFormPro.jQueryCalendar.calendars[formId][name].hiddenFormat.indexOf('HH:mm') === -1)
+										{
+											tmpDate.setHours(0, 0, 0, 0);
+										}
+
+										return parseInt(tmpDate.getTime() / 1000).toString();
 									}
 
                                 if (element.hasOwnProperty('rsfpGetValue'))
@@ -675,6 +681,7 @@ RSFormPro.resetValues = function(items) {
 	}
 
 	RSFormPro.resettingValues = true;
+
 	var element, tagName;
 	try
 	{
@@ -699,14 +706,40 @@ RSFormPro.resetValues = function(items) {
 							case 'NUMBER':
 							case 'TEXT':
 								element.value = element.defaultValue;
-								
+
+								if (element.id)
+								{
+									// Range Slider
+									if (element.id.indexOf('rs-range-slider') === 0 && typeof jQuery !== 'undefined')
+									{
+										jQuery(element).data('ionRangeSlider').reset();
+									}
+
+									// Date and Time Picker
+									if (element.id.indexOf('txtjQcal') === 0 && typeof jQuery !== 'undefined' && typeof RSFormPro.jQueryCalendar !== 'undefined')
+									{
+										jQuery(element).datetimepicker('reset');
+									}
+
+									// Calendar
+									if (element.id.indexOf('txtcal') === 0 && typeof RSFormPro.YUICalendar !== 'undefined')
+									{
+										var match = element.id.match(/^txtcal([0-9]+)_[0-9]+$/);
+										if (match.length === 2)
+										{
+											var formId = match[1];
+											var calendarName = element.name.match(/^form\[(.*)\]$/)[1];
+
+											if (typeof RSFormPro.YUICalendar.calendars[formId][calendarName] !== 'undefined')
+											{
+												RSFormPro.YUICalendar.calendars[formId][calendarName].reset();
+											}
+										}
+									}
+								}
+
 								RSFormPro.triggerEvent(element, 'change');
 								RSFormPro.triggerEvent(element, 'input');
-
-                                if (element.id && element.id.indexOf('rs-range-slider') == 0 && typeof jQuery != 'undefined')
-                                {
-                                    jQuery(element).data('ionRangeSlider').reset();
-                                }
 							break;
 						}
 					}
@@ -722,9 +755,18 @@ RSFormPro.resetValues = function(items) {
 				case 'SELECT':
 					if (element.options)
 					{
-						for (var o = 0; o < element.options.length; o++)
-						{
+						var unselected = [];
+						for (var o = 0; o < element.options.length; o++) {
 							element.options[o].selected = element.options[o].defaultSelected;
+
+							if (!element.options[o].defaultSelected) {
+								unselected.push(o);
+							}
+						}
+						
+						// in safari something must be selected
+						if (element.options.length == unselected.length) {
+							element.selectedIndex = 0;
 						}
 					}
 					

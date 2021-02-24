@@ -11,8 +11,8 @@
                description="COM_ROPAYMENTS_TEST_MODE_DESC"
                class="btn-group btn-group-yesno"
                labelclass="config">
-            <option value="1">JYES</option>
             <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field name="rtlo"
@@ -38,7 +38,7 @@
                description="COM_ROPAYMENTS_WAIT_TIME_TARGETPAY_DESC"
                required="true"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="payment"
@@ -48,7 +48,7 @@
                required="true"
                default=""
                multiple="true"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
             <option value="mistercash">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
@@ -64,7 +64,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="verifiedStatus"
@@ -74,7 +74,7 @@
                required="false"
                size="1"
                default="C"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="cancelledStatus"
@@ -84,7 +84,7 @@
                required="false"
                size="1"
                default="X"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="expiredStatus"
@@ -94,7 +94,7 @@
                required="false"
                size="1"
                default="E"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="openStatus"
@@ -104,7 +104,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="sofort-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_SOFORT"/>
@@ -116,7 +116,7 @@
                description="COM_ROPAYMENTS_TARGETPAY_COUNTRY_DESC"
                required="false"
                default="49"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                size="1">
             <option value="49">COM_ROPAYMENTS_COUNTRY_GERMAN</option>
             <option value="43">COM_ROPAYMENTS_COUNTRY_AUSTRIA</option>
@@ -130,7 +130,7 @@
                description="COM_ROPAYMENTS_TARGETPAY_LANG_DESC"
                required="false"
                default="NL"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                size="1">
             <option value="NL">COM_ROPAYMENTS_LANG_DUTCH</option>
             <option value="EN">COM_ROPAYMENTS_LANG_ENGLISH</option>
@@ -159,7 +159,7 @@
                description="COM_ROPAYMENTS_TARGETPAY_SMSCOUNTRY_DESC"
                required="false"
                default="31"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                size="1">
             <option value="31">COM_ROPAYMENTS_COUNTRY_NETHERLANDS</option>
             <option value="32">COM_ROPAYMENTS_COUNTRY_BELGIUM</option>

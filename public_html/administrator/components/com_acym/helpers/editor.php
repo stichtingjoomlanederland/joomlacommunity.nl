@@ -1,10 +1,12 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Classes\MailClass;
+use AcyMailing\Libraries\acymObject;
 use Joomla\CMS\Editor\Editor as Editor;
 
-class acymeditorHelper extends acymObject
+class EditorHelper extends acymObject
 {
     var $width = '95%';
     var $height = '600';
@@ -32,7 +34,7 @@ class acymeditorHelper extends acymObject
     {
         if ($this->isDragAndDrop()) {
             ob_start();
-            include ACYM_PARTIAL.'editor'.DS.'default_template.php';
+            include acym_getPartial('editor', 'default_template');
             $this->defaultTemplate = ob_get_clean();
 
             acym_disableCmsEditor();
@@ -41,7 +43,7 @@ class acymeditorHelper extends acymObject
             acym_addScript(false, ACYM_JS.'tinymce/tinymce.min.js?v='.filemtime(ACYM_MEDIA.'js'.DS.'tinymce/tinymce.min.js'));
 
             $data = $this->data;
-            include ACYM_VIEW.'mails'.DS.'tmpl'.DS.'editor_wysid.php';
+            include acym_getPartial('editor', 'editor_wysid');
         } else {
 
             if (acym_isLeftMenuNecessary()) echo '</div>';
@@ -64,19 +66,38 @@ class acymeditorHelper extends acymObject
     {
         $this->editor = acym_getCMSConfig('editor', 'tinymce');
 
-        $this->myEditor = Editor::getInstance($this->editor);
+        if (!class_exists('Joomla\CMS\Editor\Editor')) {
+            $this->myEditor = \JFactory::getEditor($this->editor);
+        } else {
+            $this->myEditor = Editor::getInstance($this->editor);
+        }
         $this->myEditor->initialise();
 
         $this->editorConfig['extended_elements'] = 'table[background|cellspacing|cellpadding|width|align|bgcolor|border|style|class|id],tr[background|width|bgcolor|style|class|id|valign],td[background|width|align|bgcolor|valign|colspan|rowspan|height|style|class|id|nowrap]';
 
         if (!empty($this->mailId)) {
             $cssurl = acym_completeLink((acym_isAdmin() ? '' : 'front').'mails&task=loadCSS&id='.$this->mailId.'&time='.time());
-            $classMail = acym_get('class.mail');
+            $classMail = new MailClass();
             $filepath = $classMail->createTemplateFile($this->mailId);
 
             if ($this->editor == 'tinymce') {
                 $this->editorConfig['content_css_custom'] = $cssurl.'&local=http';
                 $this->editorConfig['content_css'] = '0';
+
+                $access = [];
+                for ($i = 1 ; $i < 20 ; $i++) {
+                    $access[] = $i;
+                }
+                $this->editorConfig['configuration'] = (object)[
+                    'toolbars' => (object)['joomlaBrokeItInAMinorRelease' => []],
+                    'setoptions' => [
+                        'joomlaBrokeItInAMinorRelease' => (object)[
+                            'access' => $access,
+                            'content_css' => '0',
+                            'content_css_custom' => $cssurl.'&local=http',
+                        ],
+                    ],
+                ];
             } elseif ($this->editor == 'jckeditor' || $this->editor == 'fckeditor') {
                 $this->editorConfig['content_css_custom'] = $filepath;
                 $this->editorConfig['content_css'] = '0';
@@ -90,11 +111,22 @@ class acymeditorHelper extends acymObject
             }
         }
 
-
         if (empty($this->editorContent)) {
             $this->content = acym_escape($this->content);
             ob_start();
-            echo $this->myEditor->display($this->name, $this->content, $this->width, $this->height, $this->cols, $this->rows, ['pagebreak', 'readmore'], null, 'com_content', null, $this->editorConfig);
+            echo $this->myEditor->display(
+                $this->name,
+                $this->content,
+                $this->width,
+                $this->height,
+                $this->cols,
+                $this->rows,
+                ['pagebreak', 'readmore'],
+                null,
+                'com_content',
+                null,
+                $this->editorConfig
+            );
 
             $this->editorContent = ob_get_clean();
         }
@@ -112,7 +144,7 @@ class acymeditorHelper extends acymObject
         add_filter('mce_buttons', [$this, 'addButtons']);
         add_filter('mce_buttons_2', [$this, 'addButtonsToolbar']);
 
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
 
         $mail = $mailClass->getOneById($this->mailId);
         $stylesheet = empty($mail) ? '' : trim(preg_replace('/\s\s+/', ' ', $mailClass->buildCSS($mail->stylesheet)));
@@ -180,10 +212,11 @@ class acymeditorHelper extends acymObject
 
             return empty($stylesheet) ? '' : $stylesheet;
         } elseif (!empty($notification)) {
+            $mailClass = new MailClass();
             $stylesheet = acym_loadResult(
                 'SELECT stylesheet 
                 FROM #__acym_mail 
-                WHERE `type` = "notification" 
+                WHERE `type` = '.acym_escapeDB($mailClass::TYPE_NOTIFICATION).' 
                     AND `name` = '.acym_escapeDB($notification)
             );
 
@@ -261,7 +294,12 @@ class acymeditorHelper extends acymObject
 
     public function getSettingsStyle($settings)
     {
-        if (empty($settings) || !is_array($settings)) return '';
+        if (empty($settings)) return '';
+        if (is_string($settings) && substr($settings, 0, 2) === '{"') {
+            $settings = json_decode($settings, true);
+        }
+
+        if (!is_array($settings)) return '';
 
         $styles = '';
         foreach ($settings as $element => $rules) {
@@ -275,4 +313,3 @@ class acymeditorHelper extends acymObject
         return $styles;
     }
 }
-

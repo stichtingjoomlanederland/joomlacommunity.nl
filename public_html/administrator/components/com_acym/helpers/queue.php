@@ -1,8 +1,14 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymqueueHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Classes\MailStatClass;
+use AcyMailing\Classes\QueueClass;
+use AcyMailing\Classes\UserClass;
+use AcyMailing\Classes\UserStatClass;
+use AcyMailing\Libraries\acymObject;
+
+class QueueHelper extends acymObject
 {
     var $id = 0;
     var $report = true;
@@ -26,8 +32,8 @@ class acymqueueHelper extends acymObject
     {
         parent::__construct();
 
-        $this->queueClass = acym_get('class.queue');
-        $this->userClass = acym_get('class.user');
+        $this->queueClass = new QueueClass();
+        $this->userClass = new UserClass();
 
         $this->send_limit = (int)$this->config->get('queue_nbmail', 40);
 
@@ -54,7 +60,7 @@ class acymqueueHelper extends acymObject
 
     public function process()
     {
-        $queueClass = acym_get('class.queue');
+        $queueClass = new QueueClass();
         $queueClass->emailtypes = $this->emailtypes;
         $queueElements = $queueClass->getReady($this->send_limit, $this->id);
 
@@ -85,7 +91,9 @@ class acymqueueHelper extends acymObject
             $disp = '<html><head><meta http-equiv="Content-Type" content="text/html;charset=utf-8" />';
             $disp .= '<title>'.acym_translation('ACYM_SEND_PROCESS').'</title>';
             $disp .= '<style>body{font-size:12px;font-family: Arial,Helvetica,sans-serif;}</style></head><body>';
-            $disp .= '<div style="margin-bottom: 18px;padding: 8px !important; background-color: #fcf8e3; border: 1px solid #fbeed5; border-radius: 4px;"><p style="margin:0;">'.acym_translation('ACYM_DONT_CLOSE').'</p></div>';
+            $disp .= '<div style="margin-bottom: 18px;padding: 8px !important; background-color: #fcf8e3; border: 1px solid #fbeed5; border-radius: 4px;"><p style="margin:0;">'.acym_translation(
+                    'ACYM_DONT_CLOSE'
+                ).'</p></div>';
             $disp .= "<div style='display: inline;background-color : white;border : 1px solid grey; padding : 3px;font-size:14px'>";
             $disp .= "<span id='divpauseinfo' style='padding:10px;margin:5px;font-size:16px;font-weight:bold;display:none;background-color:black;color:white;'> </span>";
             $disp .= acym_translation('ACYM_SEND_PROCESS').': <span id="counter" >'.$this->start.'</span> / '.$this->total;
@@ -120,7 +128,7 @@ class acymqueueHelper extends acymObject
             }
         }//endifreport
 
-        $mailHelper = acym_get('helper.mailer');
+        $mailHelper = new MailerHelper();
         $mailHelper->report = false;
         if ($this->config->get('smtp_keepalive', 1) || in_array($this->config->get('mailer_method'), ['elasticemail'])) {
             $mailHelper->SMTPKeepAlive = true;
@@ -140,7 +148,9 @@ class acymqueueHelper extends acymObject
             $this->finish = true;
         }
 
+        $emailFrequency = $this->config->get('email_frequency', 0);
         foreach ($queueElements as $oneQueue) {
+            if (!empty($emailFrequency) && intval($emailFrequency) > 0) sleep(intval($emailFrequency));
             $currentMail++;
             $this->nbprocess++;
             if ($this->report) {
@@ -158,7 +168,7 @@ class acymqueueHelper extends acymObject
             $queueDeleteOk = true;
             $otherMessage = '';
 
-            if ($result) {
+            if ($result === true) {
                 $this->successSend++;
                 $this->consecutiveError = 0;
                 $queueDelete[$oneQueue->mail_id][] = $oneQueue->user_id;
@@ -173,14 +183,20 @@ class acymqueueHelper extends acymObject
                     $statsAdd = [];
                     $queueUpdate = [];
                 }
+            } elseif ($result === -1) {
+                $this->consecutiveError = 0;
+                $queueDelete[$oneQueue->mail_id][] = $oneQueue->user_id;
+                $queueDeleteOk = $this->_deleteQueue($queueDelete);
+                $queueDelete = [];
             } else {
+
                 $this->errorSend++;
 
                 $newtry = false;
                 if (in_array($mailHelper->errorNumber, $mailHelper->errorNewTry)) {
                     if (empty($maxTry) || $oneQueue->try < $maxTry - 1) {
                         $newtry = true;
-                        $otherMessage = acym_translation_sprintf('ACYM_QUEUE_NEXT_TRY', 60);
+                        $otherMessage = acym_translationSprintf('ACYM_QUEUE_NEXT_TRY', 60);
                     }
                     if ($mailHelper->errorNumber == 1) {
                         $this->consecutiveError++;
@@ -283,7 +299,9 @@ class acymqueueHelper extends acymObject
                 $nbdeleted = $res;
                 if ($nbdeleted != $nbsub) {
                     $status = false;
-                    $this->_display($nbdeleted < $nbsub ? acym_translation('ACYM_QUEUE_DOUBLE') : $nbdeleted.' emails deleted from the queue whereas we only have '.$nbsub.' subscribers');
+                    $this->_display(
+                        $nbdeleted < $nbsub ? acym_translation('ACYM_QUEUE_DOUBLE') : $nbdeleted.' emails deleted from the queue whereas we only have '.$nbsub.' subscribers'
+                    );
                 }
             }
         }
@@ -297,8 +315,8 @@ class acymqueueHelper extends acymObject
             return true;
         }
 
-        $userStatClass = acym_get('class.userstat');
-        $mailStatClass = acym_get('class.mailstat');
+        $userStatClass = new UserStatClass();
+        $mailStatClass = new MailStatClass();
 
         $time = acym_date("now", "Y-m-d H:i:s");
 
@@ -388,7 +406,7 @@ class acymqueueHelper extends acymObject
             return;
         }
 
-        $color = $status ? 'green' : 'red';
+        $color = $status === true ? 'green' : ($status === -1 ? 'orange' : 'red');
         foreach ($messages as $message) {
             if (!empty($num)) {
                 echo '<br />'.$num.' : <span style="color:'.$color.';">'.$message.'</span>';
@@ -452,4 +470,3 @@ class acymqueueHelper extends acymObject
         return $message;
     }
 }
-

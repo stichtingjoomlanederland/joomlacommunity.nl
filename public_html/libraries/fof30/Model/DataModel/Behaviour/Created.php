@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -44,7 +44,7 @@ class Created extends Observer
 		// Handle the created_on field
 		if ($model->hasField('created_on'))
 		{
-			$nullDate   = $model->getDbo()->getNullDate();
+			$nullDate   = $model->isNullableField('created_on') ? null : $model->getDbo()->getNullDate();
 			$created_on = $model->getFieldValue('created_on');
 
 			if (empty($created_on) || ($created_on == $nullDate))

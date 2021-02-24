@@ -1,6 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Views;
+
+use AcyMailing\Libraries\acymView;
 
 class QueueViewQueue extends acymView
 {
@@ -14,4 +16,3 @@ class QueueViewQueue extends acymView
         ];
     }
 }
-

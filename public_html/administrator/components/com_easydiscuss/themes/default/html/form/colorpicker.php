@@ -11,35 +11,14 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<style type="text/css">
-body .minicolors-swatch.minicolors-sprite.minicolors-input-swatch {
-	top: 4px;
-}
-</style>
-
-<div data-colorpicker>
-	<input type="text" name="<?php echo $name;?>" class="form-control minicolors hex minicolors-input" value="<?php echo $value; ?>" style="padding-left: 30px;" />
-	
-	<?php if ($revert) { ?>
-	<a href="javascript:void(0);" class="btn btn-default" data-colorpicker-revert data-color="<?php echo $revert;?>">
-		<i class="fa fa-undo"></i>
-	</a>
-	<?php } ?>
+<div class="ed-minicolors" data-colorpicker>
+	<div class="o-input-group">
+		<input type="text" name="<?php echo $name;?>" class="o-form-control minicolors hex minicolors-input" value="<?php echo $value; ?>" style="padding-left: 30px;" />
+		
+		<?php if ($revert) { ?>
+		<a href="javascript:void(0);" class="o-btn o-btn--default-o" data-colorpicker-revert data-color="<?php echo $revert;?>">
+			<i class="fa fa-undo"></i>
+		</a>
+		<?php } ?>
+	</div>
 </div>
-
-<?php if ($loadScript) { ?>
-<script>
-ed.require(['edq'], function($) {
-	$('[data-colorpicker-revert]').on('click', function() {
-		var button = $(this);
-		var revert = button.data('color');
-		var input = button.parent().find('input');
-
-		input.val(revert);
-
-		// Since the colorpicker in Joomla is attached to joomla's jquery, use Joomla's jquery to trigger
-		window.jQuery(input).trigger('paste.minicolors');
-	});
-});
-</script>
-<?php } ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,7 +9,7 @@ use FOF30\Date\Date;
 use Joomla\CMS\Access\Access;
 use Joomla\CMS\User\User;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /**
  * Disable or force a password reset on obsolete administrators (backend users who have not logged into the site for a
@@ -210,7 +210,7 @@ class AtsystemFeatureDisableobsoleteadmins extends AtsystemFeatureAbstract
 		}
 
 		// You are possibly editing a user I previously disabled automatically. Is this REALLY the case?
-		if ($oldUser['lastvisitDate'] != $this->db->getNullDate())
+		if (!empty($oldUser['lastvisitDate']) && ($oldUser['lastvisitDate'] != $this->db->getNullDate()))
 		{
 			$now       = Date::getInstance();
 			$lastLogin = Date::getInstance($oldUser['lastvisitDate']);

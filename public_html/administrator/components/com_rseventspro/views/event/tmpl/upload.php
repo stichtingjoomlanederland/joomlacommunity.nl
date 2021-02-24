@@ -131,15 +131,19 @@ function rsepro_select_image(file) {
 </script>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro'); ?>" method="post" name="uploadForm" id="uploadForm" class="form-horizontal" enctype="multipart/form-data">
-	<div id="upload_actions" class="row-fluid">
-		<a class="btn btn-primary" style="position: relative;" href="javascript:void(0)">
-			<?php echo JText::_('COM_RSEVENTSPRO_UPLOAD_IMAGE'); ?>
-			<input type="file" id="upload_file" onchange="rsepro_upload_photo();" size="10" name="icon" />
-		</a>
-		<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a class="btn" href="javascript:void(0);" onclick="rsepro_open_media();"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_IMAGE_LOCAL'); ?></a>
-	</div>
-	<div id="upload_loader" style="display:none;">
-		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'vertical-align: middle;'), true); ?> 
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?> mb-3">
+		<div class="<?php echo RSEventsproAdapterGrid::column(12); ?>">
+			<div id="upload_actions">
+				<a class="btn btn-primary" style="position: relative;" href="javascript:void(0)">
+					<?php echo JText::_('COM_RSEVENTSPRO_UPLOAD_IMAGE'); ?>
+					<input type="file" id="upload_file" onchange="rsepro_upload_photo();" size="10" name="icon" />
+				</a>
+				<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> <a class="btn btn-primary" href="javascript:void(0);" onclick="rsepro_open_media();"><?php echo JText::_('COM_RSEVENTSPRO_SELECT_IMAGE_LOCAL'); ?></a>
+			</div>
+			<div id="upload_loader" style="display:none;">
+				<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('style' => 'vertical-align: middle;'), true); ?> 
+			</div>
+		</div>
 	</div>
 	
 	<iframe id="upload_iframe" src="<?php echo JRoute::_('index.php?option=com_rseventspro&view=media&tmpl=component'); ?>" style="display: none;"></iframe>
@@ -170,10 +174,12 @@ function rsepro_select_image(file) {
 <script type="text/javascript">
 	var objImagePreloader = new Image();
 	objImagePreloader.onload = function() {
+		setTimeout(function() {
 		jQuery('#crop_loader').css('display','none');
 		jQuery('#cropcontainer').css('display','');
 		RSEventsPro.Crop.init();
 		objImagePreloader.onload=function(){};
+		},500);
 	};
 	objImagePreloader.src = '<?php echo JURI::root(); ?>components/com_rseventspro/assets/images/events/<?php echo $this->item->icon; ?>';
 </script>

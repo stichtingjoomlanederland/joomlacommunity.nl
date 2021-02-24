@@ -11,12 +11,13 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussPost extends EasyDiscuss
+class EasyDiscussPost
 {
 	private $post = null;
 	private $thread = null;
 	private $original = null;
 	private $akismet = null;
+	private $nextReplyItem = null;
 
 	// This contains the error message.
 	public $error = null;
@@ -46,6 +47,7 @@ class EasyDiscussPost extends EasyDiscuss
 	public $last_poster_name = null;
 	public $last_poster_email = null;
 	public $last_user_anonymous = null;
+	public $label = null;
 
 	public $content_raw = null;
 	public $cat_parent_id = null;
@@ -55,13 +57,20 @@ class EasyDiscussPost extends EasyDiscuss
 	public $permalink = null;
 	public $seq = null;
 
+	public $processedLabels = false;
+	public $processedActions = array();
+	public $isnew;
+
 	static $_isLiked = array();
 	static $ratings = null;
 
-
 	public function __construct($post, $options = array())
 	{
-		parent::__construct();
+		$this->config = ED::config();
+		$this->my = JFactory::getUser();
+		$this->input = ED::request();
+		
+		// parent::__construct();
 
 		$resetCache = false;
 		$cache = true;
@@ -85,6 +94,11 @@ class EasyDiscussPost extends EasyDiscuss
 		// The $post must always be a table.
 		$this->post = ED::table('Post');
 
+		// set the isnew is true here if the post doesn't have contain anything
+		if (is_null($post)) {
+			$this->post->isnew = true;
+		}
+
 		// If passed in argument is an integer, we load it
 		if (is_numeric($post)) {
 
@@ -97,9 +111,8 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// When cache doesn't exist, try to load the post
 			if (!$cacheExists && $post != 0) {
-				$this->post->load($post);
+				$this->post->load($post, false, false);
 			}
-
 
 			// lets load thread table to get the summary data
 			if ($this->post->thread_id) {
@@ -178,16 +191,34 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->original = clone $this->post;
 	}
 
-
-
 	private function loadBatchPosts($posts)
 	{
+		$cacheLib = ED::cache();
+
 		$ids = array();
+		$postsToLoad = array();
 
 		foreach ($posts as $item) {
 			if (is_numeric($item)) {
+
+				$item = (int) $item;
+
+				if ($cacheLib->exists($item, 'post')) {
+					// this post already cached. lets skip so that we dont have to loadBatchPosts.
+					continue;
+				}
+
 				$ids[] = $item;
+			} else {
+
+				if ($cacheLib->exists($item->id, 'post')) {
+					continue;
+				}
+
+				$postsToLoad[] = $item;
 			}
+
+
 		}
 
 		if ($ids) {
@@ -196,8 +227,9 @@ class EasyDiscussPost extends EasyDiscuss
 			$posts = $model->loadBatchPosts($ids);
 		}
 
-		$cacheLib = ED::cache();
-		$cacheLib->cachePosts($posts);
+		if ($postsToLoad) {
+			$cacheLib->cachePosts($postsToLoad);
+		}
 	}
 
 	/**
@@ -208,6 +240,13 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function __get($key)
 	{
+		// On demand access to the acl
+		if ($key == 'acl') {
+			$acl = ED::acl();
+
+			return $acl;
+		}
+
 		if (isset($this->post->$key)) {
 			return $this->post->$key;
 		}
@@ -245,10 +284,15 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function canComment()
 	{
-		$isAdmin = ED::isSiteAdmin();
 		$isModerator = ED::isModerator($this->post->category_id);
 
-		if ($isModerator || $isAdmin) {
+		// If there is no post id, the post cannot be commented
+		if (!$this->post->id) {
+			$this->setError('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID');
+			return false;
+		}
+
+		if ($isModerator) {
 			return true;
 		}
 
@@ -294,6 +338,13 @@ class EasyDiscussPost extends EasyDiscuss
 					$canComment = false;
 				}
 			}
+		}
+
+		// Ensure that the user is allowed to comment post from this category.
+		$category = $this->getCategory();
+
+		if (!$category->canComment($this->my->id)) {
+			$canComment = false;
 		}
 
 		// If the user doesn't have access, they should not be able to add comments
@@ -496,7 +547,7 @@ class EasyDiscussPost extends EasyDiscuss
 			if ($this->hasExceededTimeToEdit()) {
 				return false;
 			}
-			
+
 			// Check user's acl
 			$isAllowEditReply = $this->acl->allowed('edit_reply');
 			$isAllowEditOwnReply = $this->acl->allowed('edit_own_reply');
@@ -524,6 +575,30 @@ class EasyDiscussPost extends EasyDiscuss
 	public function canPrint()
 	{
 		if ($this->isQuestion() && $this->config->get('main_enable_print')) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * This determines if the user can view replies from a thread
+	 *
+	 * @since   5.0
+	 * @access  public
+	 */
+	public function canViewReply()
+	{
+		$isAdmin = ED::isSiteAdmin();
+		$isModerator = ED::isModerator($this->post->category_id);
+
+		if ($isModerator || $isAdmin) {
+			return true;
+		}
+
+		// Ensure that the user is allowed to reply post from this category.
+		$category = $this->getCategory();
+		if ($category->canViewReplies($this->my->id)) {
 			return true;
 		}
 
@@ -702,15 +777,13 @@ class EasyDiscussPost extends EasyDiscuss
 		return false;
 	}
 
-
-
 	/**
 	 * Determines if the current user has access to post new questions on the site
 	 *
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function canPostNewDiscussion()
+	public function canPostNewDiscussion($categoryId = false)
 	{
 		// If guest and he is able to post a question
 		if (!$this->my->id && !$this->acl->allowed('add_question', '0')) {
@@ -730,6 +803,15 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
+		if ($categoryId) {
+			$category = ED::category($categoryId);
+
+			if (!$category->canPost()) {
+				$this->setError('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS');
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -742,11 +824,12 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function bindParams($data)
 	{
-		$registry = new JRegistry();
-
 		if (!$data) {
 			return;
 		}
+
+		// Retrieve its stored params and merge it
+		$params = $this->getParams();
 
 		// Go through each of the provided data and scan for known pattern
 		$pattern = '/params\_.*/i';
@@ -772,15 +855,15 @@ class EasyDiscussPost extends EasyDiscuss
 						continue;
 					}
 
-					$registry->set($key . $i, $valueItem);
+					$params->set($key . $i, $valueItem);
 					$i++;
 				}
 			} else {
-				$registry->set($key, $value);
+				$params->set($key, $value);
 			}
 		}
 
-		$this->post->params = $registry->toString();
+		$this->post->params = $params->toString();
 	}
 
 
@@ -790,7 +873,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function bind($data = array(), $allowBindingId = false, $isMigration = false, $isWrite = false)
+	public function bind($data = [], $allowBindingId = false, $isMigration = false, $isWrite = false)
 	{
 		$date = ED::date();
 
@@ -806,9 +889,6 @@ class EasyDiscussPost extends EasyDiscuss
 		if (!$this->config->get('main_anonymous_posting') || !isset($data['anonymous'])) {
 			$this->post->anonymous = false;
 		}
-
-		// Bind posted parameters such as custom tab contents.
-		$this->bindParams($data);
 
 		// Clean up the title
 		$allowedTags = explode(',', $this->config->get('main_allowed_tags'));
@@ -847,6 +927,10 @@ class EasyDiscussPost extends EasyDiscuss
 			}
 		}
 
+		if (isset($data['post-label']) && $data['post-label']) {
+			$this->label = $data['post-label'];
+		}
+
 		// Need to update the module to send a content instead of quick_question_reply_content
 
 		// If the post is edited and it doesn't have private the user might be switching from private -> non private
@@ -866,17 +950,19 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->post->user_id = $this->post->user_id;
 		}
 
+		$postAliasType = $this->isQuestion() ? 'post' : 'reply';
+
 		// Cleanup alias.
 		if (isset($data['alias']) && $data['alias']) {
 			$alias = ED::badwords()->filter($data['alias']);
-			$this->post->alias = ED::getAlias($alias, 'post', $this->post->id);
+			$this->post->alias = ED::getAlias($alias, $postAliasType, $this->post->id);
 		}
 
 		// If alias is empty, we need to get from title
 		if (!$this->post->alias) {
 			if (isset($data['title'])) {
 				$alias = ED::badwords()->filter($data['title']);
-				$this->post->alias = ED::getAlias($alias, 'post', $this->post->id);
+				$this->post->alias = ED::getAlias($alias, $postAliasType, $this->post->id);
 			}
 		}
 
@@ -885,7 +971,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->post->content_type = ED::getEditorType('question');
 		}
 
-		if($this->isReply()) {
+		if ($this->isReply()) {
 			$this->post->content_type = ED::getEditorType('reply');
 
 			// For replies, we need to set the category id from the parent
@@ -926,7 +1012,13 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// now we need to 'translate the content into preview mode so that frontend no longer need to do this heavy process'
 		if ($this->post->content_type == 'bbcode') {
-			$preview = ED::parser()->bbcode($content);
+			$parser = ED::parser();
+			$preview = $parser->bbcode($content);
+			$hasGist = $parser->hasGist();
+
+			if ($hasGist) {
+				$data['params_has_gist'] = true;
+			}
 
 			if ($isWrite) {
 
@@ -963,7 +1055,7 @@ class EasyDiscussPost extends EasyDiscuss
 								$oldCode = '[gist' . $code . ']';
 								$newCode = '[gist' . $code . ' url="' . $url . '"]';
 
-								$content = JString::str_ireplace($oldCode, $newCode, $content);
+								$content = EDJString::str_ireplace($oldCode, $newCode, $content);
 
 								$this->post->content = $content;
 							}
@@ -972,12 +1064,16 @@ class EasyDiscussPost extends EasyDiscuss
 				}
 			}
 
+			// use BR to preserve linefeed.
 			$preview = nl2br($preview);
 
 			// Before we store this as preview, we need to filter the badwords
 			$preview = ED::badwords()->filter($preview);
 			$this->post->preview = $preview;
 		}
+
+		// Bind posted parameters such as custom tab contents.
+		$this->bindParams($data);
 
 		// Normalize other properties
 		// Whenever store is called, we should always update the modified date.
@@ -996,6 +1092,11 @@ class EasyDiscussPost extends EasyDiscuss
 		// if this is a new question, we need to set the replied date as so that the sorting will work correctly.
 		if ($this->isQuestion() && $this->isNew()) {
 			$this->post->replied = $this->post->modified;
+		}
+
+		// if this is a new question, we need to set parent id to 0.
+		if ($this->isQuestion() && $this->isNew()) {
+			$this->post->parent_id = 0;
 		}
 
 		// If this is a reply, we need to update the last replied date for the parent discussion
@@ -1018,7 +1119,6 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return $state;
-
 	}
 
 	/**
@@ -1044,7 +1144,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Get the last reply id of the thread before save
 		if ($this->isReply()) {
 			$model = ED::model('Posts');
-			
+
 			$lastReply = $model->getLastReply($this->post->parent_id, false);
 			$lastReplyId = $lastReply ? $lastReply->id : 0;
 		}
@@ -1053,6 +1153,15 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Do not update counter and publish state of thread table if reply is being rejected. #117
 		if ($reject) {
+			$reject = ED::table('PostReject');
+			$reject->post_id = $this->post->id;
+			$reject->created_by = $this->post->user_id;
+			$reject->created = ED::date()->toSql();
+			$reject->message = $this->input->get('message', '', 'default');
+			$reject->store();
+
+			$reject->notify();
+
 			return $state;
 		}
 
@@ -1060,8 +1169,15 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// If this is a reply, we need to update the num_replies for that thread
 		if ($this->isReply()) {
-			$updateThreadOptions['num_replies'] = $publish ? '+1' : '-1';
 
+			if ($publish && ($this->isBeingPublished() || $this->isBeingApproved())) {
+				$updateThreadOptions['num_replies'] = '+1';
+			}
+
+			if (!$publish && $this->isBeingUnpublished()) {
+				$updateThreadOptions['num_replies'] = '-1';
+			}
+			
 			// Update the thread's last_user_id if the approved reply is the latest for it
 			if ($publish && $this->post->id > $lastReplyId) {
 
@@ -1073,7 +1189,7 @@ class EasyDiscussPost extends EasyDiscuss
 					$updateThreadOptions['last_poster_name'] = $this->post->poster_name;
 					$updateThreadOptions['last_poster_email'] = $this->post->poster_email;
 				}
-				
+
 				$updateThreadOptions['replied'] = $this->post->created;
 			}
 		} else {
@@ -1081,9 +1197,83 @@ class EasyDiscussPost extends EasyDiscuss
 			$updateThreadOptions['published'] = $publish;
 		}
 
-		$this->updateThread($updateThreadOptions);
+		if ($updateThreadOptions) {
+			$this->updateThread($updateThreadOptions);
+		}
 
 		return $state;
+	}
+
+	/**
+	 * Unpublishes a post
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function unpublish()
+	{
+		return $this->publish(false);
+	}
+
+	/**
+	 * Duplicates a post
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function duplicate()
+	{
+		$data = $this->toData(true);
+
+		// Cache the id
+		$id = $data->id;
+
+		$data->id = null;
+		$data->title = JText::sprintf('COM_ED_DUPLICATE_POST_TITLE', $this->title);
+		$data->isnew = true;
+		$data->publish = DISCUSS_ID_UNPUBLISHED;
+
+		// Reset the hits and votes
+		$data->hits = 0;
+		$data->vote = 0;
+
+		$fields = [];
+
+		// Format the fields data
+		foreach ($data->fields as $index => $item) {
+			$fields[$item->field_id] = $item->value;
+		}
+
+		$data->fields = $fields;
+
+		// Created and modified date should be current time
+		$data->created = ED::date()->toSql();
+		$data->modified = ED::date()->toSql();
+
+		// Unset necessary data
+		unset($data->permalink);
+
+		// Convert the object to an array
+		$data = ED::makeArray($data);
+
+		$post = ED::post();
+		$post->bind($data);
+
+		$options = [];
+		$options['ignorePreSave'] = true;
+		$options['copyPost'] = true;
+
+		$post->save($options);
+
+		$model = ED::model('Polls');
+		$pollDuplicated = $model->duplicate($id, $post->id);
+
+		if ($pollDuplicated) {
+			$post->updateThread(array('has_polls' => '1'));
+		}
+
+		$model = ED::model('Attachments');
+		$model->duplicate($id, $post->id);
 	}
 
 	/**
@@ -1100,6 +1290,15 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($state) {
 			$this->updateThread(array('featured' => true));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.featured');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $this->post->id);
+			$tmpl->setContent(0, 1);
+			$actiLib->log($tmpl);
 		}
 
 		// Send notification to the thread starter that their post is being featured.
@@ -1121,6 +1320,16 @@ class EasyDiscussPost extends EasyDiscuss
 			$notification->store();
 		}
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+		$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($this);
+
+		$actionlog->log('COM_ED_ACTIONLOGS_FEATURED_POST', 'post', array(
+			'link' => $actionlogPostPermalink,
+			'postTitle' => $actionlogPostTitle
+		));
+
 		return $state;
 	}
 
@@ -1138,7 +1347,26 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($state) {
 			$this->updateThread(array('featured' => false));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.unfeatured');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $this->post->id);
+			$tmpl->setContent(1, 0);
+			$actiLib->log($tmpl);
 		}
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+		$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($this);
+
+		$actionlog->log('COM_ED_ACTIONLOGS_UNFEATURED_POST', 'post', array(
+			'link' => $actionlogPostPermalink,
+			'postTitle' => $actionlogPostTitle
+		));
 
 		return $state;
 	}
@@ -1162,6 +1390,16 @@ class EasyDiscussPost extends EasyDiscuss
 
 			$this->updateThread(array('category_id' => $newCategory));
 
+			// log the current action into database.
+			$actionlog = ED::actionlog();
+			$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+			$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($this);
+
+			$actionlog->log('COM_ED_ACTIONLOGS_MOVED_POST', 'post', array(
+				'link' => $actionlogPostPermalink,
+				'postTitle' => $actionlogPostTitle,
+				'catTitle' => ED::category($newCategory)->getTitle()
+			));
 		}
 	}
 
@@ -1292,7 +1530,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// quick_question_reply_content is from the module quick question
-		if (!isset($this->post->content) || (JString::strlen($this->post->content) == 0)){
+		if (!isset($this->post->content) || (EDJString::strlen($this->post->content) == 0)){
 			$this->setError('COM_EASYDISCUSS_POST_CONTENT_IS_EMPTY');
 			return false;
 		}
@@ -1300,7 +1538,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Ensure that the title doesn't exceed the maximum characters count
 		if ($this->config->get('main_post_title_limit')) {
 			$limit = $this->config->get('main_post_title_chars');
-			$titleLength = JString::strlen($this->post->title);
+			$titleLength = EDJString::strlen($this->post->title);
 
 			if ($titleLength > $limit) {
 				$this->setError(JText::sprintf("COM_ED_POST_TITLE_EXCEEDED_LIMIT", $this->config->get('main_post_title_chars')));
@@ -1309,7 +1547,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		// Ensure that the post meets the min length
-		if (JString::strlen($this->post->content) < $this->config->get('main_post_min_length')) {
+		if (EDJString::strlen($this->post->content) < $this->config->get('main_post_min_length')) {
 			$this->setError(JText::sprintf('COM_EASYDISCUSS_POST_CONTENT_LENGTH_IS_INVALID', $this->config->get('main_post_min_length')));
 			return false;
 		}
@@ -1368,7 +1606,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Check for maximum length of content if category has specific settings.
 		// If there's a maximum content length specified per category base, then we need to check against the content.
 		if ($category->getParam('maxlength')) {
-			$length = JString::strlen($this->post->content);
+			$length = EDJString::strlen($this->post->content);
 
 			if ($length > $maxLength) {
 				ED::storeSession($data, 'NEW_POST_TOKEN');
@@ -1405,6 +1643,10 @@ class EasyDiscussPost extends EasyDiscuss
 		$fields = $model->getFields(DISCUSS_CUSTOMFIELDS_ACL_INPUT, $operation, $this->post->id);
 		$isValid = true;
 
+		if (!$fields) {
+			return true;
+		}
+
 		foreach ($fields as $field) {
 
 			if ($field->required) {
@@ -1436,7 +1678,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function validateAttachment()
 	{
-		$files = $this->input->files->get('filedata', array(), 'raw');
+		$files = $this->input->files->get('filedata', [], 'raw');
 
 		if (!$files) {
 			return true;
@@ -1453,7 +1695,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 				// if empty extension or the extension is not allowed, return error.
 				if (!$extension || !in_array($extension, $allowed)) {
-					$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name']));
+					$this->setError(JText::sprintf('COM_EASYDISCUSS_FILE_ATTACHMENTS_INVALID_EXTENSION', $file['name'], $this->config->get('main_attachment_extension')));
 					return false;
 				}
 
@@ -1487,7 +1729,6 @@ class EasyDiscussPost extends EasyDiscuss
 		// backend will not show the correct error message. #806
 		ED::loadLanguages();
 
-
 		// Perform captcha validation
 		if (!$this->validateCaptcha($data)) {
 			return false;
@@ -1500,6 +1741,11 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Check the validate for the custom field which set as required
 		if (!$this->validateAttachment($data)){
+			return false;
+		}
+
+		// Check if the post can truly be submitted into the category
+		if (!$this->validateCategory($data)) {
 			return false;
 		}
 
@@ -1721,7 +1967,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function canView($viewerId = null)
+	public function canView($viewerId = null, $useCache = true)
 	{
 		$my = JFactory::getUser($viewerId);
 
@@ -1753,6 +1999,11 @@ class EasyDiscussPost extends EasyDiscuss
 			return true;
 		}
 
+		// Ensure that do not allow registered user to view if the post under unpublished state
+		if (!$this->post->published) {
+			return false;
+		}
+
 		// If the post is private it shouldn't be viewable by anyone else.
 		if ($this->post->private && $my->id != $this->post->user_id && !$isModerator) {
 			return false;
@@ -1761,7 +2012,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Ensure that the user is allowed to access post from this category.
 		$category = $this->getCategory();
 
-		if (!$category->canAccess()) {
+		if (!$category->canAccess($my->id, $useCache)) {
 			return false;
 		}
 
@@ -1867,55 +2118,6 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		if (ED::isModerator($this->post->category_id)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Determines whether this post has status or not
-	 *
-	 * @since   4.0
-	 * @access  public
-	 */
-	public function hasStatus()
-	{
-		return $this->isPostRejected() || $this->isPostOnhold() || $this->isPostAccepted() || $this->isPostWorkingOn();
-	}
-	/**
-	 * Determines if the user can set a status of a post
-	 *
-	 * @since   4.0
-	 * @access  public
-	 */
-	public function canSetStatus($status)
-	{
-		if (!$this->isQuestion()) {
-			return false;
-		}
-
-		if (ED::isSiteAdmin() || ED::isModerator($this->post->category_id)) {
-			return true;
-		}
-
-		if ($status == 'hold' && $this->acl->allowed('mark_on_hold')) {
-			return true;
-		}
-
-		if ($status == 'accepted' && $this->acl->allowed('mark_accepted')) {
-			return true;
-		}
-
-		if ($status == 'working' && $this->acl->allowed('mark_working_on')) {
-			return true;
-		}
-
-		if ($status == 'rejected' && $this->acl->allowed('mark_rejected')) {
-			return true;
-		}
-
-		if ($status == 'none' && $this->acl->allowed('mark_no_status')) {
 			return true;
 		}
 
@@ -2122,14 +2324,23 @@ class EasyDiscussPost extends EasyDiscuss
 		$key = $this->post->id;
 
 		if (!isset($items[$key])) {
+
+			$attachments = null;
+
 			if (isset($this->attachments_cnt) && !$this->isReply()) {
-				$items[$key] = $this->attachments_cnt;
-			} else if (isset($this->post->attachments_cnt)) {
-				$items[$key] = $this->post->attachments_cnt;
-			} else {
-				$model = ED::model('Posts');
-				$items[$key] = $model->hasAttachments($this->post->id, DISCUSS_QUESTION_TYPE);
+				$attachments = $this->attachments_cnt;
 			}
+
+			if (isset($this->post->attachments_cnt)) {
+				$attachments = $this->post->attachments_cnt;
+			} 
+
+			if (is_null($attachments)) {
+				$model = ED::model('Posts');
+				$attachments = $model->hasAttachments($this->post->id, DISCUSS_QUESTION_TYPE);
+			}
+
+			$items[$key] = $attachments;
 		}
 
 		return $items[$key];
@@ -2152,15 +2363,19 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function isLocked()
+	public function isLocked($useCache = true)
 	{
 		static $_cache = array();
 
-		if (!isset($_cache[$this->thread_id])) {
+		if (!$useCache || !isset($_cache[$this->thread_id])) {
 			// $thread = ED::table('Thread');
 			// $thread->load($this->thread_id);
 
 			$cacheThreadExists = ED::cache()->exists($this->thread_id, 'thread');
+
+			if (!$useCache) {
+				$cacheThreadExists = false;
+			}
 
 			if (!$cacheThreadExists) {
 
@@ -2192,17 +2407,16 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Determines if this post is featured
 	 *
-	 * @alternative for ->isFeatured
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function isFeatured()
+	public function isFeatured($useCache = true)
 	{
 		static $items = array();
 
 		$key = $this->post->id;
 
-		if (!isset($items[$key])) {
+		if (!$useCache || !isset($items[$key])) {
 			$items[$key] = $this->post->featured;
 		}
 
@@ -2266,23 +2480,25 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function isSeen($userId = null)
 	{
-		$items = array();
-		$user = ED::user($userId);
+		static $cache = [];
 
-		// Construct the key
-		$key = $user->id . $this->post->id;
+		$user = JFactory::getUser($userId);
+		$key = $this->post->id . $user->id;
 
-		// Default is unseen for guests.
-		if (!$user->id) {
-			return false;
+		if (!isset($cache[$key])) {
+			$items = array();
+
+			// Default is unseen for guests.
+			if (!$user->id) {
+				$cache[$key] = false;
+				return $cache[$key];
+			}
+
+			$user = ED::user($user->id);
+			$cache[$key] = ($this->post->legacy || $user->isRead($this->post->id)) ? true : false;
 		}
 
-		if (!isset($items[$key])) {
-
-			$items[$key] = ($this->post->legacy || $user->isRead($this->post->id)) ? true : false;
-		}
-
-		return $items[$key];
+		return $cache[$key];
 	}
 
 	/**
@@ -2293,46 +2509,84 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function isUnread($userId = null)
 	{
-		$items = array();
-		$user = ED::user($userId);
-
-		// Construct the key
-		$key = $user->id . $this->post->id;
-
-		// Default is unseen for guests.
-		if (!$user->id) {
+		if ($this->isSeen()) {
 			return false;
 		}
 
-		if (!isset($items[$key])) {
-
-			$items[$key] = ($this->post->legacy || $user->isRead($this->post->id)) ? false : true;
-		}
-
-		return $items[$key];
+		return true;
 	}
 
 	/**
-	 * Render necessary css class on the post item wrapper.
+	 * Generates the class to be added into the post wrapper
 	 *
-	 * @since   4.0
-	 * @access  public
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getWrapperClass($userId = null)
+	{
+		$classes = [];
+
+		$user = JFactory::getUser($userId);
+
+		$seen = $this->isSeen($user->id);
+		
+		if ($seen) {
+			$classes[] = 'is-read';
+		}
+
+		if (!$seen) {
+			$classes[] = 'is-unread';
+		}
+
+		if ($this->isResolved()) {
+			$classes[] = 'is-resolved';
+		}
+
+		if (!$this->isResolved()) {
+			$classes[] = 'is-unresolved';
+		}
+
+		if ($this->isFeatured()) {
+			$classes[] = 'is-featured';
+		}
+
+		if (!$this->isFeatured()) {
+			$classes[] = 'is-unfeatured';	
+		}
+
+		if ($this->isLocked()) {
+			$classes[] = 'is-locked';
+		}
+
+		if (!$this->isLocked()) {
+			$classes[] = 'is-unlocked';
+		}
+
+		if ($this->post->password) {
+			$classes[] = 'is-protected';
+		}
+
+		if ($this->isPrivate()) {
+			$classes[] = 'is-private';
+		}
+
+		if ($this->isStillNew()) {
+			$classes[] = 'is-new';
+		}
+
+		$classes = implode(' ', $classes);
+
+		return $classes;
+	}
+
+	/**
+	 * Use getWrapperClass instead
+	 *
+	 * @deprecated   5.0.0
 	 */
 	public function getHeaderClass()
 	{
-		$class = '';
-
-		$class .= $this->isSeen($this->my->id) ? ' is-read' : '';
-		$class .= $this->isUnread($this->my->id) ? ' is-unread' : '';
-		$class .= $this->isResolved() ? ' is-resolved' : '';
-		$class .= $this->isFeatured() ? ' is-featured' : '';
-		$class .= $this->isLocked() ? ' is-locked' : '';
-		$class .= $this->isProtected() ? ' is-protected' : '';
-		$class .= $this->isPrivate() ? ' is-private' : '';
-
-		$class .= $this->config->get('layout_enableintrotext') || $this->getTags() ? ' has-body' : '';
-
-		return $class;
+		return $this->getWrapperClass();
 	}
 
 	/**
@@ -2352,6 +2606,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$noofdays = $this->noofdays;
 
 			if (is_null($noofdays)) {
+
 				$now = ED::date()->toMySQL();
 				$created = $this->created;
 
@@ -2398,29 +2653,30 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getAssignment()
+	public function getAssignment($useCache = true)
 	{
-		static $items = array();
+		static $cache = [];
 
-		// TODO: Need to refactor this again for caching.
+		if (!isset($cache[$this->post->id])) {
+			$cache[$this->post->id] = null;
 
-		// if (!isset($items[$this->post->id])) {
+			if (isset($this->assignment) && $this->assignment) {
+				$cache[$this->post->id] = $this->assignment;
+			}
 
-		//     $assignment = ED::table('PostAssignment');
-		//     $assignment->load($this->post->id);
+			if (!$cache[$this->post->id]) {
+				$model = ED::model('Post');
+				$this->assignment = $model->getAssignment($this->post->id);
 
-		//     $items[$this->post->id] = $assignment;
-		// }
+				$cache[$this->post->id] = $this->assignment;
+			}
 
-		// return $items[$this->post->id];
-		$assignment = ED::table('PostAssignment');
-		$assignment->load($this->post->id);
-		$this->assignment = $assignment;
+			if ($cache[$this->post->id]) {
+				$this->assignee = ED::user($this->assignment->assignee_id);
+			}
+		}
 
-		$assignee = ED::user($assignment->assignee_id);
-		$this->assignee = $assignee;
-
-		return $this->assignment;
+		return $cache[$this->post->id];
 	}
 
 	/**
@@ -2431,17 +2687,17 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function getCategory()
 	{
-		$categories = array();
+		static $cache = array();
 
-		$key = $this->post->id;
+		$key = $this->post->category_id;
 
-		if (!isset($categories[$key])) {
+		if (!isset($cache[$key])) {
 			$category = ED::category($this->post->category_id);
 
-			$categories[$key] = $category;
+			$cache[$key] = $category;
 		}
 
-		return $categories[$key];
+		return $cache[$key];
 	}
 
 	/**
@@ -2478,7 +2734,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if (!empty($matches[1])) {
 			foreach ($matches[1] as $match) {
-				$reference = JString::str_ireplace('"', '', $match);
+				$reference = EDJString::str_ireplace('"', '', $match);
 				$reference = ED::string()->normalizeProtocol($reference);
 
 				$items[$key][] = $reference;
@@ -2497,7 +2753,7 @@ class EasyDiscussPost extends EasyDiscuss
 	public function getCustomFields()
 	{
 		$model = ED::model('CustomFields');
-		$fields = $model->getViewableFields($this->post->id);
+		$fields = $model->getViewableFields($this->post->id, $this->post->category_id);
 
 		return $fields;
 	}
@@ -2508,8 +2764,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since	4.1.3
 	 * @access	public
 	 */
-
-
 	public function getEmbedData()
 	{
 		static $items = array();
@@ -2533,8 +2787,8 @@ class EasyDiscussPost extends EasyDiscuss
 			// We need to escape quotes this now
 			$description = ED::string()->escape($description);
 
-			if (JString::strlen($description) > $maxContent) {
-				$description = JString::substr($description, 0, $maxContent) . '...';
+			if (EDJString::strlen($description) > $maxContent) {
+				$description = EDJString::substr($description, 0, $maxContent) . '...';
 			}
 
 			$data->url = EDR::getRoutedURL('view=post&id=' . $this->id, false, true);
@@ -2604,28 +2858,58 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getPriority()
+	public function getPriority($useCache = true)
 	{
 		static $items = array();
-		static $_prorities = array();
 
 		if (!$this->post->priority) {
 			return false;
 		}
 
-		if (!isset($items[$this->post->id])) {
+		if (!$useCache || !isset($items[$this->post->id])) {
+			$cache = ED::cache();
 
-			if (!isset($_prorities[$this->post->priority])) {
-				$item = ED::table('Priority');
-				$item->load($this->post->priority);
-
-				$_prorities[$this->post->priority] = $item;
+			if ($useCache) {
+				$priority = ED::cache()->get($this->post->priority, 'priorities');
 			}
 
-			$items[$this->post->id] = $_prorities[$this->post->priority];
+			if (!$useCache || !$priority) {
+				$priority = ED::priority($this->post->priority);
+
+				ED::cache()->set($priority, 'priorities');
+			}
+
+			$items[$this->post->id] = $priority;
 		}
 
 		return $items[$this->post->id];
+	}
+
+	/**
+	 * Update the post author
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function updateAuthor($authorId)
+	{
+		$model = ED::model('Posts');
+		$model->updateAuthor($this->post->id, $authorId);
+
+		$this->updateThread(array('user_id' => $authorId));
+	}
+
+	/**
+	 * Get the post author
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getAuthor()
+	{
+		$user = ED::user($this->user_id);
+
+		return $user;
 	}
 
 	/**
@@ -2642,6 +2926,56 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get the available slash commands
+	 *
+	 * @since   4.2
+	 * @access  public
+	 */
+	public function getSlashCommands()
+	{
+		$question = $this;
+
+		if ($this->isReply()) {
+			$question = $this->getParent();
+		}
+
+		$actions = array();
+		$actions[] = $question->isResolved() ? 'unresolve' : 'resolve';
+		$actions[] = $question->isLocked(false) ? 'unlock' : 'lock';
+
+		$model = ED::model('PostLabels');
+		$allLabels = $model->getLabels();
+
+		$currentLabel = $question->getCurrentLabel(false);
+
+		$labels = array();
+
+		if ($allLabels) {
+			$actions[] = 'label';
+			foreach ($allLabels as $label) {
+				if ($label->id == $currentLabel->id) {
+					continue;
+				}
+
+				// User might put space for the label. we need to standardize it for slash command
+				$command = str_replace(' ', '_', $label->title);
+				$command = strtolower($command);
+				$labels[] = $command;
+			}
+		}
+
+		if ($question->hasLabel()) {
+			$labels[] = 'clear';
+		}
+
+		$commands = array();
+		$commands['actions'] = $actions;
+		$commands['labels'] = $labels;
+
+		return $commands;
 	}
 
 	/**
@@ -2695,6 +3029,32 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieves the date source type of the replies
+	 *
+	 * @since   4.2
+	 * @access  public
+	 */
+	public function getReplyDate()
+	{
+		static $date = [];
+
+		if (!isset($date[$this->post->id]) && $this->isReply()) {
+			$dateSource = $this->config->get('layout_replies_date_source');
+
+			if ($dateSource != 'default') {
+				$dateFormat = ED::date()->getDateFormat(JText::_('DATE_FORMAT_LC2'));
+
+				$date[$this->post->id] = ED::date($this->post->$dateSource)->format($dateFormat);
+			} else {
+				// By default is duration
+				$date[$this->post->id] = $this->getDuration();  
+			}
+		}
+
+		return $date[$this->post->id];
+	}
+
+	/**
 	 * Generates the permalink for the post
 	 *
 	 * @since   4.0
@@ -2719,11 +3079,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getPermalink($external = false, $xhtml = true, $json = false, $respectedLangMenu = false, $includeAnchor = true)
+	public function getPermalink($external = false, $xhtml = true, $json = false, $respectedLangMenu = false, $includeAnchor = true, $amp = false)
 	{
 		static $links = array();
 
-		$key = $this->post->id . $xhtml . $external . $json;
+		$key = $this->post->id . $xhtml . $external . $json . $amp;
 
 		if (!isset($links[$key])) {
 
@@ -2773,6 +3133,10 @@ class EasyDiscussPost extends EasyDiscuss
 
 			if ($json) {
 				$links[$key] = $links[$key] . '&format=json';
+			}
+
+			if ($amp) {
+				$links[$key] = $links[$key] . '&format=amp';
 			}
 		}
 
@@ -2830,8 +3194,23 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getReplies($checkAcl = true, $limit = null, $sort = 'oldest', $limitstart = 0, $isLastPage = false)
+	// public function getReplies($checkAcl = true, $limit = null, $sort = 'oldest', $limitstart = 0, $isLastPage = false, $useCache = true, $excludeIds = array(), $since = null, $includeAnswer = false)
+
+
+	public function getReplies($options = array())
 	{
+		// retrieving params
+		$limit = ED::normalize($options, 'limit', null);
+		$sort = ED::normalize($options, 'sort', 'oldest');
+		$limitstart = ED::normalize($options, 'limitstart', 0);
+		$checkAcl = ED::normalize($options, 'published', true);
+		$isLastPage = ED::normalize($options, 'isLastPage', false);
+		$useCache = ED::normalize($options, 'useCache', true);
+		$excludeIds = ED::normalize($options, 'excludeIds', array());
+		$since = ED::normalize($options, 'since', null);
+		$includeAnswer = ED::normalize($options, 'includeAnswer', false);
+		$nextReply = ED::normalize($options, 'nextReply', false);
+
 		$default = array();
 		$pagination = $this->config->get('layout_replies_pagination');
 
@@ -2842,7 +3221,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 		static $items = array();
 
-		if (isset($items[$this->post->id])) {
+		if ($useCache && isset($items[$this->post->id])) {
 			return $items[$this->post->id];
 		}
 
@@ -2853,7 +3232,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return $default;
 		}
 
-		if (! $sort) {
+		if (!$sort) {
 			$sort = ED::config()->get('replies_sorting', 'oldest');
 		}
 
@@ -2880,14 +3259,40 @@ class EasyDiscussPost extends EasyDiscuss
 			}
 		}
 
+		$curLimit = $nextReply ? $limit + 1 : $limit;
+
 		// Get the replies
-		$replies = $model->getReplies($this->post->id, $sort, $limitstart, $limit, $pagination);
+		$replies = $model->getReplies($this->post->id, $sort, $limitstart, $curLimit, $pagination, $excludeIds, $since, $includeAnswer);
+
+		// override the pagination
+		$model->setPagination($model->getTotal(), $limitstart, $limit);
+
+		if ($pagination && $nextReply && count($replies) > $limit) {
+			// there is next reply.
+			// let temporary store it.
+			$nextReplyItem = array_pop($replies);
+			$this->nextReplyItem = $nextReplyItem;
+		}
 
 		if ($replies) {
 			$replies = ED::formatReplies($replies, $category, $pagination);
 		}
 
 		return $replies;
+	}
+
+	/**
+	 * Method to get next reply item that wil be used in activity logs
+	 *
+	 * @since   5.0
+	 * @access  public
+	 */
+	public function getNextReplyItem()
+	{
+		if ($this->nextReplyItem) {
+			return $this->nextReplyItem;
+		}
+		return false;
 	}
 
 	/**
@@ -2931,7 +3336,6 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Get the last person that replies to this discussion
 	 *
-	 * @alternative for ->reply
 	 * @since   4.0
 	 * @access  public
 	 */
@@ -2956,8 +3360,21 @@ class EasyDiscussPost extends EasyDiscuss
 			}
 
 			if (isset($this->last_user_id)) {
-				if ($this->last_user_id) {
 
+				if (!$this->last_user_id) {
+					$user = '0';
+
+					// Perhaps the last replied was a guest
+					if ($this->last_poster_name) {
+						$user = ED::user(0);
+						$user->name = $this->last_poster_name;
+					}
+
+					$_cache[$key] = $user;
+					return $_cache[$key];
+				}
+
+				if ($this->last_user_id) {
 					$showAsAnonymous = ($this->last_user_anonymous && ($this->last_user_id != $this->my->id || !ED::isSiteAdmin())) ? true : false;
 
 					if ($showAsAnonymous) {
@@ -2966,17 +3383,12 @@ class EasyDiscussPost extends EasyDiscuss
 					} else {
 						$user = ED::user($this->last_user_id);
 					}
-
-				} else {
-					if ($this->last_poster_name) {
-						$user = ED::user(0);
-						$user->name = $this->last_poster_name;
-					} else {
-						$user = '0';
-					}
 				}
-			} else {
-				// Get the last reply item
+			} 
+
+			// The dataset probably did not come with the last replier id, so we need to manually fetch them
+			if (!isset($this->last_user_id)) {
+				
 				$model = ED::model('Posts');
 				$reply = $model->getLastReply($this->post->id, $useCache);
 
@@ -3007,7 +3419,6 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Method to check if the last reply is anonymous reply
 	 *
-	 * @alternative for ->reply
 	 * @since   4.0
 	 * @access  public
 	 */
@@ -3088,14 +3499,14 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getTotalFavorites()
+	public function getTotalFavorites($useCache = true)
 	{
 		static $favorites = array();
 
 		$key = $this->post->id;
 
-		if (!isset($favorites[$key])) {
-			if (isset($this->totalFavourites)) {
+		if (!$useCache || !isset($favorites[$key])) {
+			if (isset($this->totalFavourites) && $useCache) {
 				$favorites[$key] = $this->totalFavourites;
 			} else {
 				$model = ED::model("Favourites");
@@ -3115,12 +3526,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function getTags()
 	{
-		static $items = array();
+		static $items = [];
 
 		$key = $this->post->id;
 
 		if (!isset($items[$key])) {
-
 			$model = ED::model('PostsTags');
 			$items[$key] = $model->getPostTags($this->post->id);
 		}
@@ -3135,13 +3545,13 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getAttachments()
+	public function getAttachments($useCache = true)
 	{
 		static $items = array();
 
 		$key = $this->post->id;
 
-		if (isset($items[$key])) {
+		if ($useCache && isset($items[$key])) {
 			return $items[$key];
 		}
 
@@ -3241,18 +3651,18 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getComments($limit = null, $limitstart = null)
+	public function getComments($limit = null, $limitstart = null, $useCache = true, $exclude = [], $since = null)
 	{
-		$default = array();
+		$default = [];
 
-		static $items = array();
+		static $items = [];
 
-		if (isset($items[$this->post->id])) {
+		if ($useCache && isset($items[$this->post->id])) {
 			return $items[$this->post->id];
 		}
 
 		$model = ED::model('Posts');
-		$comments = $model->getComments($this->post->id, $limit, $limitstart);
+		$comments = $model->getComments($this->post->id, $limit, $limitstart, $exclude, $since);
 		$items[$this->post->id] = ED::formatComments($comments);
 
 		return $items[$this->post->id];
@@ -3268,18 +3678,14 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		static $items = array();
 
-		$key = $this->post->id;
+		if (!isset($items[$this->post->id])) {
+			$model = ED::model('Posts');
+			$total = $model->getTotalComments($this->post->id);
 
-		if (isset($items[$key])) {
-			return $items[$key];
+			$items[$this->post->id] = $total;
 		}
 
-		$model = ED::model('Posts');
-		$total = $model->getTotalComments($this->post->id);
-
-		$items[$key] = $total;
-
-		return $items[$key];
+		return $items[$this->post->id];
 	}
 
 	/**
@@ -3307,29 +3713,35 @@ class EasyDiscussPost extends EasyDiscuss
 	/**
 	 * Get the total number of replies to a discussion
 	 *
-	 * @alternative for ->totalreplies
-	 *
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getTotalReplies()
+	public function getTotalReplies($useCache = true)
 	{
 		static $items = array();
 
-		if (!isset($items[$this->post->id])) {
-
+		if (!$useCache || !isset($items[$this->post->id])) {
+			// Default value for total replies.
 			$items[$this->post->id] = 0;
 
-			if (isset($this->num_replies)) {
-				$items[$this->post->id] = $this->num_replies;
+			$totalReplies = null;
 
-			} else if (isset($this->post->num_replies)) {
-				$items[$this->post->id] = $this->post->num_replies;
+			if ($useCache && isset($this->num_replies)) {
+				$totalReplies = $this->num_replies;
+			}
 
-			} else {
+			if ($useCache && isset($this->post->num_replies)) {
+				$totalReplies = $this->post->num_replies;
+			} 
 
+			// If we still cannot get any values, just get it from the model
+			if (!$useCache || is_null($totalReplies)) {
 				$model = ED::model('Posts');
-				$items[$this->post->id] = $model->getTotalReplies($this->post->id);
+				$totalReplies = $model->getTotalReplies($this->post->id);
+			}
+
+			if (!is_null($totalReplies)) {
+				$items[$this->post->id] = $totalReplies;
 			}
 		}
 
@@ -3353,16 +3765,16 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getTotalVotes()
+	public function getTotalVotes($useCache = true, $type = null)
 	{
 		static $votes = array();
 
-		if (!isset($votes[$this->post->id])) {
-			if (isset($this->VotedCnt)) {
+		if (!$useCache || !isset($votes[$this->post->id])) {
+			if ($useCache && isset($this->VotedCnt)) {
 				$votes[$this->post->id] = $this->VotedCnt;
 			} else {
 				$model = ED::model('votes');
-				$votes[$this->post->id] = $model->getTotalVotes($this->post->id);
+				$votes[$this->post->id] = $model->getTotalVotes($this->post->id, $type);
 			}
 		}
 
@@ -3375,12 +3787,12 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getTotalLikes()
+	public function getTotalLikes($useCache = true)
 	{
 		static $likes = array();
 
-		if (!isset($likes[$this->post->id])) {
-			if (isset($this->likeCnt)) {
+		if (!$useCache || !isset($likes[$this->post->id])) {
+			if ($useCache && isset($this->likeCnt)) {
 				$likes[$this->post->id] = $this->likeCnt;
 			} else {
 				$likes[$this->post->id] = ED::model('likes')->getTotalLikes($this->post->id);
@@ -3421,11 +3833,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getTitle()
+	public function getTitle($useCache = true)
 	{
 		static $titles = array();
 
-		if (!isset($titles[$this->post->id])) {
+		if (!$useCache || !isset($titles[$this->post->id])) {
 
 			$title = $this->post->title;
 
@@ -3438,8 +3850,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$title = ED::badwords()->filter($title);
 			$title = ED::string()->escape($title);
 
-			// Apply badword filtering
-			$titles[$this->post->id] = ED::badwords()->filter($title);
+			$titles[$this->post->id] = $title;
 		}
 
 		return $titles[$this->post->id];
@@ -3494,7 +3905,7 @@ class EasyDiscussPost extends EasyDiscuss
 				$content = strip_tags($content);
 
 				// Truncate the content
-				$content = JString::substr($content, 0, $this->config->get('layout_introtextlength')) . JText::_('COM_EASYDISCUSS_ELLIPSES');
+				$content = EDJString::substr($content, 0, $this->config->get('layout_introtextlength')) . JText::_('COM_EASYDISCUSS_ELLIPSES');
 
 				$contents[$this->post->id] = $content;
 			}
@@ -3511,19 +3922,19 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getContent($debug = false, $reload = false, $processAttachments = true)
+	public function getContent($debug = false, $reload = false, $processAttachments = true, $trigger = true, $processAMP = false)
 	{
 		$content = '';
 
 		// Determines if we should trigger the contents
-		if ($this->config->get('main_content_trigger_posts')) {
+		if ($this->config->get('main_content_trigger_posts') && $trigger) {
 
 			// We need to keep a copy of raw content so that when calling ED::formatContent(), the returned content might be from the preview column.
 			$raw = $this->post->content;
 
 			// Add the br tags in the content, we do it here so that the content triggers's javascript will not get added with br tags
 			// here we assign the formatted value into ->content is bcos the trigger is seeing this value.
-			$this->post->content = $this->formatContent($debug, $reload, $processAttachments);
+			$this->post->content = $this->formatContent($debug, $reload, $processAttachments, $processAMP);
 			// $this->post->content = ED::formatContent($this->post);
 
 			$this->events = new stdClass();
@@ -3540,11 +3951,12 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// revert back the raw content into post->content;
 			$this->post->content = $raw;
-		} else {
 
-			// Retrieve the formatted content
-			$content = $this->formatContent($debug, $reload, $processAttachments);
+			return $content;
 		}
+
+		// Retrieve the formatted content
+		$content = $this->formatContent($debug, $reload, $processAttachments, $processAMP);
 
 		return $content;
 	}
@@ -3667,32 +4079,108 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 * Allows caller to set the status of a post
+	 * Allows caller to set the label of a post
 	 *
-	 * @since   4.0
+	 * @since   5.0.0
 	 * @access  public
 	 */
-	public function setStatus($status)
+	public function setLabel($title)
 	{
-		if ($status == 'hold') {
-			return $this->markPostOnHold();
+		$label = ED::table('Labels');
+		$label->load(array('title' => $title));
+
+		if (!$label->id) {
+			return false;
 		}
 
-		if ($status == 'accepted') {
-			return $this->markPostAccepted();
+		$question = $this;
+
+		if ($this->isReply()) {
+			$question = $this->getParent();
 		}
 
-		if ($status == 'working') {
-			return $this->markPostWorkingOn();
+		$oldLabel = $question->post->post_status;
+		$newLabel = $label->id;
+
+		$question->post->post_status = $label->id;
+
+		$state = $question->post->store();
+
+		if ($state) {
+			$question->updateThread(array('post_status' => $label->id));
+
+			// post's label
+			if ($oldLabel != $newLabel) {
+				$actiLib = ED::activity();
+				$tmpl = $actiLib->getTemplate();
+				$tmpl->setAction('post.label');
+				$tmpl->setActor($this->my->id);
+				$tmpl->setType('post', $question->post->id);
+				$tmpl->setContent($oldLabel, $newLabel);
+				$activityId = $actiLib->log($tmpl);
+
+				if ($activityId) {
+					$this->processedLabels = $activityId;
+				}
+			}
 		}
 
-		if ($status == 'rejected') {
-			return $this->markPostRejected();
+		// Notify the discussion owner
+		if ($state && $this->config->get('main_notifications') && $question->user_id != $this->my->id) {
+			$notification = ED::table('Notifications');
+			$notification->bind(array(
+				'title' => JText::sprintf('COM_ED_SET_POST_LABEL_NOTIFICATION_TITLE',$label->title, $question->title),
+				'cid' => $question->id,
+				'type' => 'label',
+				'target' => $question->user_id,
+				'author' => $this->my->id,
+				'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
+				));
+
+			$notification->store();
 		}
 
-		if ($status == 'none') {
-			return $this->markPostNoStatus();
+		return $state;
+	}
+
+	/**
+	 * Allows caller to remove the label of a post
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function removeLabel()
+	{
+		$question = $this;
+
+		if ($this->isReply()) {
+			$question = $this->getParent();
 		}
+
+		$question->post->post_status = 0;
+
+		$state = $question->post->store();
+
+		if ($state) {
+			$this->updateThread(array('post_status' => 0));
+		}
+
+		// Notify the discussion owner
+		if ($state && $this->config->get('main_notifications') && $question->user_id != $this->my->id) {
+			$notification = ED::table('Notifications');
+			$notification->bind(array(
+				'title' => JText::sprintf('COM_ED_REMOVE_POST_LABEL_NOTIFICATION_TITLE', $question->title),
+				'cid' => $question->id,
+				'type' => 'label',
+				'target' => $question->user_id,
+				'author' => $this->my->id,
+				'permalink' => 'index.php?option=com_easydiscuss&view=post&id=' . $question->id
+				));
+
+			$notification->store();
+		}
+
+		return $state;
 	}
 
 	/**
@@ -3800,7 +4288,6 @@ class EasyDiscussPost extends EasyDiscuss
 		return $this->post->private == true;
 	}
 
-
 	/**
 	 * Determines if this post's assignment status is being rejected or not
 	 *
@@ -3821,6 +4308,127 @@ class EasyDiscussPost extends EasyDiscuss
 	public function isPostOnhold()
 	{
 		return $this->post->post_status == DISCUSS_POST_STATUS_ON_HOLD;
+	}
+
+	/**
+	 * Determines if this post is being published
+	 *
+	 * @since   5.0
+	 * @access  public
+	 */
+	public function isBeingPublished()
+	{
+		return $this->original->published != DISCUSS_ID_PUBLISHED
+			&& $this->isNoLongerNew();
+	}
+
+	/**
+	 * Determines if the post is being unpublished
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function isBeingUnpublished()
+	{
+		return $this->original->published != DISCUSS_ID_UNPUBLISHED
+			&& $this->isNoLongerNew();
+	}
+
+	/**
+	 * Determines if this post is being approved
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function isBeingApproved()
+	{
+		return $this->original->published == DISCUSS_ID_PENDING
+			&& $this->post->published == DISCUSS_ID_PUBLISHED;
+	}
+
+	/**
+	 * Determines if this post is being approved
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function isBeingRejected()
+	{
+		return $this->original->published == DISCUSS_ID_PENDING
+			&& $this->post->published == DISCUSS_ID_UNPUBLISHED;
+	}
+
+	/**
+	 * Determines if this post is no longer a new post.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function isNoLongerNew()
+	{
+		return !$this->original->isnew;
+	}
+
+	/**
+	 * Get the current label of the post
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function getCurrentLabel($useCache = true)
+	{
+		static $cache = [];
+
+		if (!$useCache || !isset($cache[$this->post->id])) {
+			$label = ED::table('Labels');
+
+			if ($this->post->post_status) {
+				$label->load($this->post->post_status);
+			}
+
+			$cache[$this->post->id] = $label;
+		}
+
+		return $cache[$this->post->id];
+	}
+
+	/**
+	 * Determine if the post can be labelled
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function canLabel($remove = false)
+	{
+		if (!$this->isQuestion()) {
+			return false;
+		}
+
+		if (ED::isSiteAdmin($this->my->id) || ED::isModerator($this->post->category_id, $this->my->id)) {
+			return true;
+		}
+
+		// Determine if the label can be removed
+		if ($remove) {
+			return $this->acl->allowed('remove_label');
+		}
+
+		if ($this->acl->allowed('set_label')) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determines whether this post has label or not
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function hasLabel()
+	{
+		return $this->post->post_status;
 	}
 
 	/**
@@ -3934,26 +4542,66 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getPostType()
+	public function getPostType($useCache = true)
 	{
-		static $_title = array();
+		static $cache = array();
 
-		if (! isset($_title[$this->post->id])) {
-
+		if (!$useCache || !isset($cache[$this->post->id])) {
 			$posttype = '';
 
-			if (isset($this->post_type_title)) {
+			if ($useCache && isset($this->post_type_title)) {
 				$posttype = $this->post_type_title;
-			} else {
+			} 
+
+			if (!$useCache || !isset($this->post_type_title)) {
 				$model = ED::model('Posttypes');
 				$posttype = $model->getTitle($this->post->post_type);
 			}
 
-			$_title[$this->post->id] = JText::_($posttype);
+			$cache[$this->post->id] = JText::_($posttype);
 		}
 
+		return $cache[$this->post->id];
+	}
 
-		return $_title[$this->post->id];
+	/**
+	 * Get the Post Type
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function getPostTypeObject($useCache = true)
+	{
+		static $cache = array();
+
+		if (!$useCache || !isset($cache[$this->post->id])) {
+
+			$table = ED::table('Post_Types');
+			$exists = $table->load([
+				'alias' => $this->post->post_type
+			]);
+
+			$item = false;
+
+			if ($exists) {
+				$item = $table;
+			}
+			
+			$cache[$this->post->id] = $item;
+		}
+
+		return $cache[$this->post->id];
+	}
+
+	/**
+	 * Retrieves the modified date of the item
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getModifiedDate()
+	{
+		return ED::date($this->post->modified);
 	}
 
 	/**
@@ -3986,7 +4634,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function toData()
+	public function toData($questionOnly = false)
 	{
 		// Convert the table to an array
 		$data = new stdClass();
@@ -4003,6 +4651,20 @@ class EasyDiscussPost extends EasyDiscuss
 		$data->modified = $this->post->modified;
 		$data->content = $this->post->content;
 		$data->preview = $this->post->preview;
+		$data->alias = $this->post->alias;
+		$data->post_type = $this->post->post_type ? $this->post->post_type : 0;
+		$data->private = $this->post->private;
+		$data->content_type = $this->post->content_type;
+		$data->params = $this->post->params;
+		$data->latitude = $this->post->latitude;
+		$data->longitude = $this->post->longitude;
+		$data->address = $this->post->address;
+		$data->password = $this->post->password;
+		$data->fields = $this->getCustomFields();
+
+		if ($questionOnly) {
+			return $data;
+		}
 
 		// Get the replies and format them
 		$data->replies = array();
@@ -4045,7 +4707,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// Detect if post should be moderated.
 		$isAdmin = ED::isSiteAdmin($this->my->id);
 		$isModerator = ED::isModerator($this->post->category_id, $this->my->id);
-		$moderationEnabled = $this->config->get('main_moderatepost');
+		$moderationEnabled = $this->isQuestion() ? $this->config->get('main_moderatepost') : $this->config->get('main_moderatereply');
 
 		// Moderate all posts
 		if ($moderationEnabled && !$isAdmin && !$isModerator) {
@@ -4057,7 +4719,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// for those guest user should be always get moderated
 		if ($this->my->id) {
 			// Determines if the user should still be moderated
-			$isModerationThreshold = ED::isModerateThreshold($this->my->id);
+			$isModerationThreshold = ED::isModerateThreshold($this->my->id, $this->isQuestion());
 
 			if (!$isModerationThreshold && !$isAdmin && !$isModerator) {
 				$this->post->published = DISCUSS_ID_PUBLISHED;
@@ -4104,7 +4766,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function processCustomFields()
+	public function processCustomFields($options = [])
 	{
 		// Clear off previous records before storing
 		$model = ED::model('CustomFields');
@@ -4112,6 +4774,10 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Process custom fields.
 		$fields = $this->input->get('fields', array(), 'default');
+
+		if (isset($options['copyPost']) && $options['copyPost'] && $this->fields) {
+			$fields = $this->fields;
+		}
 
 		if (!$fields) {
 			return false;
@@ -4151,33 +4817,17 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
-		$files = JRequest::getVar('filedata', array(), 'FILES');
+		$files = $this->input->files->get('filedata', [], 'raw');
 
 		// If there is no attachment, don't continue
 		if (!$files) {
 			return false;
 		}
 
-		$total = count($files['name']);
-
-		// Handle empty files.
-		if (!$files['name'][0] || $total < 1) {
-			return false;
-		}
-
-		// Load up attachment
-		for ($i = 0; $i < $total; $i++) {
-			$file = array();
-
-			if (!$files['tmp_name'][$i]) {
+		foreach ($files as $file) {
+			if (!$file['name'] || !$file['tmp_name']) {
 				continue;
 			}
-
-			$file['name'] = $files['name'][$i];
-			$file['type'] = $files['type'][$i];
-			$file['tmp_name'] = $files['tmp_name'][$i];
-			$file['error'] = $files['error'][$i];
-			$file['size'] = $files['size'][$i];
 
 			// Upload an attachment
 			$attachment = ED::attachment();
@@ -4194,13 +4844,13 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function postSave()
+	public function postSave($options = [])
 	{
 		// Add url references for the post
 		$this->addReference();
 
 		// After the post is stored in the table, we need to process the custom fields
-		$this->processCustomFields();
+		$this->processCustomFields($options);
 
 		$post_type = 'post';
 
@@ -4222,6 +4872,37 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		$preview = $this->post->preview;
+
+
+		// here we need to check if user has no upload attachment permission but
+		// the post has previously uploaded the attachment, we need to 
+		// remove the previous attachment. #723
+
+		$checkAttachments = false;
+		if (!$this->isNew()) {
+			$category = $this->getCategory();
+			if (!$this->acl->allowed('add_attachment') || !$category->allowUploadAttachments()) {
+				$checkAttachments = true;
+			}
+		}
+
+		// lets proceed to check for attachment removal.
+		if ($checkAttachments) {
+			// check this post has attachments or not.
+
+			$model = ED::model('Attachments');
+			$hasAttachments = $model->hasAttachments($this->post->id);
+
+			if ($hasAttachments) {
+				// There is a possibility that we embed the attachment into content. We need to remove the attachment tags first.
+				if ($this->post->content_type == 'bbcode') {
+					$preview = ED::parser()->replaceAttachmentsEmbed($preview, $this, true);
+				}
+
+				// now we can elete attachments.
+				$this->deleteAttachments();
+			}
+		}
 
 		// Bind uploaded attachments
 		if ($this->acl->allowed('add_attachment') && $this->config->get('attachment_questions')) {
@@ -4251,7 +4932,45 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Now we need to save / update thread here
 		$this->saveThread();
+
+		// now we process the activity logs.
+		if ($this->isQuestion()) {
+			$this->processActivityLog($this->original, $this->post);
+		}
 	}
+
+	/**
+	 * Save the thread accordingly
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function processActivityLog($old, $new)
+	{
+		$actiLib = ED::activity();
+		$tmpl = $actiLib->getTemplate();
+
+		// post's title
+		if ($old->title && $new->title && $old->title != $new->title) {
+			$tmpl->setAction('post.title');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $new->id);
+			$tmpl->setContent($old->title, $new->title);
+			$actiLib->log($tmpl);
+		}
+
+		// post's category
+		if ($old->category_id && $new->category_id && $old->category_id != $new->category_id) {
+			$tmpl->clear();
+			$tmpl->setAction('post.category');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $new->id);
+			$tmpl->setContent($old->category_id, $new->category_id);
+			$actiLib->log($tmpl);
+		}
+
+	}
+
 
 	/**
 	 * Save the thread accordingly
@@ -4261,7 +4980,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function saveThread()
 	{
-		$isNew = $this->isNew();
+		// Currently can't use this isNew function to check this
+		// because the moderation post isNew value is still true
+
+		// $isNew = $this->isNew();
+		$isNew = $this->original->id ? false : true;
 
 		$thread = ED::table('Thread');
 
@@ -4283,7 +5006,7 @@ class EasyDiscussPost extends EasyDiscuss
 				unset($data['replied']);
 
 				// Update the attachments count from the thread table.
-				$attachments = $this->getAttachments();
+				$attachments = $this->getAttachments(false);
 				$data['num_attachments'] = count($attachments);
 
 				$thread->bind($data);
@@ -4305,12 +5028,21 @@ class EasyDiscussPost extends EasyDiscuss
 					$thread->replied = $this->post->created;
 				}
 
+				// Update the thread num_replies if the reply under moderation again (edit existing reply)
+				if ($this->prevPostStatus != DISCUSS_ID_PENDING && $this->isPending()) {
+					$thread->num_replies = $thread->num_replies - 1;
+				}
+
 				$thread->store();
 			}
 
 
 		} else {
 			if ($this->isQuestion()) {
+				// Fixed Joomla 4 compatibility
+				$thread->last_poster_name = '';
+				$thread->last_poster_email = '';
+
 				// create new thread
 				$data = get_object_vars ($this->post);
 
@@ -4368,7 +5100,6 @@ class EasyDiscussPost extends EasyDiscuss
 
 			}
 		}
-
 	}
 
 	/**
@@ -4484,6 +5215,11 @@ class EasyDiscussPost extends EasyDiscuss
 
 		foreach ($sites as $site) {
 
+			// Since we have removed wunderlist support from 5.0, exclude it here. #943
+			if ($site->type == 'wunderlist') {
+				continue;
+			}
+
 			// Ensure that the site is enabled.
 			$enabled = $this->config->get('main_autopost_' . $site->type);
 
@@ -4531,7 +5267,17 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function trimEmail($content)
 	{
+		$config = ED::config();
+
+		if ($config->get('layout_editor') != 'bbcode') {
+
+			$filterHtmlTag = '<p><div><table><tr><td><thead><tbody><br><br />';
+
+			// Remove html + img tags
 		$content = ED::Mailer()->trimEmail($content);
+
+			return $content;
+		}
 
 		return $content;
 	}
@@ -4550,6 +5296,82 @@ class EasyDiscussPost extends EasyDiscuss
 		$content = $content . $append;
 
 		return $content;
+	}
+
+	/**
+	 * Process slash action if exists in content
+	 *
+	 * @since   4.2
+	 * @access  public
+	 */
+	public function processSlashCommands()
+	{
+		// only process this for reply
+		if (!$this->isReply()) {
+			return false;
+		}
+
+		if (!ED::isSiteAdmin() && !ED::isModerator($this->getParent()->category_id)) {
+			return false;
+		}
+
+		$commandsAction = array(
+						'resolve' => 'markResolved',
+						'unresolve' => 'markUnresolve',
+						'lock' => 'lock',
+						'unlock' => 'unlock',
+						'clear' => 'markPostNoStatus'
+					);
+		
+		// Detect known actions in the post.
+		$commands = ED::string()->detectSlashes($this->post->content, $this->getSlashCommands());
+
+		if (!$commands) {
+			return false;
+		}
+
+		$question = $this->getParent();
+
+		$actions = $commands['actions'];
+		$labels = $commands['labels'];
+
+		$actionsTaken = array();
+		if ($actions) {
+			foreach ($actions as $item) {
+				$this->post->content = str_ireplace('/' . $item, '', $this->post->content);
+				$this->post->preview = str_ireplace('/' . $item, '', $this->post->preview);
+
+				if ($item == 'label') {
+					continue;
+				}
+
+				if (array_key_exists($item, $commandsAction)) {
+					$action = $commandsAction[$item];
+					$question->$action();
+
+					$actionsTaken[] = $item;
+				}
+			}
+		}
+
+		$this->processedActions = $question->processedActions;
+		
+		if ($labels) {
+			foreach ($labels as $label) {
+				$this->post->content = str_ireplace('~' . $label, '', $this->post->content);
+				$this->post->preview = str_ireplace('~' . $label, '', $this->post->preview);
+
+				// since we only able to set one label for each post,
+				// here we get the last added labels 
+				if (!next($labels)) {
+					$label = str_replace('_', ' ', $label);
+					$this->setLabel($label);
+				}
+			}
+			
+		}
+
+		return true;
 	}
 
 	/**
@@ -4604,7 +5426,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			$emailData = array();
 
-			$emailData['emailTemplate'] = $this->isReply() ? 'email.mention.reply.php' : 'email.mention.post.php';
+			$emailData['emailTemplate'] = 'email.mention.post';
 
 			$subjectText = $this->isReply() ? 'COM_EASYDISCUSS_EMAILS_MENTIONED_IN_REPLY_SUBJECT' : 'COM_EASYDISCUSS_EMAILS_MENTIONED_IN_POST_SUBJECT';
 			$emailData['emailSubject'] = JText::sprintf($subjectText, $this->getOwner()->getName(), $question->title);
@@ -4634,7 +5456,7 @@ class EasyDiscussPost extends EasyDiscuss
 	public function replyNotify()
 	{
 		// Add system notifications for the thread starter
-		if ($this->post->published && $this->config->get('main_notifications_reply') && !$this->isPending()) {
+		if ($this->post->published && $this->config->get('main_notifications') && !$this->isPending()) {
 
 			// Get all users that are subscribed to this post
 			$model = ED::model('Posts');
@@ -4672,7 +5494,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Retrieve poster email
 		// If the reply posted by anonymous, the email have to get it differently.
-		$posterEmail = isset($owner->user->email) && $owner->user->email ? $owner->user->email : $reply->user->email;
+		$posterEmail = isset($this->my->email) && $this->my->email ? $this->my->email : $reply->user->email;
 
 		// Retrieve the reply owner name
 		if (isset($owner->name) && $owner->name) {
@@ -4797,7 +5619,7 @@ class EasyDiscussPost extends EasyDiscuss
 			return;
 		}
 
-		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription')) 
+		if (($this->config->get('main_sitesubscription') ||  $this->config->get('main_postsubscription') ||  $this->config->get('main_ed_categorysubscription'))
 			&& $this->config->get('notify_subscriber') && $this->isPublished() && !$question->private && !$this->config->get('notify_reply_all_members')) {
 			$emailData['emailTemplate'] = 'email.subscription.reply.new.php';
 			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_REPLY_ADDED', $question->id , $question->title);
@@ -4850,7 +5672,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// If the question owner user id is registered user
 		if ($questionOwnerId) {
 			$questionOwner = ED::user($questionOwnerId);
-			$questionOwnerEmail = $questionOwner->user->email;
+			$questionOwnerEmail = $this->my->email;
 		} else {
 			$questionOwnerEmail = $question->poster_email;
 		}
@@ -4861,7 +5683,7 @@ class EasyDiscussPost extends EasyDiscuss
 		// If the reply owner user id is registered user
 		if ($replyOwnerId) {
 			$replyOwner = ED::user($replyOwnerId);
-			$replyOwnerEmail = $replyOwner->user->email;
+			$replyOwnerEmail = $this->my->email;
 		}
 
 		// Retrieve the email from poster_email column if that is a guest
@@ -4955,18 +5777,6 @@ class EasyDiscussPost extends EasyDiscuss
 
 			ED::Mailer()->notifyThreadOwner($emailData, array());
 		}
-
-		// Notfy thread owner if the post is being rejected
-		if ($isBeingRejected) {
-			$emailData['postContent'] = $emailContent;
-			$emailData['owner_email'] = $this->getOwner()->getEmail();
-			$emailData['emailTemplate'] = 'email.post.rejected';
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_REPLY_ASKED_REJECTED', $this->post->title);
-			$emailData['type'] = 'REPLY';
-
-			ED::Mailer()->notifyThreadOwner($emailData, array());
-		}
-
 	}
 
 	/**
@@ -4994,7 +5804,8 @@ class EasyDiscussPost extends EasyDiscuss
 		$subject = JText::sprintf('COM_EASYDISCUSS_POST_ASSIGNED_EMAIL_SUBJECT', $author->getName());
 
 		$notification = ED::getNotification();
-		$notification->addQueue($author->user->email ,$subject ,'' ,'email.post.assign' ,$emailData);
+
+		$notification->addQueue($author->getEmail(), $subject, '', 'email.post.assign',$emailData);
 	}
 
 	/**
@@ -5003,7 +5814,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getReplyPermalink()
+	public function getReplyPermalink($isModeration = false)
 	{
 		$question = ED::post($this->post->parent_id);
 		$threadId = $this->post->thread_id;
@@ -5019,7 +5830,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$replyLimit = $this->config->get('layout_replies_list_limit');
 
 		$model = ED::model('posts');
-		$rowNumber = $model->getRowNumber($threadId, $this->post->id);
+		$rowNumber = $model->getRowNumber($threadId, $this->post->id, $isModeration);
 
 		$limitstart = 0;
 
@@ -5050,22 +5861,27 @@ class EasyDiscussPost extends EasyDiscuss
 		return $url;
 	}
 
-
 	/**
 	 * Retrieve a reply permalink with limitstart
 	 *
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getLastReplyPermalink($replyId)
+	public function getLastReplyPermalink($replyId = null)
 	{
+		if (!$replyId && isset($this->lastReply) && $this->lastReply->id) {
+			$replyId = $this->lastReply->id;
+		}
+
 		$replyLink = 'view=post&id=' . $this->id;
 
 		if ($this->config->get('layout_replies_sorting') != 'latest') {
 			$replyLink .= '&page=last';
 		}
 
-		$replyLink .= '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $replyId;
+		if ($replyId) {
+			$replyLink .= '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK'). '-' . $replyId;
+		}
 
 		$url = EDR::_($replyLink);
 
@@ -5089,7 +5905,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$profile = $this->getOwner(true);
 
 		// retrieve the post owner email
-		$posterEmail = $profile->user->email;
+		$posterEmail = $profile->getEmail();
 		$excludeEmails = array($posterEmail);
 		$subcribersEmails = array();
 		$userGroupsEmails = array();
@@ -5115,13 +5931,7 @@ class EasyDiscussPost extends EasyDiscuss
 			$emailContent = $this->preview;
 		}
 
-		// This process is already being handled in trimEmail method. #765
-		// If post is html type we need to strip off html codes.
-		// if ($this->getContentType() == 'html') {
-			// $emailContent = strip_tags($this->post->content);
-		// }
-
-		$emailContent = ED::Mailer()->trimEmail($emailContent);
+		$emailContent = ED::mailer()->trimEmail($emailContent);
 
 		$attachments = $this->getAttachments();
 
@@ -5138,6 +5948,7 @@ class EasyDiscussPost extends EasyDiscuss
 		$emailData['emailTemplate'] = 'email.subscription.site.new';
 		$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_NEW_QUESTION_ASKED', $this->post->id, $this->post->title);
 
+		// Post is being moderated, so we only send to the proper recipients
 		if ($this->isModerate) {
 			// Generate hashkeys to map this current request
 			$hashkey = ED::table('HashKeys');
@@ -5178,44 +5989,41 @@ class EasyDiscussPost extends EasyDiscuss
 				$emailData['emailTemplate'] = 'email.post.edited.moderation';
 				$emailData['emailSubject'] = JText::sprintf('COM_ED_EDITED_DISCUSSION_MODERATE', $this->getTitle());
 			}
+		}
 
-		} else {
+		// Non moderated e-mail
+		if (!$this->isModerate && !$this->post->private && !$this->isCluster()) {
+			// Site subscribers
+			if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->isPublished() && !$this->config->get('notify_all')) {
 
-			// If this is a private post, do not notify anyone
-			if (!$this->post->private && !$this->isCluster()) {
-				// Notify site subscribers
-
-				if (($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && $this->isPublished() && !$this->config->get('notify_all')) {
-
-					if ($this->config->get('main_sitesubscription')) {
-						$siteSubscribers = ED::Mailer()->notifySubscribers($emailData, $excludeEmails);
-						$subcribersEmails = array_merge($excludeEmails, $siteSubscribers);
-					}
-
-					// Notify category subscribers
-					if ($this->config->get('main_ed_categorysubscription')) {
-						$categorySubscribers = ED::Mailer()->notifySubscribers($emailData , $excludeEmails);
-						$subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
-					}
+				if ($this->config->get('main_sitesubscription')) {
+					$siteSubscribers = ED::mailer()->notifySubscribers($emailData, $excludeEmails);
+					$subcribersEmails = array_merge($excludeEmails, $siteSubscribers);
 				}
 
-				// exclude the subscribers user since it already sent
-				$excludeEmails = array_merge($subcribersEmails, $excludeEmails);
-				$excludeEmails = array_unique($excludeEmails);
-
-				// Notify user groups
-				if ($this->config->get('notify_joomla_groups') && !$this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {					
-					$userGroupsEmails = ED::Mailer()->notifyUserGroups($emailData, $excludeEmails);
+				// Notify category subscribers
+				if ($this->config->get('main_ed_categorysubscription')) {
+					$categorySubscribers = ED::mailer()->notifySubscribers($emailData , $excludeEmails);
+					$subcribersEmails = array_merge($subcribersEmails, $categorySubscribers);
 				}
-
-				// Notify EVERYBODY
-				if ($this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
-					ED::mailer()->notifyAllMembers($emailData, $excludeEmails);
-				}
-
-				$excludeEmails = array_merge($excludeEmails, $userGroupsEmails);
-				$excludeEmails = array_unique($excludeEmails);
 			}
+
+			// exclude the subscribers user since it already sent
+			$excludeEmails = array_merge($subcribersEmails, $excludeEmails);
+			$excludeEmails = array_unique($excludeEmails);
+
+			// Notify user groups
+			if ($this->config->get('notify_joomla_groups') && !$this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+				$userGroupsEmails = ED::mailer()->notifyUserGroups($emailData, $excludeEmails);
+			}
+
+			// Notify EVERYBODY
+			if ($this->config->get('notify_all') && ((!$this->isModerate && $this->isNew() && $this->isPublished()) || $this->prevPostStatus == DISCUSS_ID_PENDING)) {
+				ED::mailer()->notifyAllMembers($emailData, $excludeEmails);
+			}
+
+			$excludeEmails = array_merge($excludeEmails, $userGroupsEmails);
+			$excludeEmails = array_unique($excludeEmails);
 		}
 
 		// Notify admins and category moderators
@@ -5239,12 +6047,6 @@ class EasyDiscussPost extends EasyDiscuss
 
 		// Notfy thread owner if the post is being rejected
 		if ($isBeingRejected) {
-			$emailData['owner_email'] = $this->getOwner()->getEmail();
-			$emailData['emailTemplate'] = 'email.post.rejected';
-			$emailData['emailSubject'] = JText::sprintf('COM_EASYDISCUSS_QUESTION_ASKED_REJECTED', $this->post->title);
-			$emailData['type'] = 'QUESTION';
-
-			ED::Mailer()->notifyThreadOwner($emailData, array());
 		}
 
 		// Notify the actor if the option is enabled
@@ -5302,7 +6104,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 						// Only create tags if it doesn't exist
 						if (!$exists) {
-							$tagTable->title = JString::trim($tag);
+							$tagTable->title = EDJString::trim($tag);
 							$tagTable->alias = ED::getAlias($tag, 'tag');
 							$tagTable->created = ED::date()->toSql();
 							$tagTable->published = 1;
@@ -5405,7 +6207,7 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function save($options = array())
+	public function save($options = [])
 	{
 		// Get any save options if available.
 		$this->saveOptions = $options;
@@ -5415,23 +6217,48 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->preSave();
 		}
 
+		$this->processSlashCommands();
+
+		// at this point, if the content is empty after processing slash command, we dont' need to store the reply.
+		if (empty(trim($this->post->content))) {
+			return true;
+		}
+
 		// This option enforces moderation for the post
 		if (isset($this->saveOptions['forceModerate']) && $this->saveOptions['forceModerate']) {
 			$this->isModerate = true;
 		}
+
+		// Fixed for Joomla 4 compatibility
+		if (!$this->post->poster_name) {
+			$this->post->poster_name = '';
+		}
+
+		if (!$this->post->poster_email) {
+			$this->post->poster_email = '';
+		}
+
+		if (!$this->post->priority) {
+			$this->post->priority = 0;
+		}
+
+		// Update the isnew value from database
+		$this->updateIsnew();
 
 		// Now we can store this in the db
 		$state = $this->post->store();
 
 		// Try to store the post.
 		if (!$state) {
-			ED::setMessageQueue($this->post->getError(), DISCUSS_QUEUE_ERROR);
-			$this->app->redirect(EDR::getAskRoute($this->getCategory()->id, false));
+			ED::setMessage($this->post->getError(), DISCUSS_QUEUE_ERROR);
+			ED::redirect(EDR::getAskRoute($this->getCategory()->id, false));
 			return $this->app->close();
 		}
 
 		// This allows us to perform necessary logics after the post is really saved.
-		$this->postSave();
+		$this->postSave($options);
+
+		$this->setLabel($this->label);
 
 		// Add tag for the post
 		$this->addTags();
@@ -5457,12 +6284,12 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->autopost();
 
 		// Notify mentioned name
-		if ($this->config->get('main_mentions')) {
+		if ($this->config->get('main_mentions') && !isset($this->saveOptions['copyPost'])) {
 			$this->notifyNames();
 		}
 
 		// should we send email notifications (question)
-		if ($this->isQuestion()) {
+		if ($this->isQuestion() && !isset($this->saveOptions['copyPost'])) {
 			$this->notify();
 		}
 
@@ -5471,11 +6298,82 @@ class EasyDiscussPost extends EasyDiscuss
 			$this->replyNotify();
 		}
 
+		// auto assign post to moderator.
+		$this->assignModerator();
+
 		// Execute all integration
 		$this->integrate();
 
 		return $state;
 	}
+
+	/**
+	 * Method to update the post isnew value
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function updateIsnew()
+	{
+		// Skip this if the post is moderate
+		// so the isnew will store true
+		if ($this->isModerate) {
+			return;
+		}
+
+		// Skip this if admin rejected the post
+		if ($this->isNew() && $this->prevPostStatus == DISCUSS_ID_PENDING && $this->isPending()) {
+			return;
+		}
+
+		// update the isnew to false after done everything at above
+		$this->post->isnew = false;
+	}		
+
+	/**
+	 * Method to assign a moderator to this post.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function assignModerator()
+	{
+		if (!$this->isQuestion()) {
+			return false;
+		}
+
+		if (!($this->isNew() || $this->prevPostStatus == DISCUSS_ID_PENDING) && !$this->isPublished()) {
+			return false;
+		}
+
+		$category = $this->getCategory();
+		$assigneeUserId = $category->getAssignedGroups('assignment', 'user');
+		$assigneeUserId = $assigneeUserId ? $assigneeUserId[0] : 0;
+
+		if ($assigneeUserId) {
+			// lets check if this post already assigned with a moderator or not.
+			$assignment = ED::table('PostAssignment');
+			$assignment->load($this->post->id);
+
+			if (!$assignment->id) {
+
+				$assignment->post_id = $this->post->id;
+				$assignment->assignee_id = $assigneeUserId;
+				$assignment->assigner_id = 0; // since this is auto assign, we can leave the assigner id to 0 (zero).
+				$assignment->created = ED::date()->toSql();
+
+				$state = $assignment->store();
+
+				if ($state) {
+					// notify moderator
+					$this->notifyAssignedModerator($assigneeUserId, $this->post->id);
+				}
+			}
+		}
+
+		return true;
+	}
+
 
 	/**
 	 * Triggers plugins after a blog post is saved
@@ -5488,10 +6386,8 @@ class EasyDiscussPost extends EasyDiscuss
 		// Import plugins
 		JPluginHelper::importPlugin('finder');
 
-		$dispatcher = JDispatcher::getInstance();
-
 		// finder index
-		$dispatcher->trigger('onFinderAfterSave', array('com_easydiscuss.post', &$this, $this->isNew()));
+		EDDispatcher::trigger('onFinderAfterSave', array('com_easydiscuss.post', &$this, $this->isNew()));
 	}
 
 	/**
@@ -5502,8 +6398,6 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function markRead($userId = null)
 	{
-		static $items = array();
-
 		// Get the user.
 		$user = ED::user($userId);
 
@@ -5512,24 +6406,27 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
-		// Get the posts_read
-		$posts = $user->posts_read;
-
-		if ($posts) {
-			$posts = unserialize($posts);
-
-			if (!in_array($this->post->id, $posts)) {
-				$posts[] = $this->post->id;
-			}
-		} else {
-			$posts = array($this->post->id);
-		}
-
-		$user->posts_read = serialize($posts);
-
-		$state = $user->store();
+		$state = $user->markRead($this->post->id);
 
 		return $state;
+	}
+
+	/**
+	 * Validates the category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function validateCategory($data)
+	{
+		$category = $this->getCategory();
+
+		if ($this->isQuestion() && (!$category->id || !$category->canPost() || !$category->isPublished())) {
+			$this->setError('COM_ED_INVALID_CATEGORY');
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -5554,7 +6451,7 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		//If captcha is enable and create from back end
-		if (JFactory::getApplication()->isAdmin() && $captcha->enabled()) {
+		if (ED::isFromAdmin() && $captcha->enabled()) {
 			return true;
 		}
 
@@ -5577,13 +6474,13 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function isNew()
 	{
-		$isNew = true;
+		$isNew = false;
 
-		if ($this->original->id) {
-			$isNew = false;
+		if ($this->original->isnew) {
+			$isNew = true;
 		}
 
-		return $isNew;
+		return $isNew;		
 	}
 
 	/**
@@ -5601,14 +6498,17 @@ class EasyDiscussPost extends EasyDiscuss
 		$editorType = $this->config->get('layout_editor');
 
 		// Determine how the content should be formatted in editing layout.
-		if ($editorType == 'bbcode') {
+		if ($editorType == 'bbcode' && $this->post->content_type != 'bbcode') {
 			$this->post->content = ED::parser()->html2bbcode($this->post->content);
+		} 
 
-		} else if ($editorType != 'bbcode' && $this->post->content_type == 'bbcode') {
+		if ($editorType != 'bbcode' && $this->post->content_type == 'bbcode') {
 			$this->post->content = ED::parser()->bbcode($this->post->content);
 			$this->post->content = nl2br($this->post->content);
 
-		} else if ($editorType != 'bbcode' && $this->post->content_type == 'html') {
+		}
+
+		if ($editorType != 'bbcode' && $this->post->content_type == 'html') {
 			$this->post->content = htmlentities($this->post->content);
 		}
 
@@ -5621,9 +6521,9 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function formatContent($debug = false, $reload = false, $processAttachments = true)
+	public function formatContent($debug = false, $reload = false, $processAttachments = true, $isAmp = false)
 	{
-		if ($this->post->preview && !$reload) {
+		if ($this->post->preview && !$reload && !$isAmp) {
 			$this->post->preview = ED::parser()->processSpoilerTag($this->post->preview);
 			$this->post->preview = ED::parser()->processHideTag($this->post->preview);
 			// Apply word censorship on the content
@@ -5641,7 +6541,7 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($this->getContentType() == 'bbcode' && $editor == 'bbcode') {
 
 			// Allow syntax highlighter even on html codes.
-			$content = ED::parser()->bbcode($content, $debug);
+			$content = ED::parser()->bbcode($content, $debug, $isAmp);
 
 			$content = ED::parser()->processHideTag($content);
 			$content = ED::parser()->processSpoilerTag($content);
@@ -5664,7 +6564,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// Since the original content is bbcode, we don't really need to do any replacements.
 			// Just feed it in through bbcode formatter.
-			$content = ED::parser()->bbcode($content);
+			$content = ED::parser()->bbcode($content, $debug, $isAmp);
 
 			$content = ED::parser()->processHideTag($content);
 			$content = ED::parser()->processSpoilerTag($content);
@@ -5674,6 +6574,16 @@ class EasyDiscussPost extends EasyDiscuss
 			if ($processAttachments) {
 				$content = ED::parser()->replaceAttachmentsEmbed($content, $this);
 			}
+		}
+
+		if ($this->getContentType() != 'bbcode' && $isAmp) {
+			$content = ED::image()->processAMP($content);
+			$content = ED::string()->processAMP($content);
+
+			// Apply word censorship on the content
+			$content = ED::badwords()->filter($content, $this->getContentType(), true);
+
+			return $content;
 		}
 
 		// If the admin decides to switch from wysiwyg to bbcode, we need to fix the content here.
@@ -5705,11 +6615,11 @@ class EasyDiscussPost extends EasyDiscuss
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getPoll()
+	public function getPoll($useCache = true)
 	{
 		static $items = array();
 
-		if (isset($items[$this->post->id])) {
+		if (isset($items[$this->post->id]) && $useCache) {
 			return $items[$this->post->id];
 		}
 
@@ -5779,10 +6689,9 @@ class EasyDiscussPost extends EasyDiscuss
 		$this->deleteAllFavourites();
 
 		JPluginHelper::importPlugin('finder');
-		$dispatcher = JDispatcher::getInstance();
 
 		// Trigger the onFinderAfterDelete event.
-		$dispatcher->trigger('onFinderAfterDelete', array('com_easydiscuss.post', $this));
+		EDDispatcher::trigger('onFinderAfterDelete', array('com_easydiscuss.post', $this));
 
 		$model = ED::model('Posts');
 
@@ -5856,7 +6765,26 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($this->isReply() && $this->isAnswer()) {
 			$question = $this->getParent();
 			$question->setUnresolved();
+
+			// also we need to add the answer.revoke activity.
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.answer.revoke');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $question->post->id);
+			$tmpl->setContent(0, $this->post->id);
+			$actiLib->log($tmpl);
 		}
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogMsg = $actionlog->normalizeActionLogConstants($this->isReply(), 'COM_ED_ACTIONLOGS_DELETE_POST');
+		$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+		
+		$actionlog->log($actionlogMsg, 'post', array(
+			'postTitle' => $actionlogPostTitle
+		));
 
 		return $state;
 	}
@@ -6148,10 +7076,33 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($state) {
 			$this->updateThread(array('islock' => '1'));
+
+			// log the current action into database.
+			$actionlog = ED::actionlog();
+			$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+			$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($this);
+
+			$actionlog->log('COM_ED_ACTIONLOGS_LOCKED_POST', 'post', array(
+				'link' => $actionlogPostPermalink,
+				'postTitle' => $actionlogPostTitle
+			));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.locked');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $this->post->id);
+			$tmpl->setContent(0, 1);
+			$activityId = $actiLib->log($tmpl);
+
+			if ($activityId) {
+				$this->processedActions[] = $activityId;
+			}
 		}
 
 		// Here we need to notify the owner of the post that their discussion is now locked
-		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications_locked')) {
+		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications')) {
 			$notification = ED::table('Notifications');
 			$notification->bind(array(
 					'title' => JText::sprintf( 'COM_EASYDISCUSS_LOCKED_DISCUSSION_NOTIFICATION_TITLE', $this->post->title),
@@ -6181,11 +7132,33 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($state) {
 			//let update the thread data
 			$this->updateThread(array('islock' => '0'));
+
+			// log the current action into database.
+			$actionlog = ED::actionlog();
+			$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+			$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($this);
+
+			$actionlog->log('COM_ED_ACTIONLOGS_UNLOCKED_POST', 'post', array(
+				'link' => $actionlogPostPermalink,
+				'postTitle' => $actionlogPostTitle
+			));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.unlocked');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $this->post->id);
+			$tmpl->setContent(1, 0);
+			$activityId = $actiLib->log($tmpl);
+
+			if ($activityId) {
+				$this->processedActions[] = $activityId;
+			}
 		}
 
-
 		// @rule: Add notifications for the thread starter
-		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications_locked')) {
+		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications')) {
 			$notification = ED::table('Notifications');
 			$notification->bind(array(
 					'title' => JText::sprintf('COM_EASYDISCUSS_UNLOCKED_DISCUSSION_NOTIFICATION_TITLE', $this->post->title),
@@ -6220,6 +7193,19 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($state) {
 			//let update the thread data
 			$this->updateThread(array('isresolve' => DISCUSS_ENTRY_RESOLVED, 'post_status' => DISCUSS_POST_STATUS_OFF));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.resolved');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $this->post->id);
+			$tmpl->setContent(DISCUSS_ENTRY_UNRESOLVED, DISCUSS_ENTRY_RESOLVED);
+			$activityId = $actiLib->log($tmpl);
+
+			if ($activityId) {
+				$this->processedActions[] = $activityId;
+			}
 		}
 
 		// Once a post is marked as resolved, we should assign badges / points / notifications
@@ -6236,7 +7222,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 
 		// Add notifications for the thread starter
-		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications_resolved')) {
+		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications')) {
 			$notification = ED::table('Notifications');
 
 			$notification->bind(array(
@@ -6253,10 +7239,8 @@ class EasyDiscussPost extends EasyDiscuss
 		// Import plugins
 		JPluginHelper::importPlugin('easydiscuss');
 
-		$dispatcher = JDispatcher::getInstance();
-
 		// finder index
-		$dispatcher->trigger('onEasyDiscussAfterResolved', array('com_easydiscuss.post', &$this));
+		EDDispatcher::trigger('onEasyDiscussAfterResolved', array('com_easydiscuss.post', &$this));
 
 		return $state;
 	}
@@ -6354,6 +7338,15 @@ class EasyDiscussPost extends EasyDiscuss
 		// Let update the thread data
 		if ($state) {
 			$this->updateThread(array('answered' => DISCUSS_ENTRY_RESOLVED));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.answer.accept');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $question->post->id);
+			$tmpl->setContent(0, $this->post->id);
+			$actiLib->log($tmpl);
 		}
 
 		// sending notification to person who made the reply
@@ -6381,7 +7374,7 @@ class EasyDiscussPost extends EasyDiscuss
 		if (empty($this->post->user_id)) {
 			$email[] = $this->post->poster_email;
 		} else {
-			$email[] = $replyUser->user->email;
+			$email[] = $replyUser->getEmail();
 		}
 
 		//now send notification.
@@ -6405,7 +7398,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 			// prepare email content and information.
 			$emailSubject = JText::sprintf('COM_EASYDISCUSS_REPLY_NOW_ACCEPTED', $question->title);
-			$emailTemplate = 'email.reply.answered.php';
+			$emailTemplate = 'email.reply.answered';
 
 			// get owner email.
 			if (!empty($question->user_id)) {
@@ -6430,7 +7423,7 @@ class EasyDiscussPost extends EasyDiscuss
 		ED::aup()->assign(DISCUSS_POINTS_ACCEPT_REPLY, $this->post->user_id, JText::sprintf('COM_EASYDISCUSS_HISTORY_ACCEPTED_REPLY', $question->title));
 
 		// Notify the reply owner which post is accepted
-		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications_accepted')) {
+		if ($this->post->user_id != $this->my->id && $this->config->get('main_notifications')) {
 
 			// EasySocial integrations for notify to user which answer is accepted
 			ED::easysocial()->notify('accepted.answer', $this, $question, null, $question->user_id);
@@ -6467,13 +7460,22 @@ class EasyDiscussPost extends EasyDiscuss
 
 		$state = $this->post->store();
 
+		$question = $this->getParent();
+		$question->setUnresolved();
+
 		//let update the thread data
 		if ($state) {
 			$this->updateThread(array('answered' => DISCUSS_ENTRY_UNRESOLVED));
-		}
 
-		$question = $this->getParent();
-		$question->setUnresolved();
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.answer.revoke');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $question->post->id);
+			$tmpl->setContent(0, $this->post->id);
+			$actiLib->log($tmpl);
+		}
 
 		// send notification now
 		$notify = ED::getNotification();
@@ -6570,6 +7572,11 @@ class EasyDiscussPost extends EasyDiscuss
 			} else if ($val === '+1') {
 				$items[] = $db->nameQuote($key) . " = " . $db->nameQuote($key) . " + 1";
 			} else {
+				// For Joomla 4, it does not convert boolean value into 1 or 0
+				if (is_bool($val)) {
+					$val = $val ? 1 : 0;
+				}
+
 				$items[] = $db->nameQuote($key) . " = " . $db->Quote($val);
 			}
 		}
@@ -6585,7 +7592,6 @@ class EasyDiscussPost extends EasyDiscuss
 
 		$db->setQuery($query);
 		$db->query();
-
 	}
 
 	/**
@@ -6606,6 +7612,19 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($state) {
 			$this->updateThread(array('isresolve' => DISCUSS_ENTRY_UNRESOLVED));
+
+			// log activity
+			$actiLib = ED::activity();
+			$tmpl = $actiLib->getTemplate();
+			$tmpl->setAction('post.unresolved');
+			$tmpl->setActor($this->my->id);
+			$tmpl->setType('post', $this->post->id);
+			$tmpl->setContent(DISCUSS_ENTRY_RESOLVED, DISCUSS_ENTRY_UNRESOLVED);
+			$activityId = $actiLib->log($tmpl);
+
+			if ($activityId) {
+				$this->processedActions[] = $activityId;
+			}
 		}
 
 		// We need to clear any replies that was set as the answer
@@ -6877,23 +7896,18 @@ class EasyDiscussPost extends EasyDiscuss
 		// Once the vote items are removed, we need to update the sum_totalvote column.
 		$this->post->sum_totalvote = 0;
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogMsg = $actionlog->normalizeActionLogConstants($this->isReply(), 'COM_ED_ACTIONLOGS_RESET_VOTES_POST');
+		$actionlogPostTitle = $actionlog->normalizeActionLogPostTitle($this);
+		$actionlogPostPermalink = $actionlog->normalizeActionLogPostPermalink($this);
+
+		$actionlog->log($actionlogMsg, 'post', array(
+			'link' => $actionlogPostPermalink,
+			'postTitle' => $actionlogPostTitle
+		));
+
 		return $this->post->store();
-	}
-
-	// to be confirmed //
-
-	/*
-	 * Function to determine a post should minimise or not.
-	 * return true or false
-	 */
-	public static function toMinimizePost($count)
-	{
-		$config = ED::getConfig();
-
-		$breakPoint = $config->get('layout_autominimisepost');
-		$minimize = ($count <= $breakPoint && $breakPoint != 0 ) ? true : false;
-
-		return $minimize;
 	}
 
 	public function setIsLikedBatch($ids, $userId = null, $type = DISCUSS_ENTITY_TYPE_POST)
@@ -6938,9 +7952,9 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 	}
 
-	public function getRatings()
+	public function getRatings($useCache = true)
 	{
-		if (!isset(self::$ratings[$this->id])) {
+		if (!$useCache || !isset(self::$ratings[$this->id])) {
 			$model = ED::model('Ratings');
 			$ratings = $model->preloadRatings(array($this->id));
 
@@ -7007,29 +8021,79 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
+	 * To determine if the post has been modified
+	 *
+	 * @since   45.0.0
+	 * @access  public
+	 */
+	public function hasModified($since = null)
+	{
+		if ($since) {
+			$model = ED::model('Post');
+			$hasModified = $model->hasModified($this->id, $since);
+
+			return $hasModified;
+		}
+
+		return $this->post->created != $this->post->modified;
+	}
+
+	/**
+	 * Determines if the post has priority
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function hasPriority()
+	{
+		$priority = $this->getPriority();
+
+		if (!$priority) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Retrieves a list of user id's that has participated in a discussion
 	 *
 	 * @since   4.0
 	 * @access  public
 	 */
-	public function getParticipants()
+	public function getParticipants($limit = null)
 	{
-		$db = ED::db();
+		static $cache = [];
 
-		$query = 'SELECT DISTINCT `user_id` FROM `#__discuss_posts`';
-		$query .= ' WHERE `parent_id` = ' . $db->Quote($this->id);
+		if (!isset($cache[$this->post->id])) {
+			$db = ED::db();
 
-		$db->setQuery($query);
-		$participants = $db->loadResultArray();
+			$query = [
+				'SELECT DISTINCT `user_id` FROM `#__discuss_posts`',
+				'WHERE `parent_id`=' . $db->Quote($this->id)
+			];
 
-		$users = array();
+			// Limit the number of participants
+			if ($limit) {
+				$query[] = 'LIMIT 0,' . $limit;
+			}
 
-		foreach ($participants as $userId) {
-			$user = ED::user($userId);
-			$users[] = $user;
+			$db->setQuery($query);
+			$participants = $db->loadResultArray();
+
+			$users = array();
+
+			if ($participants) {
+				foreach ($participants as $userId) {
+					$user = ED::user($userId);
+					$users[] = $user;
+				}
+			}
+
+			$cache[$this->post->id] = $users;
 		}
 
-		return $users;
+		return $cache[$this->post->id];
 	}
 
 	/**
@@ -7042,7 +8106,7 @@ class EasyDiscussPost extends EasyDiscuss
 	{
 		$config = $this->config;
 
-		if (! $config->get('layout_postnavigation', 0)) {
+		if (!$config->get('layout_postnavigation', 0)) {
 			return null;
 		}
 
@@ -7055,12 +8119,12 @@ class EasyDiscussPost extends EasyDiscuss
 
 		if ($navigation->prev) {
 			$navigation->prev->link = EDR::_('view=post&id=' . $navigation->prev->id);
-			$navigation->prev->title = JString::strlen($navigation->prev->title) > 50 ? JString::substr($navigation->prev->title, 0, 50) . '...' : $navigation->prev->title;
+			$navigation->prev->title = EDJString::strlen($navigation->prev->title) > 50 ? EDJString::substr($navigation->prev->title, 0, 50) . '...' : $navigation->prev->title;
 		}
 
 		if ($navigation->next) {
 			$navigation->next->link = EDR::_('view=post&id=' . $navigation->next->id);
-			$navigation->next->title = JString::strlen($navigation->next->title) > 50 ? JString::substr($navigation->next->title, 0, 50) . '...' : $navigation->next->title;
+			$navigation->next->title = EDJString::strlen($navigation->next->title) > 50 ? EDJString::substr($navigation->next->title, 0, 50) . '...' : $navigation->next->title;
 		}
 
 		// if both prev and next is empty. reset the variable to null
@@ -7069,103 +8133,6 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return $navigation;
-	}
-
-	/**
-	 * Get site details that are associated with the post
-	 *
-	 * @since   4.0
-	 * @access  public
-	 */
-	public function getSiteDetails()
-	{
-		//load porfile info
-		$postOwner = ED::user($this->user_id);
-		$siteDetails = new JRegistry($postOwner->site);
-
-		if (!$this->canViewSiteDetails()) {
-			return false;
-		}
-
-		$string = ED::string();
-
-		$obj = new stdClass();
-
-		// Default site details from user profile
-		$siteUrl = $siteDetails->get('siteUrl');
-		$siteUsername = $siteDetails->get('siteUsername');
-		$sitePassword = $siteDetails->get('sitePassword');
-		$ftpUrl = $siteDetails->get('ftpUrl');
-		$ftpUsername = $siteDetails->get('ftpUsername');
-		$ftpPassword = $siteDetails->get('ftpPassword');
-		$siteInfo = $siteDetails->get('optional');
-
-		// Get site details from the post itself.
-		if ($this->params) {
-
-			// Get the url
-			$url = $this->getFieldData('siteurl', $this->params);
-
-			if (empty($url)) {
-				return false;
-			}
-
-			// Sanitize the url
-			if ($url) {
-				if (stristr($url[0], 'http://') === false && stristr($url[0], 'https://') === false) {
-					$url[0] = $string->escape('http://' . $url[0]);
-				}
-			}
-
-			if ($url[0] == 'http://') {
-				$url[0] = '';
-			}
-
-			$siteDetailsTemp = array(
-				'siteUrl' => $url,
-				'siteUsername' => $this->getFieldData('siteusername', $this->params),
-				'sitePassword' => $this->getFieldData('sitepassword', $this->params),
-				'ftpUrl' => $this->getFieldData('ftpurl', $this->params),
-				'ftpUsername' => $this->getFieldData('ftpusername', $this->params),
-				'ftpPassword' => $this->getFieldData('ftppassword', $this->params),
-				'siteInfo' => $this->getFieldData('siteinfo', $this->params)
-				);
-
-			$siteDetailsPost = new stdClass();
-			$useDefault = true;
-
-			// We need to check if the user have set a value in the site details when posting a new question or replies.
-			// If yes, we need to always use that informations.
-			foreach ($siteDetailsTemp as $siteDetail => $key) {
-				$siteDetailsPost->$siteDetail = isset($key[0]) ? $key[0] : '';
-
-				// Check for the value.
-				if (isset($key[0]) && $key[0]) {
-					$useDefault = false;
-				}
-			}
-
-			// Directly return the informations when the value is exist.
-			if (!$useDefault) {
-				return $siteDetailsPost;
-			}
-		}
-
-		// If it reached here means there are no value from both profile and post.
-		if (empty($siteUrl) && empty($siteUsername) && empty($sitePassword) && empty($ftpUrl) && empty($ftpUsername) && empty($ftpPassword)) {
-			return false;
-		}
-
-		$obj = new stdClass();
-		$obj->siteUrl = $string->escape($siteUrl);
-		$obj->siteUsername = $string->escape($siteUsername);
-		$obj->sitePassword = $string->escape($sitePassword);
-		$obj->ftpUrl = $string->escape($ftpUrl);
-		$obj->ftpUsername = $string->escape($ftpUsername);
-		$obj->ftpPassword = $string->escape($ftpPassword);
-		$obj->siteInfo = str_ireplace('\n' , "<br />" , nl2br($siteInfo));
-
-		return $obj;
 	}
 
 	/**
@@ -7204,7 +8171,7 @@ class EasyDiscussPost extends EasyDiscuss
 
 				$fieldName = (string) $fieldName;
 
-				if (JString::strpos($key, 'params_' . $fieldName) !== false) {
+				if (EDJString::strpos($key, 'params_' . $fieldName) !== false) {
 					$data[] = $val;
 				}
 			}
@@ -7213,47 +8180,6 @@ class EasyDiscussPost extends EasyDiscuss
 		}
 
 		return false;
-	}
-
-	/**
-	 * Determines if the current user can view site details
-	 *
-	 * @since   2.0
-	 * @access  public
-	 */
-	public function canViewSiteDetails()
-	{
-		if ($this->isQuestion() && !$this->config->get('tab_site_question')) {
-			return false;
-		}
-
-		if ($this->isReply() && !$this->config->get('tab_site_reply')) {
-			return false;
-		}
-
-		$access = trim($this->config->get('tab_site_access'));
-
-		// Nobody can view this if access is not set yet.
-		if (!$access) {
-			return;
-		}
-
-		$access = explode(',', $access);
-		$gids = ED::getUserGids();
-
-		$canAccess = false;
-
-		foreach ($gids as $gid) {
-			if (in_array($gid, $access)) {
-				$canAccess = true;
-			}
-		}
-
-		if (!$canAccess) {
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -7285,6 +8211,26 @@ class EasyDiscussPost extends EasyDiscuss
 	 */
 	public function checkAntiSpam($isQuestion = false)
 	{
+		// skip this if the current login user is superadmin
+		$isAdmin = ED::isSiteAdmin();
+		$isModerator = ED::isModerator($this->post->category_id);
+
+		if ($isModerator || $isAdmin) {
+			return true;
+		}
+
+		// Check for honeypot traps
+		$honeypot = ED::honeypot();
+		$honeypotType = $isQuestion ? 'posts' : 'replies';
+
+		$trapped = $honeypot->isTrapped($honeypotType);
+
+		if ($trapped) {
+			die();
+			return false;
+		}
+
+
 		// Check for akismet
 		if (!$this->akismet()) {
 			$this->setError('COM_EASYDISCUSS_AKISMET_SPAM_DETECTED');
@@ -7314,7 +8260,7 @@ class EasyDiscussPost extends EasyDiscuss
 		if ($replyId) {
 
 			$reply = ED::post($replyId);
-			
+
 			if ($reply->user_id == $this->my->id) {
 				return true;
 			}
@@ -7322,8 +8268,29 @@ class EasyDiscussPost extends EasyDiscuss
 			return false;
 		}
 
-		if ($this->isSiteAdmin || ($this->post->user_id == $this->my->id)) {
+		if (ED::isSiteAdmin() || ($this->post->user_id == $this->my->id)) {
 			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Requires guests to login to read the post
+	 *
+	 * @since	4.2
+	 * @access	public
+	 */
+	public function requireLoginToRead()
+	{
+		if ($this->my->guest && $this->config->get('main_login_to_read')) {
+			// Since it will always redirect back to the currently view post, we use getPermalink instead.
+			$currentUri = $this->getPermalink(true, true);
+			$uri = base64_encode($currentUri);
+
+			$loginUrl = ED::getLoginLink($uri);
+
+			return ED::redirect($loginUrl);
 		}
 
 		return false;
@@ -7341,16 +8308,72 @@ class EasyDiscussPost extends EasyDiscuss
 	}
 
 	/**
-	 * Determine for the current reply under which pagination
+	 * Retrieves the post params
 	 *
-	 * @since   4.1.20
-	 * @access  public
+	 * @since	5.0.0
+	 * @access	public
 	 */
-	public function getReplyPosition($isModeration = false)
+	public function getParams()
 	{
-		$model = ED::model('posts');
-		$results = $model->getReplyPosition($this->post->id, $this->post->thread_id, $isModeration);
+		static $items = array();
 
-		return $results;
-	}	
+		if (isset($items[$this->post->id])) {
+			return $items[$this->post->id];
+		}
+
+		$params = new JRegistry($this->post->params);
+		$items[$this->post->id] = $params;
+
+		return $items[$this->post->id];
+	}
+
+	/**
+	 * Determine if this post is from email parser
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function isFromEmailParser()
+	{
+		$params = $this->getParams();
+
+		if ($params->get('params_fromEmailParser', false)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Initializes the header of the html page
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function renderHeaders($options = array())
+	{
+		// Load meta data
+		ED::setMeta($this->id, ED_META_TYPE_POST);
+		
+		// Add opengraph tags
+		ED::facebook()->addOpenGraph($this);
+		ED::twitter()->addCard($this);
+	}
+
+	/**
+	 * Determine if the post has contained gist or not
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function hasGist()
+	{
+		$params = $this->getParams();
+
+		if ($params->get('params_has_gist', false)) {
+			return true;
+		}
+
+		return false;
+	}
 }

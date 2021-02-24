@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Model;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
@@ -318,6 +318,8 @@ class NginXConfMaker extends ServerConfigMaker
 		'nginxsecurity'       => 1,
 		// Set maximum client body size to 1G
 		'maxclientbody'       => 1,
+		// SVG script neutralization
+		'svgneutralise'       => 0,
 	];
 
 	/**
@@ -334,8 +336,10 @@ class NginXConfMaker extends ServerConfigMaker
 	 * @var  array
 	 */
 	protected $allowedCallersForSave = [
+		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::reset',
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::save',
+		'Akeeba\AdminTools\Admin\Controller\NginXConfMaker::reset',
 		'Akeeba\AdminTools\Admin\Controller\NginXConfMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\NginXConfMaker::save',
 	];
@@ -656,40 +660,58 @@ ENDCONF;
 ######################################################################
 ## Set default expiration time
 ######################################################################
- # CSS and JavaScript : $expWeekText
-location ~* \.(css|js)$ {
+
+# No caching for specific resource types
+location ~* \.(appcache|mf)$ {
+		access_log off; log_not_found off;
+		expires epoch;
+}
+
+location ~* \.(json|xml)$ {
+		access_log off; log_not_found off;
+		expires epoch;
+}
+
+# RSS and Atom feeds : 1 hour (hardcoded)
+location ~* \.(rss|atom)$ {
+		access_log off; log_not_found off;
+		expires 1h;
+		add_header Cache-Control "public";
+}
+
+# CSS and JavaScript : $expWeekText
+location ~* \.(css|js|jsonld)$ {
 		access_log off; log_not_found off;
 		expires $expWeek;
+		add_header Cache-Control "public";
 }
 
 # Image files : $expMonthText
-location ~* \.(bmp|gif|jpg|jpeg|jp2|png|svg|tif|tiff|ico|wbmp|wbxml|smil|webp)$ {
+location ~* \.(bmp|gif|jpg|jpeg|jp2|jfif|png|svg|tif|tiff|ico|wbmp|wbxml|smil|webp)$ {
 		access_log off; log_not_found off;
 		expires $expMonth;
+		add_header Cache-Control "public";
 }
 
 # Font files : $expMonthText
 location ~* \.(woff|woff2|ttf|otf|eot)$ {
 		access_log off; log_not_found off;
 		expires $expMonth;
-}
-
-# Document files : $expMonthText
-location ~* \.(pdf|txt|xml)$ {
-		access_log off; log_not_found off;
-		expires $expMonth;
+		add_header Cache-Control "public";
 }
 
 # Audio files : $expMonthText
-location ~* \.(mid|midi|mp3|m4a|m4r|aif|aiff|ra|wav|voc|ogg)$ {
+location ~* \.(3gp|3g2|aac|mid|midi|mp3|m4a|m4r|aif|aiff|ra|ram|wav|voc|ogg|ogx|opus|aif|aiff|aifc|m3u|m3u8)$ {
 		access_log off; log_not_found off;
 		expires $expMonth;
+		add_header Cache-Control "public";
 }
 
 # Video files : $expMonthText
 location ~* \.(swf|vrml|avi|mkv|mpg|mpeg|mp4|m4v|mov|asf)$ {
 		access_log off; log_not_found off;
 		expires $expMonth;
+		add_header Cache-Control "public";
 }
 
 ENDCONF;
@@ -868,6 +890,17 @@ add_header X-XSS-Protection "1; mode=block";
 
 ENDCONF;
 		}
+
+		if ($config->svgneutralise) {
+			$nginxConf .= <<< ENDCONF
+## Neutralize scripts in SVG files
+location = ~* "\.svg$" {
+	add_header Content-Security-Policy "script-src 'none'"
+}
+
+ENDCONF;
+		}
+
 
 		if ($config->noserversignature == 1)
 		{

@@ -177,34 +177,54 @@ abstract class RSCommentsHelperAdmin {
 	}
 	
 	public static function ArticleTitle($component, $component_id) {
-		$components = array('com_content', 'com_rsblog', 'com_k2', 'com_flexicontent');
+		$components = array('com_content', 'com_rsblog', 'com_rseventspro', 'com_rsfeedback', 'com_rsfiles', 'com_rsdirectory', 'com_k2', 'com_flexicontent');
 		
 		if(!empty($component_id) && in_array($component,$components)) {
 			$db		= JFactory::getDbo();
 			$query	= $db->getQuery(true);
 
-			$query->select($db->qn('title'));
 			switch($component) {
 				case 'com_content':
-					$query->from($db->qn('#__content'));
+					$query->select($db->qn('title'))->from($db->qn('#__content'))->where($db->qn('id').' = '.$db->q($component_id));
 				break;
+				
 				case 'com_rsblog':
-					$query->from($db->qn('#__rsblog_posts'));
+					$query->select($db->qn('title'))->from($db->qn('#__rsblog_posts'))->where($db->qn('id').' = '.$db->q($component_id));
 				break;
+				
 				case 'com_k2':
-					$query->from($db->qn('#__k2_items'));
+					$query->select($db->qn('title'))->from($db->qn('#__k2_items'))->where($db->qn('id').' = '.$db->q($component_id));
 				break;
+				
 				case 'com_flexicontent':
-					$query->from($db->qn('#__flexicontent_items'));
+					$query->select($db->qn('title'))->from($db->qn('#__flexicontent_items'))->where($db->qn('id').' = '.$db->q($component_id));
+				break;
+				
+				case 'com_rseventspro':
+					$query->select($db->qn('name'))->from($db->qn('#__rseventspro_events'))->where($db->qn('id').' = '.$db->q($component_id));
+				break;
+				
+				case 'com_rsfeedback':
+					$query->select($db->qn('title'))->from($db->qn('#__rsfeedback_feedbacks'))->where($db->qn('id').' = '.$db->q($component_id));
+				break;
+				
+				case 'com_rsfiles':
+					$query->select($db->qn('FileName'))->from($db->qn('#__rsfiles_files'))->where($db->qn('IdFile').' = '.$db->q($component_id));
+				break;
+				
+				case 'com_rsdirectory':
+					$query->select($db->qn('title'))->from($db->qn('#__rsdirectory_entries'))->where($db->qn('id').' = '.$db->q($component_id));
 				break;
 			}
 
-			$query->where($db->qn('id').' = '.$component_id);
 			$db->setQuery($query);
-
 			return $db->loadResult();
-		} else 
-			return '';
+		} else {
+			$title = '';
+			JFactory::getApplication()->triggerEvent('onRscommentsTitle', array(array('title' => &$title)));
+			
+			return $title;
+		}
 	}
 	
 	public static function component($option) {

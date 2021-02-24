@@ -35,6 +35,7 @@ CREATE TABLE `bf_files` (
   `hashfailed`     INT(1)           DEFAULT NULL,
   `hashchanged`    INT(1)           DEFAULT NULL,
   `hacked`         INT(1)           DEFAULT NULL,
+  `skipped`        INT(1)           DEFAULT NULL,
   `suspectcontent` INT(1)           DEFAULT NULL,
   `falsepositive`  INT(1)           DEFAULT NULL,
   `mailer`         INT(1)           DEFAULT NULL,
@@ -54,6 +55,7 @@ CREATE TABLE `bf_files` (
   KEY `mailer` (`mailer`),
   KEY `uploader` (`uploader`),
   KEY `hacked` (`hacked`),
+  KEY `skipped` (`skipped`),
   KEY `suspectcontent` (`suspectcontent`)
 )
   ENGINE = InnoDB

@@ -11,8 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="discuss-post-share">
+<div class="ed-post-share l-cluster">
+	<div class="">
 	<?php foreach ($buttons as $button) { ?>
-		<?php echo $button->html($post, $position); ?>
+		<div class="">
+			<?php echo $button->html($post, $position); ?>
+		</div>
 	<?php } ?>
+	</div>
 </div>

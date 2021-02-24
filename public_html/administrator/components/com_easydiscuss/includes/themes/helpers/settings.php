@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,83 +11,70 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussThemesHelperSettings
+require_once(__DIR__ . '/abstractform.php');
+
+class EasyDiscussThemesHelperSettings extends EasyDiscussAbstractForm
 {
 	/**
-	 * Renders a toggle button settings
+	 * Render the colorpicker used in settings
 	 *
-	 * @since	4.2.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
-	public static function toggle($name, $title, $desc = '', $attributes = '', $note = '', $wrapperAttributes = '')
+	public function colorpicker($name, $title, $restoreColor)
 	{
-		$theme = ED::themes();
-
-		if (empty($desc)) {
-			$desc = $title . '_DESC';
-		}
-		
-		if ($note) {
-			$note = JText::_($note);
-		}
-
-		if (is_array($wrapperAttributes)) {
-			$wrapperAttributes = implode(' ', $wrapperAttributes);
-		}
-
-		$theme->set('note', $note);
-		$theme->set('name', $name);
-		$theme->set('title', $title);
-		$theme->set('desc', $desc);
-		$theme->set('attributes', $attributes);
-		$theme->set('wrapperAttributes', $wrapperAttributes);
-
-		$contents = $theme->output('admin/html/settings/toggle');
-
-		return $contents;
-	}
-
-	/**
-	 * Renders a textbox for settings
-	 *
-	 * @since	4.2.0
-	 * @access	public
-	 */
-	public static function textbox($name, $title, $desc = '', $options = array(), $instructions = '', $class = '')
-	{
-		$theme = ED::themes();
-		
-		if (empty($desc)) {
-			$desc = $title . '_DESC';
-		}
-
-		$size = '';
-		$postfix = '';
-		$prefix = '';
-		$attributes = '';
-		$type = 'text';
-
 		$config = ED::config();
 		$value = $config->get($name);
 
-		if (isset($options['type'])) {
-			$type = $options['type'];
+		return $this->renderColorpicker($name, $title, $value, $restoreColor);
+	}
+
+	/**
+	 * Render the dropdown form used in settings
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function dropdown($name, $title, $desc = '', $options = array(), $attributes = '', $notes = '')
+	{
+		$config = ED::config();
+		$value = $config->get($name);
+
+		return $this->renderDropdown($name, $title, $value, $options, $attributes, $notes);
+	}
+
+	/**
+	 * Render the textbox form used in settings
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function password($name, $title, $options = array())
+	{
+		$config = ED::config();
+		$value = $config->get($name);
+
+		return $this->renderPassword($name, $title, $value, $options);
+	}
+
+	/**
+	 * Render the textarea form used in settings
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function textarea($name, $title, $desc = '', $options = array(), $instructions = '', $class = '', $textboxClass = '')
+	{
+		$config = ED::config();
+		$value = $config->get($name);
+	
+		// Ensure that the options is an array
+		if (!is_array($options)) {
+			$options = array();
 		}
 
-		if (isset($options['attributes'])) {
-			$attributes = $options['attributes'];
-		}
-
-		if (isset($options['postfix'])) {
-			$postfix = $options['postfix'];
-		}
-
-		if (isset($options['prefix'])) {
-			$prefix = $options['prefix'];
-		}
-
-		if (isset($options['size'])) {
-			$size = $options['size'];
+		if (isset($options['value'])) {
+			$value = $options['value'];
 		}
 
 		if (isset($options['defaultValue'])) {
@@ -95,20 +82,61 @@ class EasyDiscussThemesHelperSettings
 		}
 
 
-		$theme->set('value', $value);
-		$theme->set('attributes', $attributes);
-		$theme->set('type', $type);
-		$theme->set('size', $size);
-		$theme->set('class', $class);
-		$theme->set('instructions', $instructions);
-		$theme->set('name', $name);
-		$theme->set('title', $title);
-		$theme->set('desc', $desc);
-		$theme->set('prefix', $prefix);
-		$theme->set('postfix', $postfix);
+		$data = array(
+			'attributes' => '',
+			'size' => '',
+			'instructions' => $instructions,
+			'class' => $textboxClass,
+			'rows' => null
+		);
 
-		$contents = $theme->output('admin/html/settings/textbox');
+		$options = array_merge($data, $options);
 
-		return $contents;
+		return $this->renderTextarea($name, $title, $value, $options);
+	}
+
+	/**
+	 * Render the textbox form used in settings
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function textbox($name, $title, $desc = '', $options = array(), $instructions = '', $class = '', $textboxClass = '')
+	{
+		$config = ED::config();
+		$value = $config->get($name);
+
+		if (isset($options['defaultValue'])) {
+			$value = $config->get($name, $options['defaultValue']);
+		}
+
+
+		$data = array(
+			'attributes' => '',
+			'size' => '',
+			'postfix' => '',
+			'prefix' => '',
+			'instructions' => $instructions,
+			'inputWrapperClass' => $class,
+			'class' => $textboxClass
+		);
+
+		$options = array_merge($data, $options);
+
+		return $this->renderTextbox($name, $title, $value, $options);
+	}
+
+	/**
+	 * Render the toggle form used in settings
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function toggle($name, $title, $desc = '', $attributes = '', $instructions = '', $wrapperAttributes = '')
+	{
+		$config = ED::config();
+		$value = $config->get($name);
+
+		return $this->renderToggle($name, $title, $value, $attributes, $instructions, $wrapperAttributes);
 	}
 }

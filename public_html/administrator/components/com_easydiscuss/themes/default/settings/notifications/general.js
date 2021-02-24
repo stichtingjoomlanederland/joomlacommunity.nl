@@ -1,16 +1,14 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
-
-	console.log('loaded');
 	$('[data-email-logo-restore]').on('click', function(){
 		EasyDiscuss.dialog({
-			content: EasyDiscuss.ajax('admin/views/settings/confirmRestoreEmailLogo'),
+			content: EasyDiscuss.ajax('admin/views/settings/confirmRestoreLogo'),
 			bindings: {
 				"{restoreButton} click": function() {
-					EasyDiscuss.ajax('admin/controllers/settings/restoreEmailLogo')
-					.done(function(url) {
+					EasyDiscuss.ajax('admin/controllers/settings/restoreLogo')
+					.done(function() {
 						EasyDiscuss.dialog().close();
 
-						window.location = url;
+						window.location = 'index.php?option=com_easydiscuss&view=settings&layout=notifications';
 					});
 				}
 			}

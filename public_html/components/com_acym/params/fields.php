@@ -1,6 +1,6 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Classes\FieldClass;
 
 class JFormFieldFields extends JFormField
 {
@@ -8,11 +8,14 @@ class JFormFieldFields extends JFormField
 
     public function getInput()
     {
-        if ('Joomla' == 'Joomla' && !include_once(rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
+        if ('Joomla' === 'Joomla' && !include_once(rtrim(
+                    JPATH_ADMINISTRATOR,
+                    DIRECTORY_SEPARATOR
+                ).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php')) {
             echo 'This extension cannot work without AcyMailing';
         }
 
-        $fieldsClass = acym_get('class.field');
+        $fieldsClass = new FieldClass();
         $allFields = $fieldsClass->getAllFieldsForModuleFront();
         $fields = [];
         foreach ($allFields as $field) {
@@ -41,4 +44,3 @@ class JFormFieldFields extends JFormField
         return acym_selectMultiple($fields, $this->name, $this->value, ['id' => $this->name]);
     }
 }
-

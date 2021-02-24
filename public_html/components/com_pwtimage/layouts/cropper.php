@@ -62,6 +62,7 @@ $showSavePath         = true;
 $showSavePathSelect   = true;
 $toCanvas             = false;
 $showRotationTools    = true;
+$showAspectRatioTools = true;
 $showFlippingTools    = true;
 $showImageInfo        = true;
 $showZoomTools        = true;
@@ -116,6 +117,7 @@ extract($pwtImage->getSettings(), EXTR_OVERWRITE);
  * @param   bool    $showSavePathSelect    Set if the select option of the save path needs to be shown
  * @param   bool    $toCanvas              Set if the image is shown directly on the canvas for editing
  * @param   bool    $showRotationTools     Set if the rotation tools needs to be shown
+ * @param   bool    $showAspectRatioTools  Set if the aspect ratio tools needs to be shown
  * @param   bool    $showFlippingTools     Set if the flipping tools needs to be shown
  * @param   bool    $showImageInfo         Set if the image info must be hidden
  * @param   bool    $showZoomTools         Set if the zoom tools needs to be shown
@@ -213,7 +215,8 @@ $displayData['showFolder']           = filter_var($showFolder, FILTER_VALIDATE_B
 $displayData['showSavePath']         = filter_var($showSavePath, FILTER_VALIDATE_BOOLEAN);
 $displayData['showSavePathSelect']   = filter_var($showSavePathSelect, FILTER_VALIDATE_BOOLEAN);
 $displayData['toCanvas']             = filter_var($toCanvas, FILTER_VALIDATE_BOOLEAN);
-$displayData['showRotationTools']    = filter_var($showRotationTools, FILTER_VALIDATE_BOOLEAN);
+$displayData['showRotationTools']    = $showRotationTools;
+$displayData['showAspectRatioTools'] = filter_var($showAspectRatioTools, FILTER_VALIDATE_BOOLEAN);
 $displayData['showFlippingTools']    = filter_var($showFlippingTools, FILTER_VALIDATE_BOOLEAN);
 $displayData['showImageInfo']        = filter_var($showImageInfo, FILTER_VALIDATE_BOOLEAN);
 $displayData['showZoomTools']        = filter_var($showZoomTools, FILTER_VALIDATE_BOOLEAN);
@@ -316,121 +319,121 @@ JS
 <!-- ID field is required here so the script knows which block it must target -->
 <div class="pwt-component" id="<?php echo $modalId; ?>_modal">
 
-    <!-- PWT Id container -->
-    <div class="pwt-id js-pwtimage-id" id="<?php echo $modalId; ?>">
+	<!-- PWT Id container -->
+	<div class="pwt-id js-pwtimage-id" id="<?php echo $modalId; ?>">
 
-        <!-- Header -->
-        <div class="pwt-header">
+		<!-- Header -->
+		<div class="pwt-header">
 
-            <!-- Tabs -->
-            <div class="pwt-tabs-wrapper" data-tabs-wrapper-<?php echo $modalId; ?>>
-                <div class="pwt-tabs-scroller" data-tabs-scroller>
-                    <ul class="pwt-tabs" data-tabs>
+			<!-- Tabs -->
+			<div class="pwt-tabs-wrapper" data-tabs-wrapper-<?php echo $modalId; ?>>
+				<div class="pwt-tabs-scroller" data-tabs-scroller>
+					<ul class="pwt-tabs" data-tabs>
 						<?php if ($showUpload && $canDo->get('pwtimage.accessupload'))
 							:
 							?>
-                            <li class="<?php echo $uploadActive; ?>">
-                                <a data-tab href="#upload"><?php echo Text::_('COM_PWTIMAGE_TAB_UPLOAD'); ?></a>
-                            </li>
+							<li class="<?php echo $uploadActive; ?>">
+								<a data-tab href="#upload"><?php echo Text::_('COM_PWTIMAGE_TAB_UPLOAD'); ?></a>
+							</li>
 						<?php endif; ?>
 						<?php
 						if ($showFolder && $canDo->get('pwtimage.accessfolder'))
 							:
 							?>
-                            <li class="<?php echo $folderActive; ?>">
-                                <a data-tab href="#select"><?php echo Text::_('COM_PWTIMAGE_TAB_SELECT'); ?></a>
-                            </li>
+							<li class="<?php echo $folderActive; ?>">
+								<a data-tab href="#select"><?php echo Text::_('COM_PWTIMAGE_TAB_SELECT'); ?></a>
+							</li>
 						<?php endif; ?>
 						<?php
 						if ($showUpload || $showFolder)
 							:
 							?>
-                            <li>
-                                <a data-tab href="#edit"><?php echo Text::_('COM_PWTIMAGE_TAB_EDIT'); ?></a>
-                            </li>
+							<li>
+								<a data-tab href="#edit"><?php echo Text::_('COM_PWTIMAGE_TAB_EDIT'); ?></a>
+							</li>
 						<?php endif; ?>
 						<?php
 						if ($showHelp)
 							:
 							?>
-                            <li>
-                                <a data-tab href="#help"><?php echo Text::_('COM_PWTIMAGE_TAB_HELP'); ?></a>
-                            </li>
+							<li>
+								<a data-tab href="#help"><?php echo Text::_('COM_PWTIMAGE_TAB_HELP'); ?></a>
+							</li>
 						<?php endif; ?>
-                    </ul>
-                </div>
-            </div><!-- .pwt-tabs-wrapper -->
+					</ul>
+				</div>
+			</div><!-- .pwt-tabs-wrapper -->
 
-        </div><!-- .pwt-header -->
+		</div><!-- .pwt-header -->
 
-        <!-- Body -->
-        <div class="pwt-body">
+		<!-- Body -->
+		<div class="pwt-body">
 
-            <!-- Tabs panes -->
-            <div class="pwt-tabs-panes" data-tabs-content>
+			<!-- Tabs panes -->
+			<div class="pwt-tabs-panes" data-tabs-content>
 				<?php if ($showUpload && $canDo->get('pwtimage.accessupload'))
 					:
 					?>
-                    <div class="pwt-tabs-pane <?php echo $uploadActive; ?>" data-tabs-pane id="upload">
+					<div class="pwt-tabs-pane <?php echo $uploadActive; ?>" data-tabs-pane id="upload">
 						<?php echo $this->sublayout('upload', $displayData); ?>
-                    </div>
+					</div>
 				<?php endif; ?>
 				<?php
 				if ($showFolder && $canDo->get('pwtimage.accessfolder'))
 					:
 					?>
-                    <div class="pwt-tabs-pane <?php echo $folderActive; ?>" data-tabs-pane id="select">
+					<div class="pwt-tabs-pane <?php echo $folderActive; ?>" data-tabs-pane id="select">
 						<?php echo $this->sublayout('select', ['baseFolder' => $baseFolder, 'sourcePath' => $sourcePath, 'wysiwyg' => $wysiwyg]); ?>
-                    </div>
+					</div>
 				<?php endif; ?>
 				<?php
 				if (($showUpload && $canDo->get('pwtimage.accessupload')) || ($showFolder && $canDo->get('pwtimage.accessfolder')))
 					:
 					?>
-                    <div class="pwt-tabs-pane" data-tabs-pane id="edit">
+					<div class="pwt-tabs-pane" data-tabs-pane id="edit">
 						<?php echo $this->sublayout('edit', $displayData); ?>
-                    </div>
+					</div>
 				<?php endif; ?>
 				<?php
 				if ($showHelp)
 					:
 					?>
-                    <div class="pwt-tabs-pane" data-tabs-pane id="help">
+					<div class="pwt-tabs-pane" data-tabs-pane id="help">
 						<?php echo $this->sublayout('help', []); ?>
-                    </div>
+					</div>
 				<?php endif; ?>
-            </div><!-- .pwt-tabs-panes -->
+			</div><!-- .pwt-tabs-panes -->
 
-        </div><!-- .pwt-body -->
+		</div><!-- .pwt-body -->
 
-        <!-- Footer -->
-        <div class="pwt-footer">
-            <button class="pwt-button pwt-button--success process-image js-button-image"
-                    onclick="return pwtImage.saveImage('<?php echo $modalId; ?>');">
+		<!-- Footer -->
+		<div class="pwt-footer">
+			<button class="pwt-button pwt-button--success process-image js-button-image"
+			        onclick="return pwtImage.saveImage('<?php echo $modalId; ?>');">
 				<?php echo Text::_('COM_PWTIMAGE_INSERT_IMAGE'); ?>
-            </button>
-            <button class="pwt-button" type="button" onclick="pwtImage.closeModal();">
+			</button>
+			<button class="pwt-button" type="button" onclick="pwtImage.closeModal();">
 				<?php echo Text::_('COM_PWTIMAGE_CLOSE_MODAL') ?>
-            </button>
-        </div><!-- .pwt-footer -->
+			</button>
+		</div><!-- .pwt-footer -->
 
-        <!-- Input fields -->
-        <input type="hidden" id="post-url"
-               value="//<?php echo Uri::getInstance()->toString(['host', 'path']); ?>"/>
-        <input type="hidden" class="js-pwt-image-data" name="pwt-image-data">
-        <input type="hidden" class="js-pwt-image-ratio" name="pwt-image-ratio" value="<?php echo $setRatio; ?>">
-        <input type="hidden" class="js-pwt-image-sourcePath" name="pwt-image-sourcePath"
-               value="<?php echo $sourcePath; ?>">
-        <input type="hidden" class="js-pwt-image-maxsize" name="pwt-image-maxsize" value="<?php echo $maxSize; ?>">
-        <input type="hidden" class="js-pwt-image-maxsize-message" name="pwt-image-maxsize-message"
-               value="<?php echo $maxSizeMessage; ?>">
-        <input type="hidden" class="js-pwt-image-dimensionsize" name="pwt-image-dimensionsize"
-               value="<?php echo $maxDimension; ?>">
-        <input type="hidden" class="js-pwt-image-localfile" name="pwt-image-localFile" value="">
-        <input type="hidden" class="js-pwt-image-origin" name="pwt-image-origin" value="<?php echo $origin; ?>">
-        <input type="hidden" class="js-pwt-image-backgroundColor" name="pwt-image-backgroundColor"
-               value="<?php echo $backgroundColor; ?>">
+		<!-- Input fields -->
+		<input type="hidden" id="post-url"
+		       value="//<?php echo Uri::getInstance()->toString(['host', 'path']); ?>"/>
+		<input type="hidden" class="js-pwt-image-data" name="pwt-image-data">
+		<input type="hidden" class="js-pwt-image-ratio" name="pwt-image-ratio" value="<?php echo $setRatio; ?>">
+		<input type="hidden" class="js-pwt-image-sourcePath" name="pwt-image-sourcePath"
+		       value="<?php echo $sourcePath; ?>">
+		<input type="hidden" class="js-pwt-image-maxsize" name="pwt-image-maxsize" value="<?php echo $maxSize; ?>">
+		<input type="hidden" class="js-pwt-image-maxsize-message" name="pwt-image-maxsize-message"
+		       value="<?php echo $maxSizeMessage; ?>">
+		<input type="hidden" class="js-pwt-image-dimensionsize" name="pwt-image-dimensionsize"
+		       value="<?php echo $maxDimension; ?>">
+		<input type="hidden" class="js-pwt-image-localfile" name="pwt-image-localFile" value="">
+		<input type="hidden" class="js-pwt-image-origin" name="pwt-image-origin" value="<?php echo $origin; ?>">
+		<input type="hidden" class="js-pwt-image-backgroundColor" name="pwt-image-backgroundColor"
+		       value="<?php echo $backgroundColor; ?>">
 
-    </div><!-- .pwt-id -->
+	</div><!-- .pwt-id -->
 
 </div><!-- .pwt-component -->

@@ -12,8 +12,8 @@
                default="1"
                class="btn-group btn-group-yesno"
                labelclass="config">
-            <option value="1">JYES</option>
             <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field name="signingKey"
@@ -51,7 +51,7 @@
                description="COM_ROPAYMENTS_WAIT_TIME_DESC"
                required="true"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="customerLanguage"
@@ -62,7 +62,7 @@
                default="NL"
                multiple="false"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="NL">COM_ROPAYMENTS_DUTCH</option>
             <option value="EN">COM_ROPAYMENTS_ENGLISH</option>
@@ -78,7 +78,7 @@
                default="EUR"
                multiple="false"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="EUR">COM_ROPAYMENTS_CURRENCY_EUR</option>
             <option value="USD">COM_ROPAYMENTS_CURRENCY_USD</option>
@@ -100,7 +100,7 @@
                default="all"
                multiple="true"
                size="9"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="all">COM_ROPAYMENTS_ALL</option>
             <option value="IDEAL">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
@@ -121,7 +121,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="verifiedStatus"
@@ -131,7 +131,7 @@
                required="false"
                size="1"
                default="C"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="cancelledStatus"
@@ -141,17 +141,17 @@
                required="false"
                size="1"
                default="X"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
-        <field name="failedStatus"
+        <field name="failureStatus"
                type="jdideal.status"
                label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
                description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
                required="false"
                size="1"
                default="F"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="openStatus"
@@ -161,7 +161,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
@@ -173,7 +173,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
     </fieldset>
 </form>

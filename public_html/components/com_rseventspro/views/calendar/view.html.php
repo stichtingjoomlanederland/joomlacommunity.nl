@@ -103,7 +103,7 @@ class RseventsproViewCalendar extends JViewLegacy
 			// Add search bar
 			if ($this->params->get('search',1)) {
 				if ($doc->getType() == 'html') {
-					$doc->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.filter.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
+					$doc->addCustomTag('<script src="'.JHtml::script('com_rseventspro/jquery.filter.'.(rseventsproHelper::isJ4() ? 'j4' : 'j3').'.js', array('relative' => true, 'pathOnly' => true, 'version' => 'auto')).'" type="text/javascript"></script>');
 				}
 				
 				$filters			= $this->get('filters');

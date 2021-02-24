@@ -144,7 +144,7 @@ class RSEventsProQuery
 	 * @return   string  Events query
 	 *
 	 */
-	public function toString() {
+	public function toString($replacePrefix = false) {
 		$db		= JFactory::getDbo();
 		$user	= JFactory::getUser();
 		$input	= JFactory::getApplication()->input;
@@ -247,6 +247,7 @@ class RSEventsProQuery
 		
 		// Filter events with the menu item tags filter
 		if (!empty($tags)) {
+			$tags = $this->getTagsIds($tags);
 			$tags = array_map('intval',$tags);
 			
 			$where[] = ' AND '.$db->qn('e.id').' IN (SELECT '.$db->qn('tx.ide').' FROM '.$db->qn('#__rseventspro_taxonomy','tx').' WHERE '.$db->qn('tx.id').' IN ('.implode(',',$tags).') AND '.$db->qn('tx.type').' = '.$db->q('tag').')';
@@ -550,7 +551,7 @@ class RSEventsProQuery
 		
 		$query .= ' ORDER BY '.$featured_condition.' '.$db->qn($order).' '.$db->escape($direction).' ';
 		
-		return $query;
+		return $replacePrefix ? str_replace('#__', $db->getPrefix(), $query) : $query;
 	}
 	
 	/**
@@ -905,6 +906,18 @@ class RSEventsProQuery
 		}
 		
 		return !empty($select) ? implode(', ',$select) : $db->qn('e.id');
+	}
+	
+	protected function getTagsIds($tags) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_tags'))
+			->where($db->qn('name').' IN ('.rseventsproHelper::quoteImplode($tags).')');
+		$db->setQuery($query);
+		return $db->loadColumn();
 	}
 }
 

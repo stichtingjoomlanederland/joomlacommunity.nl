@@ -25,17 +25,20 @@ class DiscussVideoGoogle
 		
 		return false;
 	}
-	
-	public function getEmbedHTML( $url )
+
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		$code	= $this->getCode( $url );
 
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$width	= $config->get( 'bbcode_video_width' );
 		$height	= $config->get( 'bbcode_video_height' );
-				
-		if( $code )
-		{
+
+		if ($code) {
+			if ($isAmp) {
+				return '<amp-iframe  src="http://video.google.com/googleplayer.swf?docid=' . $code . '&hl=en&fs=true" width="' . $width . '" height="' . $height . '" frameborder="0" layout="responsive" sandbox="allow-scripts allow-same-origin"></amp-iframe>';
+			}
+
 			return '<embed id=VideoPlayback src=http://video.google.com/googleplayer.swf?docid=' . $code . '&hl=en&fs=true style=width:' . $width . 'px;height:' . $height . 'px allowFullScreen=true allowScriptAccess=always type=application/x-shockwave-flash> </embed>';
 		}
 		

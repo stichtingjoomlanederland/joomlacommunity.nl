@@ -1,7 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
-include ACYM_CONTROLLER.'lists.php';
+
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Classes\MailClass;
+use AcyMailing\Controllers\ListsController;
+use AcyMailing\Helpers\ToolbarHelper;
 
 class FrontlistsController extends ListsController
 {
@@ -10,7 +13,11 @@ class FrontlistsController extends ListsController
         if (!acym_level(2)) {
             acym_redirect(acym_rootURI(), 'ACYM_ONLY_AVAILABLE_ENTERPRISE_VERSION', 'warning');
         }
-        $this->authorizedFrontTasks = ['countNumberOfRecipients', 'ajaxCreateNewList'];
+        $this->authorizedFrontTasks = [
+            'countNumberOfRecipients',
+            'ajaxCreateNewList',
+            'loadMoreSubscribers',
+        ];
         $this->urlFrontMenu = 'index.php?option=com_acym&view=frontlists&layout=listing';
         parent::__construct();
     }
@@ -45,7 +52,7 @@ class FrontlistsController extends ListsController
 
     protected function prepareToolbar(&$data)
     {
-        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper = new ToolbarHelper();
         $toolbarHelper->addSearchBar($data['search'], 'lists_search', 'ACYM_SEARCH');
         $toolbarHelper->addButton(acym_translation('ACYM_CREATE_NEW_LIST'), ['data-task' => 'settings'], '', true);
 
@@ -57,9 +64,9 @@ class FrontlistsController extends ListsController
         $data['tmpls'] = [];
         if (empty($data['listInformation']->id)) return;
 
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
 
-        foreach (['welcome' => 'welcome', 'unsubscribe' => 'unsub'] as $full => $short) {
+        foreach ([$mailClass::TYPE_WELCOME => 'welcome', $mailClass::TYPE_UNSUBSCRIBE => 'unsub'] as $full => $short) {
             $mailId = acym_getVar('int', $short.'mailid', 0);
             if (empty($data['listInformation']->{$full.'_id'}) && !empty($mailId)) {
                 $data['listInformation']->{$full.'_id'} = $mailId;
@@ -70,13 +77,16 @@ class FrontlistsController extends ListsController
 
             $returnLink = acym_completeLink('frontlists&task=settings&id='.$data['listInformation']->id.'&edition=1&'.$short.'mailid={mailid}');
             if (empty($data['listInformation']->{$full.'_id'})) {
-                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('frontmails&task=edit&step=editEmail&type='.$full.'&type_editor=acyEditor&return='.urlencode(base64_encode($returnLink)));
+                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink(
+                    'frontmails&task=edit&step=editEmail&type='.$full.'&type_editor=acyEditor&return='.urlencode(base64_encode($returnLink))
+                );
             } else {
-                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink('frontmails&task=edit&id='.$data['listInformation']->{$full.'_id'}.'&type='.$full.'&return='.urlencode(base64_encode($returnLink)));
+                $data['tmpls'][$short.'TmplUrl'] = acym_completeLink(
+                    'frontmails&task=edit&id='.$data['listInformation']->{$full.'_id'}.'&type='.$full.'&return='.urlencode(base64_encode($returnLink))
+                );
             }
 
             $data['tmpls'][$full] = !empty($data['listInformation']->{$full.'_id'}) ? $mailClass->getOneById($data['listInformation']->{$full.'_id'}) : '';
         }
     }
 }
-

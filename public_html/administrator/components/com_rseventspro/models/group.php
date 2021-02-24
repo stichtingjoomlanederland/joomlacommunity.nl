@@ -87,6 +87,15 @@ class RseventsproModelGroup extends JModelAdmin
 		if (empty($form))
 			return false;
 		
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('jgroups','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('restricted_categories','layout','joomla.form.field.list-fancy-select');
+		}
+		
+		if ($used = $this->getUsed()) {
+			$form->setFieldAttribute('jgroups', 'used', $used);
+		}
+		
 		return $form;
 	}
 	
@@ -104,41 +113,6 @@ class RseventsproModelGroup extends JModelAdmin
 			$data = $this->getItem();
 
 		return $data;
-	}
-	
-	/**
-	 * Method to get the excluded Joomla! users.
-	 */
-	public function getExcludes() {
-		$db = JFactory::getDbo();
-		$query = $db->getQuery(true);
-		$excludes = array();
-		$jinput = JFactory::getApplication()->input;
-		
-		$query->clear();
-		$query->select($db->qn('jusers'))
-			->from($db->qn('#__rseventspro_groups'))
-			->where($db->qn('jusers').' <> '.$db->q(''))
-			->where($db->qn('id').' <> '.$db->q($jinput->getInt('id',0)));
-		
-		$db->setQuery($query);
-		if ($options = $db->loadColumn()) {
-			foreach ($options as $option) {
-				try {
-					$registry = new JRegistry;
-					$registry->loadString($option);
-					$option = $registry->toArray();
-				} catch (Exception $e) {
-					$option = array();
-				}
-				
-				$option = array_map('intval',$option);
-				$excludes = array_merge($excludes, $option);
-			}
-		}
-		
-		$excludes = array_unique($excludes);
-		return !empty($excludes) ? $excludes : '';
 	}
 	
 	/**
@@ -173,7 +147,7 @@ class RseventsproModelGroup extends JModelAdmin
 		}
 		
 		$used = array_unique($used);
-		return !empty($used) ? $used : '';
+		return !empty($used) ? implode(',',$used) : '';
 	}
 	
 	/**
@@ -183,7 +157,7 @@ class RseventsproModelGroup extends JModelAdmin
 	 * @since	1.6
 	 */
 	public function getTabs() {
-		$tabs = new RSTabs('groups');
+		$tabs = new RSEventsproAdapterTabs('groups');
 		return $tabs;
 	}
 }

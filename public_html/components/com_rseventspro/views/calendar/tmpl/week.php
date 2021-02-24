@@ -10,8 +10,8 @@ $count = count($this->events); ?>
 <h1><?php echo JText::sprintf('COM_RSEVENTSPRO_EVENTS_FROM_TO',$this->from,$this->to); ?></h1>
 
 <div class="clearfix">
-	<a href="<?php echo $this->prev; ?>" class="btn pull-left"><i class="fa fa-chevron-left"></i> <?php echo JText::_('COM_RSEVENTSPRO_PREVIOUS_WEEK'); ?></a>
-	<a href="<?php echo $this->next; ?>" class="btn pull-right"><?php echo JText::_('COM_RSEVENTSPRO_NEXT_WEEK'); ?> <i class="fa fa-chevron-right"></i></a>
+	<a href="<?php echo $this->prev; ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn', 'pull-left')); ?>"><i class="fa fa-chevron-left"></i> <?php echo JText::_('COM_RSEVENTSPRO_PREVIOUS_WEEK'); ?></a>
+	<a href="<?php echo $this->next; ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn', 'pull-right')); ?>"><?php echo JText::_('COM_RSEVENTSPRO_NEXT_WEEK'); ?> <i class="fa fa-chevron-right"></i></a>
 </div>
 
 <?php $rss = $this->params->get('rss',1); ?>
@@ -19,7 +19,7 @@ $count = count($this->events); ?>
 <?php if ($rss || $ical || $this->config->timezone) { ?>
 <div class="rs_rss">
 	<?php if ($this->config->timezone) { ?>
-	<a rel="rs_timezone" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo ' href="#timezoneModal" data-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?> class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
+	<a rel="rs_timezone" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo ' href="#timezoneModal" data-toggle="modal" data-bs-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?> class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
 		<i class="fa fa-clock-o"></i>
 	</a>
 	<?php } ?>

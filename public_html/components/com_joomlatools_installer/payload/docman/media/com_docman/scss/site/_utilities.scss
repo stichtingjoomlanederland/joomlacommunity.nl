@@ -1,0 +1,91 @@
+// Bootstrap overrides
+.label {
+  vertical-align: middle;
+}
+
+tr, td {
+  border: none;
+}
+
+.btn {
+  letter-spacing: normal;
+}
+
+.input-append a.koowa-modal.btn {
+  margin-top: 0 !important;
+}
+
+//Fixing issue where labels and just info text would have a wrong height offset
+.controls .help-info {
+  padding-top: 6px;
+  padding-bottom: 6px;
+  display: inline-block;
+}
+
+//Just a CSSS4 trick that give icons the same effect as the text-shadow we're using
+.icon-white {
+  -webkit-filter: drop-shadow(0 -1px 0 hsla(0, 0%, 0%, 0.25));
+}
+
+// Description
+.docman_description {
+  @include clearfix();
+  padding-bottom: 10px;
+
+  // Do not use star selector since we dont want everything to lose its padding
+  address:last-child,
+  form:last-child,
+  blockquote:last-child,
+  ul:last-child,
+  ol:last-child,
+  dl:last-child,
+  pre:last-child,
+  table:last-child,
+  dd:last-child,
+  fieldset:last-child,
+  div:last-child,
+  p:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+}
+
+// Sorting
+.docman_sorting {
+  text-align: right;
+
+  @include rtl {
+    text-align: left;
+  }
+
+  label.control-label {
+    margin-right: $smallMargin;
+
+    @include rtl {
+      margin-right: 0;
+      margin-left: $smallMargin;
+    }
+  }
+}
+
+//Beez fixes
+.dropdown-menu {
+  list-style: none !important;
+  padding: 5px 0 !important;
+  margin: 2px 0 0 !important;
+}
+
+.dropdown-grid .dropdown-menu {
+  padding: 8px 8px 5px !important;
+}
+
+.nav {
+  list-style: none !important;
+}
+
+
+// Submit page
+.submit_document__title_field,
+.submit_document__category_field {
+  max-width: 600px;
+}

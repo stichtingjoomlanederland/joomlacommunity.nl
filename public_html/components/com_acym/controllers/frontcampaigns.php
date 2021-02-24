@@ -1,7 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
-include ACYM_CONTROLLER.'campaigns.php';
+
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Controllers\CampaignsController;
 
 class FrontcampaignsController extends CampaignsController
 {
@@ -13,9 +14,22 @@ class FrontcampaignsController extends CampaignsController
 
         $this->loadScripts = [
             'edit' => ['vue-applications' => ['entity_select'], 'editor-wysid'],
-            'all' => ['introjs'],
         ];
-        $this->authorizedFrontTasks = ['saveAsDraftCampaign', 'addQueue', 'save', 'edit', 'newEmail', 'campaigns', 'welcome', 'unsubscribe', 'countNumberOfRecipients', 'editEmail', 'saveAjax'];
+        $this->authorizedFrontTasks = [
+            'saveAsDraftCampaign',
+            'addQueue',
+            'save',
+            'edit',
+            'newEmail',
+            'campaigns',
+            'welcome',
+            'unsubscribe',
+            'countNumberOfRecipients',
+            'editEmail',
+            'saveAjax',
+            'confirmCampaign',
+            'stopScheduled',
+        ];
         $this->urlFrontMenu = 'index.php?option=com_acym&view=frontcampaigns&layout=listing';
         parent::__construct();
     }
@@ -25,4 +39,3 @@ class FrontcampaignsController extends CampaignsController
         return acym_currentUserId();
     }
 }
-

@@ -1,17 +1,15 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewAcls extends EasyDiscussAdminView
 {
@@ -20,19 +18,15 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function display($tpl = null)
 	{
 		$this->checkAccess('discuss.manage.acls');
 
-		// Determines if we should filter by acl type
 		$type = $this->getUserState('acls.filter_type', 'filter_type', 'group', 'word');
 
 		// Filtering
 		$filter = new stdClass();
-		// $filter->type = $this->getFilterType($type);
 		$filter->search = $this->getUserState('acls.search', 'search', '', 'string');
 
 		// Sorting
@@ -46,7 +40,8 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 
 		$this->title('COM_EASYDISCUSS_ACL_TITLE');
 		$this->desc('COM_EASYDISCUSS_ACL_DESC');
-
+		$this->addHelpButton('/docs/easydiscuss/administrators/configuration/acl');
+		
 		if ($rulesets) {
 			foreach ($rulesets as &$ruleset) {
 				$ruleset->editLink = 'index.php?option=com_easydiscuss&view=acls&layout=form&id=' . $ruleset->id . '&type=' . $type;
@@ -65,10 +60,8 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 	/**
 	 * Displays the acl form
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function form($tpl = null)
 	{
@@ -77,10 +70,14 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 		$id = $this->input->get('id', 0, 'int');
 
 		if (!$id) {
-			ED::setMessage('COM_EASYDISCUSS_INVALID_ACL_ID', 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=acls');
+			ED::setMessage('COM_EASYDISCUSS_INVALID_ACL_ID', ED_MSG_ERROR);
+			return ED::redirect('index.php?option=com_easydiscuss&view=acls');
 		}
 
+		JToolBarHelper::apply();
+		JToolBarHelper::save();
+		JToolBarHelper::cancel();
+		
 		$model = ED::model('Acl');
 
 		// Get ruleset
@@ -102,6 +99,7 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 
 		$this->title($ruleset->name);
 		$this->desc('COM_EASYDISCUSS_ACL_DESC');
+		$this->addHelpButton('/docs/easydiscuss/administrators/users/acl');
 
 		$this->set('tabs', $tabs);
 		$this->set('ruleset', $ruleset);
@@ -114,8 +112,6 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function registerToolbar()
 	{
@@ -123,10 +119,7 @@ class EasyDiscussViewAcls extends EasyDiscussAdminView
 
 
 		if ($layout == 'form') {
-			JToolBarHelper::apply();
-			JToolBarHelper::save();
-			JToolBarHelper::divider();
-			JToolBarHelper::cancel();
+
 
 			return;
 		}

@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -17,6 +17,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<table class="app-table table" data-ed-table>
 			<thead>
 				<tr>
+					<th width="1%">
+						<?php echo $this->html('table.checkall'); ?>
+					</th>
+
 					<th>
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_FILENAME'); ?>
 					</th>
@@ -31,8 +35,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<tbody>
 			<?php if ($mails) { ?>
+				<?php $i = 0; ?>
 				<?php foreach ($mails as $file) { ?>
 					<tr>
+
+						<td class="center" width="1%">
+							<?php echo $this->html('table.checkbox', $i++, base64_encode($file->relative)); ?>
+						</td>
+
 						<td width="30%">
 							<a href="index.php?option=com_easydiscuss&view=emails&layout=edit&file=<?php echo urlencode($file->name);?>"><?php echo $file->name; ?></a>
 						</td>
@@ -43,6 +53,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<?php echo $this->html('table.state', 'emails', $file, 'override', 'emails', false); ?>
 						</td>
 					</tr>
+					<?php $i++; ?>
 				<?php } ?>
 			<?php } else { ?>
 				<tr>
@@ -55,5 +66,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</table>
 	</div>
 
-	<?php echo $this->html('form.hidden', 'emails', 'emails'); ?>
+	<?php echo $this->html('form.action', 'emails', 'emails'); ?>
 </form>

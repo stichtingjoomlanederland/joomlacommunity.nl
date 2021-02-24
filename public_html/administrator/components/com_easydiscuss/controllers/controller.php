@@ -1,9 +1,9 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -20,7 +20,7 @@ class EasyDiscussController extends JControllerLegacy
 		$this->app = JFactory::getApplication();
 		$this->input = ED::request();
 		$this->doc = JFactory::getDocument();
-		$this->config = ED::getJConfig();
+		$this->config = ED::jConfig();
 		$this->my = JFactory::getUser();
 		$this->jconfig = ED::jConfig();
 
@@ -34,13 +34,14 @@ class EasyDiscussController extends JControllerLegacy
 	 *
 	 * @since   4.0
 	 * @access  public
-
 	 */
 	public function checkAccess($rule)
 	{
-		if (!$this->my->authorise($rule , 'com_easydiscuss')) {
-			ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss');
+		$checkaccess = $this->my->authorise($rule , 'com_easydiscuss');
+
+		if (!$checkaccess) {
+			ED::setMessage(JText::_('JERROR_ALERTNOAUTHOR'), ED_MSG_ERROR);
+			return ED::redirect('index.php?option=com_easydiscuss');
 		}
 	}
 
@@ -87,6 +88,23 @@ class EasyDiscussController extends JControllerLegacy
 		}
 	}
 
+	/**
+	 * Redirects a request
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function redirectToView($view, $layout = '')
+	{
+		$link = 'index.php?option=com_easydiscuss&view=' . $view;
+
+		if ($layout) {
+			$link .= '&layout=' . $layout;
+		}
+
+		return $this->app->redirect($link);
+	}
+
 	public function updatedb()
 	{
 		require_once JPATH_ROOT . '/administrator/components/com_easydiscuss/install.default.php';
@@ -101,7 +119,7 @@ class EasyDiscussController extends JControllerLegacy
 
 		if( empty($messages) )
 		{
-			ED::setMessageQueue( 'DB Updated', DISCUSS_QUEUE_SUCCESS );
+			ED::setMessage( 'DB Updated', DISCUSS_QUEUE_SUCCESS );
 			$this->setRedirect( 'index.php?option=com_easydiscuss', 'DB Updated', 'message' );
 		}
 		else
@@ -109,7 +127,7 @@ class EasyDiscussController extends JControllerLegacy
 			$app = JFactory::getApplication();
 			foreach ($installer->getMessages() as $item)
 			{
-				ED::setMessageQueue( $item , DISCUSS_QUEUE_ERROR );
+				ED::setMessage( $item , DISCUSS_QUEUE_ERROR );
 			}
 			$this->setRedirect( 'index.php?option=com_easydiscuss' );
 		}

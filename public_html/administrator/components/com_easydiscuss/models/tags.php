@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -89,7 +89,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 
 		$filter_state 		= $mainframe->getUserStateFromRequest('com_easydiscuss.tags.filter_state', 'filter_state', '', 'word');
 		$search 			= $mainframe->getUserStateFromRequest('com_easydiscuss.tags.search', 'search', '', 'string');
-		$search 			= $db->getEscaped(trim(JString::strtolower($search)));
+		$search 			= $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -151,30 +151,44 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 	/**
 	 * Method to publish or unpublish tags
 	 *
-	 * @access public
-	 * @return array
+	 * @since	5.0
+	 * @access	public
 	 */
 	public function publish(&$tags = array(), $publish = 1)
 	{
-		if(count($tags) > 0)
-		{
-			$db		= ED::db();
-
-			$ids	= implode(',' , $tags);
-
-			$query	= 'UPDATE ' . $db->nameQuote('#__discuss_tags') . ' '
-					. 'SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish) . ' '
-					. 'WHERE ' . $db->nameQuote('id') . ' IN (' . $ids . ')';
-			$db->setQuery($query);
-
-			if(!$db->query())
-			{
-				$this->setError($this->_db->getErrorMsg());
-				return false;
-			}
-			return true;
+		if (count($tags) < 0) {
+			return false;
 		}
-		return false;
+
+		$db	= ED::db();
+		$ids = implode(',', $tags);
+
+		$query = 'UPDATE ' . $db->nameQuote('#__discuss_tags');
+		$query .= ' SET ' . $db->nameQuote('published') . '=' . $db->Quote($publish);
+		$query .= ' WHERE ' . $db->nameQuote('id') . ' IN (' . $ids . ')';
+
+		$db->setQuery($query);
+		$state = $db->query();
+
+		if (!$state) {
+			$this->setError($this->_db->getErrorMsg());
+			return false;
+		}
+
+		$actionString = $publish ? 'COM_ED_ACTIONLOGS_PUBLISHED_TAG' : 'COM_ED_ACTIONLOGS_UNPUBLISHED_TAG';
+
+		foreach ($tags as $tagId) {
+			$tag = ED::table('Tags');
+			$tag->load($tagId);
+
+			$actionlog = ED::actionlog();
+			$actionlog->log($actionString, 'tag', array(
+				'link' => 'index.php?option=com_easydiscuss&view=tags&layout=form&id=' . $tag->id,
+				'tagTitle' => JText::_($tag->title)
+			));
+		}
+
+		return true;
 	}
 
 	public function searchTag($title)
@@ -287,7 +301,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		return $result;
 	}
 
-	public function getTagCloud($limit='', $order='title', $sort='asc' , $userId = '', $usePagination = false)
+	public function getTagCloud($limit = '', $order = 'title', $sort = 'asc', $userId = '', $usePagination = false, $search = '')
 	{
 		$db = ED::db();
 		$config = $this->config;
@@ -305,7 +319,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		// Do not include cluster item here.
 		$query .= ' AND c.`cluster_id` = ' . $db->Quote(0);
 
-		$exclude = DiscussHelper::getPrivateCategories();
+		$exclude = ED::getPrivateCategories();
 
 		if (!empty($exclude)) {
 			$query .= ' AND c.`category_id` NOT IN(' . implode(',', $exclude) . ')';
@@ -317,6 +331,10 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		}
 
 		$query .= ' where a.`published` = ' . $db->Quote('1');
+
+		if ($search) {
+			$query .= ' AND a.`title` LIKE ' . $db->Quote('%' . $search . '%');
+		}
 
 		if (!empty($userId)) {
 			$query .= ' AND a.`user_id`=' . $db->Quote($userId);
@@ -369,9 +387,7 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 			$db->setQuery($cntQuery);
 			$this->_total = $db->loadResult();
 			$this->_pagination = ED::pagination($this->_total, $limitstart, $limit);
-
 		}
-
 
 		return $result;
 	}
@@ -443,5 +459,52 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 		$results = $db->loadObjectList();
 
 		return $results;
+	}
+
+	/**
+	 * Method used to merge tag
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function mergeTag($mergeTag, $tag)
+	{
+		if (!$mergeTag->id || !$tag->id) {
+			return;
+		}
+
+		$db	= ED::db();
+
+		// Find posts tagged in both id
+		$query = 'SELECT a.`id` FROM `#__discuss_posts_tags` AS a';
+		$query .= ' LEFT JOIN #__discuss_posts_tags AS b ON b.post_id = a.post_id';
+		$query .= ' WHERE a.tag_id = ' . $db->quote($tag->id);
+		$query .= ' AND b.tag_id = ' . $db->quote($mergeTag->id);
+		$query .= ' GROUP BY a.post_id';
+
+		$db->setQuery($query);
+		$excludeIds = $db->loadResultArray();
+
+		// Do not update post having both tags, let $table->delete() handle them
+		$query = 'UPDATE `#__discuss_posts_tags`';
+		$query .= ' SET `tag_id` = ' . $db->quote($mergeTag->id);
+		$query .= ' WHERE `tag_id` = ' . $db->quote($tag->id);
+
+		if (count($excludeIds) > 0) {
+			EDArrayHelper::toInteger($excludeIds);
+			$query .= ' AND `id` NOT IN (' . implode(',', $excludeIds) . ')';
+		}
+
+		$db->setQuery($query);
+		$db->query();
+
+		$tag->delete();
+
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_MERGED_TAG', 'tag', array(
+			'link' => 'index.php?option=com_easydiscuss&view=tags&layout=form&id=' . $tag->id,
+			'tagTitle' => JText::_($tag->title),
+			'mergeTagTitle' => JText::_($mergeTag->title)
+		));		
 	}
 }

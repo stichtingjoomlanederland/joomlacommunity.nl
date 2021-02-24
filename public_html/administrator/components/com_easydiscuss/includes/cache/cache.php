@@ -1,9 +1,9 @@
 <?php
 /**
-* @package		EasyBlog
-* @copyright	Copyright (C) 2010 - 2014 Stack Ideas Sdn Bhd. All rights reserved.
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -11,16 +11,17 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once( DISCUSS_ADMIN_INCLUDES . '/post/post.php');
-
-class EasyDiscussCache extends EasyDiscuss
+class EasyDiscussCache
 {
 	public $posts = null;
 	public $categories = null;
 	public $tags = null;
 	public $polls = null;
 	public $replies = null;
-
+	public $labels = [];
+	public $posttypes = [];
+	public $priorities = [];
+	
 	// Local scope
 	private $post = array();
 	private $category = array();
@@ -28,7 +29,7 @@ class EasyDiscussCache extends EasyDiscuss
 	private $like = array();
 	private $poll = array();
 
-	private $types = array('post', 'category', 'tag', 'thread', 'repliesCount', 'attachmentCount', 'pollsCount');
+	private $types = array('post', 'category', 'tag', 'thread', 'repliesCount', 'attachmentCount', 'pollsCount', 'labels', 'posttypes');
 
 	public function cachePosts($items, $options = array())
 	{
@@ -48,37 +49,43 @@ class EasyDiscussCache extends EasyDiscuss
 		$authorIds = array();
 
 		foreach ($items as $item) {
-			// $post = ED::post($item);
-			$postIds[] = $item->id;
 
+			// lets check of this post already cached or not.
+			// if yes, exclude this post.
+			if ($this->exists($item->id, 'post')) {
+				continue;
+			}
+
+			// just cache the data object into post.
+			$this->set($item, 'post');
+
+			// get the post ids to load other items in batch.
+			$postIds[] = $item->id;
 
 			$authorIds[] = $item->user_id;
 			if (isset($item->last_user_id) && $item->last_user_id) {
 				$authorIds[] = $item->last_user_id;
 			}
 
-			// just cache the data object into post.
-			$this->set($item, 'post');
-
 			if ($_cacheCategories) {
 				$catIds[] = $item->category_id;
 			}
 		}
 
-
-
 		if ($authorIds) {
 			//preload user
+			$authorIds = array_unique($authorIds);
 			ED::user($authorIds);
 		}
 
-		if ($_cachePostTags) {
+		if ($_cachePostTags && $postIds) {
 			$postTagsModel = ED::model('PostsTags');
 			$postTagsModel->setPostTagsBatch($postIds);
 		}
 
-		if ($catIds) {
+		if ($_cacheCategories && $catIds) {
 			$catModel = ED::model('Categories');
+			$catIds = array_unique($catIds);
 			$results = $catModel->preloadCategories($catIds);
 
 			if ($results) {
@@ -93,37 +100,15 @@ class EasyDiscussCache extends EasyDiscuss
 		}
 	}
 
-
-	public function cacheReplies($replies = array())
-	{
-		if (! $replies) {
-			return;
-		}
-
-
-		$repliesIds = array();
-
-		foreach ($replies as $reply) {
-			$repliesIds[] = $reply->id;
-		}
-
-
-	}
-
-
 	/**
 	 * Adds a cache for a specific item type
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	std object (non jtable object), string
-	 * @type 	'post', 'category', 'meta', 'tag', 'author', 'revision', 'team'
-	 * @return  boolean
 	 */
-	public function set($item, $type = 'post')
+	public function set($item, $type = 'post', $key = 'id')
 	{
-		// Check if this item already exists.
-		$this->{$type}[$item->id] = $item;
+		$this->{$type}[$item->$key] = $item;
 	}
 
 	/**
@@ -131,9 +116,6 @@ class EasyDiscussCache extends EasyDiscuss
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	string, string
-	 * @type 	'post', 'category', 'meta', 'tag', 'author', 'revision'
-	 * @return  std object (non jtable) /  array
 	 */
 	public function get($id, $type = 'post')
 	{
@@ -150,8 +132,6 @@ class EasyDiscussCache extends EasyDiscuss
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function fallback($id, $type)
 	{
@@ -168,9 +148,6 @@ class EasyDiscussCache extends EasyDiscuss
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	string, string
-	 * @type 	'post', 'category', 'tags'
-	 * @return  boolean
 	 */
 	public function exists($id, $type = 'post')
 	{

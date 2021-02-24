@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -77,18 +77,12 @@ class Protect
 		// return if current page is a JoomFish or Josetta page
 		$is_restricted = (
 			in_array($input->get('format'), $restricted_formats)
-			|| in_array($input->get('view'), ['image', 'img'])
+//			|| in_array($input->get('view'), ['image', 'img'])
 			|| in_array($input->get('type'), ['image', 'img'])
 			|| in_array($input->get('task'), ['install.install', 'install.ajax_upload'])
-			|| ($hastags
-				&& (
-					$input->getInt('rl_qp', 0)
-					|| in_array($input->get('option'), ['com_joomfishplus', 'com_josetta'])
-				)
-			)
-			|| (Document::isClient('administrator')
-				&& in_array($input->get('option'), ['com_jdownloads'])
-			)
+			|| ($hastags && $input->getInt('rl_qp', 0))
+			|| ($hastags && in_array($input->get('option'), ['com_joomfishplus', 'com_josetta']))
+			|| (Document::isClient('administrator') && in_array($input->get('option'), ['com_jdownloads']))
 		);
 
 		return Cache::set(
@@ -125,18 +119,17 @@ class Protect
 			return false;
 		}
 
-		$restricted_components =
-			is_array($restricted_components)
-				? $restricted_components
-				: explode(',', str_replace('|', ',', $restricted_components));
+		$restricted_components = ArrayHelper::toArray(str_replace('|', ',', $restricted_components));
+		$restricted_components = ArrayHelper::clean($restricted_components);
 
-		if (in_array(JFactory::getApplication()->input->get('option'), $restricted_components))
+		if ( ! empty($restricted_components) && in_array(JFactory::getApplication()->input->get('option'), $restricted_components))
 		{
 			return true;
 		}
 
 		if (JFactory::getApplication()->input->get('option') == 'com_acymailing'
 			&& ! in_array(JFactory::getApplication()->input->get('ctrl'), ['user', 'archive'])
+			&& ! in_array(JFactory::getApplication()->input->get('view'), ['user', 'archive'])
 		)
 		{
 			return true;
@@ -1063,10 +1056,10 @@ class Protect
 	 * @param string $character_end
 	 * @param bool   $keep_content
 	 */
-	public static function removePluginTags(&$string, $tags, $character_start = '{', $character_end = '{', $keep_content = true)
+	public static function removePluginTags(&$string, $tags, $character_start = '{', $character_end = '}', $keep_content = true)
 	{
-		$character_start = RegEx::quote($character_start);
-		$character_end   = RegEx::quote($character_end);
+		$regex_character_start = RegEx::quote($character_start);
+		$regex_character_end   = RegEx::quote($character_end);
 
 		foreach ($tags as $tag)
 		{
@@ -1080,9 +1073,14 @@ class Protect
 				$tag = [$tag[0], $tag[0]];
 			}
 
-			$regex = $character_start . RegEx::quote($tag[0]) . '(?:\s.*?)?' . $character_end
+			if ( ! StringHelper::contains($string, $character_start . '/' . $tag[1] . $character_end))
+			{
+				continue;
+			}
+
+			$regex = $regex_character_start . RegEx::quote($tag[0]) . '(?:\s.*?)?' . $regex_character_end
 				. '(.*?)'
-				. $character_start . '/' . RegEx::quote($tag[1]) . $character_end;
+				. $regex_character_start . '/' . RegEx::quote($tag[1]) . $regex_character_end;
 
 			$replace = $keep_content ? '\1' : '';
 

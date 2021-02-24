@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -49,6 +49,10 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 				continue;
 			}
 
+			if ($index == 'category_permission') {
+				continue;
+			}
+
 			// Fix google adsense integration codes
 			if ($index == 'integration_google_adsense_code') {
 				$value = str_ireplace(';"', ';', $value);
@@ -93,18 +97,18 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 			$allowed = version_compare(phpversion(), '5.6.0') !== -1;
 
 			if (!$allowed) {
-				ED::setMessage(JText::_('The minimum required version of PHP is PHP 5.6.x if you want to enable the option "<b>Intelligently Detect Reply Breaks</b>"'), 'error');
+				ED::setMessage(JText::_('The minimum required version of PHP is PHP 5.6.x if you want to enable the option "<b>Intelligently Detect Reply Breaks</b>"'), ED_MSG_ERROR);
 
 				$redirect = 'index.php?option=com_easydiscuss&view=settings&layout=' . $layout . '&active=' . $active;
 
-				return $this->app->redirect($redirect);
+				return ED::redirect($redirect);
 			}
 		}
 
-		// Since we allow users to change the storage path, if they rename the path, we would also need to 
+		// Since we allow users to change the storage path, if they rename the path, we would also need to
 		// rename the folder
 		if (isset($post['storage_path']) && !empty($post['storage_path'])) {
-				
+
 			$config = ED::config();
 
 			$newStoragePath = $post['storage_path'];
@@ -121,7 +125,7 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 						$state = JFolder::move(JPATH_ROOT . '/' . ltrim($legacyPath, '/'), JPATH_ROOT . '/' . ltrim($storagePath, '/'));
 
 						if (!$state) {
-							ED::setMessage(JText::_('Since there is a change in the attachments path, EasyDiscuss was not able to rename the previous folder', 'error'));
+							ED::setMessage(JText::_('Since there is a change in the attachments path, EasyDiscuss was not able to rename the previous folder', ED_MSG_ERROR));
 						}
 					}
 				}
@@ -134,7 +138,7 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 					$state = JFolder::move($existingStoragePath, $newStoragePath);
 
 					if (!$state) {
-						ED::setMessage(JText::_('Since there is a change in the attachments path, EasyDiscuss was not able to rename the previous folder', 'error'));
+						ED::setMessage(JText::_('Since there is a change in the attachments path, EasyDiscuss was not able to rename the previous folder', ED_MSG_ERROR));
 					}
 				}
 			}
@@ -145,9 +149,9 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 
 		// Check if any of the configurations are stored as non local
 		if (isset($post['amazon_access_key']) && isset($post['amazon_access_secret']) && $layout == 'storage') {
-			
+
 			$bucket = $post['amazon_bucket'];
-			
+
 			// Get the storage library
 			$storageType = $post['storage_attachments'];
 			$storage = ED::storage($storageType);
@@ -166,16 +170,34 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 				$configTable = ED::table('Configs');
 
 				$config->set('amazon_bucket', $bucket);
-		
+
 				$configTable->set('value', $config->toString());
 				$configTable->store();
 			}
 		}
 
+		// Updated default permission for categories
+		if (isset($post['category_permission']) && $layout == 'categories') {
+			$model = ED::model('Category');
+			$model->updateACL(0, $post['category_permission'], null);
+		}
+
 		$file = $this->input->files->get('email_logo', '');
 
 		if (isset($file['tmp_name']) && !$file['error']) {
-			$this->updateEmailLogo($file);
+			$this->updateLogo($file, 'emails');
+		}
+
+		$file = $this->input->files->get('amp_logo', '');
+
+		if (isset($file['tmp_name']) && !$file['error']) {
+			$this->updateLogo($file, 'amp');
+		}
+
+		$file = $this->input->files->get('schema_logo', '');
+
+		if (isset($file['tmp_name']) && !$file['error']) {
+			$this->updateLogo($file, 'schema');
 		}
 
 		// Default message
@@ -188,7 +210,15 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		$active = $this->input->get('active', '', 'string');
 
 		$redirect = 'index.php?option=com_easydiscuss&view=settings&layout=' . $layout . '&active=' . $active;
-		$this->app->redirect($redirect);
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_SETTINGS_UPDATE', 'settings', array(
+			'link' => $redirect,
+			'section' => ucfirst($layout)
+		));
+
+		ED::redirect($redirect);
 
 		return $this->app->close();
 	}
@@ -219,10 +249,10 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		// If return is specified, respect that
 		if (!empty($return)) {
 			$return = base64_decode($return);
-			$this->app->redirect($return);
+			ED::redirect($return);
 		}
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
+		return ED::redirect('index.php?option=com_easydiscuss&view=languages');
 	}
 
 	/**
@@ -248,30 +278,32 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 	}
 
 	/**
-	 * Restore Email Logo to default
+	 * Restore logo to default
 	 *
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function restoreEmailLogo()
+	public function restoreLogo()
 	{
+		$type = $this->input->get('type', '', 'string');
+
 		$currentTemplate = ED::getCurrentTemplate();
-		$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/logo.png';
+		$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/' . $type . '/logo.png';
 
 		if (JFile::exists($override)) {
-			JFile::delete($override);		
+			JFile::delete($override);
 		}
- 		
- 		return $this->ajax->resolve('index.php?option=com_easydiscuss&view=settings&layout=notifications');
+
+		return $this->ajax->resolve();
 	}
 
 	/**
-	 * Override the email logo
+	 * Override the logo
 	 *
 	 * @since	4.1.15
 	 * @access	public
 	 */
-	public function updateEmailLogo($file)
+	public function updateLogo($file, $type)
 	{
 		if (empty($file) || !isset($file['tmp_name'])) {
 			return;
@@ -280,7 +312,7 @@ class EasyDiscussControllerSettings extends EasyDiscussController
 		$currentTemplate = ED::getCurrentTemplate();
 
 		$source = $file['tmp_name'];
-		$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/logo.png';
+		$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/' . $type . '/logo.png';
 
 		// Update the email logo
 		JFile::upload($source, $override);

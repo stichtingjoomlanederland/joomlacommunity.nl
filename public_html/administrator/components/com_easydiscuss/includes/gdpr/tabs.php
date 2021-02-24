@@ -161,7 +161,7 @@ class EasyDiscussGdrpTab
 	public function getContentsFromTemporaryListingFile()
 	{
 		$path = $this->getTemporaryListingFileName();
-		$contents = JFile::read($path);
+		$contents = file_get_contents($path);
 
 		return $contents;
 	}

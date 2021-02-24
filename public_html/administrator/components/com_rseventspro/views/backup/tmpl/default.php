@@ -11,35 +11,31 @@ JHtml::_('behavior.keepalive'); ?>
 
 <?php if ($this->hash) { ?>
 <script type="text/javascript">
-jQuery('#backuprestore > li > a[href="#restore"]').click();
-jQuery('#backuprestore dt.restore').click();
 var rsepro_restore_overwrite = <?php if ($this->overwrite) { ?>true;<?php } else { ?>false;<?php } ?>
-jQuery(document).ready(function() {
+window.addEventListener('DOMContentLoaded', function() {
+	setTimeout(function() {
+		jQuery('#backuprestore > li > a[href="#restore"]').click();
+	jQuery('#backuprestore dt.restore').click();
+	jQuery('a[href="#restore"]')[0].click();
 	rsepro_restore('<?php echo $this->hash; ?>',0,0,0);
+	},1000);
 });
 </script>
 <?php } ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=backup'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal" autocomplete="off" enctype="multipart/form-data">
-	<div class="row-fluid" id="rsepro-backup-container">
-		<div id="j-sidebar-container" class="span2">
-			<?php echo JHtmlSidebar::render(); ?>
+	<?php echo RSEventsproAdapterGrid::sidebar(); ?>
+		<div class="progress mb-3" id="rsepro-backup">
+			<div style="width: 0%;" class="<?php echo RSEventsproAdapterGrid::styles(array('bar')); ?>">0%</div>
 		</div>
-		<div id="j-main-container" class="span10 j-main-container">
-			<div class="progress" id="rsepro-backup">
-				<div style="width: 0%;" class="bar">
-					<div class="pull-right progress-label">0%</div>
-				</div>
-			</div>
 			
-			<?php 
-				$this->tabs->title('COM_RSEVENTSPRO_BACKUP', 'backup');
-				$this->tabs->content($this->loadTemplate('backup'));
-				$this->tabs->title('COM_RSEVENTSPRO_RESTORE', 'restore');
-				$this->tabs->content($this->loadTemplate('restore'));
-				echo $this->tabs->render();
-			?>
-		</div>
+		<?php 
+			$this->tabs->addTitle('COM_RSEVENTSPRO_BACKUP', 'backup');
+			$this->tabs->addContent($this->loadTemplate('backup'));
+			$this->tabs->addTitle('COM_RSEVENTSPRO_RESTORE', 'restore');
+			$this->tabs->addContent($this->loadTemplate('restore'));
+			echo $this->tabs->render();
+		?>
 	</div>
 	
 	<?php echo JHTML::_('form.token')."\n"; ?>

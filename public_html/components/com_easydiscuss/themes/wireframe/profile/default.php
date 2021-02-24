@@ -11,224 +11,145 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="ed-profile t-lg-mt--lg" data-profile-item data-id="<?php echo $profile->id; ?>">
-	<div class="ed-user-profile t-lg-mb--lg">
-		<div class="ed-user-profile__hd">
-			<div class="o-row">
-				<div class="o-col">
-					<div class="o-flag">
-						<div class="o-flag__image o-flag--top t-pr--lg">
-							<?php echo $this->html('user.avatar', $profile, array('status' => true, 'size' => 'lg')); ?>
-						</div>
+<div class="ed-profile" data-profile-item data-id="<?php echo $profile->id; ?>">
 
-						<div class="o-flag__body">
-							<?php echo $this->html('user.username', $profile, array('lgMarginBottom' => true)); ?>
-							
-							<?php if( $this->config->get('main_ranking')){ ?>
-							<div class="ed-rank-bar t-lg-mb--sm">
-								<div class="ed-rank-bar__progress" style="width: <?php echo ED::getUserRankScore($profile->id); ?>%"></div>
-							</div>
-							<?php } ?>
-							
-							<div class="ed-user-rank t-lg-mb--sm o-label o-label--<?php echo $profile->getRoleLabelClassname()?>">
-								<?php echo $profile->getRole(); ?>
-							</div>
+	<div class="l-stack">
+		<?php echo $this->html('user.header', $profile, [
+			'displayStatistics' => true
+		]); ?>
 
-							<div class="ed-user-meta">
-								<?php echo JText::sprintf('COM_EASYDISCUSS_REGISTERED_ON', $profile->getDateJoined());?>
-							</div>
-
-							<div class="ed-user-meta t-lg-mb--sm">
-								<?php echo JText::sprintf('COM_EASYDISCUSS_LAST_SEEN_ON', $profile->getLastOnline(true)); ?>
-							</div>
-
-							<div class="ed-profile__bio-social">
-								<ol class="g-list-inline">
-								<?php if (!empty($socialUrls)) { ?>
-									<?php foreach ($socialUrls as $key => $url) { ?>
-									<li>
-										<a href="<?php echo $this->html('string.escape', $url); ?>" class="ed-profile__bio-social-link" target="_blank" rel="nofollow">
-											<i class="fa fa-<?php echo $key; ?>"></i>
-											<span class="ed-profile__bio-social-txt"><?php echo ucfirst($key); ?></span>
-										</a>
-									</li>
-									<?php }?>
-								<?php } ?>
-								</ol>
-							</div>
-
-						</div>
-					</div>
-				</div>
-				<div class="o-col">
-					<div class="ed-profile-subscribe pull-right t-lg-mb--lg">
-						<?php if ($this->config->get('main_rss')) { ?>
-						<a target="_blank" class="t-lg-mr--md" href="<?php echo ED::feeds()->getFeedURL('view=profile&id='.$profile->id);?>">
-							<i class="fa fa-rss-square ed-subscribe__icon t-lg-mr--sm"></i> <?php echo JText::_('COM_EASYDISCUSS_SUBSCRIBE'); ?>
-						</a>
-						<?php } ?>
-
-					</div>
-					<div class="ed-statistic pull-right">
-						<div class="ed-statistic__item">
-							<a href="<?php echo EDR::_('view=profile&viewtype=replies&id='. $profile->id); ?>">
-							<span class="ed-statistic__item-count"><?php echo $profile->getTotalReplies(); ?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_REPLIES');?></span>
-							</a>
-						</div>
-						<div class="ed-statistic__item">
-							<a href="<?php echo EDR::_('view=profile&viewtype=questions&id='.$profile->id); ?>">
-							<span class="ed-statistic__item-count"><?php echo $profile->getNumTopicPosted(); ?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_QUESTIONS');?></span>
-							</a>
-						</div>
-						<?php if ($this->config->get('main_badges')) { ?>
-						<div class="ed-statistic__item">
-							<a href="<?php echo EDR::_('view=badges&userid='.$profile->id); ?>">
-							<span class="ed-statistic__item-count"><?php echo count($badges);?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_BADGES');?></span>
-							</a>
-						</div>
-						<?php } ?>
-
-						<?php if ($this->config->get('main_points')) { ?>
-						<div class="ed-statistic__item">
-							<a href="<?php echo EDR::_('view=points&id='.$profile->id); ?>">
-							<span class="ed-statistic__item-count"> <?php echo $profile->getPoints(); ?></span>
-							<span><?php echo JText::_('COM_EASYDISCUSS_POINTS'); ?></span>
-							</a>
-						</div>
-						<?php } ?>
-
-						<?php echo $this->html('user.pm', $profile->id, 'list'); ?>
-					</div>
-				</div>
+		<div class="o-tabs o-tabs--ed">
+			<div class="o-tabs__item <?php echo $filter == 'posts' ? 'active' : '';?>" data-ed-tab>
+				<a href="#posts" class="o-tabs__link" data-ed-toggle="tab" data-filter="posts">
+					<?php echo JText::_('COM_ED_POSTS');?>
+				</a>
 			</div>
-		</div>
 
-		<?php if ($this->config->get('main_signature_visibility') || $this->config->get('main_description_visibility')) { ?>
-		<div class="ed-user-profile__bd <?php echo !$profile->getDescription() && !$profile->getSignature()  ? ' t-lg-p--no' : '';?>">
-
-			<?php if ($this->config->get('main_description_visibility')) { ?>
-			<div class="ed-profile__bio-desp">
-				<?php echo $profile->getDescription(); ?>
+			<div class="o-tabs__item <?php echo $filter == 'assigned' ? 'active' : '';?>" data-ed-tab>
+				<a href="#assigned" class="o-tabs__link" data-ed-toggle="tab" data-filter="assigned">
+					<?php echo JText::_('COM_ED_ASSIGNED');?>
+				</a>
 			</div>
-			<?php } ?>
 
-			<?php if ($this->config->get('main_signature_visibility')) { ?>
-			<div class="ed-profile__bio-signature">
-				<?php echo $profile->getSignature(); ?>
+			<div class="o-tabs__item <?php echo $filter == 'replies' ? 'active' : '';?>" data-ed-tab>
+				<a href="#replies" class="o-tabs__link" data-ed-toggle="tab" data-filter="replies">
+					<?php echo JText::_('COM_ED_REPLIES');?>
+				</a>
 			</div>
-			<?php } ?>
 			
-		</div>
-		<?php } ?>
-
-		<div class="ed-user-profile__ft">
-		<?php if ($profile->latitude && $profile->longitude) { ?>
-			<div id="ed-user-map"> </div>
-		<?php } ?>
-		</div>
-	</div>
-	<div class="ed-profile-container">
-		<div class="ed-profile-container__side">
-
-			<div class="ed-profile-container__side-bd">
-				<ul class="o-nav  o-nav--stacked ed-profile-container__side-nav">
-					<li data-profile-tab data-filter-type="questions" <?php echo ($viewType == 'questions')? 'class="active"' : '' ?>>
-						<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_QUESTIONS');?> (<?php echo $profile->getNumTopicPosted(); ?>)</a>
-					</li>
-					
-					<?php if ($this->config->get('main_qna')) { ?>
-						<li data-profile-tab data-filter-type="unresolved" <?php echo ($viewType == 'unresolved')? 'class="active"' : '' ?>>
-							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_UNRESOLVED');?> (<?php echo $profile->getNumTopicUnresolved(); ?>)</a>
-						</li>
-					<?php } ?>
-					
-					<?php if ($this->config->get('main_favorite')) { ?>
-						<li data-profile-tab data-filter-type="favourites" <?php echo ($viewType == 'favourites')? 'class="active"' : '' ?>>
-							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_FAVOURITES');?> (<?php echo $profile->getTotalFavourites(); ?>)</a>
-						</li>
-					<?php } ?>
-					
-					<li data-profile-tab data-filter-type="assigned" <?php echo ($viewType == 'assigned')? 'class="active"' : '' ?>>
-						<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_ASSIGNED');?> (<?php echo $profile->getTotalAssigned(); ?>)</a>
-					</li>
-					<li data-profile-tab data-filter-type="replies" <?php echo ($viewType == 'replies')? 'class="active"' : '' ?>>
-						<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_REPLIES');?> (<?php echo $profile->getTotalReplies(); ?>)</a>
-					</li>
-
-					<?php if (ED::isModerator() || ED::isMine($profile->id)) { ?>
-						<li data-profile-tab data-filter-type="pending" <?php echo ($viewType == 'pending')? 'class="active"' : '' ?>>
-							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_FILTER_PENDING');?> (<?php echo $profile->getTotalPending(); ?>)</a>
-						</li>
-					<?php } ?>
-					
-					<li class="ed-profile-container__side-divider"></li>
-					
-					<?php if ($easyblogExists) { ?>
-						<li data-profile-tab data-filter-type="easyblog" <?php echo ($viewType == 'easyblog')? 'class="active"' : '' ?>>
-							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_EASYBLOG');?> (<?php echo $blogCount; ?>)</a>
-						</li>
-					<?php } ?>
-					
-					<?php if ($this->config->get('integrations_komento_profile') && $komentoExists) { ?>
-						<li data-profile-tab data-filter-type="komento" <?php echo ($viewType == 'komento')? 'class="active"' : '' ?>>
-							<a href="javascript:void(0);"><?php echo JText::_('COM_EASYDISCUSS_PROFILE_TAB_KOMENTO');?> (<?php echo $commentCount; ?>)</a>
-						</li>
-					<?php } ?>
-				</ul>
+			<?php if ($this->config->get('main_badges')) { ?>
+			<div class="o-tabs__item <?php echo $filter == 'badges' ? 'active' : '';?>" data-ed-tab>
+				<a href="#badges" class="o-tabs__link" data-ed-toggle="tab" data-filter="badges">
+					<?php echo JText::_('COM_EASYDISCUSS_BADGES');?>
+				</a>
 			</div>
-		</div>
+			<?php } ?>
 
-		<div class="ed-profile-container__content">
-
-			<div class="ed-profile-container__content-hd">
-				<div class="pull-left" data-ed-tabs-content-title><?php echo $tabsTitle; ?></div>
-				<div class="t-hidden" data-ed-tabs-content-title-hidden><?php echo JText::_('COM_EASYDISCUSS_MY_POSTS') ?></div>
+			<?php if ($this->config->get('main_favorite')) { ?>
+			<div class="o-tabs__item <?php echo $filter == 'favourites' ? 'active' : '';?>" data-ed-tab>
+				<a href="#favourites" class="o-tabs__link" data-ed-toggle="tab" data-filter="favourites">
+					<?php echo JText::_('COM_EASYDISCUSS_FAVOURITES');?>
+				</a>
 			</div>
+			<?php } ?>
 
-			<div class="ed-profile-container__content-bd">
-				<div class="loading-bar loader" style="display:none;">
-					<div class="discuss-loader">
-						<div class="test-object is-loading">
-						  <div class="o-loading">
-							  <div class="o-loading__content">
-								  <i class="fa fa-spinner fa-spin"></i>
-							  </div>
-						  </div>
-						</div>
-					</div>
+			<?php if ($this->config->get('main_points')) { ?>
+			<div class="o-tabs__item <?php echo $filter == 'points' ? 'active' : '';?>" data-ed-tab>
+				<a href="#points" class="o-tabs__link" data-ed-toggle="tab" data-filter="points">
+					<?php echo JText::_('COM_EASYDISCUSS_POINTS_HISTORY');?>
+				</a>
+			</div>
+			<?php } ?>
+		</div>
+			
+		<div class="tab-content">
+			<div id="posts" class="tab-pane <?php echo $filter == 'posts' ? 'active' : '';?> <?php echo !$posts ? 'is-empty' : '';?>" data-ed-list-wrapper>
+				<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">
+					<?php if ($filter == 'posts') { ?>
+						<?php echo $this->output('site/posts/list', [
+							'featured' => [],
+							'posts' => $posts,
+							'pagination' => $pagination,
+							'hideTitles' => true
+						]); ?>
+					<?php } ?>
 				</div>
 
-				<div class="ed-posts-list" data-list-item>
-				<?php if ($posts) { ?>
-					<?php foreach ($posts as $post) { ?>
-						<?php echo $this->output('site/profile/item', array('post' => $post)); ?>
-					<?php } ?>
-				 <?php } ?>
-
-				<?php if ($contents) { ?>
-					<?php echo $contents; ?>
-				<?php } ?>
-				</div>
+				<?php echo $this->html('loading.block'); ?>
 				
-				 <div class="is-empty">
-					<div class="o-empty o-empty--bordered <?php echo $posts || $contents ? 't-hidden' : ''?>" data-list-empty>
-						<div class="o-empty__content">
-							<i class="o-empty__icon fa fa-book"></i>
-							<div class="o-empty__text" data-list-empty-text>
-								<?php echo JText::_('COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST');?>
-							</div>
-						</div>
-					</div>
-				 </div>
-
-				<div class="" data-profile-pagination>
-					<?php echo $pagination;?>
-				</div>
+				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
+
+			<div id="assigned" class="tab-pane <?php echo $filter == 'assigned' ? 'active' : '';?>">
+				<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">
+					<?php if ($filter == 'assigned') { ?>
+						<?php echo $this->output('site/posts/list', [
+							'featured' => [],
+							'posts' => $posts,
+							'pagination' => $pagination,
+							'hideTitles' => true
+						]); ?>
+					<?php } ?>
+				</div>
+
+				<?php echo $this->html('loading.block');?>
+				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+			</div>
+
+			<div id="replies" class="tab-pane <?php echo $filter == 'replies' ? 'active' : '';?>">
+				<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">
+					<?php if ($filter == 'replies') { ?>
+						<?php echo $this->output('site/posts/list', [
+							'featured' => [],
+							'posts' => $posts,
+							'pagination' => $pagination,
+							'hideTitles' => true
+						]); ?>
+					<?php } ?>
+				</div>
+				<?php echo $this->html('loading.block');?>
+				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+			</div>
+
+			<?php if ($this->config->get('main_badges')) { ?>
+			<div id="badges" class="tab-pane <?php echo !$badges ? 'is-empty' : '';?>">
+				<div class="l-stack">
+					<?php foreach ($badges as $badge) { ?>
+						<?php echo $this->html('card.badge', $badge); ?>
+					<?php } ?>
+				</div>
+
+				<?php echo $this->html('card.empty', 'fas fa-certificate', 'COM_ED_NO_ACHIEVEMENTS_YET'); ?>
+			</div>
+			<?php } ?>
+
+			<?php if ($this->config->get('main_favorite')) { ?>
+			<div id="favourites" class="tab-pane">
+				<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">
+					<?php if ($filter == 'favourites') { ?>
+						<?php echo $this->output('site/posts/list', [
+							'featured' => [],
+							'posts' => $posts,
+							'pagination' => $pagination,
+							'hideTitles' => true
+						]); ?>
+					<?php } ?>
+				</div>
+
+				<?php echo $this->html('loading.block');?>
+				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+			</div>
+			<?php } ?>
+
+			<?php if ($this->config->get('main_points')) { ?>
+			<div id="points" class="tab-pane">
+				<div class="ed-point-listing l-stack" data-ed-list>
+				</div>
+
+				<?php echo $this->html('loading.block');?>
+				<?php echo $this->html('card.empty', 'fas fa-certificate', 'COM_EASYDISCUSS_USER_NO_POINTS_HISTORY'); ?>
+			</div>
+			<?php } ?>
 		</div>
 	</div>
 </div>
-<input id="profile-id" value="<?php echo $profile->id; ?>" type="hidden" />

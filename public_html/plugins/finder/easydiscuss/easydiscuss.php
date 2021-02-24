@@ -12,11 +12,16 @@
 defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.helper');
+jimport('joomla.filesystem.file');
+$file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
 
-// Load the base adapter.
-require_once JPATH_ADMINISTRATOR . '/components/com_finder/helpers/indexer/adapter.php';
+if (!JFile::exists($file)) {
+	return;
+}
 
-class plgFinderEasyDiscuss extends FinderIndexerAdapter
+require_once($file);
+
+class plgFinderEasyDiscuss extends EDFinderBase
 {
 	protected $context = 'EasyDiscuss';
 	protected $extension = 'com_easydiscuss';
@@ -86,7 +91,7 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 	 * @since	4.1.15
 	 * @access	public
 	 */
-	protected function index(FinderIndexerResult $item, $format = 'html')
+	protected function proxyIndex($item, $format = 'html')
 	{
 		// Check if the extension is enabled
 		if (JComponentHelper::isEnabled($this->extension) == false) {
@@ -130,7 +135,7 @@ class plgFinderEasyDiscuss extends FinderIndexerAdapter
 
 		$item->content = $item->preview;
 
-		//$post->content	= JString::substr( strip_tags( $item->content ), 0, 300 );
+		//$post->content	= EDJString::substr( strip_tags( $item->content ), 0, 300 );
 		$item->content = strip_tags($item->content);
 
 		// if the post is pasword protected, dont show the summary.

@@ -1,0 +1,33 @@
+<?php
+/**
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
+* EasyDiscuss is free software. This version may have been modified pursuant
+* to the GNU General Public License, and as distributed it includes or
+* is derivative of works licensed under the GNU General Public License or
+* other free or open source software licenses.
+* See COPYRIGHT.php for copyright notices and details.
+*/
+defined('_JEXEC') or die('Unauthorized Access');
+
+class EasyDiscussControllerTags extends EasyDiscussController
+{
+	/**
+	 * Search for tags
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function search()
+	{
+		// Check for request forgeries
+		ED::checkToken();
+
+		$search = $this->input->get('search', '', 'string');
+
+		$url = EDR::_('index.php?option=com_easydiscuss&view=tags&search=' . $search, false);
+
+		ED::redirect($url);
+	}
+}

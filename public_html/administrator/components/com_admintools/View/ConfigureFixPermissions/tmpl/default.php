@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -9,7 +9,7 @@
 use Akeeba\AdminTools\Admin\Helper\Select;
 use Joomla\CMS\Language\Text;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $path = $this->at_path;
 
@@ -66,7 +66,7 @@ if (!empty($path))
 					<?php echo $this->escape($this->escape($crumb)); ?>
 
 				</a>
-				<?php if ($i < count($this->listing['crumbs'])): ?>
+				<?php if ($i < (is_array($this->listing['crumbs']) || $this->listing['crumbs'] instanceof \Countable ? count($this->listing['crumbs']) : 0)): ?>
 					<span class="divider">/</span>
 				<?php endif; ?>
 			</li>

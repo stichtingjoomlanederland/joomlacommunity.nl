@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewTags extends EasyDiscussView
 {
 	public function display($tmpl = null)
@@ -21,13 +19,14 @@ class EasyDiscussViewTags extends EasyDiscussView
 		ED::setPageTitle('COM_EASYDISCUSS_TAGS_TITLE');
 
 		// Set the breadcrumbs
-		if (! EDR::isCurrentActiveMenu('tags')) {
+		if (!EDR::isCurrentActiveMenu('tags')) {
 			$this->setPathway('COM_EASYDISCUSS_TOOLBAR_TAGS');
 		}
 
 		// Determines if we should display a single tag result.
 		$id = $this->input->get('id', 0, 'int');
 		$sort = $this->input->get('sort', 'title', 'string');
+		$search = $this->input->get('search', '', 'string');
 
 		if ($id) {
 			return $this->tag($tmpl);
@@ -40,14 +39,15 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$limit = DISCUSS_TAGS_LIMIT;
 
 		$model = ED::model("Tags");
-		$tags = $model->getTagCloud($limit, $sort, 'asc', '', true);
+		$tags = $model->getTagCloud($limit, $sort, 'asc', '', true, $search);
 		$pagination = $model->getPagination();
 
+		$this->set('search', $search);
 		$this->set('tags', $tags);
 		$this->set('pagination', $pagination);
 		$this->set('activeSort', $sort);
 
-		parent::display('tags/default');
+		parent::display('tags/listings/default');
 	}
 
 	/**
@@ -62,167 +62,105 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$id = $this->input->get('id', 0, 'int');
 
 		if (!$id) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_INVALID_TAG'));
+			throw ED::exception('COM_EASYDISCUSS_INVALID_TAG', ED_MSG_ERROR);
 		}
 
-		$tag = ED::table('Tags');
-		$tag->load($id);
+		$tag = ED::tag($id);
 
 		// Set meta tags.
-		ED::setMeta();
+		ED::setMeta($tag->id, ED_META_TYPE_TAG, JText::sprintf('COM_ED_POSTS_TAGGED', ED::themes()->html('string.escape', $tag->getTitle())));
 
 		// Set the page title
-		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_VIEWING_TAG_TITLE', $this->escape($tag->title)));
-		if (! EDR::isCurrentActiveMenu('tags', $tag->id)) {
+		$pageTitle = JText::sprintf('COM_EASYDISCUSS_VIEWING_TAG_TITLE', $this->escape($tag->title));
+		
+		ED::setPageTitle($pageTitle);
+		
+		if (!EDR::isCurrentActiveMenu('tags', $tag->id)) {
 			$this->setPathway($tag->title);
 		}
 
-		$concatCode = ED::jconfig()->getValue('sef') ? '?' : '&'; 
+		$tag->attachRssLinks();
 
-		// Adding RSS Feed URL
-		$props = array('type' => 'application/rss+xml', 'title' => 'RSS 2.0');
-		$route = EDR::getTagRoute($tag->id) . $concatCode . 'format=feed&type=rss';
-		$this->doc->addHeadLink($route, 'alternate', 'rel', $props);
-
-		// Adding ATOM link
-		$props = array('type' => 'application/atom+xml', 'title' => 'Atom 1.0');
-		$route = EDR::getTagRoute($tag->id) . $concatCode . 'format=feed&type=atom';
-		$this->doc->addHeadLink($route, 'alternate', 'rel', $props);
-
-		$filteractive = JRequest::getString('filter', 'allposts');
-		$sort = JRequest::getString('sort', 'latest');
-
-		if ($filteractive == 'unanswered' && ($sort == 'active' || $sort == 'popular')) {
-			//reset the active to latest.
-			$sort = 'latest';
-		}
-
-		// Get the list of posts for this tag
-		$postModel = ED::model('Posts');
-		$posts = $postModel->getTaggedPost($tag->id, $sort, $filteractive);
-		$pagination = $postModel->getPagination($sort, $filteractive);
-
-		$authorIds  = array();
-		$topicIds 	= array();
-
-		if (count($posts) > 0 ) {
-
-			foreach ($posts as $item) {
-				$authorIds[] = $item->user_id;
-				$topicIds[] = $item->id;
-			}
-		}
-
-		$lastReplyUser = $postModel->setLastReplyBatch($topicIds);
-		$authorIds = array_merge($lastReplyUser, $authorIds);
-
-		// Reduce SQL queries by pre-loading all author object.
-		$authorIds = array_unique($authorIds);
-		ED::user($authorIds);
-
-		$postLoader = ED::table('Posts');
-		$postLoader->loadBatch($topicIds);
-
-		$postTagsModel = ED::model('PostsTags');
-		$postTagsModel->setPostTagsBatch($topicIds);
-
-		// Format the posts now
-		$posts = ED::formatPost($posts, false , true);
-		$posts = ED::getPostStatusAndTypes($posts);
-
-		$tagTitle = JText::_($tag->title);
-		
 		// Add canonical tag for this page
 		$this->canonical('index.php?option=com_easydiscuss&view=tags&id=' . $id);
 
+		// Used in post filters
+		$baseUrl = 'view=tags&layout=tag&id=' . $tag->id;
+
+		$activeSort = $this->input->get('sort', '', 'string');
+		$activeFilter = $this->input->get('filter', 'all', 'string');
+		$activeCategory = $this->input->get('category', 0, 'int');
+
+		// Allows caller to filter posts by post types
+		$postTypes = $this->input->get('types', array(), 'string');
+
+		// Allows caller to filter posts by labels
+		$postLabels = $this->input->get('labels', array(), 'int');
+
+		// Allows caller to filter posts by priority
+		$postPriorities = $this->input->get('priorities', array(), 'int');
+
+		$postsModel = ED::model('Posts');
+
+		// Get featured posts from this particular category.
+		$featuredOptions = [
+			'pagination' => false,
+			'filter' => $activeFilter,
+			'tag' => $tag->id,
+			'category' => $activeCategory,
+			'sort' => 'latest',
+			'featured' => true,
+			'postTypes' => $postTypes,
+			'postLabels' => $postLabels,
+			'postPriorities' => $postPriorities,
+			'limit' => DISCUSS_NO_LIMIT
+		];
+
+		$featured = $postsModel->getDiscussions($featuredOptions);
+
+		$options = [
+			'filter' => $activeFilter,
+			'tag' => (int) $tag->id,
+			'category' => $activeCategory,
+			'sort' => $activeSort,
+			'postTypes' => $postTypes,
+			'postLabels' => $postLabels,
+			'postPriorities' => $postPriorities,
+			'featured' => false,
+			'limitstart' => $this->input->get('limitstart', 0, 'int')
+		];
+
+		// Get all the posts in this category and it's childs
+		$posts = $postsModel->getDiscussions($options);
+		$pagination = $postsModel->getPagination();
+
+		// Only load the data when we really have data
+		if ($featured || $posts) {
+			ED::post(array_merge($featured, $posts));
+
+			// Format featured entries.
+			if ($featured) {
+				$featured = ED::formatPost($featured, false, true);
+			}
+
+			// Format normal entries
+			if ($posts) {
+				$posts = ED::formatPost($posts, false, true);
+			}
+		}
+
+		$this->set('activeCategory', $activeCategory);
+		$this->set('featured', $featured);
+		$this->set('postLabels', $postLabels);
+		$this->set('postTypes', $postTypes);
+		$this->set('postPriorities', $postPriorities);
+		$this->set('activeSort', $activeSort);
+		$this->set('activeFilter', $activeFilter);
+		$this->set('baseUrl', $baseUrl);
 		$this->set('tag', $tag);
-		$this->set('rssLink', JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag . '&format=feed'));
 		$this->set('posts', $posts);
-		$this->set('paginationType', DISCUSS_TAGS_TYPE);
 		$this->set('pagination', $pagination);
-		$this->set('sort', $sort);
-		$this->set('filter', $filteractive);
-		$this->set('showEmailSubscribe', true);
-		$this->set('parent_id', $tag);
-		$this->set('tagTitle', $tagTitle);
 
-		parent::display('tags/item');
-	}
-
-	/**
-	 * Renders posts from a specific set of tags
-	 *
-	 * @since	4.0.6
-	 * @access	public
-	 */
-	public function tags($tmpl = null)
-	{
-		$xtags = $this->input->getVar('ids');
-
-		if (!$xtags) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_INVALID_TAG'));
-		}
-
-		$jConfig = ED::JConfig();
-		$config = ED::config();
-
-		$tags = explode(',', $xtags);
-
-		ED::setMeta();
-
-		$tagNames = array();
-
-		foreach ($tags as $tag) {
-			$table = ED::table('Tags');
-			$table->load($tag);
-			$tagNames[] = JText::_($table->title);
-		}
-
-		// Set the page title for this layout
-		ED::setPageTitle(JText::sprintf('COM_EASYDISCUSS_TAGS_MULTIPLE_TAGS_TITLE', implode(' + ', $tagNames)));
-
-		if (! EDR::isCurrentActiveMenu('tags', $xtags, 'ids')) {
-			$this->setPathway(JText::_('COM_EASYDISCUSS_TAGS'), EDR::_('view=tags'));
-		}
-
-		$this->setPathway(implode(' + ', $tagNames));
-
-		$tagIDs = implode(',', $tags);
-
-		$concatCode = $jConfig->getValue('sef') ? '?' : '&';
-
-		$this->doc->addHeadLink(JRoute::_('index.php?option=com_easydiscuss&view=tags&ids=' . $tagIDs) . $concatCode . 'format=feed&type=rss', 'alternate', 'rel' , array('type' => 'application/rss+xml', 'title' => 'RSS 2.0') );
-		$this->doc->addHeadLink(JRoute::_('index.php?option=com_easydiscuss&view=tags&ids=' . $tagIDs) . $concatCode . 'format=feed&type=atom', 'alternate', 'rel' , array('type' => 'application/atom+xml', 'title' => 'Atom 1.0') );
-
-		$filteractive = JRequest::getString('filter', 'allposts');
-		$sort = JRequest::getString('sort', 'latest');
-
-		if ($filteractive == 'unanswered' && ($sort == 'active' || $sort == 'popular')) {
-			//reset the active to latest.
-			$sort = 'latest';
-		}
-
-		$postModel = ED::model('Posts');
-		$posts = $postModel->getTaggedPost($tags, $sort, $filteractive);
-		$pagination	= $postModel->getPagination($sort, $filteractive);
-
-		// Format normal entries
-		$posts = ED::formatPost($posts, false, true);
-
-		$tagModel = ED::model('Tags');
-		$tagTitle = $tagModel->getTagNames($tags);
-
-		$this->set('rssLink', JRoute::_('index.php?option=com_easydiscuss&view=tags&id=' . $tag . '&format=feed'));
-		$this->set('posts', $posts);
-		$this->set('paginationType', DISCUSS_TAGS_TYPE);
-		$this->set('pagination', $pagination);
-		$this->set('sort', $sort);
-		$this->set('filter', $filteractive);
-		$this->set('showEmailSubscribe', true);
-		$this->set('tagTitle', $tagTitle);
-		$this->set('parent_id', 0);
-		$this->set('config', $config);
-
-		echo parent::display('tags/item');
+		parent::display('tags/item/default');
 	}
 }

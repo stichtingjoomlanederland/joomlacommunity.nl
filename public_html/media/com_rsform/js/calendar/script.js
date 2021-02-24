@@ -113,6 +113,7 @@ RSFormPro.YUICalendar = {
 		if (config.layout == 'POPUP') {
 			calendar.selectEvent.subscribe(RSFormPro.YUICalendar.handleClose, calendar, true);
 		}
+		calendar.resetEvent.subscribe(RSFormPro.YUICalendar.handleReset, calendar, true);
 		
 		// set the extras
 		RSFormPro.YUICalendar.setExtras(formId, calendar, config.extra);
@@ -262,13 +263,30 @@ RSFormPro.YUICalendar = {
 		}
 	},
 
+	handleReset: function(type, args, calendar) {
+		var hiddenDate = document.getElementById("hidden" + calendar.myid);
+		var originalDate = hiddenDate.getAttribute('data-rsfp-original-date')
+
+		if (originalDate) {
+			var myDate = new Date(originalDate);
+
+			calendar.select(myDate);
+
+			if (typeof calendar.rule === 'function') {
+				calendar.rule(myDate);
+			}
+		} else {
+			calendar.deselectAll();
+		}
+	},
+
 	handleClose: function (type, args, calendar) {
 		calendar.hide();
 	},
 	
 	showHideCalendar: function(calContainerId){
 		var cal = document.getElementById(calContainerId);
-		if(cal.style.display == 'none') {
+		if (cal.style.display == 'none') {
 			cal.style.display = '';
 		} else  {
 			cal.style.display = 'none';

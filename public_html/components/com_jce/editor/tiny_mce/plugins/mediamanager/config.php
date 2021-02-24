@@ -12,14 +12,33 @@ class WFMediamanagerPluginConfig
 {
     public static function getConfig(&$settings)
     {
+        $wf = WFApplication::getInstance();
+        
         require_once __DIR__ . '/mediamanager.php';
 
         $plugin = new WFMediaManagerPlugin();
 
-        $config = array();
+        $config = array(
+            'quickmedia' => array()
+        );
 
         if ($plugin->getParam('aggregator.youtube.enable', 1) || $plugin->getParam('aggregator.vimeo.enable', 1)) {
             $settings['invalid_elements'] = array_diff($settings['invalid_elements'], array('iframe'));
+
+            $media_iframes = (int) $wf->getParam('media.iframes', 0);
+
+            // iframes_allow_supported as minimum restriction
+            if (!$media_iframes || $media_iframes == 2) {
+                $settings['iframes_allow_supported'] = true;
+            }
+        }
+
+        if (!$plugin->getParam('aggregator.youtube.enable', 1)) {
+            $config['quickmedia']['youtube'] = false;
+        }
+
+        if (!$plugin->getParam('aggregator.vimeo.enable', 1)) {
+            $config['quickmedia']['vimeo'] = false;
         }
 
         // get the list of filetypes supported

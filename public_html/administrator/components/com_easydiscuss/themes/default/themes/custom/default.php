@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,15 +14,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 <form action="index.php" method="post" id="adminForm" name="adminForm">
 	<div class="row">
 		<div class="col-lg-12">
-			<div class="panel">
-				<?php echo $this->html('panel.heading', 'COM_ED_THEMES_CUSTOM_CSS_EDITOR'); ?>
-
-				<div class="panel-body">
-					<?php echo $editor->display('contents', $contents, '100%', '450px', 80, 30, false, null, null, null, array('syntax' => 'css', 'filter' => 'raw')); ?>
-				</div>
-			</div>
+			<?php echo $editor->display('contents', $contents, '100%', '450px', 80, 30, false, null, null, null, array('syntax' => 'css', 'filter' => 'raw')); ?>
 		</div>
 	</div>
 		
-	<?php echo $this->html('form.hidden', 'themes', '', 'saveCustomCss'); ?>
+	<?php echo $this->html('form.action', 'themes', '', 'saveCustomCss'); ?>
 </form>

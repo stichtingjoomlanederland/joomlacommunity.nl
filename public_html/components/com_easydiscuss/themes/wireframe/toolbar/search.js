@@ -1,4 +1,4 @@
-ed.require(['edq', 'site/src/discuss'], function($, EasyDiscuss) {
+ed.require(['edq'], function($) {
     $(document)
         .on('click', '[data-search-button]', function() {
             $('[data-search-form]').submit();

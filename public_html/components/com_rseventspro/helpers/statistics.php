@@ -131,7 +131,7 @@ class RSEventsProStatistics
 		$data	= (object) array('count' => 0, 'total' => 0);
 		$cart	= false;
 		
-		JFactory::getApplication()->triggerEvent('rsepro_isCart', array(array('cart' => &$cart)));
+		JFactory::getApplication()->triggerEvent('onrsepro_isCart', array(array('cart' => &$cart)));
 		
 		$query->select($db->qn('u.id'))
 			->from($db->qn('#__rseventspro_users','u'))

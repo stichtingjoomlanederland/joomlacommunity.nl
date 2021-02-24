@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,9 +11,14 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussAjax extends EasyDiscuss
+class EasyDiscussAjax
 {
 	public $commands = array();
+
+	public function __construct()
+	{
+		$this->input = ED::request();
+	}
 
 	/**
 	 * Processes ajax calls made on the site
@@ -30,7 +35,7 @@ class EasyDiscussAjax extends EasyDiscuss
 		$isAjaxCall = $this->input->get('format', '', 'cmd') == 'ajax' && !empty($namespace);
 
 		// If this is not an ajax call, there's no point proceeding with this.
-		if(!$isAjaxCall) {
+		if (!$isAjaxCall) {
 			return false;
 		}
 
@@ -41,7 +46,7 @@ class EasyDiscussAjax extends EasyDiscuss
 
 		// @rule: All calls should be made a minimum out of 3 parts of dots (.)
 		if (count($namespace) < 4) {
-			$this->fail(JText::_('COM_EASYBLOG_INVALID_AJAX_CALL'));
+			$this->fail('Invalid calls');
 			return $this->send();
 		}
 
@@ -50,10 +55,23 @@ class EasyDiscussAjax extends EasyDiscuss
 		 *
 		 * site/views/viewname/methodname - Front end ajax calls
 		 * admin/views/viewname/methodname - Back end ajax calls
+		 * plugins/group/plugin/methodname - Plugins
 		 */
 		list($location, $type, $name, $method) = $namespace;
 
-		if ($type != 'views' && $type != 'controllers') {
+		$supportedLocations = [
+			'admin',
+			'site',
+			'plugins'
+		];
+
+		if (!in_array($location, $supportedLocations)) {
+			$this->fail('Invalid location for ajax calls');
+			return $this->send();			
+		}
+
+		// Ensure that requests made to admin or site must be views or controllers
+		if (($location == 'admin' || $location == 'site') && ($type != 'views' && $type != 'controllers')) {
 			$this->fail(JText::_('Ajax calls are currently only serving views and controllers.'));
 			return $this->send();
 		}
@@ -62,20 +80,29 @@ class EasyDiscussAjax extends EasyDiscuss
 		$location = strtolower($location);
 		$name = strtolower($name);
 
-		$path = $location == 'admin' ? JPATH_ROOT . '/administrator' : JPATH_ROOT;
-		$path .= '/components/com_easydiscuss';
+		// Plugins
+		if ($location == 'plugins') {
+			$path = JPATH_ROOT . '/plugins/' . $type . '/' . $name . '/ajax.php';
 
-		if ($type == 'views') {
-			$path .= '/' . $type . '/' . $name . '/view.ajax.php';
+			$class = 'EasyDiscussAjax' . ucfirst(preg_replace('/[^A-Z0-9_]/i', '', $name));
 		}
 
-		if ($type == 'controllers') {
-			$path .= '/' . $type . '/' . $name . '.php';
+		// Site and admin requests
+		if ($location != 'plugins') {
+			$path = $location == 'admin' ? JPATH_ROOT . '/administrator' : JPATH_ROOT;
+			$path .= '/components/com_easydiscuss';
+
+			if ($type == 'views') {
+				$path .= '/' . $type . '/' . $name . '/view.ajax.php';
+			}
+
+			if ($type == 'controllers') {
+				$path .= '/' . $type . '/' . $name . '.php';
+			}
+
+			$classType = $type == 'views' ? 'View' : 'Controller';
+			$class = 'EasyDiscuss' . $classType . preg_replace('/[^A-Z0-9_]/i', '', $name);
 		}
-
-
-		$classType = $type == 'views' ? 'View' : 'Controller';
-		$class = 'EasyDiscuss' . $classType . preg_replace('/[^A-Z0-9_]/i', '', $name);
 
 		if (!class_exists($class)) {
 
@@ -91,7 +118,16 @@ class EasyDiscussAjax extends EasyDiscuss
 			require_once($path);
 		}
 
-		$obj = new $class();
+		if ($location != 'plugins') {
+			$obj = new $class();
+		}
+
+		if ($location == 'plugins') {
+			$subject = \JEventDispatcher::getInstance();
+			$obj = new $class($subject, [
+				'name' => $name
+			]);
+		}
 
 		if (!method_exists($obj, $method)) {
 			$this->fail(JText::sprintf('The method %1s does not exists.', $method));
@@ -166,7 +202,7 @@ class EasyDiscussAjax extends EasyDiscuss
 		}
 
 		// IFRAME transport
-		$transport = JRequest::getVar('transport');
+		$transport = $this->input->get('transport');
 		if ($transport=="iframe") {
 			header('Content-type: text/html; UTF-8');
 			echo '<textarea data-type="application/json" data-status="200" data-statusText="OK">' . json_encode($this->commands) . '</textarea>';

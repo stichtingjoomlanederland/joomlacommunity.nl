@@ -63,8 +63,8 @@ class EasyDiscussGdprVote extends EasyDiscussGdprAbstract
 				$postType = $vote->postTitle ? 'POST' : 'REPLY';
 				$postTitle = $vote->postTitle ? $vote->postTitle : $vote->parentTitle;
 
-				$title = JText::_('COM_ED_GDPR_VOTE_' . JString::strtoupper($action));
-				$introTitle = JText::sprintf('COM_ED_GDPR_VOTE_' . JString::strtoupper($action) . '_' . $postType, $postTitle);
+				$title = JText::_('COM_ED_GDPR_VOTE_' . EDJString::strtoupper($action));
+				$introTitle = JText::sprintf('COM_ED_GDPR_VOTE_' . EDJString::strtoupper($action) . '_' . $postType, $postTitle);
 
 				$item->created = $vote->created;
 				$item->title =  $title;
@@ -120,8 +120,8 @@ class EasyDiscussGdprVote extends EasyDiscussGdprAbstract
 			$postType = $vote->postTitle ? 'POST' : 'REPLY';
 			$postTitle = $vote->postTitle ? $vote->postTitle : $vote->parentTitle;
 
-			$title = JText::_('COM_ED_GDPR_VOTE_' . JString::strtoupper($action));
-			$introTitle = JText::sprintf('COM_ED_GDPR_VOTE_' . JString::strtoupper($action) . '_' . $postType, $postTitle);
+			$title = JText::_('COM_ED_GDPR_VOTE_' . EDJString::strtoupper($action));
+			$introTitle = JText::sprintf('COM_ED_GDPR_VOTE_' . EDJString::strtoupper($action) . '_' . $postType, $postTitle);
 
 			$item->created = $vote->created;
 			$item->title =  $title;
@@ -149,7 +149,7 @@ class EasyDiscussGdprVote extends EasyDiscussGdprAbstract
 			<?php echo $date->format($this->getDateFormat());?>
 		</div>
 		<div class="gdpr-item__label">
-			<span class="gdpr-label"><?php echo JString::strtoupper($postType);?></span>
+			<span class="gdpr-label"><?php echo EDJString::strtoupper($postType);?></span>
 		</div>
 		<?php
 		$contents = ob_get_contents();

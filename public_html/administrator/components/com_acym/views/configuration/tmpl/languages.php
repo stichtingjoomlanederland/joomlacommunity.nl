@@ -1,9 +1,7 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if (count($data['languages']) > 1 && acym_level(1)) { ?>
+<?php if (count($data['languages']) > 1 && acym_level(1)) { ?>
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2">
-		<div class="acym_area_title"><?php echo acym_translation('ACYM_MULTILINGUAL'); ?></div>
-		<div class="grid-x">
+		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_MULTILINGUAL'); ?></div>
+		<div class="grid-x margin-y">
 			<div class="cell grid-x grid-margin-x">
                 <?php
                 echo acym_switch(
@@ -13,16 +11,16 @@ defined('_JEXEC') or die('Restricted access');
                     [],
                     'xlarge-3 medium-5 small-9',
                     'auto',
-                    'tiny',
+                    '',
                     'multilingual_config'
                 );
                 ?>
 			</div>
-			<div class="cell grid-x" id="multilingual_config">
+			<div class="cell grid-x margin-y" id="multilingual_config">
 				<div class="cell grid-x">
 					<div class="cell xlarge-3 medium-5">
 						<label for="acym__config__multilingual-default">
-                            <?php echo acym_translation('ACYM_DEFAULT_LANGUAGE').acym_info(acym_translation('ACYM_DEFAULT_LANGUAGE_DESC')); ?>
+                            <?php echo acym_translation('ACYM_DEFAULT_LANGUAGE').acym_info('ACYM_DEFAULT_LANGUAGE_DESC'); ?>
 						</label>
 					</div>
 					<div class="cell xlarge-4 medium-7">
@@ -45,7 +43,7 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="cell grid-x">
 					<div class="cell xlarge-3 medium-5">
 						<label for="acym__config__multilingual-languages">
-                            <?php echo acym_translation('ACYM_LANGUAGES_USED').acym_info(acym_translation('ACYM_LANGUAGES_USED_DESC')); ?>
+                            <?php echo acym_translation('ACYM_LANGUAGES_USED').acym_info('ACYM_LANGUAGES_USED_DESC'); ?>
 						</label>
 					</div>
 					<div class="cell xlarge-4 medium-7">
@@ -66,13 +64,38 @@ defined('_JEXEC') or die('Restricted access');
 						<input type="hidden" name="previous_multilingual_languages" value="<?php echo acym_escape($selectedLanguages); ?>" />
 					</div>
 				</div>
+                <?php if (!empty($data['content_translation'])) { ?>
+					<div class="cell grid-x">
+						<div class="cell xlarge-3 medium-5">
+							<label for="acym__config__multilingual-languages">
+                                <?php echo acym_translation('ACYM_TRANSLATE_CONTENT').acym_info('ACYM_TRANSLATE_CONTENT_DESC'); ?>
+							</label>
+						</div>
+						<div class="cell xlarge-4 medium-7">
+                            <?php
+                            echo acym_select(
+                                $data['content_translation'],
+                                'config[translate_content]',
+                                $this->config->get('translate_content', 'no'),
+                                [
+                                    'class' => 'acym__select',
+                                ],
+                                'value',
+                                'text',
+                                false,
+                                true
+                            );
+                            ?>
+						</div>
+					</div>
+                <?php } ?>
 			</div>
 		</div>
 	</div>
 <?php } ?>
 
 <div class="acym__content acym_area padding-vertical-1 padding-horizontal-2" id="acym__configuration__languages">
-	<div class="acym_area_title"><?php echo acym_translation('ACYM_TRANSLATIONS'); ?></div>
+	<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_TRANSLATIONS'); ?></div>
 	<div class="acym__listing margin-top-2">
 		<div class="grid-x cell acym__configuration__languages__listing acym__listing__header">
 			<div class="grid-x medium-auto small-11 cell">
@@ -102,4 +125,3 @@ defined('_JEXEC') or die('Restricted access');
         <?php } ?>
 	</div>
 </div>
-

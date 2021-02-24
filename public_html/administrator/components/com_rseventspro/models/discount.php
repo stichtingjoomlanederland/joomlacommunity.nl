@@ -73,6 +73,11 @@ class RseventsproModelDiscount extends JModelAdmin
 		if (empty($form))
 			return false;
 		
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('events','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('groups','layout','joomla.form.field.list-fancy-select');
+		}
+		
 		return $form;
 	}
 	

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,13 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-ED::import('admin:/tables/table');
-
 class DiscussPost_types extends EasyDiscussTable
 {
 	public $id = null;
 	public $title = null;
 	public $suffix = null;
+	public $icon = null;
 	public $created = null;
 	public $published = null;
 	public $alias = null;
@@ -30,14 +29,24 @@ class DiscussPost_types extends EasyDiscussTable
 
 	public function delete($pk = null)
 	{
+		// retrieve the badge title here
+		$postTypeTitle = $this->title;
+
 		// @TODO: Delete association if needed
 		$state = parent::delete($pk);
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_DELETED_POSTTYPES', 'posttypes', array(
+			'postTypeTitle' => $postTypeTitle
+		));
+
 		return $state;
 	}
 
 	public function updateTopicPostType($oldValue)
 	{
-		$db = ED::getDBO();
+		$db = ED::db();
 
 		$query = 'update `#__discuss_posts` set `post_type` = ' . $db->Quote($this->alias);
 		$query .= ' where `post_type` = ' . $db->Quote( $oldValue );
@@ -63,4 +72,48 @@ class DiscussPost_types extends EasyDiscussTable
 
 		return $categories;
 	}
+
+	/**
+	 * Method to publish for the postypes
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function publish($items = array(), $state = 1, $userId = 0)
+	{
+		$this->published = 1;
+
+		$state = parent::store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_PUBLISHED_POSTTYPES', 'postypes', array(
+			'link' => 'index.php?option=com_easydiscuss&view=types&layout=form&id=' . $this->id,
+			'postTypeTitle' => $this->title
+		));
+
+		return $state;	
+	}
+
+	/**
+	 * Method to unpublish for the postypes
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function unpublish($items = array())
+	{
+		$this->published = 0;
+
+		$state = parent::store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_UNPUBLISHED_POSTTYPES', 'postypes', array(
+			'link' => 'index.php?option=com_easydiscuss&view=types&layout=form&id=' . $this->id,
+			'postTypeTitle' => $this->title
+		));
+
+		return $state;		
+	}		
 }

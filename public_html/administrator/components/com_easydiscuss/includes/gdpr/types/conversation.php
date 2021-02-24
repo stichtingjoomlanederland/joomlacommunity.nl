@@ -121,7 +121,7 @@ class EasyDiscussGdprConversation extends EasyDiscussGdprAbstract
 	private function getIntro($conversation)
 	{
 		$date = ED::date($conversation->created);
-		$intro = JString::substr(strip_tags($conversation->message), 0, 10) . JText::_('COM_EASYDISCUSS_ELLIPSES');;
+		$intro = EDJString::substr(strip_tags($conversation->message), 0, 10) . JText::_('COM_EASYDISCUSS_ELLIPSES');;
 
 		ob_start();
 		?>

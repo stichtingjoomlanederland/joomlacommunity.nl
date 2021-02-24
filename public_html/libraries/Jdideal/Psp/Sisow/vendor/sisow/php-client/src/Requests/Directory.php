@@ -16,7 +16,7 @@ class Directory extends AbstractRequest
      * @return Issuer[]
      * @throws SisowException
      */
-    public function get($test){
+    public function get($test = false){
         // do request to Sisow
         $xmlResponse = $this->execute('DirectoryRequest' . ($test ? '?test=true' : ''), null);
 

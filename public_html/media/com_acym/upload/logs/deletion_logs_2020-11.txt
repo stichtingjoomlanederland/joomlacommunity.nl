@@ -1,0 +1,37 @@
+user didgex@telenet.be removed by Martijn@reisverslagen.net in:
+(2155) "/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/libraries/class.php => 135
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/libraries/class.php => 104
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/classes/user.php => 543
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/classes/user.php => 1027
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/plugins/system/acymtriggers/acymtriggers.php => 53
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/joomla/event/event.php => 70
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/joomla/event/dispatcher.php => 160
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_users/models/user.php => 367
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/MVC/Controller/AdminController.php => 132
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/MVC/Controller/BaseController.php => 710
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_users/users.php => 21
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Component/ComponentHelper.php => 402
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Component/ComponentHelper.php => 377
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Application/AdministratorApplication.php => 101
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Application/AdministratorApplication.php => 159
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Application/CMSApplication.php => 196
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/index.php => 51"
+
+user nicole.schafer.nl@gmail.com removed by info@hkweb.nl in:
+user info@hkweb.nl removed by info@hkweb.nl in:
+user email@renekreijveld.nl removed by info@hkweb.nl in:
+user forum@yolknet.nl removed by info@hkweb.nl in:
+user abooij@live.nl removed by info@hkweb.nl in:
+(1551) "/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/libraries/class.php => 135
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/libraries/class.php => 104
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/classes/user.php => 543
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/libraries/controller.php => 265
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/libraries/controller.php => 79
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/components/com_acym/acym.php => 55
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Component/ComponentHelper.php => 402
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Component/ComponentHelper.php => 377
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Application/AdministratorApplication.php => 101
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Application/AdministratorApplication.php => 159
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/libraries/src/Application/CMSApplication.php => 196
+/data/sites/web/joomlacommunitynl/data/joomlacommunity.nl/public_html/administrator/index.php => 51"
+

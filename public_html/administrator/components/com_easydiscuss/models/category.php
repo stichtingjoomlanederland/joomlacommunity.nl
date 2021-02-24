@@ -23,7 +23,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-		$limit = ($this->app->getCfg('list_limit') == 0) ? 5 : DiscussHelper::getListLimit();
+		$limit = ($this->app->getCfg('list_limit') == 0) ? 5 : ED::getListLimit();
 		$limitstart = $this->input->get('limitstart', '0', 'int');
 
 		// In case limit has been changed, adjust it
@@ -47,7 +47,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 	protected function _getParentIdsWithPost()
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 		$my = JFactory::getUser();
 
 		$query	= 'select * from `#__discuss_category`';
@@ -72,11 +72,11 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 				$item =& $result[$i];
 
 				$item->childs = null;
-				DiscussHelper::buildNestedCategories($item->id, $item);
+				ED::buildNestedCategories($item->id, $item);
 
 				$catIds		= array();
 				$catIds[]	= $item->id;
-				DiscussHelper::accessNestedCategoriesId($item, $catIds);
+				ED::accessNestedCategoriesId($item, $catIds);
 
 				$item->cnt	= $this->getTotalPostCount($catIds);
 
@@ -150,7 +150,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 			$avatar_config_path	= $config->get('main_categoryavatarpath');
 			$avatar_config_path	= rtrim($avatar_config_path, '/');
-			$avatar_config_path	= JString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
+			$avatar_config_path	= EDJString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
 
 			$upload_path = JPATH_ROOT . '/' . $avatar_config_path;
 
@@ -182,27 +182,30 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 */
 	public function getDefaultCategory()
 	{
-		$db 	= DiscussHelper::getDBO();
+		$db = ED::db();
 
-		$query 	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_category' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'default' ) . '=' . $db->Quote( 1 );
+		$query = array();
+		$query[] = 'SELECT * FROM ' . $db->nameQuote('#__discuss_category');
+		$query[] = 'WHERE ' . $db->nameQuote('default') . '=' . $db->Quote(1);
+
+		$query = implode(' ', $query);
+
 		$db->setQuery($query);
 		$result = $db->loadObject();
 
-		if( !$result )
-		{
+		if (!$result) {
 			return false;
 		}
 
-		$category 	= DiscussHelper::getTable( 'Category' );
-		$category->bind( $result );
+		$category = ED::table('Category');
+		$category->bind($result);
 
 		return $category;
 	}
 
 	public function getCategories($sort = 'latest', $hideEmptyPost = true, $limit = 0)
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		//blog privacy setting
 		$my = JFactory::getUser();
@@ -253,7 +256,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 			if($db->getErrorNum())
 			{
-				JError::raiseError( 500, $db->stderr());
+				throw ED::exception($db->stderr(), ED_MSG_ERROR);
 			}
 		}
 
@@ -297,7 +300,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 		if($db->getErrorNum())
 		{
-			JError::raiseError( 500, $db->stderr());
+			throw ED::exception($db->stderr(), ED_MSG_ERROR);
 		}
 
 		return $result;
@@ -320,7 +323,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		$options = array();
 		$options['idOnly'] = true;
 
-		if ($this->app->isAdmin()) {
+		if (ED::isFromAdmin()) {
 			$options['ignorePermission'] = true;
 		}
 
@@ -401,14 +404,15 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getModerators($categoryId)
 	{
 		$db = $this->db;
 
 		$moderators = array();
+
+		$category = ED::category($categoryId);
+		$categoryId = !$category->global_acl ? $categoryId : 0;
 
 		// Get a list of user groups
 		$groups = $this->getAssignedModerator($categoryId, 'group');
@@ -446,12 +450,46 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 
 	/**
+	 * Duplicates acl items for a category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function duplicateAcl($originalCategory, $newCategory)
+	{
+		$db = ED::db();
+
+		$query = array();
+		$query[] = 'SELECT * FROM ' . $db->qn('#__discuss_category_acl_map');
+		$query[] = 'WHERE ' . $db->qn('category_id') . '=' . $db->Quote($originalCategory->id);
+		$query = implode(' ', $query);
+
+		$db->setQuery($query);
+		$rows = $db->loadObjectList();
+
+		if (!$rows) {
+			return false;
+		}
+
+
+		foreach ($rows as $row) {
+			$acl = ED::table('CategoryAclMap');
+			$acl->bind($row);
+
+			$acl->id = null;
+			$acl->category_id = $newCategory->id;
+
+			$acl->store();
+		}
+
+		return true;
+	}
+
+	/**
 	 * Updates a category ACL
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function updateACL($categoryId, $data, $action = null, $isInstaller = false)
 	{
@@ -474,6 +512,24 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 			// Check if the given data is provided.
 			if (!isset($data[$key])) {
+				continue;
+			}
+
+			if ($rule->action == 'assignment' && $data[$key]) {
+				$userId = $data[$key];
+				$table = ED::table('CategoryAclMap');
+				$table->category_id = $categoryId;
+				$table->acl_id = $rule->id;
+				$table->content_id = $userId;
+				$table->type = 'user';
+				$table->status = 1;
+
+				$table->store();
+
+				// If there is at least one permission set, we shouldn't be setting any default values
+				$setAllDefault = false;
+
+				// lets process next rule.
 				continue;
 			}
 
@@ -682,7 +738,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 		// If the user is a guest we only want to display public categories
 		if (!$user->id) {
-
 			$catQuery = 'select distinct a.`id`, a.`private`';
 			$catQuery .= ' from `#__discuss_category` as a';
 			$catQuery .= ' 	left join `#__discuss_category_acl_map` as b on a.`id` = b.`category_id`';
@@ -698,7 +753,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 					$gids .= (empty($gids))? $db->Quote($id) : ',' . $db->Quote($id);
 				}
 				$catQuery .= ' and a.`id` NOT IN (';
-				$catQuery .= ' SELECT c.category_id FROM `#__discuss_category_acl_map` as c ';
+				$catQuery .= ' SELECT c.`category_id` FROM `#__discuss_category_acl_map` as c ';
 				$catQuery .= ' WHERE c.acl_id = ' .$db->Quote($aclType);
 				$catQuery .= ' AND c.type = ' . $db->Quote('group');
 				$catQuery .= ' AND c.content_id IN (' . $gids . ') )';
@@ -711,15 +766,12 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		}
 
 		foreach ($result as &$row) {
-
 			$row->childs = null;
 
 			ED::buildNestedCategories($row->id, $row, true);
 
 			$catIds = array();
 			$catIds[] = $row->id;
-
-			ED::accessNestedCategoriesId($row, $catIds);
 
 			$excludeCats = array_merge($excludeCats, $catIds);
 		}
@@ -730,14 +782,56 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	}
 
 	/**
-	 * Get a list of assigned acl for a category
+	 * Method to determine whether user is allowed in global category permission
 	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function isGlobalPermissionAllowed($userId = null, $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
+	{
+		$db = $this->db;
+		$user = JFactory::getUser($userId);
+
+		static $access = array();
+
+		$key = (int) $user->id . '-' . (int) $aclType;
+
+		if (isset($access[$key])) {
+			return $access[$key];
+		}
+
+		$access[$key] = false;
+
+		$gids = '';
+		$gid = ED::getUserGroupId($user);
+
+		foreach ($gid as $id) {
+			$gids .= (empty($gids))? $db->Quote($id) : ',' . $db->Quote($id);
+		}
+
+		$query = 'SELECT count(`id`) FROM `#__discuss_category_acl_map`';
+		$query .= ' WHERE `category_id` = ' . $db->Quote('0');
+		$query .= ' AND `type` = ' . $db->Quote('group');
+		$query .= ' AND `acl_id` = ' . $db->Quote($aclType);
+		$query .= ' AND `content_id` IN(' . $gids . ')';
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		if ($result && $result > 0) {
+			$access[$key] = true;
+		}
+
+		return $access[$key];
+	}
+
+	/**
+	 * Get a list of assigned acl for a category
+	 *f
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getAssignedGroups($categoryId, $action = 'view')
+	public function getAssignedGroups($categoryId, $action = 'view', $type = 'group')
 	{
 		$db = $this->db;
 
@@ -747,14 +841,11 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 				. ' LEFT JOIN ' . $db->qn('#__discuss_category_acl_item') . ' AS b'
 				. ' ON a.' . $db->qn('acl_id') . '=' . 'b.' . $db->qn('id')
 				. ' WHERE a.' . $db->qn('category_id') . '=' . $db->Quote($categoryId)
-				. ' AND a.' . $db->qn('type') . '=' . $db->Quote('group')
+				. ' AND a.' . $db->qn('type') . '=' . $db->Quote($type)
 				. ' AND b.' . $db->qn('action') . '=' . $db->Quote($action);
 		$db->setQuery($query);
-		$result = $db->loadColumn();
 
-		if (!$result) {
-			return $result;
-		}
+		$result = $db->loadColumn();
 
 		return $result;
 	}
@@ -907,7 +998,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 */
 	public function getTotalCategory($userId = 0 )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$where	= array();
 
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_category' );
@@ -930,8 +1021,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalSubcategories($categoryId)
 	{
@@ -947,7 +1036,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 	public function isExist($categoryName, $excludeCatIds='0')
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query  = 'SELECT COUNT(1) FROM #__discuss_category';
 		$query  .= ' WHERE `title` = ' . $db->Quote($categoryName);
@@ -965,8 +1054,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function rebuildOrdering($parentId = null, $leftId = 0 )
 	{
@@ -1037,16 +1124,16 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	}
 
 	/**
-     * Get the total viewable subcategories based on category permission
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
+	 * Get the total viewable subcategories based on category permission
+	 *
+	 * @since   4.0
+	 * @access  public
+	 * @param   string
+	 * @return
+	 */
 	public function getTotalViewableChilds($catId, &$count)
-    {
-    	$db = ED::db();
+	{
+		$db = ED::db();
 
 		$query  = 'SELECT `id` FROM `#__discuss_category` as b';
 		$query .= ' WHERE `parent_id` = ' . $db->Quote($catId);
@@ -1063,7 +1150,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		}
 
 		return $count;
-    }
+	}
 
 	/**
 	 * Determines if an alias exists on the site
@@ -1092,7 +1179,7 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 		// Try replacing ':' to '-' since Joomla replaces it
 		if ( !$id ) {
 
-			$alias = JString::str_ireplace(':' , '-' , $alias);
+			$alias = EDJString::str_ireplace(':' , '-' , $alias);
 
 			$query = "select id from `#__discuss_category`";
 			$query .= " where `alias` = " . $db->Quote($alias);

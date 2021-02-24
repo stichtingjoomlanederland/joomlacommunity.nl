@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -21,12 +21,13 @@ if (!JFile::exists($path)) {
 
 require_once($path);
 
+ED::init();
+$lib = ED::modules($module);
+
 $lang = JFactory::getLanguage();
 $lang->load('mod_easydiscuss_most_voted', JPATH_ROOT);
 
 $config = ED::config();
-
-ED::init();
 
 $count = (INT)trim($params->get('count', 0));
 

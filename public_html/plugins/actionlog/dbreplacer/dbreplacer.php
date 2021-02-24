@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.7PRO
+ * @version         6.3.8PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -12,6 +12,7 @@
 defined('_JEXEC') or die;
 
 use RegularLabs\Library\ArrayHelper as RL_Array;
+use RegularLabs\Library\Document as RL_Document;
 use RegularLabs\Library\Log as RL_Log;
 
 if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
@@ -21,35 +22,40 @@ if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 
 require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
-/**
- * Plugin that logs User Actions
- */
-class PlgActionlogDBReplacer
-	extends \RegularLabs\Library\ActionLogPlugin
+if ( ! RL_Document::isJoomlaVersion(3))
 {
-	public $name  = 'DB_REPLACER';
-	public $alias = 'dbreplacer';
+	return;
+}
 
-	public function onAfterDatabaseReplace($context, $table_name)
+if (true)
+{
+	class PlgActionlogDBReplacer
+		extends \RegularLabs\Library\ActionLogPlugin
 	{
-		if (strpos($context, $this->option) === false)
+		public $name  = 'DBREPLACER';
+		public $alias = 'dbreplacer';
+
+		public function onAfterDatabaseReplace($context, $table_name)
 		{
-			return;
+			if (strpos($context, $this->option) === false)
+			{
+				return;
+			}
+
+			if ( ! RL_Array::find(['*', 'replacement'], $this->events))
+			{
+				return;
+			}
+
+			$languageKey = 'DBR_ACTIONLOGS_REPLACEMENT';
+
+			$message = [
+				'table_name'     => (string) $table_name,
+				'extension_name' => $this->name,
+				'extension_link' => 'index.php?option=com_dbreplacer',
+			];
+
+			RL_Log::add($message, $languageKey, $context);
 		}
-
-		if ( ! RL_Array::find(['*', 'replacement'], $this->events))
-		{
-			return;
-		}
-
-		$languageKey = 'DBR_ACTIONLOGS_REPLACEMENT';
-
-		$message = [
-			'table_name'     => (string) $table_name,
-			'extension_name' => $this->name,
-			'extension_link' => 'index.php?option=com_dbreplacer',
-		];
-
-		RL_Log::add($message, $languageKey, $context);
 	}
 }

@@ -1,56 +1,22 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acym__queue" class="acym__content">
-	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+    <?php
+    $isEmpty = empty($data['allElements']) && empty($data['search']) && empty($data['tag']) && empty($data['status']);
+    if (!$isEmpty) {
+        $data['toolbar']->displayToolbar($data);
+    }
+    ?>
+	<div id="acym__queue" class="acym__content">
         <?php
-        $workflow = acym_get('helper.workflow');
-        echo $workflow->display($this->steps, 'campaigns', false);
+        $workflow = $data['workflowHelper'];
+        echo $workflow->displayTabs($this->steps, 'campaigns');
         ?>
 
-        <?php if (empty($data['allElements']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
+        <?php if ($isEmpty) { ?>
 			<div class="grid-x text-center">
 				<h1 class="acym__listing__empty__title cell"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_CAMPAIGN_IN_QUEUE'); ?></h1>
 				<h1 class="acym__listing__empty__subtitle cell"><?php echo acym_translation('ACYM_SEND_ONE_AND_SEE_HOW_AMAZING_QUEUE_IS'); ?></h1>
 			</div>
         <?php } else { ?>
-			<div class="grid-x grid-margin-x">
-				<div class="cell large-auto medium-8">
-                    <?php echo acym_filterSearch($data["search"], 'cqueue_search', 'ACYM_SEARCH'); ?>
-				</div>
-				<div class="cell large-auto medium-4">
-                    <?php
-                    $allTags = new stdClass();
-                    $allTags->name = acym_translation('ACYM_ALL_TAGS');
-                    $allTags->value = '';
-                    array_unshift($data["tags"], $allTags);
-
-                    echo acym_select(
-                        $data["tags"],
-                        'cqueue_tag',
-                        $data["tag"],
-                        'class="acym__queue__filter__tags acym__select"',
-                        'value',
-                        'name'
-                    );
-                    ?>
-				</div>
-				<div class="xxlarge-4 xlarge-3 large-2 hide-for-large-only medium-auto hide-for-small-only cell"></div>
-				<button type="submit" data-task="emptyQueue" data-confirmation-message="ACYM_ARE_YOU_SURE" class="cell medium-shrink button button-secondary acy_button_submit">
-                    <?php echo acym_translation('ACYM_EMPTY_QUEUE'); ?>
-				</button>
-				<div class="cell medium-shrink">
-                    <?php
-                    echo acym_modal(
-                        acym_translation('ACYM_SEND_MAILS_MANUALLY'),
-                        '',
-                        null,
-                        'data-reveal-larger',
-                        'class="button expanded" data-reload="true" data-ajax="true" data-iframe="&ctrl=queue&task=continuesend&id=0&totalsend=0"'
-                    );
-                    ?>
-				</div>
-			</div>
-
             <?php if (empty($data['allElements'])) { ?>
 				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
             <?php } else { ?>
@@ -60,13 +26,14 @@ defined('_JEXEC') or die('Restricted access');
                         $sendingText = $this->config->get('cron_last', 0) < (time() - 43200) ? 'ACYM_QUEUE_READY' : 'ACYM_SENDING';
 
                         $options = [
-                            '' => ['ACYM_ALL', $data["numberPerStatus"]["all"]],
-                            'sending' => [$sendingText, $data["numberPerStatus"]["sending"]],
-                            'paused' => ['ACYM_PAUSED', $data["numberPerStatus"]["paused"]],
-                            'scheduled' => ['ACYM_SCHEDULED', $data["numberPerStatus"]["scheduled"]],
-                            'automation' => ['ACYM_AUTOMATION', $data["numberPerStatus"]["automation"]],
+                            '' => ['ACYM_ALL', $data['numberPerStatus']['all']],
+                            'sending' => [$sendingText, $data['numberPerStatus']['sending']],
+                            'paused' => ['ACYM_PAUSED', $data['numberPerStatus']['paused']],
+                            'scheduled' => ['ACYM_SCHEDULED', $data['numberPerStatus']['scheduled']],
+                            'automation' => ['ACYM_AUTOMATION', $data['numberPerStatus']['automation']],
+                            'followup' => ['ACYM_FOLLOW_UP', $data['numberPerStatus']['followup']],
                         ];
-                        echo acym_filterStatus($options, $data["status"], 'cqueue_status');
+                        echo acym_filterStatus($options, $data['status'], 'cqueue_status');
                         ?>
 					</div>
 				</div>
@@ -106,7 +73,10 @@ defined('_JEXEC') or die('Restricted access');
                                         $class = 'acym_subscription acymicon-circle';
                                         foreach ($row->lists as $oneList) {
                                             if ($i == 6) {
-                                                echo acym_tooltip('<i data-campaign="'.$row->id.'" class="acym_subscription acymicon-add"></i>', acym_translation('ACYM_SHOW_ALL_LISTS'));
+                                                echo acym_tooltip(
+                                                    '<i data-campaign="'.$row->id.'" class="acym_subscription acymicon-add"></i>',
+                                                    acym_translation('ACYM_SHOW_ALL_LISTS')
+                                                );
                                                 $class .= ' is-hidden';
                                             }
                                             echo acym_tooltip('<i class="'.$class.'" style="color:'.$oneList->color.'"></i>', $oneList->name);
@@ -117,7 +87,7 @@ defined('_JEXEC') or die('Restricted access');
 								</div>
                                 <?php
                                 if (!empty($row->recipients)) {
-                                    echo acym_translation_sprintf('ACYM_X_RECIPIENTS', '<strong>'.number_format($row->recipients, 0, '.', ' ').'</strong>');
+                                    echo acym_translationSprintf('ACYM_X_RECIPIENTS', '<strong>'.number_format($row->recipients, 0, '.', ' ').'</strong>');
                                 }
                                 ?>
 							</div>
@@ -203,6 +173,6 @@ defined('_JEXEC') or die('Restricted access');
 		<input type="hidden" name="acym__queue__cancel__mail_id">
 		<input type="hidden" name="acym__queue__play_pause__campaign_id">
 		<input type="hidden" name="acym__queue__play_pause__active__new_value">
-	</form>
-</div>
+	</div>
 
+</form>

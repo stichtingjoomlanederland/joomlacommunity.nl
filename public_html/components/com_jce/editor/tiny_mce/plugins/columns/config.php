@@ -13,7 +13,10 @@ class WFColumnsPluginConfig
     public static function getConfig(&$settings)
     {
         $wf = WFApplication::getInstance();
-        $settings['columns_framework']  = $wf->getParam('columns.framework', '');
-        $settings['columns_stack']      = $wf->getParam('columns.stack', 'medium');
+
+        $settings['columns_framework']  = $wf->getParam('columns.framework', '', '');
+        $settings['columns_stack']      = $wf->getParam('columns.stack', 'medium', 'medium');
+        $settings['columns_gap']        = $wf->getParam('columns.gap', 'medium', 'medium');
+        $settings['columns_layout']     = $wf->getParam('columns.layout', '', '');
     }
 }

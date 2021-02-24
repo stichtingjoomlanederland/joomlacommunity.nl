@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	<div class="app-filter-bar">
@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Restricted access');
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -42,8 +42,11 @@ defined('_JEXEC') or die('Restricted access');
 					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_TITLE') , 'title', $orderDirection, $order); ?>
 					</th>
-					<th width="3%" class="center">
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
+					</th>
+					<th width="5%" class="center">
+						<?php echo JText::_('Required'); ?>
 					</th>
 					<th width="12%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_CUSTOMFIELDS_TYPE') , 'type', $orderDirection, $order); ?>
@@ -75,7 +78,14 @@ defined('_JEXEC') or die('Restricted access');
 					<td class="center">
 						<?php echo $this->html('table.state', 'customfields', $field, 'published'); ?>
 					</td>
-					
+
+					<td class="center">
+						<?php echo $this->html('table.state', 'customfields', $field, 'required', 'customfields', true, [
+							'required',
+							'optional'
+						]); ?>
+					</td>
+
 					<td class="center">
 						<?php echo $field->getFriendlyType(); ?>
 					</td>
@@ -94,8 +104,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php } ?>
 			<?php } else { ?>
 				<tr>
-					<td colspan="7" class="empty">
-						<i class="fa fa-table"></i>
+					<td colspan="8" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_NO_CUSTOM_FIELDS_CREATED_YET'); ?>
 					</td>
 				</tr>
@@ -104,7 +113,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<tfoot>
 				<tr>
-					<td colspan="7">
+					<td colspan="8">
 						<div class="footer-pagination center">
 							<?php echo $pagination->getListFooter(); ?>
 						</div>
@@ -118,6 +127,6 @@ defined('_JEXEC') or die('Restricted access');
 	<input type="hidden" name="filter_order_Dir" value="<?php echo $orderDirection; ?>" />
 	<input type="hidden" name="original_order_values" value="<?php echo implode(',', $originalOrders); ?>" />
 
-	<?php echo $this->html('form.hidden', 'customfields', 'customfields'); ?>
+	<?php echo $this->html('form.action', 'customfields', 'customfields'); ?>
 
 </form>

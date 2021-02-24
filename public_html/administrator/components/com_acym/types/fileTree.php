@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class fileTreeType extends acymObject
+namespace AcyMailing\Types;
+
+use AcyMailing\Libraries\acymObject;
+
+class FileTreeType extends acymObject
 {
     public function display($folders, $currentFolder, $nameInput)
     {
@@ -77,4 +79,3 @@ class fileTreeType extends acymObject
         return $results;
     }
 }
-

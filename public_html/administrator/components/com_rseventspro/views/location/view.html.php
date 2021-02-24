@@ -8,10 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewLocation extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	protected $config;
-	
 	public function display($tpl = null) {
 		$this->form 		= $this->get('Form');
 		$this->item 		= $this->get('Item');
@@ -27,8 +23,6 @@ class RseventsproViewLocation extends JViewLegacy
 		JToolBarHelper::save('location.save');
 		JToolBarHelper::save2new('location.save2new');
 		JToolBarHelper::cancel('location.cancel');
-		
-		JHtml::_('rseventspro.chosen','select');
 		
 		$params = array(
 			'id' => 'map-canvas',

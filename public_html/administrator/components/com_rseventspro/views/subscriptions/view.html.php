@@ -13,7 +13,7 @@ class RseventsproViewSubscriptions extends JViewLegacy
 		
 		if ($this->layout == 'scan') {
 			JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'),'rseventspro48');
-			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'back', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
+			JToolBar::getInstance('toolbar')->appendButton( 'Link', 'arrow-left', JText::_('COM_RSEVENTSPRO_GLOBAL_BACK_BTN'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions'));
 			
 			$this->scan			 = rseventsproHelper::getScan();
 		} else {
@@ -31,7 +31,7 @@ class RseventsproViewSubscriptions extends JViewLegacy
 			$this->addToolBar();
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_adminSubscriptionsDisplayLayout', array(array('view' => &$this)));
+		JFactory::getApplication()->triggerEvent('onrsepro_adminSubscriptionsDisplayLayout', array(array('view' => &$this)));
 
 		parent::display($tpl);
 	}
@@ -41,9 +41,9 @@ class RseventsproViewSubscriptions extends JViewLegacy
 		JToolBarHelper::addNew('subscription.add');
 		JToolBarHelper::editList('subscription.edit');
 		JToolBarHelper::deleteList('','subscriptions.delete');
-		JToolBarHelper::custom('subscriptions.complete','save','save',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_APPROVE'));
-		JToolBarHelper::custom('subscriptions.incomplete','pending','pending',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_PENDING'));
-		JToolBarHelper::custom('subscriptions.denied','cancel-circle','cancel-circle',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_DENY'));
+		JToolBarHelper::custom('subscriptions.complete','ok','ok',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_APPROVE'));
+		JToolBarHelper::custom('subscriptions.incomplete','minus','minus',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_PENDING'));
+		JToolBarHelper::custom('subscriptions.denied','cancel','cancel',JText::_('COM_RSEVENTSPRO_GLOBAL_STATUS_DENY'));
 		
 		$bar = JToolBar::getInstance('toolbar');
 		
@@ -54,8 +54,6 @@ class RseventsproViewSubscriptions extends JViewLegacy
 		
 		$bar->appendButton( 'Link', 'arrow-down', JText::_('COM_RSEVENTSPRO_EXPORT_SUBSCRIBERS'), JRoute::_('index.php?option=com_rseventspro&task=subscriptions.export'));
 		$bar->appendButton( 'Link', 'lamp', JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'), JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'));
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getUser($id) {

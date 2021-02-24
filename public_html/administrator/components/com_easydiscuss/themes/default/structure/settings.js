@@ -1,5 +1,4 @@
 ed.require(['edq'], function($){
-
 	EasyDiscuss.renderDialogForBBcode = function(namespace, bbcodeItem) {
 		var editorName = $(bbcodeItem.textarea).attr('name');
 		var caretPosition = bbcodeItem.caretPosition.toString();
@@ -49,7 +48,8 @@ ed.require(['edq'], function($){
 			},
 			<?php } ?>
 
-			<?php if ($this->config->get('layout_bbcode_bold') || $this->config->get('layout_bbcode_underline') || $this->config->get('layout_bbcode_italic')) { ?>
+			<?php $giphy = ED::giphy(); ?>
+			<?php if ($this->config->get('layout_bbcode_bold') || $this->config->get('layout_bbcode_underline') || $this->config->get('layout_bbcode_italic') || $giphy->isEnabled()) { ?>
 			{separator: '---------------' },
 			<?php } ?>
 
@@ -94,6 +94,26 @@ ed.require(['edq'], function($){
 			},
 			<?php } ?>
 
+			<?php if ($giphy->isEnabled()) { ?>
+			{
+				name: "<?php echo JText::_('COM_ED_GIPHY'); ?>",
+				replaceWith: function() {
+					var giphyBrowser = $('[data-giphy-browser]');
+
+					$(document).trigger('initializeGiphy');
+
+					if (giphyBrowser.hasClass('is-open')) {
+						giphyBrowser.removeClass('is-open');
+
+						return;
+					}
+
+					giphyBrowser.addClass('is-open');
+				},
+				className: 'markitup-giphy'
+			},
+			<?php } ?>
+
 			<?php if ($this->config->get('layout_bbcode_link') || $this->config->get('layout_bbcode_image') || $this->config->get('layout_bbcode_video')) { ?>
 			{separator: '---------------'},
 			<?php } ?>
@@ -121,6 +141,15 @@ ed.require(['edq'], function($){
 				name: "<?php echo JText::_('COM_EASYDISCUSS_BBCODE_LIST_ITEM');?>",
 				openWith: '[*] ',
 				className: 'markitup-list'
+			},
+			<?php } ?>
+
+			<?php if ($this->config->get('layout_bbcode_table')) { ?>
+			{
+				name: "<?php echo JText::_('COM_EASYDISCUSS_BBCODE_TABLE');?>",
+				openWith: '[table][tr]\n[td]',
+				closeWith: '[/td]\n[/tr][/table]',
+				className: 'markitup-table'
 			},
 			{separator: '---------------' },
 			<?php } ?>

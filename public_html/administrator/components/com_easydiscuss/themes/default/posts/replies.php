@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -39,25 +39,25 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<th width="1%">
 						<?php echo $this->html('table.checkall'); ?>
 					</th>
-
-					<th style="text-align:left;">
+					<th>
 						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_REPLY'); ?>
 					</th>
 
-					<th width="5%" class="text-center">
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
 					</th>
 
-					<th width="1%" class="text-center">
+					<th width="10%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_POSTS_VOTES'); ?>
 					</th>
-					<th width="20%" class="text-center">
+
+					<th width="15%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
-					<th width="10%" class="text-center">
+					<th width="15%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_DATE');?>
 					</th>
-					<th width="1%" class="text-center">
+					<th width="5%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
 				</tr>
@@ -73,16 +73,17 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</td>
 
 					<td style="text-align:left;">
-						<a href="<?php echo $post->editLink;?>"><?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLY'); ?></a>
+						<a target="_blank" href="<?php echo $post->editLink;?>"><?php echo JText::_('COM_EASYDISCUSS_VIEW_REPLY'); ?></a>
 
-						<div style="font-size: 11px;">
-							<span style="padding-right: 5px;border-right: 1px solid #d7d7d7;">
-								<?php echo JText::_('COM_EASYDISCUSS_POST');?>: <a href="index.php?option=com_easydiscuss&view=post&layout=edit&id=<?php echo $post->getParent()->id;?>"><?php echo $post->getParent()->title;?></a>
-							</span>
-
-							<span style="padding-left: 6px;">
-								<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip;?>
-							</span>
+						<div class="t-mt--sm">
+							<ol class="g-list-inline g-list-inline--delimited small">
+								<li>
+									<?php echo JText::_('COM_EASYDISCUSS_POST');?>: <a target="_blank" href="<?php echo $post->getPermalink(true); ?>"><?php echo $post->getParent()->title;?></a>
+								</li>
+								<li data-breadcrumb="|">
+									<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip ? $post->ip : '&mdash;';?>
+								</li>
+							</ol>
 						</div>
 					</td>
 
@@ -139,5 +140,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<input type="hidden" name="layout" value="replies" />
 	<input type="hidden" name="from" value="replies" />
 
-	<?php echo $this->html('form.hidden', 'posts', 'posts'); ?>
+	<?php echo $this->html('form.action', 'posts', 'posts'); ?>
 </form>

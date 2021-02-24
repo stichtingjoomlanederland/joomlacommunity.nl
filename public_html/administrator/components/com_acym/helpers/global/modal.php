@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_modal($button, $data, $id = null, $attributesModal = '', $attributesButton = '', $isButton = true, $isLarge = true)
 {
@@ -20,9 +18,16 @@ function acym_modal($button, $data, $id = null, $attributesModal = '', $attribut
 
 function acym_modal_include($button, $file, $id, $data, $attributes = '', $classModal = '', $containerAttributes = '')
 {
+    return acym_modalInclude($button, $file, $id, $data, $attributes = '', $classModal = '', $containerAttributes = '');
+}
+
+function acym_modalInclude($button, $file, $id, $data, $attributes = '', $classModal = '', $containerAttributes = '')
+{
     if (empty($id)) {
         $id = 'acymodal_'.rand(1000, 9000);
     }
+
+    $dataModal = $data;
 
     $modal = '<div data-open="'.acym_escape($id).'" '.$containerAttributes.'>'.$button;
     $modal .= '<div class="reveal '.$classModal.'" id="'.acym_escape($id).'" '.$attributes.' data-reveal>';
@@ -37,6 +42,21 @@ function acym_modal_include($button, $file, $id, $data, $attributes = '', $class
 }
 
 function acym_modal_pagination_lists($button, $class, $textButton = null, $id = null, $attributes = '', $inputEventId = "", $checkedLists = "[]", $needDisplaySubscribers = false, $attributesModal = '')
+{
+    return acym_modalPaginationLists(
+        $button,
+        $class,
+        $textButton = null,
+        $id = null,
+        $attributes = '',
+        $inputEventId = "",
+        $checkedLists = "[]",
+        $needDisplaySubscribers = false,
+        $attributesModal = ''
+    );
+}
+
+function acym_modalPaginationLists($button, $class, $textButton = null, $id = null, $attributes = '', $inputEventId = "", $checkedLists = "[]", $needDisplaySubscribers = false, $attributesModal = '')
 {
     $searchField = acym_filterSearch('', 'modal_search_lists', 'ACYM_SEARCH');
 
@@ -73,4 +93,3 @@ function acym_modal_pagination_lists($button, $class, $textButton = null, $id = 
 
     return $data;
 }
-

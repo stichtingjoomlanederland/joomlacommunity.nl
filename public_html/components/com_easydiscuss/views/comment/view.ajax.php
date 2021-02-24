@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,9 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/akismet/akismet.php');
 
 class EasyDiscussViewComment extends EasyDiscussView
 {
@@ -27,129 +24,121 @@ class EasyDiscussViewComment extends EasyDiscussView
 		ED::checkToken();
 
 		$id = $this->input->get('id','','int');
-		$message = $this->input->get('comments','', 'raw');
 		$acceptedTerms = $this->input->get('tncCheckbox','');
-
-		// Load the post item.
-		$post = ED::post($id);
-
-		// check if the user is it get banned or not
-		if ($post->isUserBanned()) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_SYSTEM_BANNED_YOU'));
-		}
-
-		if (empty($message)) {
-			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENT_IS_EMPTY'));
-		}
 
 		// Check the terms and condirion if it is enabled
 		if ($this->config->get('main_tnc_comment') && $acceptedTerms == 'false') {
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_TERMS_PLEASE_ACCEPT'));
 		}
 
-		// Test if a valid post id is provided.
-		if (!$post->id) {
-			return $this->ajax->reject( JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID'));
-		}
+		// Load the post item.
+		$post = ED::post($id);
 
-		// Test if the user is allowed to add comment or not.
+		// Check if the user really can post comment for this post
 		if (!$post->canComment()) {
-
-			$err = $post->getError();
-			if (!$err) {
-				$err = JText::_('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED');
-			}
-
-			return $this->ajax->reject($err);
+			return $this->ajax->reject($post->getError());
 		}
 
-		// Proccess appending email in content
-		if ($this->config->get('main_post_appendemail') && $this->my->id) {
-			$posterEmail = $this->my->email;
-			$newline = "\r\n\r\n";
+		$profile = ED::profile();
 
-			$message .= $newline . $posterEmail;
+		$data = array(
+			'user_id' => $this->my->id,
+			'name' => $profile->getName(),
+			'email' => $this->my->email,
+			'comment' => $this->input->get('comments','', 'raw'),
+			'post_id' => $id,
+			'ip' => @$_SERVER['REMOTE_ADDR'],
+			'title' => ''
+		);
+
+		$comment = ED::comment();
+		$comment->bind($data, true);
+
+		$valid = $comment->validate();
+
+		if (!$valid) {
+			return $this->ajax->reject(JText::_($comment->getError()));
 		}
 
-		// Load user profile's object.
-		$profile = ED::user($this->my->id);
+		$state = $comment->save();
 
-		// Build up comment object.
-		$commentData = new stdClass();
-		$commentData->user_id = $this->my->id;
-		$commentData->name = $profile->getName();
-		$commentData->email	= $this->my->email;
-		$commentData->comment = $message;
-		$commentData->post_id = $post->id;
-		$commentData->ip = @$_SERVER['REMOTE_ADDR'];
-
-		// Run through akismet screening if necessary.
-		if ($this->config->get('antispam_akismet') && ($this->config->get('antispam_akismet_key'))) {
-			$data = array(
-					'author' => $this->my->name,
-					'email' => $this->my->email,
-					'website' => DISCUSS_JURIROOT,
-					'body' => $commentData->comment,
-					'alias' => ''
-				);
-
-			$akismet = new Akismet(DISCUSS_JURIROOT, $this->config->get('antispam_akismet_key'), $data);
-
-			if ($akismet->isSpam()) {
-				return $this->ajax->reject(JText::_('COM_EASYDISCUSS_AKISMET_SPAM_DETECTED'));
-			}
-		}
-
-		$comment = ED::table('Comment');
-		$comment->bind($commentData, true);
-
-		if (!$comment->store()) {
+		if (!$state) {
 			return $this->ajax->reject($comment->getError());
 		}
-
-		// process tnc
-		$tnc = ED::tnc();
-		$tnc->storeTnc('comment');
-
-		// Get post duration.
-		$durationObj = new stdClass();
-		$durationObj->daydiff = 0;
-		$durationObj->timediff = '00:00:01';
-
-		$comment->duration = ED::getDurationString($durationObj);
-		$comment->creator = $profile;
-		$comment->comment = nl2br($comment->comment);
-		$comment->postSave();
 
 		// Get the result of the posted comment.
 		$theme = ED::themes();
 		$theme->set('comment', $comment);
-		$contents = $theme->output('site/comments/default.item');
+		$theme->set('isNew', true);
+		$contents = $theme->output('site/comments/item/default');
 
-		return $this->ajax->resolve($contents);
+		return $this->ajax->resolve($contents, $comment->id);
+	}
+
+	/**
+	 * Update the comment.
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function update()
+	{
+		ED::checkToken();
+
+		$id = $this->input->get('id', 0, 'int');
+
+		$comment = ED::comment($id);
+		$post = $comment->getPost();
+
+		// Check if the user really can post comment for this post
+		if (!$post->canComment()) {
+			return $this->ajax->reject($post->getError());
+		}
+
+		// Check if the user truly can edit the comment
+		if (!$comment->canEdit()) {
+			return $this->ajax->reject($comment->getError());
+		}
+
+		// Get the updated content
+		$content = $this->input->get('comment','', 'raw');
+
+		$content = htmlentities($content);
+
+		// Replace a url to link
+		$content = ED::string()->url2link($content);
+
+		$comment->comment = $content;
+
+		if (!$comment->save()) {
+			return $this->ajax->reject($comment->getError());
+		}
+
+		$message = $comment->getMessage();
+
+		return $this->ajax->resolve($message);
 	}
 
 	/**
 	 * Displays a confirmation dialog to move a comment to a reply.
 	 *
-	 * @since	3.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	int		The unique post id.
 	 */
 	public function confirmConvert()
 	{
-		$id = $this->input->get('id', 0, 'int');
+		$commentId = $this->input->get('commentId', 0, 'int');
 		$postId = $this->input->get('postId', 0, 'int');
 
 		// Test if a valid post id is provided.
-		if (!$id) {
+		if (!$commentId || !$postId) {
 			return $this->ajax->reject(JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID'));
 		}
 
 		$theme = ED::themes();
-		$theme->set('id', $id);
+		$theme->set('commentId', $commentId);
 		$theme->set('postId', $postId);
-		$contents = $theme->output('site/dialogs/ajax.comment.convert');
+		$contents = $theme->output('site/comments/dialogs/convert.confirm');
 
 		return $this->ajax->resolve($contents);
 	}
@@ -157,9 +146,8 @@ class EasyDiscussViewComment extends EasyDiscussView
 	/**
 	 * Displays a confirmation dialog to delete a comment.
 	 *
-	 * @since	3.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	int		The unique post id.
 	 */
 	public function confirmDelete()
 	{
@@ -181,36 +169,28 @@ class EasyDiscussViewComment extends EasyDiscussView
 	/**
 	 * Responsible to delete a comment.
 	 *
-	 * @since	3.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function delete()
 	{
 		$id = $this->input->get('id', 0, 'int');
 
-		$comment = ED::table('Comment');
-		$comment->load($id);
+		$comment = ED::comment($id);
 
-		$postId = $comment->post_id;
-
-		if (!$comment->canDeleteComment()) {
-			echo JText::_('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED');
-			return false;
+		if (!$comment->canDelete()) {
+			return $this->ajax->reject('COM_EASYDISCUSS_COMMENTS_NOT_ALLOWED');
 		}
 
 		if (!$comment->delete()) {
-			echo $comment->getError();
-			return false;
+			return $this->ajax->reject($comment->getError());
 		}
 
-		// AUP Integrations
-		ED::aup()->assign(DISCUSS_POINTS_DELETE_COMMENT, $comment->user_id, '');
-
 		// Check if there any comment left on the post.
-		$post = ED::post($postId);
-		$content = $post->getComments();
+		$post = $comment->getPost();
+		$comments = $post->getComments();
 
-		return $this->ajax->resolve($content);
+		return $this->ajax->resolve($comments);
 	}
 
 	/**
@@ -225,5 +205,34 @@ class EasyDiscussViewComment extends EasyDiscussView
 		$contents = $theme->output('site/comments/dialogs/comment.term');
 
 		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Retrieve the comment form
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getForm()
+	{
+		$id = $this->input->get('id', 0, 'int');
+		$isEdit = $this->input->get('isEdit', false, 'bool');
+
+		$comment = ED::comment($id);
+
+		if (!$comment->canEdit()) {
+			die();
+		}
+
+		$post = ED::post($comment->post_id);
+
+		$theme = ED::themes();
+		$theme->set('post', $post);
+		$theme->set('comment', $comment);
+		$theme->set('isEdit', $isEdit);
+
+		$form = $theme->output('site/comments/form/default');
+
+		return $this->ajax->resolve($form);
 	}
 }

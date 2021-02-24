@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -33,13 +33,25 @@ if ($task == 'cron' || $cron) {
 	ED::cron()->execute();
 
 	// Maintainance bit
-	ED::maintenance()->run();
+	$maintenance = ED::maintenance();
+	$maintenance->run();
+
+	if ($config->get('prune_notifications_cron')) {
+		$maintenance->pruneNotifications();
+	}
+
+	$data = [
+		'cron_last_execute' => JFactory::getDate()->toSql()
+	];
+
+	$model = ED::model('Settings');
+	$state = $model->save($data);
 
 	echo 'Cronjob Processed.';
 	exit;
 }
 
-if ($crondata) {
+if ($task == 'crondata' || $crondata) {
 	$msg = ED::cron()->executeDownload();
 	echo $msg;
 	exit;

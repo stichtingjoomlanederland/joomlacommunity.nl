@@ -246,7 +246,8 @@ class RSEventsProPlaceholders {
 			'{EventIconSmallPdf}'	=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_SMALL_ICON',
 			'{EventIconBigPdf}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_BIG_ICON',
 			'{EventIconPdf}'		=> 'COM_RSEVENTSPRO_PLACEHOLDER_EVENT_ICON',
-			'{date}'				=> 'COM_RSEVENTSPRO_PLACEHOLDER_CURRENT_DATE'
+			'{date}'				=> 'COM_RSEVENTSPRO_PLACEHOLDER_CURRENT_DATE',
+			'{seat}'				=> 'COM_RSEVENTSPRO_PLACEHOLDER_SEAT'
 		);
 		
 		unset(self::$globals['{EventIconSmall}']);

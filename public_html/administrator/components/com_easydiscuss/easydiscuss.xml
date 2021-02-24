@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="component" version="3.0.0" method="upgrade">
 	<name>com_easydiscuss</name>
-	<creationDate>25th May 2018</creationDate>
-	<author>Stack Ideas Sdn Bhd</author>
+	<author>StackIdeas</author>
 	<authorEmail>support@stackideas.com</authorEmail>
-	<authorUrl>https://stackideas.com</authorUrl>
-	<copyright>Copyright 2009 - 2018 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
-	<license>GPL License v2</license>
-	<version>4.1.21</version>
+	<authorUrl>http://www.stackideas.com</authorUrl>
+	<copyright>Copyright 2009 - 2012 Stack Ideas. All rights reserved</copyright>
+	<license>GPL License</license>
+	<version>5.0.1</version>
+	<creationDate>22nd February 2021</creationDate>
 	<description>
-		EasyDiscuss is a Joomla! forum extension that allows users on your site to collaborate with one another.
+		Discussion extension for your Joomla! site.
 	</description>
-	<scriptfile>updater.php</scriptfile>
+	<scriptfile>script.php</scriptfile>
 	<administration>
 		<menu link="option=com_easydiscuss">COM_EASYDISCUSS</menu>
 		<submenu>
@@ -19,6 +19,7 @@
 			<menu view="posts">COM_EASYDISCUSS_MENU_DISCUSSIONS</menu>
 			<menu view="autoposting">COM_EASYDISCUSS_ADMIN_MENU_AUTOPOSTING</menu>
 			<menu view="categories">COM_EASYDISCUSS_ADMIN_MENU_CATEGORIES</menu>
+			<menu view="comments">COM_EASYDISCUSS_ADMIN_MENU_COMMENTS</menu>
 			<menu view="tags">COM_EASYDISCUSS_ADMIN_MENU_TAGS</menu>
 			<menu view="users">COM_EASYDISCUSS_ADMIN_MENU_USERS</menu>
 			<menu view="roles">COM_EASYDISCUSS_ADMIN_MENU_ROLES</menu>
@@ -33,7 +34,25 @@
 			<menu view="languages">COM_EASYDISCUSS_ADMIN_MENU_LANGUAGES</menu>
 			<menu view="spools">COM_EASYDISCUSS_ADMIN_MENU_SPOOLS</menu>
 		</submenu>
+		<files folder="admin">
+			<folder>languages</folder>
+			<folder>setup</folder>
+			<file>access.xml</file>
+			<file>config.xml</file>
+			<file>easydiscuss.php</file>
+			<file>easydiscuss.xml</file>
+			<file>script.php</file>
+			<file>setup.php</file>
+			<file>setup.html</file>
+		</files>
+		<languages>
+			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.ini</language>
+			<language tag="en-GB">languages/admin/en-GB.com_easydiscuss.sys.ini</language>
+		</languages>
 	</administration>
+	<languages>
+		<language tag="en-GB">languages/site/en-GB.com_easydiscuss.ini</language>
+	</languages>
 	<updateservers>
 		<server type="extension" name="EasyDiscuss Update Site">https://stackideas.com/jupdates/manifest/easydiscuss</server>
 	</updateservers>

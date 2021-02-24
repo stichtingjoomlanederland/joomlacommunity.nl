@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -21,6 +21,7 @@ use Akeeba\Engine\Platform;
 use Exception;
 use FOF30\Container\Container;
 use FOF30\Controller\Controller;
+use FOF30\Factory\Exception\ModelNotFound;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use RuntimeException;
@@ -37,7 +38,7 @@ class ControlPanel extends Controller
 		parent::__construct($container, $config);
 
 		$this->setPredefinedTaskList([
-			'main', 'SwitchProfile', 'UpdateInfo', 'applydlid', 'resetSecretWord', 'reloadUpdateInformation',
+			'main', 'SwitchProfile', 'applydlid', 'resetSecretWord',
 			'forceUpdateDb', 'dismissUpsell', 'fixOutputDirectory', 'checkOutputDirectory', 'addRandomToFilename',
 		]);
 	}
@@ -66,30 +67,6 @@ class ControlPanel extends Controller
 		}
 
 		$this->setRedirect($url, \Joomla\CMS\Language\Text::_('COM_AKEEBA_CPANEL_PROFILE_SWITCH_OK'));
-	}
-
-	public function UpdateInfo()
-	{
-		/** @var Updates $updateModel */
-		$updateModel = $this->container->factory->model('Updates')->tmpInstance();
-		$updateInfo   = $updateModel->getUpdates();
-
-		$result = '';
-
-		if ($updateInfo['hasUpdate'])
-		{
-			$result = $this->getView()->loadAnyTemplate('admin:com_akeeba/ControlPanel/updateinfo', [
-				'updateInfo'     => $updateInfo,
-				'softwareName'   => 'Akeeba Backup',
-				'currentVersion' => AKEEBA_VERSION,
-				'currentDate'    => AKEEBA_DATE,
-				'compatibilitySlug'    => '#akeeba-backup-compatibility',
-			]);
-		}
-		echo '###' . $result . '###';
-
-		// Cut the execution short
-		$this->container->platform->closeApplication();
 	}
 
 	/**
@@ -155,20 +132,6 @@ class ControlPanel extends Controller
 		$msg = \Joomla\CMS\Language\Text::sprintf('COM_AKEEBA_CPANEL_MSG_FESECRETWORD_RESET', $newSecret);
 
 		$url = 'index.php?option=com_akeeba';
-		$this->setRedirect($url, $msg);
-	}
-
-	public function reloadUpdateInformation()
-	{
-		$msg = null;
-
-		/** @var Updates $model */
-		$model = $this->container->factory->model('Updates')->tmpInstance();
-		$model->getUpdates(true);
-
-		$msg = \Joomla\CMS\Language\Text::_('COM_AKEEBA_COMMON_UPDATE_INFORMATION_RELOADED');
-		$url = 'index.php?option=com_akeeba';
-
 		$this->setRedirect($url, $msg);
 	}
 
@@ -336,6 +299,18 @@ class ControlPanel extends Controller
 		/** @var ConfigurationWizard $wizmodel */
 		$wizmodel = $this->container->factory->model('ConfigurationWizard')->tmpInstance();
 		$wizmodel->autofixDirectories();
+
+		// Rebase Off-site Folder Inclusion filters to use site path variables
+		/** @var \Akeeba\Backup\Admin\Model\IncludeFolders $incFoldersModel */
+		try
+		{
+			$incFoldersModel = $this->container->factory->model('IncludeFolders')->tmpInstance();
+			$incFoldersModel->rebaseFiltersToSiteDirs();
+		}
+		catch (ModelNotFound $e)
+		{
+			// Not a problem. This is expected to happen in the Core version.
+		}
 
 		// Check if we need to toggle the settings encryption feature
 		$model->checkSettingsEncryption();

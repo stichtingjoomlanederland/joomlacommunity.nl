@@ -1,8 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymentitySelectHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Controllers\EntitySelectController;
+use AcyMailing\Libraries\acymObject;
+
+class EntitySelectHelper extends acymObject
 {
     var $svg;
     var $columnsHeaderNotToDisplay;
@@ -10,24 +13,30 @@ class acymentitySelectHelper extends acymObject
     public function __construct()
     {
         parent::__construct();
-        $this->svg = acym_getSvg(ACYM_IMAGES.'loader.svg');
+        $this->svg = acym_loaderLogo(false);
         $this->columnsHeaderNotToDisplay = ['color'];
     }
 
     private function _getListing($type, $allSelector, $entity, $columnsToDisplay = [])
     {
         $display = '<div class="cell medium-auto grid-x acym_area acym__entity_select__'.$type.'">
-                        <h5 class="cell font-bold acym_area_title text-center">'.acym_translation('ACYM_'.strtoupper($type).'_'.strtoupper($entity)).'</h5>
+                        <h5 class="cell font-bold acym__title acym__title__secondary text-center">'.acym_translation('ACYM_'.strtoupper($type).'_'.strtoupper($entity)).'</h5>
                         <div class="cell grid-x">
                         <div class="cell grid-x acym__entity_select__header">
                             <div class="cell grid-x">
-                                <div class="cell"><input type="text" class="acym__light__input" v-model="'.$type.'Search" placeholder="'.acym_translation('ACYM_SEARCH').'"></div>
+                                <div class="cell margin-bottom-1"><input type="text" v-model="'.$type.'Search" placeholder="'.acym_translation('ACYM_SEARCH').'"></div>
                                 <div class="cell align-right grid-x acym__entity_select__select__all">
-                                    <button type="button" v-show="!loading" v-if="displaySelectAll_'.$type.'" v-on:click="moveAll('.acym_escapeDB($type).')" class="cell shrink acym__entity_select__select__all__button acym__entity_select__select__all__button__'.$type.'">'.acym_translation('ACYM_'.strtoupper($allSelector).'_ALL').'</button>
+                                    <button type="button" v-show="!loading" v-if="displaySelectAll_'.$type.'" v-on:click="moveAll('.acym_escapeDB(
+                $type
+            ).')" class="cell shrink acym__entity_select__select__all__button acym__entity_select__select__all__button__'.$type.'">'.acym_translation(
+                'ACYM_'.strtoupper($allSelector).'_ALL'
+            ).'</button>
                                 </div>
                             </div>
                         </div>
-                        <div v-infinite-scroll="loadMoreEntity'.ucfirst($type).'" :infinite-scroll-disabled="busy" class="acym__listing cell acym__entity_select__'.$type.'__listing acym__content">';
+                        <div v-infinite-scroll="loadMoreEntity'.ucfirst(
+                $type
+            ).'" :infinite-scroll-disabled="busy" class="acym__listing cell acym__entity_select__'.$type.'__listing acym__content" infinite-scroll-distance="10">';
         $emptyMessage = acym_translation($type === 'available' ? 'ACYM_NOTHING_TO_SHOW_HERE_RIGHT_PANEL' : 'ACYM_PLEASE_CLICK_ON_THE_LEFT_PANEL');
         $display .= '<div class="cell text-center acym__entity_select__title margin-top-2" v-show="Object.keys(entitiesToDisplay_'.$type.').length == 0 && !loading">'.$emptyMessage.'</div>
                     <div class="cell acym_vcenter acym__listing__row grid-x acym__listing__row__header" v-if="Object.keys(entitiesToDisplay_'.$type.').length != 0">';
@@ -68,7 +77,9 @@ class acymentitySelectHelper extends acymObject
         }
 
         $display .= '</div>
-                    <div class="cell grid-x align-center acym__entity_select__loading margin-top-1"  v-show="loading"><div class="cell text-center acym__entity_select__title">'.acym_translation('ACYM_WE_ARE_LOADING_YOUR_DATA').'</div><div class="cell grid-x shrink margin-top-1">'.$this->svg.'</div></div>';
+                    <div class="cell grid-x align-center acym__entity_select__loading margin-top-1"  v-show="loading"><div class="cell text-center acym__entity_select__title">'.acym_translation(
+                'ACYM_WE_ARE_LOADING_YOUR_DATA'
+            ).'</div><div class="cell grid-x shrink margin-top-1">'.$this->svg.'</div></div>';
         $display .= '</div>';
         $display .= '</div>
                     </div>';
@@ -76,10 +87,16 @@ class acymentitySelectHelper extends acymObject
         return $display;
     }
 
-    public function entitySelect($entity, $entityParams = [], $columnsToDisplay = ['name'], $buttonSubmit = ['text' => '', 'action' => '', 'class' => ''], $displaySelected = true, $additionalData = '')
-    {
-        $entityClass = acym_get('class.'.$entity);
-        $entitySelectController = acym_get('controller.entitySelect');
+    public function entitySelect(
+        $entity, $entityParams = [], $columnsToDisplay = ['name'], $buttonSubmit = [
+        'text' => '',
+        'action' => '',
+        'class' => '',
+    ], $displaySelected = true, $additionalData = ''
+    ) {
+        $namespaceClass = 'AcyMailing\\Classes\\'.ucfirst($entity).'Class';
+        $entityClass = new $namespaceClass;
+        $entitySelectController = new EntitySelectController();
 
         $columnJoin = '';
         $columnsToGet = $columnsToDisplay;
@@ -103,12 +120,16 @@ class acymentitySelectHelper extends acymObject
         if (empty($entityClass)) return false;
 
         if (empty($entityParams['elementsPerPage']) || $entityParams['elementsPerPage'] < 1) {
-            $paginationHelper = acym_get('helper.pagination');
+            $paginationHelper = new PaginationHelper();
             $entityParams['elementsPerPage'] = $paginationHelper->getListLimit();
         }
 
         if (!empty($columnJoin)) $columnJoin = 'data-column-join="'.$columnJoin[1].'" data-table-join="'.$columnJoin[0].'"';
-        $display = '<div style="display: none;" id="acym__entity_select" class="acym__entity_select cell grid-x" data-display-selected="'.($displaySelected ? 'true' : 'false').'" data data-entity="'.acym_escape($entity).'" data-type="select" data-columns="'.implode(',', array_keys($columnsToDisplay)).'" data-columns-class="'.acym_escape(json_encode($columnsToDisplay)).'" data-join="'.$entityParams['join'].'" '.$columnJoin.'>';
+        $display = '<div style="display: none;" id="acym__entity_select" class="acym__entity_select cell grid-x" data-display-selected="'.($displaySelected ? 'true' : 'false').'" data data-entity="'.acym_escape(
+                $entity
+            ).'" data-type="select" data-columns="'.implode(',', array_keys($columnsToDisplay)).'" data-columns-class="'.acym_escape(
+                json_encode($columnsToDisplay)
+            ).'" data-join="'.$entityParams['join'].'" '.$columnJoin.'>';
 
         $display .= $this->_getListing('available', 'select', $entity, $columnsToDisplay);
 
@@ -122,7 +143,7 @@ class acymentitySelectHelper extends acymObject
             $class = !empty($buttonSubmit['action']) ? 'acy_button_submit' : 'acym__entity_select__button__close';
             if (!empty($buttonSubmit['class'])) $class .= ' '.$buttonSubmit['class'];
             $buttonSubmit['action'] = !empty($buttonSubmit['action']) ? 'data-task="'.$buttonSubmit['action'].'"' : '';
-            $display .= '<div class="cell grid-x align-center"><button type="button" id="acym__entity_select__button__submit" class="cell shrink grid-x '.$class.' button" '.$buttonSubmit['action'].'>'.$buttonSubmit['text'].'</button></div>';
+            $display .= '<div class="cell grid-x align-center margin-top-1"><button type="button" id="acym__entity_select__button__submit" class="cell shrink grid-x '.$class.' button" '.$buttonSubmit['action'].'>'.$buttonSubmit['text'].'</button></div>';
         }
 
         $display .= '<input type="hidden" class="acym__entity_select__selected" name="acym__entity_select__selected" value="">';
@@ -160,4 +181,3 @@ class acymentitySelectHelper extends acymObject
     }
 
 }
-

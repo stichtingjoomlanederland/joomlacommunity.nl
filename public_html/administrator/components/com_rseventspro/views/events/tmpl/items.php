@@ -19,12 +19,12 @@ if (!empty($this->data))
 		$complete = empty($row->completed) ? ' rs_incomplete' : '';
 		
 		echo '<tr class="row'.$k.$complete.'">';
-		echo '<td align="center" class="center">'.JHTML::_('grid.id',$i,$row->id).'</td>';
-		echo '<td align="center" class="center hidden-phone"><div class="btn-group">';
+		echo '<td class="'.RSEventsproAdapterGrid::styles(array('center')).'">'.JHTML::_('grid.id',$i,$row->id).'</td>';
+		echo '<td class="'.RSEventsproAdapterGrid::styles(array('center')).' hidden-phone"><div class="btn-group">';
 		echo JHTML::_('jgrid.published', $row->published, $i, 'events.').JHtml::_('rseventspro.featured', $row->featured, $i);
-		echo '<a class="btn btn-micro hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT').'" target="_blank" href="'.JUri::root().'index.php?option=com_rseventspro&layout=show&id='.$row->id.'"><span class="icon-zoom-in"></span></a>';
+		echo JHtml::_('rseventspro.preview', $row->id);
 		echo '</div></td>';
-		echo '<td class="hidden-phone center">';
+		echo '<td class="hidden-phone '.RSEventsproAdapterGrid::styles(array('center')).'">';
 		echo '<div class="rs_event_img">';
 		echo '<img src="'.rseventsproHelper::thumb($row->id, 70).'?nocache='.uniqid('').'" alt="" width="70" />';
 		echo '</div>';
@@ -52,18 +52,18 @@ if (!empty($this->data))
 		echo '<b><a href="'.JRoute::_('index.php?option=com_rseventspro&task=event.edit&id='.$row->id).'">'.$row->name.'</a></b>';
 		
 		if (empty($row->completed)) {
-			echo ' <small class="muted">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>';
+			echo ' <small class="'.RSEventsproAdapterGrid::styles(array('muted')).'">'.JText::_('COM_RSEVENTSPRO_GLOBAL_INCOMPLETE_EVENT').'</small>';
 		}
 		
 		if ($row->published == 3) {
-			echo ' <small class="muted text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>';
+			echo ' <small class="'.RSEventsproAdapterGrid::styles(array('muted')).' text-error">'.JText::_('COM_RSEVENTSPRO_GLOBAL_CANCELED_EVENT').'</small>';
 		}
 		
 		echo ' '.rseventsproHelper::report($row->id);
 		echo '</p>';
 					
 		echo '<p>';
-		echo '<small class="muted">';
+		echo '<small class="'.RSEventsproAdapterGrid::styles(array('muted')).'">';
 		echo $row->allday ? rseventsproHelper::showdate($row->start,rseventsproHelper::getConfig('global_date'),true) : rseventsproHelper::showdate($row->start,null,true).' - '.rseventsproHelper::showdate($row->end,null,true);
 		echo '</small>';
 		echo '</p>';
@@ -74,24 +74,24 @@ if (!empty($this->data))
 		$unsubscribers = $row->registration ? $this->getUnsubscribers($row->id) : false;
 					
 		if ($availabletickets) { 
-			echo '<p><small class="muted">'.$availabletickets.'</small></p>';
+			echo '<p><small class="'.RSEventsproAdapterGrid::styles(array('muted')).'">'.$availabletickets.'</small></p>';
 		}
 					
 		echo '<p>';
 		if ($subscriptions) {
-			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=subscriptions&filter_event='.$row->id).'">'.JText::plural('COM_RSEVENTSPRO_SUBSCRIBERS_NO',$subscriptions).'</a> ';
+			echo '<a class="'.RSEventsproAdapterGrid::styles(array('btn', 'btn-small')).'" href="'.JRoute::_('index.php?option=com_rseventspro&view=subscriptions&filter_event='.$row->id).'">'.JText::plural('COM_RSEVENTSPRO_SUBSCRIBERS_NO',$subscriptions).'</a> ';
 		}
 		
 		if ($waitinglist) {
-			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=waitinglist&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_WAITINGLIST').'</a> ';
+			echo '<a class="'.RSEventsproAdapterGrid::styles(array('btn', 'btn-small')).'" href="'.JRoute::_('index.php?option=com_rseventspro&view=waitinglist&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_WAITINGLIST').'</a> ';
 		}
 		
 		if ($row->rsvp) {
-			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_RSVP_GUESTS').'</a> ';
+			echo '<a class="'.RSEventsproAdapterGrid::styles(array('btn', 'btn-small')).'" href="'.JRoute::_('index.php?option=com_rseventspro&view=rsvp&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_RSVP_GUESTS').'</a> ';
 		}
 		
 		if ($unsubscribers) {
-			echo '<a class="btn btn-small" href="'.JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS').'</a> ';
+			echo '<a class="'.RSEventsproAdapterGrid::styles(array('btn', 'btn-small')).'" href="'.JRoute::_('index.php?option=com_rseventspro&view=unsubscribers&id='.$row->id).'">'.JText::_('COM_RSEVENTSPRO_UNSUBSCRIBERS').'</a> ';
 		}
 		
 		echo '</p>';
@@ -117,8 +117,8 @@ if (!empty($this->data))
 		}
 		
 		echo '</td>';
-		echo '<td align="center" class="center hidden-phone">'.$row->hits.'</td>';
-		echo '<td class="center hidden-phone">'.$id.'</td>';
+		echo '<td class="'.RSEventsproAdapterGrid::styles(array('center')).' hidden-phone">'.$row->hits.'</td>';
+		echo '<td class="'.RSEventsproAdapterGrid::styles(array('center')).' hidden-phone">'.$id.'</td>';
 		echo '</tr>';
 		
 		$i++;

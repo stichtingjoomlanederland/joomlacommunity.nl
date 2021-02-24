@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><script type="text/javascript">
+<script type="text/javascript">
     var cookies = document.cookie.split('; ');
     if (cookies !== undefined && cookies.length > 0) {
         for (let i = 0 ; i < cookies.length ; i++) {
@@ -8,4 +6,3 @@ defined('_JEXEC') or die('Restricted access');
         }
     }
 </script>
-

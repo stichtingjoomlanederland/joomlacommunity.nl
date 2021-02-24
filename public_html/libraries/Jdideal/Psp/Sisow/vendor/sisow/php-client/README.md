@@ -46,7 +46,7 @@ $payment = $sisow->transactions->create([
     "purchaseid" => 'orderID',
     "amount" => 100, // amount is in cents (100 equals 1,00)
     "description" => 'Webshop Order #', // description for consumer bank statement
-    "returnurl" => 'https://mywebshop.com
+    "returnurl" => 'https://mywebshop.com'
 ]);
 ```
 

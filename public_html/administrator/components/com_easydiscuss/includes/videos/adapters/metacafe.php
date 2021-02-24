@@ -26,18 +26,22 @@ class DiscussVideoMetaCafe
 		return false;
 	}
 
-	public function getEmbedHTML( $url )
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		$code	= $this->getCode( $url );
 
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$width	= $config->get( 'bbcode_video_width' );
 		$height	= $config->get( 'bbcode_video_height' );
 
 		if ($code) {
+			$src = str_ireplace('/watch/', '/embed/', $url);
 			// return '<embed flashVars="playerVars=showStats=yes|autoPlay=no" src="http://www.metacafe.com/fplayer/' . $code . '/easydiscuss.swf" width="' . $width . '" height="' . $height . '" wmode="transparent" allowFullScreen="true" allowScriptAccess="always" name="Metacafe_' . $code . '" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash"></embed>';
 
-			$src = str_ireplace('/watch/', '/embed/', $url);
+			if ($isAmp) {
+				return '<amp-iframe  src="' . $src . '" width="' . $width . '" height="' . $height . '" frameborder="0" layout="responsive" sandbox="allow-scripts allow-same-origin"></amp-iframe>';
+			}
+
 			return '<div class="ed-video ed-video--16by9"><iframe title="" width="' . $width . '" height="' . $height . '" src="' . $src . '" frameborder="0" allowfullscreen></iframe></div>';
 		}
 		return false;

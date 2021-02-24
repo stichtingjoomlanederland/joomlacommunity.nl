@@ -17,8 +17,8 @@ jimport('joomla.html.parameter');
 jimport('joomla.access.access');
 jimport('joomla.application.component.model');
 
-require_once(__DIR__ . '/legacy.php');
 require_once(__DIR__ . '/dependencies.php');
+require_once(__DIR__ . '/compatibility.php');
 
 class ED
 {
@@ -54,7 +54,6 @@ class ED
 			$minify = $input->get('minify', true, 'bool');
 
 			foreach ($locations as $location) {
-				// Render the JS compiler
 				$compiler = ED::compiler($location);
 
 				if ($recompile) {
@@ -65,7 +64,7 @@ class ED
 			// Attach those scripts onto the head of the page now.
 			$compiler->attach();
 
-			// Attach the stylesheets
+			// Attach stylesheets
 			$stylesheet = ED::stylesheet($location);
 			$stylesheet->attach();
 
@@ -106,8 +105,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function ajax()
 	{
@@ -133,8 +130,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getToken($contents = '')
 	{
@@ -143,14 +138,15 @@ class ED
 		return $token;
 	}
 
-	public static function getHash( $seed = '' )
+	/**
+	 * Provides a secure hash based on a seed
+	 *
+	 * @access  public
+	 * @since   5.0.0
+	 */
+	public static function getHash($seed = '')
 	{
-		if( ED::getJoomlaVersion() >= '2.5' )
-		{
-			return JApplication::getHash( $seed );
-		}
-
-		return JUtility::getHash( $seed );
+		return EDApplicationHelper::getHash($seed);
 	}
 
 	/**
@@ -158,30 +154,15 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public static function dateWithOffSet($str='')
+	public static function dateWithOffSet($str = '')
 	{
-		$userTZ = self::getTimeZoneOffset();
 		$date = ED::date($str);
 
-		$user = JFactory::getUser();
-		$config = ED::Config();
-		$jConfig = ED::JConfig();
+		$userTimeZone = ED::getTimeZone();
 
-		// temporary ignore the dst in joomla 1.6
-
-		if ($user->id != 0) {
-			$userTZ	= $user->getParam('timezone');
-		}
-
-		if (empty($userTZ)) {
-			$userTZ	= $jConfig->get('offset');
-		}
-
-		$tmp = new DateTimeZone($userTZ);
-		$date->setTimeZone($tmp);
+		$dateTime = new DateTimeZone($userTimeZone);
+		$date->setTimeZone($dateTime);
 
 		return $date;
 	}
@@ -198,17 +179,15 @@ class ED
 
 		$args = func_get_args();
 
-		if (func_num_args() == 0 || empty($args) || empty($args[0]))
-		{
+		if (func_num_args() == 0 || empty($args) || empty($args[0])) {
 			return false;
 		}
 
 		$sig = md5(serialize($args));
 
-		if( !array_key_exists($sig, $helpers) )
-		{
+		if (!array_key_exists($sig, $helpers)) {
 			$helper	= preg_replace('/[^A-Z0-9_\.-]/i', '', $args[0]);
-			$file = DISCUSS_HELPERS . '/' . JString::strtolower($helper) . '.php';
+			$file = DISCUSS_HELPERS . '/' . EDJString::strtolower($helper) . '.php';
 
 			if( JFile::exists($file) )
 			{
@@ -261,7 +240,7 @@ class ED
 
 		if( !isset( $obj[ $helper ] ) )
 		{
-			$file	= DISCUSS_HELPERS . '/' . JString::strtolower( $helper ) . '.php';
+			$file	= DISCUSS_HELPERS . '/' . EDJString::strtolower( $helper ) . '.php';
 
 			if( JFile::exists( $file ) )
 			{
@@ -279,37 +258,48 @@ class ED
 		return $obj[ $helper ];
 	}
 
-	public static function getRegistry( $data = '' )
+	public static function getRegistry($data = '')
 	{
-		if( ED::getJoomlaVersion() >= '1.6' )
-		{
-			$registry = new JRegistry($data);
-		}
-		else
-		{
-			require_once DISCUSS_CLASSES . '/registry.php';
-			$registry = new DiscussRegistry($data);
-		}
+		$registry = new JRegistry($data);
 
 		return $registry;
 	}
 
 	/**
-	 * Load joomla xml
+	 * Reads a XML file.
 	 *
-	 * @since	4.0.16
-	 * @access	public
+	 * @since   5.0.0
+	 * @access  public
 	 */
-	public static function getXML($data, $isFile = true)
-	{
-		$xml = JFactory::getXML($data, $isFile);
+	 public static function getXml($data, $isFile = true)
+	 {
+		$class = 'SimpleXMLElement';
+
+		if (class_exists('JXMLElement')) {
+			$class = 'JXMLElement';
+		}
+
+		if ($isFile) {
+			// Try to load the XML file
+			$xml = simplexml_load_file($data, $class);
+
+		} else {
+			// Try to load the XML string
+			$xml = simplexml_load_string($data, $class);
+		}
+
+		if ($xml === false) {
+			foreach (libxml_get_errors() as $error) {
+				echo "\t", $error->message;
+			}
+		}
 
 		return $xml;
-	}
+	 }
 
 	public static function getUnansweredCount( $categoryId = '0', $excludeFeatured = false )
 	{
-		$db		= ED::getDBO();
+		$db		= ED::db();
 
 		$excludeCats	= ED::getPrivateCategories();
 		$catModel		= ED::model('Categories');
@@ -387,7 +377,7 @@ class ED
 
 	public static function getFeaturedCount( $categoryId )
 	{
-		$db = ED::getDBO();
+		$db = ED::db();
 
 		$query  = 'SELECT COUNT(1) as `CNT` FROM `#__discuss_posts` AS a';
 
@@ -432,24 +422,31 @@ class ED
 		return $msgObj;
 	}
 
-	public static function getAlias($title, $type='post', $id='0')
+	public static function getAlias($title, $type ='post', $id ='0')
 	{
 		$items = explode(' ', $title);
 
-		foreach($items as $index => $item) {
+		foreach ($items as $index => $item) {
 			if (strpos($item, '*' ) !== false) {
 				$items[$index] = str_replace('*', '-', $items[$index]);
 			}
 		}
 
 		$title = implode(' ', $items);
-
 		$alias	= ED::permalinkSlug($title);
+
+		// Skip this if the alias from reply post
+		if ($type == 'reply') {
+			return $alias;
+		}
+
+		$tmp = $alias;
 
 		// Make sure no such alias exists.
 		$i	= 1;
-		while (DiscussRouter::_isAliasExists($alias, $type, $id)) {
-			$alias = ED::permalinkSlug($title ) . '-' . $i;
+
+		while (EDR::_isAliasExists($alias, $type, $id)) {
+			$alias = $tmp . '-' . $i;
 			$i++;
 		}
 
@@ -458,7 +455,7 @@ class ED
 
 	public static function permalinkSlug($string, $uid = null)
 	{
-		$config	= ED::getConfig();
+		$config	= ED::config();
 		if ($config->get('main_sef_unicode')) {
 
 			if ($uid && is_numeric($uid)) {
@@ -507,7 +504,7 @@ class ED
 			$slug = str_replace('?', '', $slug);
 
 			//trim white spaces at beginning and end of alias, make lowercase
-			$slug = trim(JString::strtolower($slug));
+			$slug = trim(EDJString::strtolower($slug));
 
 			// remove any duplicate whitespace and replace whitespaces by hyphens
 			$slug =preg_replace('#\x20+#','-', $slug);
@@ -520,13 +517,11 @@ class ED
 	{
 		static $notify = false;
 
-		if( !$notify )
-		{
-
+		if (!$notify) {
 			$notify	= ED::notifications();
 		}
-		return $notify;
 
+		return $notify;
 	}
 
 	public static function getMailQueue()
@@ -563,11 +558,11 @@ class ED
 
 	public static function getLocalParser()
 	{
-		$data		= new stdClass();
+		$data = new stdClass();
 
-		$contents	= JFile::read( DISCUSS_ADMIN_ROOT . '/easydiscuss.xml' );
+		$contents = file_get_contents(DISCUSS_ADMIN_ROOT . '/easydiscuss.xml');
 
-		$parser		= new DiscussXMLHelper( $contents );
+		$parser = new DiscussXMLHelper($contents);
 
 		return $parser;
 	}
@@ -586,7 +581,7 @@ class ED
 
 			$manifest = DISCUSS_ADMIN_ROOT . '/easydiscuss.xml';
 
-			$parser = JFactory::getXML($manifest, true);
+			$parser = self::getXml($manifest, true);
 
 			$version = (string) $parser->version;
 		}
@@ -645,7 +640,7 @@ class ED
 		if (is_null($defaults)) {
 
 			$file = DISCUSS_ADMIN_ROOT . '/defaults/configuration.ini';
-			$contents = JFile::read($file);
+			$contents = file_get_contents($file);
 
 			$defaults = new JRegistry($contents);
 		}
@@ -670,12 +665,13 @@ class ED
 		if (is_null($config)) {
 
 			// Render the data from the ini first.
-			$raw = JFile::read(DISCUSS_ADMIN_ROOT . '/defaults/configuration.ini');
+			$raw = file_get_contents(DISCUSS_ADMIN_ROOT . '/defaults/configuration.ini');
 
-			$config = ED::getRegistry($raw);
+			$config = new JRegistry($raw);
 
 			// Retrieve the data from the db
 			$db = ED::db();
+
 			$query = 'SELECT ' . $db->qn('params') . ' FROM ' . $db->qn('#__discuss_configs');
 			$query .= 'WHERE ' . $db->qn('name') . '=' . $db->Quote('config');
 
@@ -683,6 +679,24 @@ class ED
 			$result = $db->loadResult();
 
 			$config->loadString($result);
+		}
+
+		return $config;
+	}
+
+	/**
+	 * Retrieves Joomla's configuration object
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function jConfig()
+	{
+		static $config = null;
+
+		if (is_null($config)) {
+			require_once(__DIR__ . '/jconfig/jconfig.php');
+			$config = new EasyDiscussJConfig();
 		}
 
 		return $config;
@@ -709,12 +723,6 @@ class ED
 			return;
 		}
 
-		$file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/defaults/configuration.ini';
-		$contents = JFile::read($file);
-		$contents = preg_replace('/system_environment=(.*)/', 'system_environment=' . $environment, $contents);
-
-		JFile::write($file, $contents);
-
 		// We also need to update the database value
 		$config = ED::table('Configs');
 		$config->load(array('name' => 'config'));
@@ -725,9 +733,9 @@ class ED
 		$config->params = $params->toString();
 		$config->store();
 
-		ED::setMessageQueue('Updated system environment to <b>' . $environment . '</b> mode', 'success');
+		ED::setMessage('Updated system environment to <b>' . $environment . '</b> mode', 'success');
 
-		return $app->redirect('index.php?option=com_easydiscuss');
+		return self::redirect('index.php?option=com_easydiscuss');
 	}
 
 	public static function getPostAccess( DiscussPost $post , DiscussCategory $category )
@@ -754,87 +762,84 @@ class ED
 		return $loggedIn;
 	}
 
+	/**
+	 * Determines if the user is a site admin
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public static function isSiteAdmin($userId = null)
 	{
-		static  $loaded = array();
+		static $cache = array();
+		
+		$key = is_null($userId) ? 'me' : $userId;
 
-		$sig    = is_null($userId) ? 'me' : $userId ;
-
-		if(! isset( $loaded[$sig] ) )
-		{
-			$my	= JFactory::getUser( $userId );
-
-			$admin = false;
-			if(ED::getJoomlaVersion() >= '1.6')
-			{
-				$admin	= $my->authorise('core.admin');
-			}
-			else
-			{
-				$admin	= $my->usertype == 'Super Administrator' || $my->usertype == 'Administrator' ? true : false;
-			}
-
-			$loaded[ $sig ] = $admin;
+		if (!isset($cache[$key])) {
+			$user = JFactory::getUser($userId);
+			$cache[$key] = $user->authorise('core.admin');
 		}
 
-		return $loaded[ $sig ];
+		return $cache[$key];
 	}
 
+	/**
+	 * Determines if the item belongs to the current viewer
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public static function isMine($uid)
 	{
-		$my	= JFactory::getUser();
+		static $cache = [];
 
-		if($my->id == 0)
-			return false;
+		if (!isset($cache[$uid])) {
+			$my	= JFactory::getUser();
 
-		if( empty($uid) )
-			return false;
-
-		$mine	= $my->id == $uid ? 1 : 0;
-		return $mine;
-	}
-
-	public static function getUserId( $username )
-	{
-		static $userids = array();
-
-		if( !isset( $userids[ $username ] ) || empty($userids[$username]) )
-		{
-			$db		= ED::getDBO();
-
-			// first get from user alias
-			$query	= 'SELECT `id` FROm `#__discuss_users` WHERE `alias` = ' . $db->quote( $username );
-			$db->setQuery( $query );
-			$userid	= $db->loadResult();
-
-			// then get from user nickname
-			if (!$userid) {
-				$query	= 'SELECT `id` FROm `#__discuss_users` WHERE `nickname` = ' . $db->quote( $username );
-				$db->setQuery( $query );
-				$userid	= $db->loadResult();
+			if ($my->id == 0 || empty($uid)) {
+				$cache[$uid] = false;
+				return false;
 			}
 
-			// then get from username
-			if (!$userid) {
-				$query	= 'SELECT `id` FROM `#__users` WHERE `username`=' . $db->quote( $username );
-				$db->setQuery( $query );
-
-				$userid	= $db->loadResult();
-			}
-
-			if (!$userid) {
-				$query	= 'SELECT `id` FROM `#__users` WHERE `name`=' . $db->quote( $username );
-				$db->setQuery( $query );
-
-				$userid	= $db->loadResult();
-			}
-
-
-
-			$userids[$username] = $userid;
+			$cache[$uid] = $my->id == $uid ? 1 : 0;
 		}
 
-		return $userids[$username];
+		return $cache[$uid];
+	}
+
+	public static function getUserId($username, $isAlias = false)
+	{
+		static $userids = [];
+		$type = $isAlias ? 'alias' : 'nameFormat';
+
+		if (!isset($userids[$type][$username]) || empty($userids[$type][$username])) {
+			$db = ED::db();
+
+			$config = ED::config();
+			$nameFormat = $config->get('layout_nameformat');
+
+			if ($isAlias) {
+				$query = 'SELECT `id` FROM `#__discuss_users` WHERE `alias` = ' . $db->quote($username);
+			}
+
+			if (!$isAlias && $nameFormat == 'nickname') {
+				$query = 'SELECT `id` FROM `#__discuss_users` WHERE `nickname` = ' . $db->quote($username);
+			}
+
+			if (!$isAlias && $nameFormat == 'username') {
+				$query = 'SELECT `id` FROM `#__users` WHERE `username`=' . $db->quote($username);
+			}
+
+			if (!$isAlias && $nameFormat == 'name') {
+				$query = 'SELECT `id` FROM `#__users` WHERE `name`=' . $db->quote($username);
+			}
+
+			$db->setQuery($query);
+			$userid	= $db->loadResult();
+
+			$userids[$type][$username] = $userid;
+		}
+
+		return $userids[$type][$username];
 	}
 
 	public static function getAjaxURL()
@@ -845,7 +850,7 @@ class ED
 			return $url;
 		}
 
-		$uri = JFactory::getURI();
+		$uri = EDFactory::getURI();
 		$language = $uri->getVar('lang', 'none');
 
 		// Remove any ' or " from the language because language should only have -
@@ -875,7 +880,7 @@ class ED
 		// During SEF mode, we need to ensure that the URL is correct.
 		$languageFilterEnabled = JPluginHelper::isEnabled("system", "languagefilter");
 
-		if ($router->getMode() == JROUTER_MODE_SEF && $languageFilterEnabled) {
+		if (EDRouter::getMode() == ED_JROUTER_MODE_SEF && $languageFilterEnabled) {
 
 			$sefs = JLanguageHelper::getLanguages('sef');
 			$lang_codes   = JLanguageHelper::getLanguages('lang_code');
@@ -909,11 +914,11 @@ class ED
 				if ($rewrite) {
 					$path = $base;
 				} else {
-					$path = JString::substr($base, 10);
+					$path = EDJString::substr($base, 10);
 				}
 
 				// Remove trailing / from the url
-				$path = JString::trim($path, '/');
+				$path = EDJString::trim($path, '/');
 				$parts = explode('/', $path);
 
 				if ($parts) {
@@ -972,7 +977,7 @@ class ED
 			$uri		= JFactory::getURI();
 			$language	= $uri->getVar( 'lang' , 'none' );
 			$app		= JFactory::getApplication();
-			$config		= ED::getJConfig();
+			$config		= ED::jConfig();
 			$router		= $app->getRouter();
 			$url		= rtrim( JURI::base() , '/' );
 
@@ -983,8 +988,8 @@ class ED
 				$rewrite	= $config->get('sef_rewrite');
 
 				$base		= str_ireplace( JURI::root( true ) , '' , $uri->getPath() );
-				$path		=  $rewrite ? $base : JString::substr( $base , 10 );
-				$path		= JString::trim( $path , '/' );
+				$path		=  $rewrite ? $base : EDJString::substr( $base , 10 );
+				$path		= EDJString::trim( $path , '/' );
 				$parts		= explode( '/' , $path );
 
 				if( $parts )
@@ -1110,6 +1115,12 @@ class ED
 		return $returnStr;
 	}
 
+	/**
+	 * Sets data into the session
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public static function storeSession($data, $key, $ns = 'com_easydiscuss')
 	{
 		$mySess	= JFactory::getSession();
@@ -1130,18 +1141,37 @@ class ED
 		return $data;
 	}
 
-	public static function isNew( $noofdays )
+	public static function isTwoFactorEnabled()
 	{
-		$config	= ED::getConfig();
+		$twoFactorMethods = JAuthenticationHelper::getTwoFactorMethods();
 
-		$days = (int) $config->get('layout_daystostaynew', 7);
-		$isNew = false;
+		return count($twoFactorMethods) > 1;
+	}
 
-		if ($days > 0) {
-			$isNew	= ($noofdays <= $config->get('layout_daystostaynew', 7)) ? true : false;
+	/**
+	 * Determines if the item is considered as new
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function isNew($noofdays)
+	{
+		static $cache = [];
+
+		if (!isset($cache[$noofdays])) {
+			$config	= ED::config();
+
+			$days = (int) $config->get('layout_daystostaynew', 7);
+			$isNew = false;
+
+			if ($days > 0) {
+				$isNew	= ($noofdays <= $config->get('layout_daystostaynew', 7)) ? true : false;
+			}
+
+			$cache[$noofdays] = $isNew;
 		}
 
-		return $isNew;
+		return $cache[$noofdays];
 	}
 
 	public static function getExternalLink($link)
@@ -1152,163 +1182,9 @@ class ED
 		return $domain . '/' . ltrim(EDR::_($link, false), '/');
 	}
 
-	public static function uploadAvatar($profile, $isFromBackend = false)
-	{
-		jimport('joomla.utilities.error');
-		jimport('joomla.filesystem.file');
-		jimport('joomla.filesystem.folder');
-
-		$my = JFactory::getUser();
-		$mainframe = JFactory::getApplication();
-		$config = ED::config();
-
-		$avatar_config_path	= $config->get('main_avatarpath');
-		$avatar_config_path	= rtrim($avatar_config_path, '/');
-		$avatar_config_path	= JString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
-
-		// Get the upload path
-		$upload_path = JPATH_ROOT . '/' . $avatar_config_path;
-		$rel_upload_path = $avatar_config_path;
-
-		$error = null;
-		$file = JRequest::getVar('Filedata', '', 'files', 'array');
-
-		// Check whether the upload folder exist or not. if not create it.
-		if (!JFolder::exists($upload_path)) {
-			if (!JFolder::create($upload_path)) {
-				// Redirect
-				if (!$isFromBackend) {
-					ED::setMessageQueue(JText::_( 'COM_EASYDISCUSS_FAILED_TO_CREATE_UPLOAD_FOLDER' ), 'error');
-					$mainframe->redirect( EDR::_('index.php?option=com_easydiscuss&view=profile', false));
-					return;
-				}
-
-				// From backend
-				$mainframe->redirect( EDR::_('index.php?option=com_easydiscuss&view=users', false), JText::_('COM_EASYDISCUSS_FAILED_TO_CREATE_UPLOAD_FOLDER'), 'error');
-				return;
-			}
-		}
-
-		// Makesafe on the file
-		$date = ED::date();
-		$file_ext = ED::Image()->getFileExtention($file['name']);
-		$file['name'] = $my->id . '_' . JFile::makeSafe(md5($file['name'].$date->toSql())) . '.' . strtolower($file_ext);
-
-
-		if (isset($file['name'])) {
-			$target_file_path = $upload_path;
-			$relative_target_file = $rel_upload_path . '/' . $file['name'];
-			$target_file = JPath::clean($target_file_path . '/' . JFile::makeSafe($file['name']));
-			$original = JPath::clean($target_file_path . '/' . 'original_' . JFile::makeSafe($file['name']));
-
-			$isNew = false;
-			$redirectUrl = $isFromBackend ? 'index.php?option=com_easydiscuss&view=users&layout=form&id=' . $profile->id : EDR::_('index.php?option=com_easydiscuss&view=profile&layout=edit', false);
-
-			if (!ED::Image()->canUpload($file, $error)) {
-
-				ED::setMessageQueue(JText::_($error), 'error');
-				
-				if (!$isFromBackend) {	
-					$mainframe->redirect($redirectUrl);
-					return;
-				}
-
-				$mainframe->redirect($redirectUrl, JText::_($error), 'error');
-				return;
-			}
-
-			if ((int)$file['error'] != 0) {
-				
-				ED::setMessageQueue( $file['error'] , 'error');
-
-				if (!$isFromBackend) {
-					$mainframe->redirect($redirectUrl);
-					return;
-				}
-
-				$mainframe->redirect($redirectUrl, $file['error'], 'error');
-				return;
-			}
-
-			//rename the file 1st.
-			$oldAvatar = $profile->avatar;
-			$tempAvatar	= '';
-			$isNew = ($oldAvatar == 'default.png')? true : false ;
-
-			if (!$isNew) {
-				$session = JFactory::getSession();
-				$sessionId = $session->getToken();
-
-				$fileExt = JFile::getExt(JPath::clean($target_file_path . '/' . $oldAvatar));
-				$tempAvatar	= JPath::clean($target_file_path . '/' . $sessionId . '.' . $fileExt);
-
-				// Test if old original file exists. If exist, remove it.
-				if (JFile::exists($target_file_path . '/original_' . $oldAvatar)) {
-					JFile::delete($target_file_path . '/original_' . $oldAvatar);
-				}
-
-				if ($oldAvatar) {
-					JFile::move($target_file_path . '/' . $oldAvatar, $tempAvatar);
-				}
-			}
-
-			if (JFile::exists($target_file) || JFolder::exists($target_file)) {
-				if (!$isNew) {
-					//rename back to the previous one.
-					JFile::move($tempAvatar, $target_file_path . '/' . $oldAvatar);
-				}
-
-				if (!$isFromBackend) {
-					ED::setMessageQueue( JText::sprintf('COM_EASYDISCUSS_FILE_ALREADY_EXISTS', $relative_target_file) , 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=profile', false));
-					return;
-				}
-
-				//from backend
-				$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=users', false), JText::sprintf('COM_EASYDISCUSS_FILE_ALREADY_EXISTS', $relative_target_file), 'error');
-				return;
-			}
-
-			// image size should be in ratio of 1:1
-			$configImageWidth = $config->get('layout_avatarwidth', 160);
-			$configImageHeight = $configImageWidth;
-			$originalImageWidth = $config->get('layout_originalavatarwidth', 400);
-			$originalImageHeight = $originalImageWidth;
-
-			// Copy the original image files over
-			$image = ED::simpleimage();
-			$image->load($file['tmp_name']);
-
-			//$image->resizeToFill( $originalImageWidth , $originalImageHeight );
-
-			// By Kevin Lankhorst
-			$image->resizeOriginal($originalImageWidth, $originalImageHeight, $configImageWidth, $configImageHeight);
-
-			$image->save($original, $image->image_type);
-			unset($image);
-
-			$image = ED::simpleimage();
-			$image->load($file['tmp_name']);
-			$image->resizeToFill($configImageWidth, $configImageHeight);
-			$image->save($target_file, $image->image_type);
-
-			//now we update the user avatar. If needed, we remove the old avatar.
-			if (!$isNew) {
-				if (JFile::exists($tempAvatar)) {
-					JFile::delete($tempAvatar);
-				}
-			}
-
-			return JFile::makeSafe($file['name']);
-		} else {
-			return 'default.png';
-		}
-
-	}
-
 	public static function uploadCategoryAvatar( $category, $isFromBackend = false )
 	{
-		return ED::uploadMediaAvatar( 'category', $category, $isFromBackend);
+		return ED::uploadMediaAvatar('category', $category, $isFromBackend);
 	}
 
 	public static function uploadMediaAvatar($mediaType, $mediaTable, $isFromBackend = false)
@@ -1319,7 +1195,7 @@ class ED
 
 		$my = JFactory::getUser();
 		$mainframe = JFactory::getApplication();
-		$config = ED::getConfig();
+		$config = ED::config();
 
 		// required params
 		$layout_type = ($mediaType == 'category') ? 'categories' : 'teamblogs';
@@ -1329,7 +1205,7 @@ class ED
 		if (!$isFromBackend && $mediaType == 'category') {
 			$url = 'index.php?option=com_easydiscuss&view=categories';
 			ED::setMessage(JText::_('COM_EASYDISCUSS_NO_PERMISSION_TO_UPLOAD_AVATAR') , 'warning');
-			$mainframe->redirect(EDR::_($url, false));
+			self::redirect(EDR::_($url, false));
 		}
 
 		$avatar_config_path	= ($mediaType == 'category') ? $config->get('main_categoryavatarpath') : $config->get('main_teamavatarpath');
@@ -1340,18 +1216,18 @@ class ED
 		$rel_upload_path = $avatar_config_path;
 
 		$err = null;
-		$file = JRequest::getVar('Filedata', '', 'files', 'array');
+		$file = $mainframe->input->files->get('Filedata', '');
 
 		//check whether the upload folder exist or not. if not create it.
 		if (!JFolder::exists($upload_path)) {
 			if (!JFolder::create($upload_path)) {
 				// Redirect
 				if(!$isFromBackend) {
-					ED::setMessage(JText::_('COM_EASYDISCUSS_IMAGE_UPLOADER_FAILED_TO_CREATE_UPLOAD_FOLDER') , 'error');
-					$this->setRedirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
+					ED::setMessage(JText::_('COM_EASYDISCUSS_IMAGE_UPLOADER_FAILED_TO_CREATE_UPLOAD_FOLDER') , ED_MSG_ERROR);
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
 				} else {
 					//from backend
-					$this->setRedirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), JText::_('COM_EASYDISCUSS_IMAGE_UPLOADER_FAILED_TO_CREATE_UPLOAD_FOLDER'), 'error');
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), JText::_('COM_EASYDISCUSS_IMAGE_UPLOADER_FAILED_TO_CREATE_UPLOAD_FOLDER'), ED_MSG_ERROR);
 				}
 				return;
 			} else {
@@ -1380,22 +1256,22 @@ class ED
 
 			if (!EasyDiscussImage::canUpload($file, $err)) {
 				if(!$isFromBackend) {
-					ED::setMessage( JText::_($err), 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
+					ED::setMessage( JText::_($err), ED_MSG_ERROR);
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
 				} else {
 					// From backend
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories'), JText::_($err), 'error');
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories'), JText::_($err), ED_MSG_ERROR);
 				}
 				return;
 			}
 
 			if (0 != (int)$file['error']) {
 				if (!$isFromBackend) {
-					ED::setMessage($file['error'], 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
+					ED::setMessage($file['error'], ED_MSG_ERROR);
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
 				} else {
 					// From backend
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), $file['error'], 'error');
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), $file['error'], ED_MSG_ERROR);
 				}
 				return;
 			}
@@ -1423,11 +1299,11 @@ class ED
 				}
 
 				if (!$isFromBackend) {
-					ED::setMessage(JText::sprintf('ERROR.FILE_ALREADY_EXISTS', $relative_target_file), 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
+					ED::setMessage(JText::sprintf('ERROR.FILE_ALREADY_EXISTS', $relative_target_file), ED_MSG_ERROR);
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
 				} else {
 					//from backend
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), JText::sprintf('ERROR.FILE_ALREADY_EXISTS', $relative_target_file), 'error');
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), JText::sprintf('ERROR.FILE_ALREADY_EXISTS', $relative_target_file), ED_MSG_ERROR);
 				}
 				return;
 			}
@@ -1440,12 +1316,11 @@ class ED
 				}
 
 				if (!$isFromBackend) {
-					//JError::raiseNotice(100, JText::sprintf('ERROR.FOLDER_ALREADY_EXISTS',$relative_target_file));
-					ED::setMessage(JText::sprintf('ERROR.FOLDER_ALREADY_EXISTS', $relative_target_file), 'error');
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
+					ED::setMessage(JText::sprintf('ERROR.FOLDER_ALREADY_EXISTS', $relative_target_file), ED_MSG_ERROR);
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false));
 				} else {
 					//from backend
-					$mainframe->redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), JText::sprintf('ERROR.FILE_ALREADY_EXISTS', $relative_target_file), 'error');
+					self::redirect(EDR::_('index.php?option=com_easydiscuss&view=categories', false), JText::sprintf('ERROR.FILE_ALREADY_EXISTS', $relative_target_file), ED_MSG_ERROR);
 				}
 				return;
 			}
@@ -1506,9 +1381,9 @@ class ED
 				$newFilterSet   = array();
 				foreach( $textToBeFilter as $item)
 				{
-					if( JString::stristr($item, ' ') !== false )
+					if( EDJString::stristr($item, ' ') !== false )
 					{
-						$newKeyWord 	= JString::str_ireplace(' ', '', $item);
+						$newKeyWord 	= EDJString::str_ireplace(' ', '', $item);
 						$newFilterSet[] = $newKeyWord;
 					}
 				} // foreach
@@ -1564,58 +1439,22 @@ class ED
 		return $posts;
 	}
 
+	/**
+	 * Given a list of comments, format into the EasyDiscussComment object
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public static function formatComments($comments)
 	{
 		if (!$comments) {
 			return false;
 		}
 
-		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/events/events.php';
-
-		include_once($path);
-
-		$config = ED::config();
-
 		$result = array();
 
 		foreach ($comments as $row) {
-
-			$comment = ED::table('Comment');
-			$comment->bind($row);
-			
-			$comment->duration = ED::date()->toLapsed($comment->modified);
-
-			$creator = ED::user($comment->user_id);
-			$comment->creator = $creator;
-			$comment->comment = nl2br($comment->comment);
-
-			if ($config->get('main_content_trigger_comments')) {
-
-				// process content plugins
-				$comment->content = $comment->comment;
-
-				// filter bad words
-				$comment->comment = ED::badwords()->filter($comment->comment);
-
-				ED::events()->importPlugin('content');
-				ED::events()->onContentPrepare('comment', $comment);
-
-				$comment->event = new stdClass();
-
-				$results = EasyDiscussEvents::onContentBeforeDisplay('comment', $comment);
-				$comment->event->beforeDisplayContent = trim(implode("\n", $results));
-
-				$results = EasyDiscussEvents::onContentAfterDisplay('comment', $comment);
-				$comment->event->afterDisplayContent = trim(implode("\n", $results));
-
-				$comment->comment = $comment->content;
-				unset($comment->content);
-
-				// Remove unnecessary <br> tag
-				$comment->comment = str_replace("&lt;br&gt;", "", $comment->comment);
-
-			}
-
+			$comment = ED::comment($row);
 			$result[] = $comment;
 		}
 
@@ -1627,8 +1466,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function formatReplies($result, $category = null, $pagination = true, $acceptedReply = false)
 	{
@@ -1658,12 +1495,15 @@ class ED
 			}
 
 			if ($config->get('main_comment')) {
-				$commentLimit = $config->get('main_comment_pagination') ? $config->get('main_comment_first_sight_count') : null;
+				$commentLimit = $config->get('main_comment_pagination') ? $config->get('main_comment_pagination_count') : null;
 				$reply->comments = $reply->getComments($commentLimit);
 
 				// get post comments count
 				$reply->commentsCount = $reply->getTotalComments();
 			}
+
+			// this flag is needed in order to distinguish between reply and activity logs.
+			$reply->isActivity = false;
 
 			$replies[] = $reply;
 		}
@@ -1701,51 +1541,6 @@ class ED
 		}
 
 		return $users;
-	}
-
-	public static function getVoters($id, $limit='5')
-	{
-		$config	= ED::getConfig();
-
-		$table	= ED::getTable( 'Post' );
-		$voters	= $table->getVoters($id, $limit);
-
-		$data					= new stdClass();
-		$data->voters			= '';
-		$data->shownVoterCount	= '';
-
-		if(!empty($voters))
-		{
-			$data->shownVoterCount = count($voters);
-
-			foreach($voters as $voter)
-			{
-				$displayname = $config->get('layout_nameformat');
-
-				switch($displayname)
-				{
-					case "name" :
-						$votername = $voter->name;
-						break;
-					case "username" :
-						$votername = $voter->username;
-						break;
-					case "nickname" :
-					default :
-						$votername = (empty($voter->nickname)) ? $voter->name : $voter->nickname;
-						break;
-				}
-
-				if(!empty($data->voters))
-				{
-					$data->voters .= ', ';
-				}
-
-				$data->voters .= '<a href="' . DiscussRouter::_( 'index.php?option=com_easydiscuss&view=profile&id=' . $voter->user_id ) . '">' . $votername . '</a>';
-			}
-		}
-
-		return $data;
 	}
 
 	/**
@@ -1818,12 +1613,59 @@ class ED
 		return $collationType[$from];
 	}
 
+	/**
+	 * Determines if this is from the Joomla backend
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function isFromAdmin()
+	{
+		$isFromAdmin = null;
+
+		if (is_null($isFromAdmin)) {
+			$isFromAdmin = EDCompat::isFromAdmin();
+		}
+
+		return $isFromAdmin;
+	}
+
+	/**
+	 * Determines if the current Joomla version is 4.0
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function isJoomla4()
+	{
+		static $isJoomla4 = null;
+
+		if (is_null($isJoomla4)) {
+			$currentVersion = self::getJoomlaVersion();
+			$isJoomla4 = version_compare($currentVersion, '4.0') !== -1;
+
+			return $isJoomla4;
+		}
+
+		return $isJoomla4;
+	}
+
+	/**
+	 * Retrieves Joomla's version
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public static function getJoomlaVersion()
 	{
-		$jVerArr	= explode('.', JVERSION);
-		$jVersion	= $jVerArr[0] . '.' . $jVerArr[1];
+		static $version = null;
 
-		return $jVersion;
+		if (is_null($version)) {
+			$jVerArr = explode('.', JVERSION);
+			$version = $jVerArr[0] . '.' . $jVerArr[1];
+		}
+
+		return $version;
 	}
 
 	public static function isJoomla40()
@@ -1870,7 +1712,7 @@ class ED
 	 */
 	public static function getSAUsersIds15()
 	{
-		$db = ED::getDBO();
+		$db = ED::db();
 
 		$query = 'SELECT `id` FROM `#__users`';
 		$query .= ' WHERE (LOWER( usertype ) = ' . $db->Quote('super administrator');
@@ -1984,7 +1826,7 @@ class ED
 
 		$selectACLOnly = false;
 
-		if ($isWrite && !JFactory::getApplication()->isAdmin()) {
+		if ($isWrite && !self::isFromAdmin()) {
 			$ignorePrivate = false;
 			$selectACLOnly = true;
 		}
@@ -2176,9 +2018,8 @@ class ED
 						$html .= $str;
 				}
 
-				if (!$config->get('layout_category_one_level', 0)) {
-					ED::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter, $disableContainers);
-				}
+			
+				ED::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter, $disableContainers);
 
 				if ($type == 'list') {
 					$html .= '</li>';
@@ -2222,7 +2063,7 @@ class ED
 	public static function populateCategoryLinkage($childId)
 	{
 		$arr		= array();
-		$category	= ED::getTable( 'Category' );
+		$category	= ED::table( 'Category' );
 		$category->load($childId);
 
 		$obj		= new stdClass();
@@ -2244,7 +2085,7 @@ class ED
 
 	public static function accessCategoryLinkage($childId, &$arr)
 	{
-		$category	= ED::getTable( 'Category' );
+		$category	= ED::table( 'Category' );
 
 		$category->load($childId);
 
@@ -2272,7 +2113,7 @@ class ED
 	 * @since	4.0.22
 	 * @access	public
 	 */
-	public static function populateCategoryFilter($eleName, $catId = '', $attributes, $defaultText = 'COM_EASYDISCUSS_SELECT_CATEGORY', $className = '')
+	public static function populateCategoryFilter($eleName, $catId, $attributes, $defaultText = 'COM_EASYDISCUSS_SELECT_CATEGORY', $className = '')
 	{
 		$model = ED::model('Category');
 		$categories = $model->generateCategoryFilterList();
@@ -2319,18 +2160,21 @@ class ED
 	 * @since	4.1.7
 	 * @access	public
 	 */
-	public static function populatePostStatusFilter($element, $selectedPostStatus)
+	public static function populatePostLabelFilter($element, $selectedPostLabel)
 	{
-		$onHold = JText::_('COM_ED_POST_STATUS_FILTER_ON_HOLD');
-		$accepted = JText::_('COM_ED_POST_STATUS_FILTER_ACCEPTED');
-		$workingOn = JText::_('COM_ED_POST_STATUS_FILTER_WORKING_ON');
-		$rejected = JText::_('COM_ED_POST_STATUS_FILTER_REJECTED');
+		$model = ED::model('PostLabels');
+		$labels = $model->getPostLabelFilterList();
 
-		$postStatus = array(DISCUSS_POST_STATUS_ON_HOLD => $onHold, DISCUSS_POST_STATUS_ACCEPTED => $accepted, DISCUSS_POST_STATUS_WORKING_ON => $workingOn, DISCUSS_POST_STATUS_REJECT => $rejected);
-		$defaultSelection = JText::_('COM_ED_POST_STATUS_FILTER_DEFAULT');
+		$toFilter = array();
+
+		foreach ($labels as $label) {
+			$toFilter[$label->id] = $label->title;
+		}
+
+		$defaultSelection = JText::_('COM_ED_POST_LABEL_FILTER_DEFAULT');
 		$theme = ED::themes();
 
-		return $theme->html('table.filter', $element, $selectedPostStatus, $postStatus, $defaultSelection);
+		return $theme->html('table.filter', $element, $selectedPostLabel, $toFilter, $defaultSelection);
 	}
 
 	/**
@@ -2338,12 +2182,11 @@ class ED
 	 * $parent - post's parent id.
 	 * $isNew - indicate this is a new post or not.
 	 */
-
-	public static function sendNotification( $post, $parent = 0, $isNew, $postOwner, $prevPostStatus)
+	public static function sendNotification($post, $parent, $isNew, $postOwner, $prevPostStatus)
 	{
 		JFactory::getLanguage()->load( 'com_easydiscuss' , JPATH_ROOT );
 
-		$config = ED::getConfig();
+		$config = ED::config();
 		$notify	= ED::getNotification();
 
 		$emailPostTitle = $post->title;
@@ -2389,7 +2232,7 @@ class ED
 		else
 		{
 			// if this is a new reply, notify post owner.
-			$parentTable		= ED::getTable( 'Post' );
+			$parentTable		= ED::table( 'Post' );
 			$parentTable->load( $parent );
 
 			$emailPostTitle = $parentTable->title;
@@ -2700,7 +2543,7 @@ class ED
 		if(! isset( $accessibleCategories[$sig] ) )
 		{
 
-			$db	= ED::getDBO();
+			$db	= ED::db();
 
 			$gids		= '';
 			$catQuery	= 	'select distinct a.`id`, a.`private`';
@@ -2779,7 +2622,7 @@ class ED
 
 	public static function getPrivateCategories( $acltype = DISCUSS_CATEGORY_ACL_ACTION_VIEW )
 	{
-		$db 			= ED::getDBO();
+		$db 			= ED::db();
 		$my 			= JFactory::getUser();
 		static $result	= array();
 
@@ -2904,8 +2747,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function table($name, $prefix = 'Discuss', $config = array())
 	{
@@ -2913,6 +2754,8 @@ class ED
 		$type = preg_replace('/[^A-Z0-9_\.-]/i', '', $name);
 		$className = $prefix . ucfirst($type);
 
+		ED::import('admin:/tables/table');
+		
 		// Only try to load the class if it doesn't already exist.
 		if (!class_exists($className)) {
 
@@ -2942,10 +2785,13 @@ class ED
 
 			$file = strtolower($name) . '.php';
 
-			$path = DISCUSS_MODELS . '/' . $file;
+			$path = ED_MODELS . '/' . $file;
+
+			// Include main model file
+			require_once(ED_MODELS . '/model.php');
 
 			if (!JFile::exists($path)) {
-				return JError::raiseWarning(500, JText::sprintf('Requested model %1$s is not found.', $file));
+				throw ED::exception(JText::sprintf('Requested model %1$s is not found.', $file), ED_MSG_ERROR);
 			}
 
 			$className = 'EasyDiscussModel' . ucfirst($name);
@@ -3009,7 +2855,7 @@ class ED
 	{
 		$email	= strtolower( $email );
 
-		$db		= ED::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT ' . $db->nameQuote( 'id' ) . ' FROM '
 				. $db->nameQuote( '#__users' ) . ' '
@@ -3203,7 +3049,6 @@ class ED
 	public static function getErrorRedirection($message = null)
 	{
 		$config = ED::config();
-		$app = JFactory::getApplication();
 		$user = JFactory::getUser();
 
 		if (!$message) {
@@ -3213,54 +3058,16 @@ class ED
 		$redirection = $config->get('system_error_redirection', true);
 
 		if ($redirection) {
-
 			// If user haven't logged in, redirect them to login page.
 			ED::requireLogin();
 
 			// If it reached here means the user is already logged in.
-			ED::setMessageQueue($message, 'error');
+			ED::setMessage($message, ED_MSG_ERROR);
 
-			return $app->redirect(EDR::_('view=index'), false);
+			return self::redirect(EDR::_('view=index'), false);
 		}
 
-		// default redirection
-		return JError::raiseError(404, $message);
-	}
-
-	/**
-	 * Retrieve similar question based on the keywords
-	 *
-	 * @access	public
-	 * @param	string	$keywords
-	 */
-	public static function getSimilarQuestion( $text = '' )
-	{
-
-		$config = ED::config();
-
-		if (empty($text)) {
-			return '';
-		}
-
-		if (! $config->get('main_similartopic', 0)){
-			return '';
-		}
-
-
-		$options = array();
-		$options['limi'] = $config->get('main_similartopic_limit', '5');
-		$options['includePrivatePost'] = $config->get('main_similartopic_privatepost', 0);
-
-		$model = ED::model('Posts');
-		$posts = $model->getSimilarQuestion($text, $options);
-
-		if ($posts) {
-			//preload posts
-			$posts = ED::formatPost($posts);
-		}
-
-		return $posts;
-
+		throw ED::exception($message, ED_MSG_ERROR);
 	}
 
 	/**
@@ -3268,13 +3075,10 @@ class ED
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	null
-	 * @return	SocialUser		The user's object
 	 */
-	public static function user( $ids = null , $debug = false )
+	public static function user($ids = null, $debug = false)
 	{
-		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/user/user.php';
-		include_once($path);
+		require_once(__DIR__ . '/user/user.php');
 
 		return EasyDiscussUser::factory($ids, $debug);
 	}
@@ -3285,7 +3089,7 @@ class ED
 	 * @access	public
 	 * @param	string	$url
 	 */
-	public static function getWhosOnline($uri = '')
+	public static function getWhosOnline($uri = '', $useCache = true)
 	{
 		$config = ED::config();
 		$enabled = $config->get('main_viewingpage');
@@ -3295,7 +3099,7 @@ class ED
 		}
 
 		// Default hash
-		$hash = md5(JRequest::getURI());
+		$hash = md5(EDFactory::getURI());
 
 		if (!empty($uri)) {
 			$hash = md5($uri);
@@ -3310,42 +3114,46 @@ class ED
 
 		$theme = ED::themes();
 		$theme->set('users', $users);
+		$theme->set('useCache', $useCache);
 
 		return $theme->output('site/post/default.viewers');
 	}
 
+	/* 
+	 * Determine which limit should ED used.
+	 * -1 - Use Joomla settings
+	 * -2 - Use EasyDiscuss settings
+	 *
+	*/
 	public static function getListLimit()
 	{
-		$app		= JFactory::getApplication();
-		$default 	= ED::jconfig()->get( 'list_limit' );
+		$default = ED::jconfig()->get('list_limit');
 
-		if( $app->isAdmin() )
-		{
+		if (ED::isFromAdmin()) {
 			return $default;
 		}
 
-		$app	= JFactory::getApplication();
-		$menus	= $app->getMenu();
-		$menu	= $menus->getActive();
-		$limit	= -2;
+		$app = JFactory::getApplication();
+		$menus = $app->getMenu();
+		$menu = $menus->getActive();
 
-		if( is_object( $menu ) )
-		{
-			$params	= ED::getRegistry( $menu->params );
-			$limit	= $params->get( 'limit' , '-2' );
+		// By default ED should use default ED setting
+		$limit = -2;
+
+		if (is_object($menu)) {
+			$params = ED::getRegistry($menu->getParams());
+			$limit = $params->get('limit', '-2');
 		}
 
-		if( $limit == '-2' )
-		{
+		if ($limit == '-2') {
 			// Use default configurations.
-			$config	= ED::getConfig();
-			$limit	= $config->get( 'layout_list_limit', '-2' );
+			$config = ED::config();
+			$limit = $config->get('layout_list_limit', '-2');
 		}
 
 		// Revert to joomla's pagination if configured to inherit from Joomla
-		if( $limit == '0' || $limit == '-1' || $limit == '-2' )
-		{
-			$limit		= $default;
+		if ($limit == '0' || $limit == '-1' || $limit == '-2') {
+			$limit = $default;
 		}
 
 		return $limit;
@@ -3353,7 +3161,7 @@ class ED
 
 	public static function getRegistrationLink()
 	{
-		$config	= ED::getConfig();
+		$config	= ED::config();
 
 		$default	= JRoute::_( 'index.php?option=com_user&view=register' );
 		if( ED::getJoomlaVersion() >= '1.6' )
@@ -3397,7 +3205,7 @@ class ED
 
 	public static function getLoginForm($text, $return)
 	{
-		$config = ED::getConfig();
+		$config = ED::config();
 
 		$title = JText::_($text . '_TITLE');
 		$info = JText::_($text . '_INFO');
@@ -3419,27 +3227,7 @@ class ED
 
 	public static function getEditProfileLink()
 	{
-		$config	= ED::config();
-
-		$link = EDR::_('view=profile&layout=edit');
-
-		if ($config->get('integration_easysocial_toolbar_profile')) {
-			$easysocial = ED::easysocial();
-
-			if ($easysocial->exists()) {
-				$link = FRoute::profile(array('layout' => 'edit'));
-			}
-		}
-
-		if ($config->get('integration_toolbar_jomsocial_profile')) {
-			$jomsocial = ED::jomsocial();
-
-			if ($jomsocial->exists()) {
-				$link = CRoute::_('index.php?option=com_community&view=profile&task=edit');
-			}
-		}
-
-		return $link;
+		return ED::user()->getEditProfileLink();
 	}
 
 	/**
@@ -3450,7 +3238,7 @@ class ED
 	 */
 	public static function getResetPasswordLink()
 	{
-		$config = ED::getConfig();
+		$config = ED::config();
 
 		$default = JRoute::_('index.php?option=com_user&view=reset');
 
@@ -3479,6 +3267,47 @@ class ED
 	}
 
 	/**
+	 * Shorten a given number into its format accordingly
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function formatNumbers($n, $precision = 1)
+	{
+		if ($n < 900) {
+			// 0 - 900
+			$n_format = number_format($n, $precision);
+			$suffix = '';
+		} else if ($n < 900000) {
+			// 0.9k-850k
+			$n_format = number_format($n / 1000, $precision);
+			$suffix = 'K';
+		} else if ($n < 900000000) {
+			// 0.9m-850m
+			$n_format = number_format($n / 1000000, $precision);
+			$suffix = 'M';
+		} else if ($n < 900000000000) {
+			// 0.9b-850b
+			$n_format = number_format($n / 1000000000, $precision);
+			$suffix = 'B';
+		} else {
+			// 0.9t+
+			$n_format = number_format($n / 1000000000000, $precision);
+			$suffix = 'T';
+		}
+
+	  // Remove unecessary zeroes after decimal. "1.0" -> "1"; "1.00" -> "1"
+	  // Intentionally does not affect partials, eg "1.50" -> "1.50"
+		if ( $precision > 0 ) {
+			$dotzero = '.' . str_repeat( '0', $precision );
+			$n_format = str_replace( $dotzero, '', $n_format );
+		}
+
+		return $n_format . $suffix;
+	}
+
+
+	/**
 	 * Generate forgot username link
 	 *
 	 * @since	4.0
@@ -3486,7 +3315,7 @@ class ED
 	 */
 	public static function getRemindUsernameLink()
 	{
-		$config = ED::getConfig();
+		$config = ED::config();
 
 		$default = JRoute::_('index.php?option=com_user&view=remind');
 
@@ -3522,11 +3351,7 @@ class ED
 		$config = ED::config();
 		$defaultFilter = $config->get('layout_replies_sorting');
 
-		if ($defaultFilter == 'voted' && !$config->get('main_allowvote')) {
-			$defaultFilter = 'oldest';
-		}
-
-		if ($defaultFilter == 'likes' && !$config->get('main_likes_replies')) {
+		if ($defaultFilter == 'voted' || $defaultFilter == 'likes') {
 			$defaultFilter = 'oldest';
 		}
 
@@ -3538,18 +3363,13 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function setPageTitle($text = '', $pagination = null, $options = array())
 	{
 		$originalText = JText::_($text);
 		$text = JText::_($text);
 
-		// now check if site name is needed or not.
-		$app = JFactory::getApplication();
 		$doc = JFactory::getDocument();
-
 		$app = JFactory::getApplication();
 		$itemid = $app->input->get('Itemid', '');
 
@@ -3558,10 +3378,10 @@ class ED
 
 		if (is_object($item)) {
 
-			$params = $item->params;
+			$params = $item->getParams();
 
 			if (!$params instanceof JRegistry) {
-				$params = new JRegistry($item->params);
+				$params = new JRegistry($item->getParams());
 			}
 
 			$customPageTitle = $params->get('page_title', '');
@@ -3588,10 +3408,12 @@ class ED
 
 			$siteTitle = $jConfig->get('sitename');
 
+			// append the site name before the page title
 			if ($addTitle == 1) {
 				$text = JText::sprintf('COM_ED_PAGE_TITLE', $siteTitle, $text);
 			}
 
+			// append the site name after the page title
 			if ($addTitle == 2) {
 				$text = JText::sprintf('COM_ED_PAGE_TITLE', $text, $siteTitle);
 			}
@@ -3609,13 +3431,17 @@ class ED
 		$doc->setTitle($text);
 	}
 
-
-	public static function setMeta($id = null, $type = null)
+	/**
+	 * Allows caller to set the meta data
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public static function setMeta($id = null, $type = null, $defaultDesc = null, $defaultKeyword = null)
 	{
 		$config	= ED::config();
 		$jConfig = ED::jconfig();
-		$document = JFactory::getDocument();		
-		$db	= ED::db();
+		$document = JFactory::getDocument();
 
 		$menu = JFactory::getApplication()->getMenu();
 		$item = $menu->getActive();
@@ -3624,10 +3450,28 @@ class ED
 		$result->description = '';
 		$result->keywords = '';
 
-		$metaDesc = $config->get('main_description');
 		$joomlaDesc	= $jConfig->get('MetaDesc');
 		$joomlaRobots = $jConfig->get('robots');
-		$description = '';
+
+		// Check for the single post
+		if ($type == ED_META_TYPE_POST && $id) {
+
+			$post = ED::post($id);
+
+			$postTitle = $post->getTitle();
+			$pageTitle = htmlspecialchars_decode($postTitle, ENT_QUOTES);
+
+			$pageContent = strip_tags($post->preview);
+			$pageContent = EDJString::substr($pageContent, 0, 160);
+
+			$pageDescription = preg_replace('/\s+/', ' ', $pageContent);
+			
+			$result->keywords = $pageTitle;
+			$result->description =  $pageDescription;
+
+			// Set page title.
+			ED::setPageTitle($pageTitle);
+		}
 
 		// check for the forum category
 		if ($type == ED_META_TYPE_FORUM_CATEGORY && $id) {
@@ -3639,7 +3483,7 @@ class ED
 			}
 
 			if (!$result->description && $activeCategory->description) {
-				$result->description =  strip_tags($activeCategory->description);
+				$result->description = strip_tags($activeCategory->description);
 			}
 		}
 
@@ -3653,15 +3497,23 @@ class ED
 			}
 
 			if (!$result->description && $activeCategory->description) {
-				$result->description =  strip_tags($activeCategory->description);
+				$result->description = strip_tags($activeCategory->description);
+			}
+		}
+
+		// check for the tag and user profile
+		if ($type == ED_META_TYPE_TAG || $type == ED_META_TYPE_PROFILE || $type == ED_META_TYPE_BADGES) {
+
+			if ($defaultDesc) {
+				$result->description = strip_tags($defaultDesc);
 			}
 		}
 
 		if (is_object($item) && !$result->keywords && !$result->description) {
-			$params	= $item->params;
+			$params	= $item->getParams();
 
 			if (!$params instanceof JRegistry) {
-				$params = ED::getRegistry($item->params);
+				$params = ED::getRegistry($item->getParams());
 			}
 
 			$description = $params->get('menu-meta_description' , '');
@@ -3681,14 +3533,9 @@ class ED
 			}
 		}
 
-		// if still dont have that meta description content then get it from the toolbar header description
+		// if still dont have that meta description content then get it from Jooma global configuration
 		if (empty($result->description)) {
-
 			$result->description = $joomlaDesc;
-
-			if ($metaDesc) {
-				$result->description = $metaDesc;
-			}
 		}
 
 		if (!empty($result->keywords)) {
@@ -3704,6 +3551,19 @@ class ED
 		} else {
 			$document->setMetadata('robots', $joomlaRobots);
 		}
+	}
+
+	/**
+	 * Loads a library from EasyDiscuss libraries
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function load($library)
+	{
+		$file = __DIR__ . '/' . strtolower($library) . '/' . strtolower($library) . '.php';
+
+		require_once($file);
 	}
 
 	public static function log( $var = '', $force = 0 )
@@ -3727,18 +3587,26 @@ class ED
 	}
 
 	/**
-	 * Determines if the user is a moderator of the forum
+	 * Determines if the user is a moderator of the forum or a given category
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function isModerator($categoryId = null, $userId = null)
 	{
-		$moderator = ED::moderator()->isModerator($categoryId, $userId);
+		static $cache = [];
 
-		return $moderator;
+		if (is_null($userId)) {
+			$userId = JFactory::getUser()->id;
+		}
+
+		$key = $categoryId . $userId;
+
+		if (!isset($cache[$key])) {
+			$cache[$key] = ED::moderator()->isModerator($categoryId, $userId);	
+		}
+
+		return $cache[$key];
 	}
 
 	public static function getUserGroupId(JUser $user, $recursive = true)
@@ -3753,7 +3621,6 @@ class ED
 	 *
 	 * @since	3.0
 	 * @access	public
-	 * @param	string	The content's string.
 	 */
 	public static function parseContent( $content, $forceBBCode=false )
 	{
@@ -3811,28 +3678,34 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function renderModule($position, $attributes = array(), $content = null)
 	{
+		static $cache = [];
+
+		if (!isset($cache[$position])) {
+			$cache[$position] = JModuleHelper::getModules($position);
+		}
+
 		jimport('joomla.application.module.helper');
+
+		$modules = $cache[$position];
+		$buffer = '';
 
 		$doc = JFactory::getDocument();
 		$renderer = $doc->loadRenderer('module');
-		$buffer = '';
-		$modules = JModuleHelper::getModules($position);
+		
+		if ($modules) {
+			foreach ($modules as $module) {
+				// Get the module output
+				$output = $renderer->render($module, $attributes, $content);
 
-		foreach ($modules as $module) {
+				$theme = ED::themes();
+				$theme->set('position', $position);
+				$theme->set('output', $output);
 
-			// Get the module output
-			$output = $renderer->render($module, $attributes, $content);
-
-			$theme = ED::themes();
-			$theme->set('position', $position);
-			$theme->set('output', $output);
-
-			$buffer .= $theme->output('site/widgets/module');
+				$buffer .= $theme->output('site/widgets/module');
+			}
 		}
 
 		return $buffer;
@@ -3841,28 +3714,39 @@ class ED
 	/**
 	 * Render Joomla editor.
 	 *
-	 * @since   3.1.0
+	 * @since   5.0.0
 	 * @access  public
 	 */
-	public static function getEditor($editorType)
+	public static function getEditor($editorType = null)
 	{
-		if (self::isJoomla40()) {
-			$editor = Joomla\CMS\Editor\Editor::getInstance($editorType);
-		} else {
-			$editor = JFactory::getEditor($editorType);
-
-			if ($editorType == 'none') {
-				JHtml::_('behavior.core');
-			}
-		}
+		$editor = EDCompat::getEditor($editorType);
 
 		return $editor;
+	}
+
+	/**
+	 * Simple implementation to extract keywords from a string
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function extractKeyWords($string)
+	{
+		mb_internal_encoding('UTF-8');
+
+		$stopwords = array();
+		$string = preg_replace('/[\pP]/u', '', trim(preg_replace('/\s\s+/iu', '', mb_strtolower($string))));
+		$matchWords = array_filter(explode(' ',$string), function ($item) use ($stopwords) { return !($item == '' || in_array($item, $stopwords) || mb_strlen($item) <= 2 || is_numeric($item));});
+		$wordCountArr = array_count_values($matchWords);
+
+		arsort($wordCountArr);
+		return array_keys(array_slice($wordCountArr, 0, 10));
 	}
 
 	public static function getEditorType( $type = '' )
 	{
 		// Cater for #__discuss_posts column content_type
-		$config = ED::getConfig();
+		$config = ED::config();
 
 		if ($config->get('layout_editor') == 'bbcode') {
 			return 'bbcode';
@@ -3954,8 +3838,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function cache()
 	{
@@ -3971,12 +3853,67 @@ class ED
 	}
 
 	/**
+	 * Clears the cache in the CMS
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public static function clearCache()
+	{
+		$arguments = func_get_args();
+
+		$cache = JFactory::getCache();
+
+		foreach ($arguments as $argument) {
+			$cache->clean($argument);
+		}
+
+		return true;
+	}
+
+	/**
+	 * Request library
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function request()
+	{
+		static $lib = null;
+
+		if (is_null($lib)) {
+			ED::load('request');
+
+			$lib = new EasyDiscussRequest();
+		}
+
+		return $lib;
+	}
+
+	/**
+	 * Request library
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function themes()
+	{
+		static $lib = null;
+
+		if (is_null($lib)) {
+			ED::load('themes');
+
+			$lib = new EasyDiscussThemes();
+		}
+
+		return $lib;
+	}
+
+	/**
 	 * cache for post related items.
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function rest()
 	{
@@ -4015,9 +3952,9 @@ class ED
 	 * @param	string
 	 * @return
 	 */
-	public static function checkToken($method = 'post')
+	public static function checkToken()
 	{
-		JRequest::checkToken($method) or die('Invalid Token');
+		JSession::checkToken('request') or die('Invalid Token');
 	}
 
 	// For displaying on frontend
@@ -4185,14 +4122,12 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public static function isModerateThreshold($userId = null)
+	public static function isModerateThreshold($userId, $isQuestion)
 	{
 		$user = ED::user($userId);
 
-		return $user->moderateUsersPost();
+		return $user->moderateUsersPost($isQuestion);
 	}
 
 	/**
@@ -4200,18 +4135,11 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function __callStatic($method, $args)
 	{
-		// If the called method exists in the legacy, we should just use it
-		if (method_exists('EDLegacy', $method)) {
-			return call_user_func_array(array('EDLegacy', $method), $args);
-		}
-
 		// Here, we are under the assumption, the library exists
-		$file = dirname(__FILE__) . '/' . strtolower($method) . '/' . strtolower($method) . '.php';
+		$file = __DIR__ . '/' . strtolower($method) . '/' . strtolower($method) . '.php';
 
 		require_once($file);
 
@@ -4235,22 +4163,25 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public static function getTimeZone()
+	public static function getTimeZone($userId = null)
 	{
-		// Get server's timezone
-		$user = JFactory::getUser();
-		$jconfig = ED::jconfig();
-		$timezone = $jconfig->get('offset');
+		static $cache = [];
 
-		// If user is a member, get their timezone
-		if ($user->id) {
-			$timezone = $user->getParam('timezone', $timezone);
+		if (!isset($cache[$userId])) {
+			$user = JFactory::getUser($userId);
+			
+			$jconfig = ED::jconfig();
+			$timezone = $jconfig->get('offset');
+
+			if ($user->id) {
+				$timezone = $user->getParam('timezone', $timezone);
+			}
+
+			$cache[$userId] = $timezone;
 		}
 
-		return $timezone;
+		return $cache[$userId];
 	}
 
 	/**
@@ -4258,8 +4189,6 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function getTimeZoneOffset()
 	{
@@ -4281,13 +4210,16 @@ class ED
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function profile($id = null)
 	{
-		$user = ED::user($id);
-		return $user;
+		static $cache = array();
+
+		if (!isset($cache[$id])) {
+			$cache[$id] = ED::user($id);
+		}
+
+		return $cache[$id];
 	}
 
 	public static function validateUserType($usertype)
@@ -4348,7 +4280,7 @@ class ED
 			return false;
 		}
 
-		$parser = JFactory::getXML($file);
+		$parser = self::getXML($file);
 
 		$obj = new stdClass();
 		$obj->element = $name;
@@ -4376,7 +4308,7 @@ class ED
 			$obj->path = $file;
 		} else {
 
-			$contents = JFile::read($file);
+			$contents = file_get_contents($file);
 
 			$parser = JFactory::getXMLParser('Simple');
 			$parser->loadString($contents);
@@ -4544,6 +4476,19 @@ class ED
 	}
 
 	/**
+	 * Generates the query string for language selection.
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getKnownLanguages()
+	{
+		$language = EDJLanguage::getKnownLanguages();
+
+		return $language;
+	}
+
+	/**
 	 * Determine whether the site enable multilingual.
 	 *
 	 * @since	4.1.19
@@ -4562,8 +4507,6 @@ class ED
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public static function setCallback($data)
 	{
@@ -4630,10 +4573,14 @@ class ED
 	 */
 	public static function getCurrentTemplate($client = 'site')
 	{
-		$assets = ED::assets();
-		$template = $assets->getJoomlaTemplate($client);
+		static $template = array();
 
-		return $template;
+		if (!isset($template[$client])) {
+			$assets = ED::assets();
+			$template[$client] = $assets->getJoomlaTemplate($client);
+		}
+
+		return $template[$client];
 	}
 
 	/**
@@ -4680,6 +4627,36 @@ class ED
 	}
 
 	/**
+	 * Allows caller to pass in an array of data to normalize the data
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function normalize($data, $key, $default = null)
+	{
+		if (!$data) {
+			return $default;
+		}
+
+		// $key cannot be an array
+		if (is_array($key)) {
+			$key = $key[0];
+		}
+
+		// Object datatype
+		if (is_object($data) && isset($data->$key)) {
+			return $data->$key;
+		}
+
+		// Array datatype
+		if (is_array($data) && isset($data[$key])) {
+			return $data[$key];
+		}
+
+		return $default;
+	}
+
+	/**
 	 * Normalize directory separator
 	 *
 	 * @since   4.1.0
@@ -4715,53 +4692,61 @@ class ED
 	}
 
 	/**
-	 * Determine if the site has custom email logo or not
-	 *
-	 * @since   4.1.15
-	 * @access  public
-	 */
-	public static function hasCustomEmailLogo()
-	{
-		static $exists = null;
-
-		if (is_null($exists)) {
-			$currentTemplate = self::getCurrentTemplate();
-			$override = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/logo.png';
-
-			if (JFile::exists($override)) {
-				return true;
-			}
-
-			return false;
-		}
-
-		return $exists;
-	}
-
-	/**
 	 * Retrieves the logo that should be used site wide
 	 *
 	 * @since   4.1.12
 	 * @access  public
 	 */
-	public static function getLogo()
+	public static function getLogo($type)
 	{
-		static $logo = null;
+		static $logo = [];
 
-		if (is_null($logo)) {
+		if (!isset($logo[$type])) {
+			$defaultJoomlaTemplate = self::getCurrentTemplate();
 
-			$defaultJoomlaTemplate = ED::getCurrentTemplate();
-			
 			// Set the logo for the generic email template
-			$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-			$logo = rtrim(JURI::root(), '/') . '/components/com_easydiscuss/themes/wireframe/images/emails/logo.png';
+			$override = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $type . '/logo.png';
+			$logo[$type] = rtrim(JURI::root(), '/') . '/media/com_easydiscuss/images/' . $type . '/logo.png';
 
 			if (JFile::exists($override)) {
-				$logo = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/emails/logo.png';
-			}			
+				$logo[$type] = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $type . '/logo.png?' . time();
+			}
 		}
 
-		return $logo;
+		return $logo[$type];
+	}
+
+	/**
+	 * Determine if custom logo is exists
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public static function hasOverrideLogo($type)
+	{
+		$path = JPATH_ROOT . self::getOverrideLogo($type);
+
+		if (JFile::exists($path)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Get override path for logo
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public static function getOverrideLogo($type)
+	{
+		// Get current template
+		$defaultJoomlaTemplate = self::getCurrentTemplate();
+
+		$path = '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $type . '/logo.png';
+
+		return $path;
 	}
 
 	/**
@@ -4784,7 +4769,7 @@ class ED
 
 		// Test if source is an object.
 		if (is_object($item)) {
-			return JArrayHelper::fromObject($item);
+			return EDArrayHelper::fromObject($item);
 		}
 
 		if (is_integer($item)) {
@@ -4814,7 +4799,7 @@ class ED
 			if ((substr($item, 0, 1) === '{' && substr($item, -1, 1) === '}')) {
 				$result = FD::json()->decode($item);
 
-				return JArrayHelper::fromObject($result);
+				return EDArrayHelper::fromObject($result);
 			}
 
 			return array( $item );
@@ -4852,6 +4837,29 @@ class ED
 		return $image;
 	}
 
+	/**
+	 * Maps a limit value with a proper value.
+	 *
+	 * -2 is limit from EasyDiscuss
+	 * -1 is limit from Joomla
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getLimitValue($limit)
+	{
+		// Limit from EasyDiscuss
+		if ($limit == '-2') {
+			return (int) ED::getListLimit();
+		}
+
+		// Limit from Joomla
+		if ($limit == '-1') {
+			return (int) ED::jConfig()->get('list_limit');
+		}
+
+		return (int) $limit;
+	}
 
 	/**
 	 * Retrieve the map location request URL
@@ -4962,6 +4970,345 @@ class ED
 		$state = $table->store();
 
 		return $state;
+	}
+
+	/**
+	 * Loads up EasySocial library
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function easysocial()
+	{
+		static $easysocial = null;
+
+		if (is_null($easysocial)) {
+			ED::load('easysocial');
+
+			$easysocial = new EasyDiscussEasySocial();
+		}
+
+		return $easysocial;
+	}
+
+	/**
+	 * Loads up EasySocial library
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function jomsocial()
+	{
+		static $jomsocial = null;
+
+		if (is_null($jomsocial)) {
+			ED::load('jomsocial');
+
+			$jomsocial = new EasyDiscussJomsocial();
+		}
+
+		return $jomsocial;
+	}
+
+	/**
+	 * Creates a new instance of the exception library.
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function exception($message = '', $type = ED_MSG_ERROR, $previous = null)
+	{
+		require_once(dirname(__FILE__) . '/exception/exception.php');
+
+		$exception = new EasyDiscussException($message, $type, $previous);
+
+		return $exception;
+	}
+
+	/**
+	 * Loads up Decoda library
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function decoda()
+	{
+		static $lib = null;
+
+		if (is_null($lib)) {
+			ED::load('decoda');
+
+			$lib = new EasyDiscussDecoda();
+		}
+
+		return $lib;
+	}
+
+	/**
+	 * Loads up the db
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function db()
+	{
+		static $db = null;
+
+		if (is_null($db)) {
+			ED::load('db');
+
+			$db = new EasyDiscussDb();
+		}
+
+		return $db;
+	}
+	
+	/**
+	 * Creates a new instance of the GIPHY library.
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function giphy()
+	{
+		require_once(dirname(__FILE__) . '/giphy/giphy.php');
+
+		$giphy = new EasyDiscussGiphy();
+
+		return $giphy;
+	}
+
+	/**
+	 * Given an array of values, run a database quote on each of the result
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function quoteArray($data)
+	{
+		if (!$data) {
+			return array();
+		}
+
+		$result = [];
+		$db = ED::db();
+
+		// Ensure that the given parameter is an array
+		if (!is_array($data)) {
+			$data = [$data];
+		}
+
+		foreach ($data as $value) {
+			$result[] = $db->Quote($value);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Retrieve the site name from Joomla
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getSiteName()
+	{
+		$jConfig = self::jConfig();
+		$siteName = $jConfig->get('sitename');
+
+		return $siteName;
+	}
+
+	/**
+	 * Retrieve logo for schema
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public static function getSchemaLogo()
+	{
+		$absoluteUrl = self::getLogo('schema');
+
+		// Retrieve the current domain
+    	$domain = rtrim(JURI::root(), '/');
+    
+    	// Convert to use relative path check for the image size
+    	$schemaLogoPath = str_replace($domain, '', $absoluteUrl);
+    	$schemaLogoPath = JPATH_ROOT . $schemaLogoPath;
+    
+		$data = @getimagesize($schemaLogoPath);
+
+		if (!$data) {
+			return false;
+		}
+
+		$logo = array('@type' => 'ImageObject', 'url' => $absoluteUrl, 'width' => $data[0], 'height' => $data[1]);
+
+		return json_encode($logo);
+	}
+
+	 /**
+	  * Converts characters to HTML entities for Schema structure data
+	  *
+	  * @since	5.0.0
+	  * @access	public
+	  */
+	 public static function normalizeSchema($schemaContent)
+	 {
+		// Converts characters to HTML entities
+		$schemaContent = htmlentities($schemaContent, ENT_QUOTES);
+
+		// Remove backslash symbol since this will caused invalid JSON data
+		$schemaContent = stripslashes($schemaContent);
+
+		return $schemaContent;
+	 }
+
+	/**
+	 * Set the SEE header
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function setSSEHeader()
+	{
+		header("Cache-Control: no-cache");
+		header("Content-Type: text/event-stream");
+		header("X-Accel-Buffering: no");
+	}
+
+	/**
+	 * Set a SSE response
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function responseSSE($event, $data)
+	{
+		ob_start();
+?>
+event: <?php echo $event;?>
+
+<?php if (is_object($data) || is_array($data)) { ?>
+data: <?php echo json_encode($data); ?>
+<?php } else { ?>
+data: <?php echo $data; ?>
+<?php } ?>
+
+<?php // Required to fulfill minimum buffer size on certain server. #4181 from ES ?>
+buffer: <?php echo str_repeat(' ', 1024 * 64); ?>
+<?php
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+	}
+
+	/**
+	 * Redirects to a given link
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function redirect($link, $message = '', $class = '')
+	{
+		$app = JFactory::getApplication();
+
+		if ($message) {
+			$message = JText::_($message);
+		}
+
+		if (self::isJoomla4()) {
+			if ($message) {
+				$app->enqueueMessage($message, $class);
+			}
+
+			$app->redirect($link);
+			return $app->close();
+		}
+
+		$app->redirect($link, $message, $class);
+		return $app->close();
+	}
+
+	/**
+	 * Ride on Joomla's User helper library to obtain two factor methods
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getTwoFactorMethods()
+	{
+		JLoader::register('UsersHelper', JPATH_ADMINISTRATOR . '/components/com_users/helpers/users.php');
+
+		$methods = UsersHelper::getTwoFactorMethods();
+
+		return $methods;
+	}
+
+
+	/**
+	 * Retrieve the otpConfig from Joomla users
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getOtpConfig($userId = null)
+	{
+		$user = JFactory::getUser($userId);
+
+		$model = ED::getJoomlaUserModel();
+
+		return $model->getOtpConfig($user->id);
+	}
+
+	/**
+	 * Loads the user model from Joomla
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getJoomlaUserModel()
+	{
+		static $model = null;
+
+		if (is_null($model)) {
+
+			if (ED::isJoomla4()) {
+				$app = JFactory::getApplication();
+				$model = $app->bootComponent('com_users')->getMVCFactory()->createModel('User', 'Administrator', ['ignore_request' => true]);
+
+				return $model;
+			}
+
+			JLoader::register('UsersModelUser', JPATH_ADMINISTRATOR . '/components/com_users/models/user.php');
+
+			$model = new UsersModelUser;
+		}
+
+		return $model;
+	}
+
+	/**
+	 * Prepares the HTML to render two factor forms on the page
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getTwoFactorForms($otpConfig, $userId = null)
+	{
+		return EDCompat::getTwoFactorForms($otpConfig, $userId);
+	}
+
+	/**
+	 * Retrieve two factor user's configuration
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public static function getTwoFactorConfig($twoFactorMethod)
+	{
+		return EDCompat::getTwoFactorConfig($twoFactorMethod);
 	}
 }
 

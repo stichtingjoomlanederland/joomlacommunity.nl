@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Who Is Online</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>3rd September 2020</creationDate>
+	<creationDate>22nd February 2021</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.21</version>
+	<version>5.0.1</version>
 	<description><![CDATA[This module will list down all the users that currently online on the site.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_whos_online.ini</language>

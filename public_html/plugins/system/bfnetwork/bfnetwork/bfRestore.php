@@ -107,8 +107,10 @@ function getQueryParam($key, $default = null)
         $value = $_REQUEST[$key];
     }
 
-    if (get_magic_quotes_gpc() && !is_null($value)) {
-        $value = stripslashes($value);
+    if (function_exists('get_magic_quotes_gpc')) {
+        if (get_magic_quotes_gpc() && !is_null($value)) {
+            $value = stripslashes($value);
+        }
     }
 
     return $value;
@@ -1607,8 +1609,9 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
      */
     public function __wakeup()
     {
-        if ($this->currentPartNumber >= 0) {
-            $this->fp = @fopen($this->archiveList[$this->currentPartNumber], 'rb');
+        if ($this->currentPartNumber >= 0 && !empty($this->archiveList[$this->currentPartNumber]))
+        {
+                $this->fp = @fopen($this->archiveList[$this->currentPartNumber], 'rb');
             if ((is_resource($this->fp)) && ($this->currentPartOffset > 0)) {
                 @fseek($this->fp, $this->currentPartOffset);
             }

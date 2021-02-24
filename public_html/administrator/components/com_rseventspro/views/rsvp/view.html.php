@@ -22,12 +22,10 @@ class RseventsproViewRsvp extends JViewLegacy
 	protected function addToolBar() {
 		JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_RSVP_GUESTS'),'rseventspro48');
 		
-		JToolBarHelper::custom('rsvp.going','save','save',JText::_('COM_RSEVENTSPRO_RSVP_GOING'));
-		JToolBarHelper::custom('rsvp.interested','pending','pending',JText::_('COM_RSEVENTSPRO_RSVP_INTERESTED'));
-		JToolBarHelper::custom('rsvp.notgoing','cancel-circle','cancel-circle',JText::_('COM_RSEVENTSPRO_RSVP_NOT_GOING'));
+		JToolBarHelper::custom('rsvp.going','ok','ok',JText::_('COM_RSEVENTSPRO_RSVP_GOING'));
+		JToolBarHelper::custom('rsvp.interested','minus','minus',JText::_('COM_RSEVENTSPRO_RSVP_INTERESTED'));
+		JToolBarHelper::custom('rsvp.notgoing','cancel','cancel',JText::_('COM_RSEVENTSPRO_RSVP_NOT_GOING'));
 		JToolBar::getInstance('toolbar')->appendButton( 'Link', 'arrow-down', JText::_('COM_RSEVENTSPRO_EXPORT_CSV'), JRoute::_('index.php?option=com_rseventspro&task=rsvp.export&id='.JFactory::getApplication()->input->getInt('id',0)));
 		JToolBarHelper::deleteList('','rsvp.delete');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

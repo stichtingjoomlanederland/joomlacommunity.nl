@@ -21,33 +21,33 @@ class EasyDiscussFacebook extends EasyDiscuss
 	 */
 	public function addOpenGraph(EasyDiscussPost $post)
 	{
-		// Post title
-		$this->doc->addCustomTag('<meta property="og:title" content="' . $post->getTitle() . '" />');
-
-		// Facebook likes data
-		if ($this->config->get('integration_facebook_like')) {
-			$appId = $this->config->get('integration_facebook_like_appid');
-			if ($appId) {
-				$this->doc->addCustomTag('<meta property="fb:app_id" content="' . $appId . '" />');
-			}
-
-			$adminId = $this->config->get('integration_facebook_like_admin');
-			if ($adminId) {
-				$this->doc->addCustomTag('<meta property="fb:admins" content="' . $adminId . '" />');
-			}
+		if (!$this->config->get('integration_facebook_opengraph')) {
+			return false;
 		}
 
 		$data = $post->getEmbedData();
 
-		$this->doc->addCustomTag('<meta property="og:description" content="' . $data->description . '" />');
-		$this->doc->addCustomTag('<meta property="og:type" content="article" />');
-		$this->doc->addCustomTag('<meta property="og:url" content="' . $data->url . '" />');
+		// Add the title tag
+		$this->doc->setMetaData('og:title', $post->getTitle(), 'property');
+		$this->doc->setMetaData('og:description', $data->description, 'property');
+		$this->doc->setMetaData('og:type', 'article', 'property');
+		$this->doc->setMetaData('og:url', $data->url, 'property');
 
-		$postTitle = $post->getTitle();
-		$pageTitle = htmlspecialchars_decode($postTitle, ENT_QUOTES);
+		// Facebook likes data
+		if ($this->config->get('integration_facebook_like')) {
+			
+			$appId = $this->config->get('integration_facebook_like_appid');
+			
+			if ($appId) {
+				$this->doc->setMetaData('fb:app_id', $appId, 'property');
+			}
 
-		$this->doc->setTitle($pageTitle);
-		$this->doc->setDescription($data->description);
+			$adminId = $this->config->get('integration_facebook_like_admin');
+
+			if ($adminId) {
+				$this->doc->setMetaData('fb:admins', $adminId, 'property');
+			}
+		}
 
 		// If we still can't find any images, load up the placeholder
 		$images = $data->images;
@@ -58,7 +58,7 @@ class EasyDiscussFacebook extends EasyDiscuss
 
 		if ($images) {
 			foreach ($images as $image) {
-				$this->doc->addCustomTag('<meta property="og:image" content="' . $image . '" />');
+				$this->doc->setMetaData('og:image', $image, 'property');
 			}
 		}
 

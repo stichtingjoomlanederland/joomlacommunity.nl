@@ -121,6 +121,11 @@ class PwtimageFormFieldImage extends FormField
 			$data['showRotationTools'] = (string) $this->element['showRotationTools'] === 'false' ? false : true;
 		}
 
+		if (isset($this->element['showAspectRatioTools']))
+		{
+			$data['showAspectRatioTools'] = (string) $this->element['showAspectRatioTools'] === 'false' ? false : true;
+		}
+
 		if (isset($this->element['showFlippingTools']))
 		{
 			$data['showFlippingTools'] = (string) $this->element['showFlippingTools'] === 'false' ? false : true;

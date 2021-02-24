@@ -12,100 +12,138 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-toolbar-dropdown-nav">
-	<div class="ed-toolbar-dropdown-nav__item">
-		<span class="ed-toolbar-dropdown-nav__link">
-			<div class="ed-toolbar-dropdown-nav__name"><?php echo JText::_('COM_ED_BLOG');?></div>
-
-			<ol class="g-list-unstyled ed-toolbar-dropdown-nav__meta-lists">
-				<li>
-					<a href="<?php echo EBR::_('index.php?option=com_easyblog');?>"><?php echo JText::_('COM_ED_EB_RECENT_POSTS');?></a>
-				</li>
-
-				<?php if ($config->get('layout_bloggers')) { ?>
-				<li>
-					<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=blogger');?>"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_BLOGGERS');?></a>
-				</li>
-				<?php } ?>
-
-				<?php if ($config->get('layout_categories')) { ?>
-				<li>
-					<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=categories');?>"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_CATEGORIES');?></a>
-				</li>
-				<?php } ?>
-
-				<?php if ($config->get('layout_tags')) { ?>
-				<li>
-					<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=tags');?>"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_TAGS');?></a>
-				</li>
-				<?php } ?>
-
-				<?php if ($config->get('layout_archives')) { ?>
-				<li>
-					<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=archive');?>"><?php echo JText::_('COM_EASYBLOG_TOOLBAR_ARCHIVES');?></a>
-				</li>
-				<?php } ?>
-
-				<?php if ($config->get('main_favourite_post')) { ?>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=favourites');?>"><?php echo JText::_('COM_EB_FAVOURITE_POSTS');?></a>
-				</li>
-				<?php } ?>
-			</ol>
-		</span>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<b><?php echo JText::_('COM_ED_BLOG');?></b>
+			</div>
+		</a>
 	</div>
+
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog');?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_ED_EB_RECENT_POSTS');?>
+			</div>
+		</a>
+	</div>
+
+	<?php if ($config->get('layout_bloggers')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=blogger');?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYBLOG_TOOLBAR_BLOGGERS');?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
+
+	<?php if ($config->get('layout_categories')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=categories');?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYBLOG_TOOLBAR_CATEGORIES');?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
+
+	<?php if ($config->get('layout_tags')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=tags');?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYBLOG_TOOLBAR_TAGS');?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
+
+	<?php if ($config->get('layout_archives')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=archive');?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYBLOG_TOOLBAR_ARCHIVES');?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
+
+	<?php if ($config->get('main_favourite_post')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=favourites');?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EB_FAVOURITE_POSTS');?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
 	<?php if ($showManage) { ?>
 	<div class="ed-toolbar-dropdown-nav__item">
-		<span class="ed-toolbar-dropdown-nav__link">
-			<div class="ed-toolbar-dropdown-nav__name"><?php echo JText::_('COM_ED_EB_MANAGE_BLOG');?></div>
-			
-			<ol class="g-list-unstyled ed-toolbar-dropdown-nav__meta-lists">
-				<?php if ($acl->get('add_entry')) { ?>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=entries&filter=drafts');?>">
-						<?php echo JText::_('COM_EB_TOOLBAR_DRAFTS');?>
-					</a>
-				</li>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=entries');?>">
-						<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_POSTS');?>
-					</a>
-				</li>
-				<?php } ?>
+		<div class="ed-toolbar-dropdown-nav__item t-mt--lg">
+			<a href="" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<b><?php echo JText::_('COM_ED_EB_MANAGE_BLOG');?></b>
+				</div>
+			</a>
+		</div>
+		
+		<?php if ($acl->get('add_entry')) { ?>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=dashboard&layout=entries&filter=drafts');?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EB_TOOLBAR_DRAFTS');?>
+				</div>
+			</a>
+		</div>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=dashboard&layout=entries');?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_POSTS');?>
+				</div>
+			</a>
+		</div>
+		<?php } ?>
 
-				<?php if ($acl->get('create_post_templates')) { ?>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=templates');?>">
-						<?php echo JText::_('COM_EASYBLOG_DASHBOARD_HEADING_POST_TEMPLATES');?>
-					</a>
-				</li>
-				<?php } ?>
+		<?php if ($acl->get('create_post_templates')) { ?>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=dashboard&layout=templates');?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EASYBLOG_DASHBOARD_HEADING_POST_TEMPLATES');?>
+				</div>
+			</a>
+		</div>
+		<?php } ?>
 
-				<?php if (EB::isSiteAdmin() || ($acl->get('moderate_entry') || ($acl->get('manage_pending') && $acl->get('publish_entry')))) { ?>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=moderate');?>">
-						<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_PENDING');?>
-					</a>
-				</li>
-				<?php } ?>
+		<?php if (EB::isSiteAdmin() || ($acl->get('moderate_entry') || ($acl->get('manage_pending') && $acl->get('publish_entry')))) { ?>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=dashboard&layout=moderate');?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_PENDING');?>
+				</div>
+			</a>
+		</div>
+		<?php } ?>
 
-				<?php if ($acl->get('create_category')) { ?>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=categories');?>">
-						<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_CATEGORIES');?>
-					</a>
-				</li>
-				<?php } ?>
+		<?php if ($acl->get('create_category')) { ?>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=dashboard&layout=categories');?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_CATEGORIES');?>
+				</div>
+			</a>
+		</div>
+		<?php } ?>
 
-				<?php if ($acl->get('create_tag')) { ?>
-				<li>
-					<a href="<?php echo EB::_('index.php?option=com_easyblog&view=dashboard&layout=tags');?>">
-						<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_TAGS');?>
-					</a>
-				</li>
-				<?php } ?>
-			</ol>
-		</span>
+		<?php if ($acl->get('create_tag')) { ?>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo EBR::_('index.php?option=com_easyblog&view=dashboard&layout=tags');?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EASYBLOG_TOOLBAR_MANAGE_TAGS');?>
+				</div>
+			</a>
+		</div>
+		<?php } ?>
 	</div>
 	<?php } ?>
 </div>

@@ -1,7 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
-$encodingHelper = acym_get('helper.encoding');
+
+use AcyMailing\Classes\UserClass;
+use AcyMailing\Helpers\EncodingHelper;
+
+$encodingHelper = new EncodingHelper();
+$userClass = new UserClass();
 $filename = strtolower(acym_getVar('cmd', 'filename'));
 $encoding = acym_getVar('cmd', 'encoding');
 
@@ -9,7 +12,7 @@ $extension = '.'.acym_fileGetExt($filename);
 $uploadPath = ACYM_MEDIA.'import'.DS.str_replace(['.', ' '], '_', substr($filename, 0, strpos($filename, $extension))).$extension;
 
 if (!file_exists($uploadPath)) {
-    acym_display(acym_translation_sprintf('ACYM_FAIL_OPEN', '<b><i>'.acym_escape($uploadPath).'</i></b>'), 'error');
+    acym_display(acym_translationSprintf('ACYM_FAIL_OPEN', '<b><i>'.acym_escape($uploadPath).'</i></b>'), 'error');
 
     return;
 }
@@ -143,7 +146,6 @@ $nbLines = count($this->lines);
         $fieldAssignment[] = $separator;
 
 
-        $userClass = acym_get('class.user');
         $fields = $userClass->getAllColumnsUserAndCustomField();
         if (acym_isAdmin()) {
             $fields['listids'] = 'listids';
@@ -228,4 +230,3 @@ $nbLines = count($this->lines);
         ?>
 	</table>
 </div>
-

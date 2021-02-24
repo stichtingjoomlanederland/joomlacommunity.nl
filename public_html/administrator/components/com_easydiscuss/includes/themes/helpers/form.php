@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,23 +14,42 @@ defined('_JEXEC') or die('Unauthorized Access');
 class EasyDiscussThemesHelperForm
 {
 	/**
+	 * Allows caller to generically load up a form action which includes the generic data
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function action($controller, $view = '', $task = '', $backend = true)
+	{
+		$theme = ED::themes();
+
+		$theme->set('controller', $controller);
+		$theme->set('task', $task);
+		$theme->set('view', $view);
+
+		$output = $theme->output('admin/html/form/action');
+
+		return $output;
+	}
+
+	/**
 	 * Renders a colour picker input
 	 *
 	 * @since	4.2.0
 	 * @access	public
 	 */
-	public static function colorpicker($name, $value = '', $revert = '')
+	public function colorpicker($name, $value = '', $revert = '')
 	{
 		static $script = null;
 
 		$loadScript = false;
-		
+
 		if (is_null($script)) {
 			$loadScript = true;
 			$script = true;
 		}
 
-		JHTML::_('behavior.colorpicker');
+		EDCompat::renderColorPicker();
 
 		$theme = ED::themes();
 		$theme->set('loadScript', $loadScript);
@@ -49,7 +68,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.1.0
 	 * @access	public
 	 */
-	public static function floatinglabel($label, $name, $type = 'textbox', $value = '')
+	public function floatinglabel($label, $name, $type = 'textbox', $value = '')
 	{
 		// This currently only supports textbox and password
 		$supported = array('textbox', 'password');
@@ -79,14 +98,35 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function hidden($controller, $view = '', $task = '')
+	public function hidden($key, $value, $escape = true)
 	{
 		$theme = ED::themes();
-		$theme->set('view', $view);
-		$theme->set('controller', $controller);
-		$theme->set('task', $task);
+		$theme->set('key', $key);
+		$theme->set('value', $value);
+		$theme->set('escape', $escape);
 
-		$output = $theme->output('admin/html/form.hidden');
+		$output = $theme->output('site/helpers/form/hidden');
+
+		return $output;
+	}
+
+	/**
+	 * Renders a honeypot hidden input
+	 *
+	 * @since	3.2.14
+	 * @access	public
+	 */
+	public function honeypot($attributes = array())
+	{
+		$attributes = implode(' ', $attributes);
+
+		$name = ED::honeypot()->getKey();
+
+		$theme = ED::themes();
+		$theme->set('attributes', $attributes);
+		$theme->set('name', $name);
+
+		$output = $theme->output('site/helpers/honeypot/input');
 
 		return $output;
 	}
@@ -97,7 +137,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function editor($name, $selected = '')
+	public function editor($name, $selected = '')
 	{
 		// Get a list of editors on the site
 		$editors = self::getEditors();
@@ -113,12 +153,47 @@ class EasyDiscussThemesHelperForm
 	}
 
 	/**
+	 * Renders a dropdown for menus
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function menus($name, $selected, $options = array())
+	{
+		require_once(JPATH_ADMINISTRATOR . '/components/com_menus/helpers/menus.php');
+
+		$items = MenusHelper::getMenuLinks();
+
+		// Build the groups arrays.
+		foreach ($items as $menu) {
+			// Initialize the group.
+			$menus[$menu->menutype] = array();
+
+			// Build the options array.
+			foreach ($menu->links as $link) {
+				$menus[$menu->menutype][] = JHtml::_('select.option', $link->value, $link->text);
+			}
+		}
+
+		$attributes = ED::normalize($options, 'attributes', '');
+
+		$theme = ED::themes();
+		$theme->set('name', $name);
+		$theme->set('menus', $menus);
+		$theme->set('selected', $selected);
+		$theme->set('attributes', $attributes);
+		$output = $theme->output('admin/html/form/menus');
+
+		return $output;
+	}
+
+	/**
 	 * Renders a form for theme selection
 	 *
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function themes($name, $selected = "")
+	public function themes($name, $selected = "")
 	{
 		$themes = JFolder::folders(DISCUSS_THEMES);
 
@@ -131,7 +206,7 @@ class EasyDiscussThemesHelperForm
 		$theme->set('name', $name);
 		$theme->set('themes', $themes);
 		$theme->set('selected', $selected);
-		
+
 		$output = $theme->output('admin/html/form.themes');
 
 		return $output;
@@ -142,10 +217,9 @@ class EasyDiscussThemesHelperForm
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
+
 	 */
-	public static function token()
+	public function token()
 	{
 		$theme = ED::themes();
 		$token = JFactory::getSession()->getFormToken();
@@ -162,16 +236,21 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function label($label, $desc = '')
+	public function label($label, $desc = '', $id = '')
 	{
 		if (!$desc) {
 			$desc = $label . '_DESC';
 			$desc = JText::_($desc);
 		}
 
+		// Generate a short unique id for each label
+		$uniqueId = substr(md5($label), 0, 16);
+
 		$label = JText::_($label);
 
 		$theme = ED::themes();
+		$theme->set('id', $id);
+		$theme->set('uniqueId', $uniqueId);
 		$theme->set('label', $label);
 		$theme->set('desc', $desc);
 
@@ -181,16 +260,17 @@ class EasyDiscussThemesHelperForm
 	/**
 	 * Generates a textarea
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
-	public static function textarea($name, $value = '', $rows = null)
+	public function textarea($name, $value = '', $rows = null, $attributes = '')
 	{
 		if (is_null($rows)) {
 			$rows = 5;
 		}
 
 		$theme = ED::themes();
+		$theme->set('attributes', $attributes);
 		$theme->set('name', $name);
 		$theme->set('value', $value);
 		$theme->set('rows', $rows);
@@ -206,12 +286,12 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function textbox($name, $value = '', $placeholder = '', $class = '', $options = array())
+	public function textbox($name, $value = '', $placeholder = '', $class = '', $options = array())
 	{
 		if ($placeholder) {
 			$placeholder = JText::_($placeholder);
 		}
-		
+
 		if (isset($options['class'])) {
 			$class = $options['class'];
 		}
@@ -222,7 +302,6 @@ class EasyDiscussThemesHelperForm
 			$attributes = $options['attr'];
 		}
 
-
 		$theme = ED::themes();
 		$theme->set('attributes', $attributes);
 		$theme->set('name', $name);
@@ -230,7 +309,7 @@ class EasyDiscussThemesHelperForm
 		$theme->set('class', $class);
 		$theme->set('placeholder', $placeholder);
 
-		$output = $theme->output('admin/html/form.textbox');
+		$output = $theme->output('admin/html/form/textbox');
 
 		return $output;
 	}
@@ -241,7 +320,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function dropdown($name, $items, $selected = '', $attributes = '')
+	public function dropdown($name, $items, $selected = '', $attributes = '')
 	{
 		$theme = ED::themes();
 		$theme->set('name', $name);
@@ -249,7 +328,7 @@ class EasyDiscussThemesHelperForm
 		$theme->set('selected', $selected);
 		$theme->set('attributes', $attributes);
 
-		$output = $theme->output('admin/html/form.dropdown');
+		$output = $theme->output('admin/html/form/dropdown');
 
 		return $output;
 	}
@@ -260,7 +339,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0.14
 	 * @access	public
 	 */
-	public static function posts($name, $selected = null, $id = null)
+	public function posts($name, $selected = null, $id = null)
 	{
 		if (is_null($id)) {
 			$id = $name;
@@ -290,7 +369,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0.14
 	 * @access	public
 	 */
-	public static function categories($name, $selected = array(), $multiple = false)
+	public function categories($name, $selected = array(), $multiple = false)
 	{
 		$model = ED::model('Categories');
 		$categories = $model->getAllCategories();
@@ -298,7 +377,7 @@ class EasyDiscussThemesHelperForm
 		if ($multiple) {
 			$name = $name . '[]';
 		}
-		
+
 		if (!is_array($selected)) {
 			$selected = array();
 		}
@@ -320,7 +399,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	1.0
 	 * @access	public
 	 */
-	public static function boolean($name, $value, $id = '', $attributes = '', $tips = array() , $text = array() )
+	public function boolean($name, $value, $id = '', $attributes = '', $tips = array() , $text = array())
 	{
 		// Ensure that id is set.
 		$id = empty($id) ? $name : $id;
@@ -363,7 +442,7 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function getEditors()
+	public function getEditors()
 	{
 		$db = ED::db();
 		$query = 'SELECT `element` AS value, `name` AS text'
@@ -397,9 +476,9 @@ class EasyDiscussThemesHelperForm
 	 * @since   4.1.0
 	 * @access  public
 	 */
-	public static function password($name, $id = null, $value = '', $options = array())
+	public function password($name, $id = null, $value = '', $options = array())
 	{
-		$class = 'form-control';
+		$class = 'o-form-control';
 		$placeholder = '';
 		$attributes = '';
 
@@ -427,12 +506,77 @@ class EasyDiscussThemesHelperForm
 	}
 
 	/**
+	 * Renders browser for user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function user($name, $value, $id = null, $attributes = array())
+	{
+		if (is_null($id)) {
+			$id = $name;
+		}
+
+		$authorName = '';
+
+		if ($value) {
+			$user = ED::user($value);
+			$authorName = $user->getName();
+		}
+
+		$attributes = implode(' ', $attributes);
+
+		$theme = ED::themes();
+		$theme->set('authorName', $authorName);
+		$theme->set('id', $id);
+		$theme->set('name', $name);
+		$theme->set('value', $value);
+		$theme->set('attributes', $attributes);
+
+		return $theme->output('admin/html/form/user');
+	}
+
+
+	/**
+	 * Renders browser for category moderators
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function moderator($categoryId, $name, $value, $id = null, $attributes = array())
+	{
+		if (is_null($id)) {
+			$id = $name;
+		}
+
+		$moderatorName = '';
+
+		if ($value) {
+			$user = ED::user($value);
+			$moderatorName = $user->getName();
+		}
+
+		$attributes = implode(' ', $attributes);
+
+		$theme = ED::themes();
+		$theme->set('categoryId', $categoryId);
+		$theme->set('moderatorName', $moderatorName);
+		$theme->set('id', $id);
+		$theme->set('name', $name);
+		$theme->set('value', $value);
+		$theme->set('attributes', $attributes);
+
+		return $theme->output('admin/html/form/moderator');
+	}
+
+
+	/**
 	 * Renders the user group form
 	 *
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function usergroups($name = 'gid' , $selected = '' , $exclude = array(), $checkSuperAdmin = false)
+	public function usergroups($name = 'gid' , $selected = '' , $exclude = array(), $checkSuperAdmin = false)
 	{
 		// If selected value is a string, we assume that it's a json object.
 		if (is_string($selected)) {
@@ -445,8 +589,8 @@ class EasyDiscussThemesHelperForm
 			$selected = array($selected);
 		}
 
-		$isSuperAdmin = JFactory::getUser()->authorise('core.admin');
-		
+		// $isSuperAdmin = JFactory::getUser()->authorise('core.admin');
+
 		// Generate a unique id
 		$uid = uniqid();
 
@@ -459,7 +603,7 @@ class EasyDiscussThemesHelperForm
 		return $theme->output('admin/html/form.usergroups');
 	}
 
-	private static function getGroups()
+	private function getGroups()
 	{
 		$db = ED::db();
 
@@ -481,9 +625,9 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.0.16
 	 * @access	public
 	 */
-	public static function languages($name, $languages, $selected = '', $attributes = '')
+	public function languages($name, $languages, $selected = '', $attributes = '')
 	{
-		$languages = JLanguage::getKnownLanguages();
+		$languages = ED::getKnownLanguages();
 
 		$theme = ED::themes();
 		$theme->set('name', $name);
@@ -502,11 +646,16 @@ class EasyDiscussThemesHelperForm
 	 * @since	4.1.4
 	 * @access	public
 	 */
-	public static function scopes($name, $id, $selected = null)
+	public function scopes($name, $id, $selected = null)
 	{
 		// Get the list of Facebook scope permission
-		$scopes = array('publish_pages', 'manage_pages', 'publish_to_groups');
-		$scopes = array_combine($scopes, $scopes);
+		$scopes = array(
+					'publish_pages' => 'publish_pages',
+					'manage_pages' => 'manage_pages',
+					'pages_manage_posts' => 'pages_manage_posts',
+					'pages_read_engagement' => 'pages_read_engagement',
+					'publish_to_groups' => 'publish_to_groups'
+				);
 
 		$theme = ED::themes();
 		$theme->set('name', $name);
@@ -517,5 +666,5 @@ class EasyDiscussThemesHelperForm
 		$output = $theme->output('admin/html/form.scopes');
 
 		return $output;
-	}			
+	}
 }

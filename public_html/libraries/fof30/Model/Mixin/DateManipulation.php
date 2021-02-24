@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -115,9 +115,11 @@ trait DateManipulation
 
 		$triggered = false;
 
-		if ($row->publish_down && ($row->publish_down != $db->getNullDate()))
+		$publishDown = $row->getFieldValue('publish_down');
+
+		if (!empty($publishDown) && ($publishDown != $db->getNullDate()))
 		{
-			$publish_down = $this->normaliseDate($row->publish_down, '2038-01-18 00:00:00');
+			$publish_down = $this->normaliseDate($publishDown, '2038-01-18 00:00:00');
 			$publish_up   = $this->normaliseDate($row->publish_up, '2001-01-01 00:00:00');
 
 			$jDown = new Date($publish_down);

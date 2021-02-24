@@ -678,7 +678,7 @@ RSFormPro.Grid = {
 
 				xml.open('POST', url, true);
 
-				var params = ['componentId=' + id, 'formId=' + formId].join('&');
+				var params = ['componentId=' + id, 'formId=' + formId, 'ajax=1'].join('&');
 
 				xml.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
@@ -756,7 +756,8 @@ RSFormPro.Grid = {
 
 					var params = [
 						'componentId=' + id,
-						'formId=' + formId
+						'formId=' + formId,
+						'ajax=1'
 					];
 					params = params.join('&');
 

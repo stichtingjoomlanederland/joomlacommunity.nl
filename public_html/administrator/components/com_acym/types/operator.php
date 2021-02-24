@@ -1,12 +1,13 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class operatorType extends acymObject
+namespace AcyMailing\Types;
+
+use AcyMailing\Libraries\acymObject;
+
+class OperatorType extends acymObject
 {
-    var $values = [];
-    var $class = 'acym__select';
-    var $extra = '';
+    public $values = [];
+    public $attributes = [];
 
     public function __construct()
     {
@@ -30,9 +31,10 @@ class operatorType extends acymObject
         $this->values[] = acym_selectOption('IS NOT NULL', 'IS NOT NULL');
     }
 
-    public function display($name, $valueSelected = '', $class = '')
+    public function display($name, $valueSelected = '', $class = 'acym__select')
     {
-        return acym_select($this->values, $name, $valueSelected, $this->extra.' class="'.$this->class.' '.$class.'"');
+        if (empty($this->attributes['class'])) $this->attributes['class'] = $class;
+
+        return acym_select($this->values, $name, $valueSelected, $this->attributes);
     }
 }
-

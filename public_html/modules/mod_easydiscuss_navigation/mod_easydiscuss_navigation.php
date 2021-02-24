@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -22,22 +22,44 @@ if (!JFile::exists($path)) {
 require_once($path);
 
 ED::init();
+$lib = ED::modules($module);
 
 // Load component's language file.
 JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
 $my = ED::user();
 $config = ED::config();
+$input = ED::request();
 
 // We need to detect if the user is browsing a particular category
 $active = '';
-$view = JRequest::getVar('view');
-$layout = JRequest::getVar('layout');
-$option = JRequest::getVar('option');
-$id = JRequest::getInt('category_id');
+$view = $input->get('view', '', 'default');
+$layout = $input->get('layout', '', 'default');
+$option = $input->get('option', '', 'default');
+$id = $input->get('category_id', 0, 'int');
 
 $model = ED::model('Categories');
 $categories = $model->getCategoryTree();
+
+// Formats the categories.
+foreach ($categories as $index => &$category) {
+	$postCount = $category->getTotalPosts();
+	$totalNew = ($my->id > 0) ? $category->getUnreadCount() : '0';
+
+	if (!$params->get('display_empty_category') && !$postCount) {
+		unset($categories[$index]);
+
+		continue;
+	}
+
+	if (!$params->get('display_empty_category') && !$totalNew) {
+		unset($categories[$index]);
+
+		continue;
+	}
+
+	$category->totalNew = $totalNew;
+}
 
 $notificationsCount = 0;
 

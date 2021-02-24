@@ -32,4 +32,15 @@ abstract class EasyDiscussCaptchaAbstract extends EasyDiscuss
 	{
 		return false;
 	}
+
+	/**
+	 * Determines if captcha has any output on the screen
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function hasOutput()
+	{
+		return true;
+	}
 }

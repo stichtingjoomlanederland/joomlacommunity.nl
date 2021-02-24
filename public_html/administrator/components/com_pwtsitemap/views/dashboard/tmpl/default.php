@@ -239,7 +239,7 @@ HTMLHelper::_('formbehavior.chosen');
 
 				<div class="pwt-section pwt-section--border-top">
 					<p>
-						<strong><?php echo Text::sprintf('COM_PWTSITEMAP_DASHBOARD_ABOUT_VERSION', '</strong>1.4.2'); ?>
+						<strong><?php echo Text::sprintf('COM_PWTSITEMAP_DASHBOARD_ABOUT_VERSION', '</strong>1.4.3'); ?>
 					</p>
 				</div>
 				<!-- End PWT branding -->

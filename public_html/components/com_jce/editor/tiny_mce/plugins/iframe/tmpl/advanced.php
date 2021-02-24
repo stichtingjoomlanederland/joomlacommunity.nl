@@ -64,6 +64,15 @@ defined('JPATH_PLATFORM') or die;
             <option value="yes"><?php echo JText::_('JYES'); ?></option>
         </select>
     </div>
+
+    <label for="loading" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_LOADING_DESC'); ?>"><?php echo JText::_('WF_LABEL_LOADING'); ?></label>
+    <div class="uk-form-controls uk-width-1-5">
+        <select id="loading">
+            <option value=""><?php echo JText::_('WF_OPTION_NOT_SET'); ?></option>
+            <option value="lazy"><?php echo JText::_('WF_OPTION_LOADING_LAZY'); ?></option>
+            <option value="eager"><?php echo JText::_('WF_OPTION_LOADING_EAGER'); ?></option>
+        </select>
+    </div>
 </div>
 <div class="uk-form-row uk-grid uk-grid-small">
     <label for="html" class="hastip uk-form-label uk-width-1-5" title="<?php echo JText::_('WF_LABEL_HTML_DESC'); ?>">

@@ -122,11 +122,11 @@ class EasyDiscussPoll extends EasyDiscuss
      * @param   string
      * @return  
      */
-    public function getTotalVotes()
+    public function getTotalVotes($useCache = true)
     {
         static $items = array();
 
-        if (!isset($items[$this->table->id])) {
+        if (!$useCache || !isset($items[$this->table->id])) {
             $model = ED::model('Polls');
             $items[$this->table->id] = $model->getTotalVotes($this->table->post_id);
         }

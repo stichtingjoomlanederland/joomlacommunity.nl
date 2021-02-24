@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,9 +17,10 @@ if (!JFile::exists($path)) {
     return;
 }
 require_once($path);
-require_once(__DIR__ . '/helper.php');
 
 ED::init();
+$lib = ED::modules($module);
+$helper = $lib->getHelper(false);
 
 JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 

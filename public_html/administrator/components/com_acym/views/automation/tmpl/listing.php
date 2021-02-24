@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
     <?php
     $isEmpty = empty($data['allAutomations']) && empty($data['search']) && empty($data['tag']) && empty($data['status']);
     if (!$isEmpty) {
@@ -15,10 +13,14 @@ defined('_JEXEC') or die('Restricted access');
 				<div class="medium-4"></div>
 				<div class="medium-4 cell grid-x grid-margin-x align-center">
 					<div class="medium-shrink cell">
-						<button type="button" class="button button-secondary expanded acy_button_submit" data-task="edit" data-step="action"><?php echo acym_translation('ACYM_NEW_MASS_ACTION'); ?></button>
+						<button type="button" class="button button-secondary acy_button_submit" data-task="edit" data-step="action"><?php echo acym_translation(
+                                'ACYM_NEW_MASS_ACTION'
+                            ); ?></button>
 					</div>
 					<div class="medium-shrink cell">
-						<button type="button" class="button expanded acy_button_submit" data-task="edit" data-step="info"><?php echo acym_translation('ACYM_CREATE_AUTOMATION'); ?></button>
+						<button type="button" class="button acy_button_submit" data-task="edit" data-step="info"><?php echo acym_translation(
+                                'ACYM_CREATE_AUTOMATION'
+                            ); ?></button>
 					</div>
 				</div>
 			</div>
@@ -38,7 +40,7 @@ defined('_JEXEC') or die('Restricted access');
                         ?>
 					</div>
 					<div class="grid-x cell">
-						<div class="auto cell">
+						<div class="auto cell acym_vcenter">
                             <?php
                             $options = [
                                 '' => ['ACYM_ALL', $data["automationNumberPerStatus"]["all"]],
@@ -51,12 +53,12 @@ defined('_JEXEC') or die('Restricted access');
 						<div class="cell acym_listing_sort-by auto">
                             <?php echo acym_sortBy(
                                 [
-                                    'id' => strtolower(acym_translation('ACYM_ID')),
-                                    "name" => acym_translation('ACYM_NAME'),
-                                    "active" => acym_translation('ACYM_ACTIVE'),
+                                    'id' => acym_strtolower(acym_translation('ACYM_ID')),
+                                    'name' => acym_translation('ACYM_NAME'),
+                                    'active' => acym_translation('ACYM_ACTIVE'),
                                 ],
                                 "automation",
-                                '',
+                                $data['ordering'],
                                 'asc'
                             ); ?>
 						</div>
@@ -85,7 +87,10 @@ defined('_JEXEC') or die('Restricted access');
                     <?php foreach ($data['allAutomations'] as $automation) { ?>
 						<div data-acy-elementid="<?php echo acym_escape($automation->id); ?>" class="grid-x cell acym__listing__row">
 							<div class="medium-shrink small-1 cell">
-								<input id="checkbox_<?php echo acym_escape($automation->id); ?>" type="checkbox" name="elements_checked[]" value="<?php echo acym_escape($automation->id); ?>">
+								<input id="checkbox_<?php echo acym_escape($automation->id); ?>"
+									   type="checkbox"
+									   name="elements_checked[]"
+									   value="<?php echo acym_escape($automation->id); ?>">
 							</div>
 							<div class="grid-x medium-auto small-11 cell acym__listing__title__container">
 								<div class="grid-x medium-5 small-9 cell acym__listing__title">
@@ -109,7 +114,9 @@ defined('_JEXEC') or die('Restricted access');
 									<div class="text-center cell">
                                         <?php
                                         $class = $automation->active == 1 ? 'acymicon-check-circle acym__color__green" data-acy-newvalue="0' : 'acymicon-times-circle acym__color__red" data-acy-newvalue="1';
-                                        echo '<i data-acy-table="automation" data-acy-field="active" data-acy-elementid="'.acym_escape($automation->id).'" class="acym_toggleable '.$class.'"></i>';
+                                        echo '<i data-acy-table="automation" data-acy-field="active" data-acy-elementid="'.acym_escape(
+                                                $automation->id
+                                            ).'" class="acym_toggleable '.$class.'"></i>';
                                         ?>
 									</div>
 								</div>
@@ -126,4 +133,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php acym_formOptions(); ?>
 </form>
-

@@ -1,0 +1,64 @@
+/**
+ * Administrator module
+ * ====================
+ */
+
+
+/**
+ * Joomla variables
+ * ----------------
+ * Load first to win over "!default" variables defined in core/_tools.scss
+ */
+
+@import "admin/variables";
+
+
+/**
+ * Global tools
+ * ------------
+ * Containing different libraries, variables, mixins and functions
+ */
+
+@import "../../../../../kodekit-ui/src/scss/admin/core/tools";
+
+// Import color styles
+@import "../../../../../kodekit-ui/src/scss/admin/tools/variables";
+@import "../../../../../kodekit-ui/src/scss/admin/utilities/color";
+
+/**
+ * Needed styling
+ * --------------
+ * Load needed styling in here
+ */
+
+$k-icon-path: "../../koowa/framework/fonts";
+@import "../../../../../kodekit-ui/src/scss/admin/generated/k-icons";
+@import "../../../../../kodekit-ui/src/scss/admin/molecules/icon";
+@import "../../../../../kodekit-ui/src/scss/admin/molecules/table";
+@import "../../../../../kodekit-ui/src/scss/admin/3rdparty/magnific";
+
+
+
+/**
+ * Extra styling
+ */
+
+.docman_container {
+  &, *, *:before, *:after {
+    box-sizing: border-box;
+  }
+
+  .k-table-container {
+    background: transparent;
+
+    .k-table {
+      background: transparent;
+    }
+
+    table {
+      th, td {
+        background: transparent;
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,6 +10,9 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
+
+// Ensure that this class didn't exists as the CLI class may override this
+if (!class_exists('EasyDiscussSetupController')) {
 
 jimport('joomla.filesystem.folder');
 jimport('joomla.filesystem.file');
@@ -91,7 +94,7 @@ class EasyDiscussSetupController
 		if (is_null($version)) {
 
 			// Get the version from the manifest file
-			$contents = JFile::read(JPATH_ROOT. '/administrator/components/com_easydiscuss/easydiscuss.xml');
+			$contents = file_get_contents(SI_ADMIN_MANIFEST);
 			$parser = simplexml_load_string($contents);
 
 			$version = $parser->xpath('version');
@@ -121,7 +124,7 @@ class EasyDiscussSetupController
 	 * @since	4.0.12
 	 * @access	public
 	 */
-	public function getInfo($update = false)
+	public function getInfo()
 	{
 		// Get the md5 hash from the server.
 		$resource = curl_init();
@@ -131,8 +134,8 @@ class EasyDiscussSetupController
 
 		// We need to pass the api keys to the server
 		curl_setopt($resource, CURLOPT_POST, true);
-		curl_setopt($resource, CURLOPT_POSTFIELDS, 'apikey=' . ED_KEY . '&from=' . $version);
-		curl_setopt($resource, CURLOPT_URL, ED_MANIFEST);
+		curl_setopt($resource, CURLOPT_POSTFIELDS, 'apikey=' . SI_KEY . '&from=' . $version);
+		curl_setopt($resource, CURLOPT_URL, SI_MANIFEST);
 		curl_setopt($resource, CURLOPT_TIMEOUT, 120);
 		curl_setopt($resource, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($resource, CURLOPT_SSL_VERIFYPEER, false);
@@ -153,12 +156,12 @@ class EasyDiscussSetupController
 	/**
 	 * Loads up the EasyDiscuss library if it exists
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function engine()
 	{
-		$file = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php';
+		$file = SI_ADMIN . '/includes/' . SI_IDENTIFIER_SHORT . '.php';
 
 		if (!JFile::exists($file)) {
 			return false;
@@ -199,8 +202,7 @@ class EasyDiscussSetupController
 	{
 		$this->engine();
 
-		$path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/easydiscuss.xml';
-		$contents = JFile::read($path);
+		$contents = file_get_contents(SI_ADMIN_MANIFEST);
 
 		$parser = simplexml_load_string($contents);
 
@@ -247,6 +249,25 @@ class EasyDiscussSetupController
 	}
 
 	/**
+	 * Splits a string of multiple queries into an array of individual queries.
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function splitSql($contents)
+	{
+		if (JVERSION < 4.0) {
+			$queries = JInstallerHelper::splitSql($contents);
+			return $queries;
+		}
+
+		// J4 method of splitting sql strings
+		$queries = JDatabaseDriver::splitSql($contents);
+
+		return $queries;
+	}
+
+	/**
 	 * Saves a configuration item
 	 *
 	 * @since	4.2.0
@@ -271,5 +292,105 @@ class EasyDiscussSetupController
 		$table->params = $jsonString;
 		$table->store();
 	}
+
+	/**
+	 * method to execute query
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function edQuery($db)
+	{
+		if (JVERSION < 4.0) {
+			return $db->query();
+		} else {
+			return $db->execute();
+		}
+	}
+
+	/**
+	 * Determine if database is set to mysql or not.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function isMySQL()
+	{
+		$jConfig = JFactory::getConfig();
+		$dbType = $jConfig->get('dbtype');
+
+		return $dbType == 'mysql' || $dbType == 'mysqli';
+	}
+
+	/**
+	 * Determine if mysql can support utf8mb4 or not.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function hasUTF8mb4Support()
+	{
+		static $_cache = null;
+
+		if (is_null($_cache)) {
+
+			$db = JFactory::getDBO();
+
+			if (method_exists($db, 'hasUTF8mb4Support')) {
+				$_cache = $db->hasUTF8mb4Support();
+				return $_cache;
+			}
+
+			// we check the server version 1st
+			$server_version = $db->getVersion();
+			if (version_compare($server_version, '5.5.3', '<')) {
+				 $_cache = false;
+				 return $_cache;
+			}
+
+			$client_version = '5.0.0';
+
+			if (function_exists('mysqli_get_client_info')) {
+				$client_version = mysqli_get_client_info();
+			} else if (function_exists('mysql_get_client_info')) {
+				$client_version = mysql_get_client_info();
+			}
+
+			if (strpos($client_version, 'mysqlnd') !== false) {
+				$client_version = preg_replace('/^\D+([\d.]+).*/', '$1', $client_version);
+				$_cache = version_compare($client_version, '5.0.9', '>=');
+			} else {
+				$_cache = version_compare($client_version, '5.5.3', '>=');
+			}
+
+		}
+
+		return $_cache;
+	}
+
+	/**
+	 * Convert utf8mb4 to utf8
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function convertUtf8mb4QueryToUtf8($query)
+	{
+		if ($this->hasUTF8mb4Support()) {
+			return $query;
+		}
+
+		// If it's not an ALTER TABLE or CREATE TABLE command there's nothing to convert
+		$beginningOfQuery = substr($query, 0, 12);
+		$beginningOfQuery = strtoupper($beginningOfQuery);
+
+		if (!in_array($beginningOfQuery, array('ALTER TABLE ', 'CREATE TABLE'))) {
+			return $query;
+		}
+
+		// Replace utf8mb4 with utf8
+		return str_replace('utf8mb4', 'utf8', $query);
+	}
 }
 
+}

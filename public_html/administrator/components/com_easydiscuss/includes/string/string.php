@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,15 +11,15 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussString extends EasyDiscuss
+class EasyDiscussString 
 {
-	public function getNoun( $var , $count , $includeCount = false )
+	public function getNoun($var, $count, $includeCount = false)
 	{
 		static $zeroIsPlural;
 
 		if (!isset($zeroIsPlural))
 		{
-			$config	= DiscussHelper::getConfig();
+			$config	= ED::config();
 			$zeroIsPlural = $config->get( 'layout_zero_as_plural' );
 		}
 
@@ -47,7 +47,7 @@ class EasyDiscussString extends EasyDiscuss
 		if ($matches) {
 			$image = isset($matches[1]) ? $matches[1] : '';
 
-			if (JString::stristr($matches[1], 'https://') === false && JString::stristr($matches[1], 'http://') === false && !empty($image)) {
+			if (EDJString::stristr($matches[1], 'https://') === false && EDJString::stristr($matches[1], 'http://') === false && !empty($image)) {
 				$image	= DISCUSS_JURIROOT . '/' . ltrim($image, '/');
 			}
 		}
@@ -155,7 +155,7 @@ class EasyDiscussString extends EasyDiscuss
 	 */
 	public static function normalizeProtocol($str)
 	{
-		if (JString::stristr($str, 'http://') === false && JString::stristr($str, 'https://') === false) {
+		if (EDJString::stristr($str, 'http://') === false && EDJString::stristr($str, 'https://') === false) {
 			$str = 'http://' . $str;
 		}
 
@@ -187,7 +187,7 @@ class EasyDiscussString extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function detectNames($text, $exclude = array())
+	public function detectNames($text, $exclude = [])
 	{
 		$extendedlatinPattern = "\\x{0c0}-\\x{0ff}\\x{100}-\\x{1ff}\\x{180}-\\x{27f}";
 		$arabicPattern = "\\x{600}-\\x{6FF}";
@@ -206,8 +206,7 @@ class EasyDiscussString extends EasyDiscuss
 		$users = array();
 
 		foreach ($result as $name) {
-
-			$name = JString::str_ireplace(array('@','#'), '', $name);
+			$name = EDJString::str_ireplace(['@','#'], '', $name);
 
 			// Given a name, try to find the correct user id.
 			$id = ED::getUserId($name);
@@ -222,9 +221,71 @@ class EasyDiscussString extends EasyDiscuss
 		return $users;
 	}
 
-	public function nameToLink( $text )
+	/**
+	 * Deterects a list of slash action matches using / symbols
+	 *
+	 * @since	4.2
+	 * @access	public
+	 */
+	public function detectSlashes(&$text, $allowedCommands)
 	{
+		$allowedActions = $allowedCommands['actions'];
+		$allowedLabels = $allowedCommands['labels'];
 
+		// allow slashes action 
+		$extendedlatinPattern = "\\x{0c0}-\\x{0ff}\\x{100}-\\x{1ff}\\x{180}-\\x{27f}";
+		$arabicPattern = "\\x{600}-\\x{6FF}";
+
+		$pattern = $extendedlatinPattern . $arabicPattern .'A-Za-z0-9][' . $extendedlatinPattern . $arabicPattern . 'A-Za-z0-9_\-\.\,\&]+/ui';
+		$actionsPattern = '/(^|[^a-zA-Z0-9])\/[' . $pattern;
+		$labelsPattern = '/(^|[^a-zA-Z0-9])\~[' . $pattern;
+
+		$text = $this->unhtmlentities($text);
+
+		preg_match_all($actionsPattern, $text, $actionMatches);
+		preg_match_all($labelsPattern, $text, $labelMatches);
+
+		if ((!isset($labelMatches[0]) || !$labelMatches[0]) && (!isset($actionMatches[0]) || !$actionMatches[0])) {
+			return false;
+		}
+
+		$actionMatches = $actionMatches[0];
+		$labelMatches = $labelMatches[0];
+
+		$actions = array();
+		$labels = array();
+
+		foreach ($actionMatches as $action) {
+			$action = trim($action);
+			$action = str_replace(array('/',' '),'',$action);
+
+			if (!in_array($action, $allowedActions)) {
+				continue;
+			}
+
+			$actions[] = $action;
+		}
+
+		foreach ($labelMatches as $label) {
+			$label = trim($label);
+			$label = str_replace(array('~',' '),'',$label);
+
+			if (!in_array($label, $allowedLabels)) {
+				continue;
+			}
+
+			$labels[] = $label;
+		}
+
+		$commands = array();
+		$commands['actions'] = $actions;
+		$commands['labels'] = $labels;
+
+		return $commands;
+	}
+
+	public function nameToLink($text)
+	{
 	}
 
 	public function bytesToSize($bytes, $precision = 2)
@@ -270,6 +331,29 @@ class EasyDiscussString extends EasyDiscuss
 	}
 
 	/**
+	 * Process AMP for string
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function processAMP($content)
+	{
+		// style attribute is not allowed in AMP
+		$output = preg_replace('/(<[^>]+) style=".*?"|data-style=".*?"/i', '$1', $content);
+
+		// target=_blank is not allowed in AMP
+		$output = preg_replace('/(<a.*?)[ ]?target="_blank"(.*?)/', '$1$2', $output);
+
+		// Just in case people using target=blank
+		$output = preg_replace('/(<a.*?)[ ]?target="blank"(.*?)/', '$1$2', $output);
+
+		// Some of rel attribute not allowed in AMP
+		$output = preg_replace('/(<a.*?)[ ]?rel=".*?"/', '$1$2', $output);
+
+		return $output;
+	}
+
+	/**
 	 * Converts hyperlink text into real hyperlinks
 	 *
 	 * @since	4.0.6
@@ -280,7 +364,7 @@ class EasyDiscussString extends EasyDiscuss
 		$config = ED::config();
 
 		// Pattern to skip the url that are within the specific html tag. eg: <img src="www.url.com">.
-		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a.*?<\/a>(*SKIP)(*FAIL)';
+		$skipPattern = '<img[^>]*>(*SKIP)(*FAIL)|<script[^>]*>(*SKIP)(*FAIL)|<amp-iframe[^>]*>(*SKIP)(*FAIL)|<amp-img[^>]*>(*SKIP)(*FAIL)|<iframe[^>]*>(*SKIP)(*FAIL)|<a.*?<\/a>(*SKIP)(*FAIL)';
 
 		// $pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}\/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
 		$pattern = '@' . $skipPattern . '|(?:https?:\/\/|www\d{0,3}[.])(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:\'".,<>?«»“”‘’])@i';
@@ -330,7 +414,7 @@ class EasyDiscussString extends EasyDiscuss
 			foreach ($linksWithProtocols as $link) {
 				$mypattern = '[EDWURL' . $idx . ']';
 
-				$tmpLink = JString::str_ireplace('@', '\@', preg_quote($link));
+				$tmpLink = EDJString::str_ireplace('@', '\@', preg_quote($link));
 				$replacePattern = '@' . $skipPattern . '|(' . $tmpLink . ')@i';
 
 				$text = preg_replace($replacePattern, $mypattern, $text);
@@ -353,7 +437,7 @@ class EasyDiscussString extends EasyDiscuss
 
 			foreach($linksWithoutProtocols as $link) {
 				$mypattern = '[EDWOURL' . $idx . ']';
-				$tmpLink = JString::str_ireplace('@', '\@', preg_quote($link));
+				$tmpLink = EDJString::str_ireplace('@', '\@', preg_quote($link));
 				$replacePattern = '@' . $skipPattern . '|(' . $tmpLink . ')@i';
 
 				$text = preg_replace($replacePattern, $mypattern, $text);
@@ -384,7 +468,7 @@ class EasyDiscussString extends EasyDiscuss
 
 			// Replace & to &amp; for the URL to work correctly. #48
 			// eg : https://site.com/discuss?sub=1&sub=2
-			$text = JString::str_ireplace('&amp;', '&', $text);
+			$text = EDJString::str_ireplace('&amp;', '&', $text);
 
 			// Use preg_replace to only replace if the URL doesn't has <a> tag
 			$text = preg_replace($patternReplace, '<a href="\0" ' . $linkAttr . '>\0</a>', $text);
@@ -404,32 +488,67 @@ class EasyDiscussString extends EasyDiscuss
 	}
 
 	/**
-	 * To hightlighted the strings
+	 * Highlight text in a given set of content
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
-	public function hightlight($strings, $query)
+	public static function highlight($content, $highlightText)
 	{
-		$replace = $query;
+		$result = preg_replace('#\xE3\x80\x80#s', ' ', $highlightText);
+		$search = preg_split("/\s+/u", $result);
+		$needle = $search[0];
 
-		if (is_array($query)) {
+		$words = array_unique($search);
 
-			$replace = array_flip(array_flip($query));
-			$pattern = array();
+		$introtext = strip_tags($content);
+		$introtext = preg_replace('/\s+/', ' ' , $introtext);
+		$pos = strpos($introtext, $needle);
 
-			foreach ($replace as $k=>$fword) {
-				$pattern[] = '/\b(' . $fword . ')(?!>)\b/i';
-				$replace[$k] = '<span class="ed-search-hightlight">$1</span>';
+		if ($pos !== false) {
+			$text = '...';
+			$startpos = ($pos - 10) >= 0 ? $pos - 10 : 0;
+			$endpos = ($pos - 10) >= 0 ? 10 : ($pos - $startpos);
+
+			$front = EDJString::substr($introtext, $startpos, $endpos);
+
+			if (EDJString::strlen($introtext) > $endpos) {
+				$endpos = $pos + EDJString::strlen($needle);
+				$end = EDJString::substr($introtext, $endpos, 10);
+
+				if (EDJString::strlen($front) > 0) {
+					$text  = $text . $front;
+				}
+
+				$text  = $text . $needle;
+
+				if (EDJString::strlen($end) > 0) {
+					$text  = $text . $end . '...';
+				}
+			} else {
+				$text = $front;
 			}
 
-			return preg_replace($pattern, $replace, $strings);
+			$introtext = $text;
 		}
 
-		$pattern = '/\b(' . $replace . ')(?!>)\b/i';
-		$replace = '<span class="ed-search-hightlight">$1</span>';
 
-		return preg_replace($pattern, $replace, $strings);
+		$pattern = '#(';
+		$x = 0;
+
+		foreach ($words as $key => $word) {
+			$pattern .= ($x == 0 ? '' : '|');
+			$pattern .= preg_quote($word, '#');
+
+			$x++;
+		}
+
+		$pattern .= '(?!(?>[^<]*(?:<(?!/?a\b)[^<]*)*)</a>))#iu';
+
+		// Perform highlighting on the introtext
+		$content = preg_replace($pattern, '<span class="highlight">\0</span>', $introtext);
+
+		return $content;
 	}
 
 	/**
@@ -442,5 +561,4 @@ class EasyDiscussString extends EasyDiscuss
 	{
 		return (preg_match('/(?:[^\x00-\x7F])/',$str) !== 1);
 	}
-
 }

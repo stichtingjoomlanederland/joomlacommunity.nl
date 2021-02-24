@@ -247,7 +247,7 @@ class EasyDiscussMaintenance extends EasyDiscuss
 	}
 
 	/**
-	 * Performs some maintenance here.
+	 * To prune the notifications
 	 *
 	 * @since	3.0
 	 * @access	public
@@ -259,11 +259,19 @@ class EasyDiscussMaintenance extends EasyDiscuss
 
 		$config = ED::config();
 		$days = $config->get('notifications_history', 30);
+		$limit = $config->get('prune_notifications_limit', 100);
 
-		$query	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_notifications' ) . ' '
-				. 'WHERE ' . $db->nameQuote( 'created' ) . ' <= DATE_SUB( ' . $db->Quote( $date->toSql() ) . ' , INTERVAL ' . $days . ' DAY )';
+		$query = [];
 
+		$query[] = 'DELETE FROM ' . $db->nameQuote('#__discuss_notifications');
+		$query[] = 'WHERE ' . $db->nameQuote('created') . ' <= DATE_SUB(' . $db->Quote($date->toSql()) . ' , INTERVAL ' . $days . ' DAY )';
+		if ($limit) {
+			$query[] = 'LIMIT ' . $limit;
+		}
+
+		$query = implode(' ', $query);
 		$db->setQuery($query);
+
 		$db->query();
 
 		return true;

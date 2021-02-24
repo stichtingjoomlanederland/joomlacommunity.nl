@@ -1,11 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
+namespace AcyMailing\Types;
 
-class charsetType extends acymObject
+use AcyMailing\Libraries\acymObject;
+
+class CharsetType extends acymObject
 {
-    var $addinfo = '';
     var $charsets = [];
     var $values = [];
 
@@ -51,7 +51,14 @@ class charsetType extends acymObject
 
     public function display($map, $value)
     {
-        return acym_select($this->values, $map, $value, 'size="1" style="width:150px;" '.$this->addinfo, 'value', 'text');
+        return acym_select(
+            $this->values,
+            $map,
+            $value,
+            [
+                'size' => 1,
+                'style' => 'width:150px;',
+            ]
+        );
     }
 }
-

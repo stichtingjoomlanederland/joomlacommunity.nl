@@ -31,6 +31,7 @@
 			   label="COM_ROPAYMENTS_PROFILE_NAME_LABEL"
 			   description="COM_ROPAYMENTS_PROFILE_NAME_DESC"
 			   class="input-xlarge"
+			   size="35"
 			   required="true"
 			   default=""/>
 
@@ -50,8 +51,8 @@
 			   class="btn-group"
 			   label="COM_ROPAYMENTS_MAIL_STATUS_MISMATCH_LABEL"
 			   description="COM_ROPAYMENTS_MAIL_STATUS_MISMATCH_DESC">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 		<field name="admin_order_payment"
 			   type="radio"
@@ -59,8 +60,8 @@
 			   class="btn-group"
 			   label="COM_ROPAYMENTS_MAIL_ADMIN_ORDER_PAYMENT_LABEL"
 			   description="COM_ROPAYMENTS_MAIL_ADMIN_ORDER_PAYMENT_DESC">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 		<field name="admin_status_failed"
 			   type="radio"
@@ -68,8 +69,8 @@
 			   class="btn-group"
 			   label="COM_ROPAYMENTS_MAIL_ADMIN_PAYMENT_FAILED_LABEL"
 			   description="COM_ROPAYMENTS_MAIL_ADMIN_PAYMENT_FAILED_DESC">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 		<field name="inform_email"
 			   type="radio"
@@ -77,8 +78,8 @@
 			   class="btn-group"
 			   label="COM_ROPAYMENTS_MAIL_INFORM_EMAIL_STATUS_LABEL"
 			   description="COM_ROPAYMENTS_MAIL_INFORM_EMAIL_STATUS_DESC">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 		<field name="jdidealgateway_emailto"
 			   type="text"
@@ -91,8 +92,8 @@
 			   class="btn-group"
 			   label="COM_ROPAYMENTS_MAIL_CUSTOMER_CHANGE_STATUS_LABEL"
 			   description="COM_ROPAYMENTS_MAIL_CUSTOMER_CHANGE_STATUS_DESC">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 	</fieldset>
 </form>

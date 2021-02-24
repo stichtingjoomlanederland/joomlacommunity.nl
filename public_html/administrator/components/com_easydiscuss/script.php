@@ -90,7 +90,7 @@ class com_EasyDiscussInstallerScript
 			$version = '3.1.0';
 
 			if (JFile::exists($xmlfile)) {
-				$contents = JFile::read($xmlfile);
+				$contents = file_get_contents($xmlfile);
 				$parser = simplexml_load_string($contents);
 				$version = $parser->xpath('version');
 				$version = (string) $version[0];
@@ -104,7 +104,12 @@ class com_EasyDiscussInstallerScript
 			$query .= ' (' . $db->Quote('scriptversion') . ',' . $db->Quote($version) . ')';
 
 			$db->setQuery($query);
-			$db->query();
+
+			if (method_exists($db, 'query')) {
+				return $db->query();
+			}
+
+			$db->execute();
 		}
 	}
 

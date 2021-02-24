@@ -262,7 +262,7 @@ class EDLinkedInConsumer {
 					// we have shared content, format it as needed per rules above
 					$content_title = trim(htmlspecialchars(strip_tags(stripslashes($content['title']))));
 
-					if (JString::strlen($content_title) > self::_SHARE_CONTENT_TITLE_LENGTH) {
+					if (EDJString::strlen($content_title) > self::_SHARE_CONTENT_TITLE_LENGTH) {
 						throw new LinkedInException('LinkedIn->share(): title length is too long - max length is ' . self::_SHARE_CONTENT_TITLE_LENGTH . ' characters.');
 					}
 
@@ -278,7 +278,7 @@ class EDLinkedInConsumer {
 						// $content_desc = trim(htmlspecialchars(strip_tags(stripslashes($content['description']))));
 						$content_desc = $content['description'];
 
-						if (JString::strlen($content_desc) > self::_SHARE_CONTENT_DESC_LENGTH) {
+						if (EDJString::strlen($content_desc) > self::_SHARE_CONTENT_DESC_LENGTH) {
 							throw new LinkedInException('LinkedIn->share(): description length is too long - max length is ' . self::_SHARE_CONTENT_DESC_LENGTH . ' characters.');
 						}
 
@@ -294,7 +294,7 @@ class EDLinkedInConsumer {
 					// comment located
 					$comment = $content['comment'];
 
-					if (JString::strlen($comment) > self::_SHARE_COMMENT_LENGTH) {
+					if (EDJString::strlen($comment) > self::_SHARE_COMMENT_LENGTH) {
 						throw new LinkedInException('LinkedIn->share(): comment length is too long - max length is ' . self::_SHARE_COMMENT_LENGTH . ' characters.');
 					}
 
@@ -317,7 +317,7 @@ class EDLinkedInConsumer {
 						// comment located
 						$comment = htmlspecialchars(trim(strip_tags(stripslashes($content['comment']))));
 
-						if (JString::strlen($comment) > self::_SHARE_COMMENT_LENGTH) {
+						if (EDJString::strlen($comment) > self::_SHARE_COMMENT_LENGTH) {
 							throw new LinkedInException('LinkedIn->share(): comment length is too long - max length is ' . self::_SHARE_COMMENT_LENGTH . ' characters.');
 						}
 

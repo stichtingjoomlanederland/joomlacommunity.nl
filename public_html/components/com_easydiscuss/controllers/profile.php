@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(__DIR__ . '/controller.php');
 
 class EasyDiscussControllerProfile extends EasyDiscussController
 {
@@ -25,7 +23,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 	{
 		$document = JFactory::getDocument();
 		$viewType = $document->getType();
-		$viewName = JRequest::getCmd( 'view', $this->getName() );
+		$viewName = $this->input->get('view', $this->getName(), 'cmd');
 		$view = $this->getView( $viewName,'',  $viewType);
 		$view->display();
 	}
@@ -46,32 +44,36 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 		$post = $this->input->getArray('post');
 
-		array_walk($post, array($this, '_trim'));
+		// Handle twofactor posted data
+		$twoFactorData = array();
 
-		if (!$this->_validateProfileFields($post)) {
+		if (isset($post['jform'])) {
+			$twoFactorData = $post['jform'];
+
+			unset($post['jform']);
+		}
+
+		array_walk($post, array($this, 'trim'));
+
+		// Validate the post items.
+		if (!$this->validateProfile($post)) {
 			$this->setRedirect(EDR::_('view=profile&layout=edit', false));
 			return;
 		}
 
-		// load user
-		$my	= $this->my;
-		$profile = ED::table('Profile');
-		$profile->load($my->id);
-
-		// this is so that we can get com_users jform data for custom fields.
+		// Retrieveing user's custom fields from com_user jfrom data.
 		$profileExModel = new EasyDiscussModelProfileEx();
 		$form = $profileExModel->getForm();
-		$userRequiredBind = false;
 
-		// here we need to get the custom fiels data and simulate the form post data.
+		// Get the custom fields data and simulate the form post data.
 		if ($form !== false) {
 			$customFields = array();
-			foreach ($form->getFieldsets() as $group => $fieldset) {
 
+			foreach ($form->getFieldsets() as $group => $fieldset) {
 				if (strpos($group, 'fields') !== false) {
 					$fields = $form->getFieldset($group);
 
-					foreach($fields as $field) {
+					foreach ($fields as $field) {
 						$customFields[$field->fieldname] = $field->value;
 					}
 				}
@@ -79,31 +81,20 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 			if ($customFields) {
 				$post['com_fields'] = $customFields;
-				$userRequiredBind = true;
 			}
 		}
 
-		$my->name = $post['fullname'];
+		// Set the name field.
+		$this->my->name = $post['fullname'];
 
 		// We check for password2 instead off password because apparently it is still autofill the form although is autocomplete="off"
 		if (!empty($post['password2'])) {
-			$my->password = $post['password'];
-			$userRequiredBind = true;
+			$this->my->password = $post['password'];
 		}
 
 		// we check for this because user have chance to modify their email as well
-		if (!empty($post['email']) && $my->email != $post['email']) {
-			$userRequiredBind = true;
-		}
-
-		if ($userRequiredBind) {
-			$my->bind($post);
-		}
-
-		// Cheap fix: Do not allow user to override `edited` field.
-		// Ideally, this should just be passed as ignore into the table.
-		if (isset($post['edited'])) {
-			unset($post['edited']);
+		if (!empty($post['email']) && $this->my->email != $post['email']) {
+			$this->my->email = $post['email'];
 		}
 
 		$address = isset($post['address1']) && $post['address1'] ? $post['address1'] : '';
@@ -115,50 +106,65 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		// column mapping.
 		$post['location'] = $address;
 
-		if (isset($post['alias'])) {
-
-			// perform alias checking here.
-			$alias = $this->checkAlias($post['alias']);
-
-			if (!$alias) {
-				$this->setRedirect(EDR::_('view=profile&layout=edit'));
-				return;
-			}
-		}
-
 		$post['signature'] = $this->input->get('signature', '', 'raw');
 		$post['description'] = $this->input->get('description', '', 'raw');
 
+		$userSaved = $this->my->save(true);
+
+		// Handle twofactor setup
+		if (array_key_exists('twofactor', $twoFactorData)) {
+
+			$joomlaUserModel = ED::getJoomlaUserModel();
+
+			$twoFactorMethod = $twoFactorData['twofactor']['method'];
+
+			$otpConfig = ED::getOtpConfig();
+
+			// if the user first time setting this up
+			if ($twoFactorMethod !== 'none' && $otpConfig->method == 'none') {
+				$otpConfigReplies = ED::getTwoFactorConfig($twoFactorMethod);
+
+				// Look for a valid reply
+				foreach ($otpConfigReplies as $reply) {
+					if (!is_object($reply) || empty($reply->method) || ($reply->method != $twoFactorMethod)) {
+						continue;
+					}
+
+					$otpConfig->method = $reply->method;
+					$otpConfig->config = $reply->config;
+
+					break;
+				}
+
+				// Save OTP configuration.
+				$state = $joomlaUserModel->setOtpConfig($this->my->id, $otpConfig);
+
+				// Generate one time emergency passwords if required (depleted or not set)
+				if (empty($otpConfig->otep)) {
+					$joomlaUserModel->generateOteps($this->my->id);
+				}
+			} else {
+
+				if ($twoFactorMethod == 'none') {
+					// Default otpConfig
+					$otpConfig->method = 'none';
+					$otpConfig->config = array();
+				}
+
+				$joomlaUserModel->setOtpConfig($this->my->id, $otpConfig);
+			}
+		}
+
 		$profile = ED::table('Profile');
-		$profile->load($my->id);
+		$profile->load($this->my->id);
 		$profile->bind($post);
 
 		//save avatar
-		$file = JRequest::getVar( 'Filedata', '', 'files', 'array' );
+		$file = $this->input->files->get('Filedata', '');
 
-		if (! empty($file['name'])) {
-			$newAvatar = $this->_upload( $profile );
-
-			// @rule: If this is the first time the user is changing their profile picture, give a different point
-			if ($profile->avatar == 'default.png') {
-
-				// @rule: Process AUP integrations
-				ED::Aup()->assign(DISCUSS_POINTS_NEW_AVATAR, $my->id, $newAvatar);
-			} else {
-				// @rule: Process AUP integrations
-				ED::Aup()->assign(DISCUSS_POINTS_UPDATE_AVATAR, $my->id, $newAvatar);
-			}
-
-			// @rule: Badges when they change their profile picture
-			ED::history()->log('easydiscuss.new.avatar', $my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_AVATAR'));
-
-			ED::badges()->assign('easydiscuss.new.avatar', $my->id);
-			ED::points()->assign('easydiscuss.new.avatar', $my->id);
-
-			// Reset the points
-			$profile->updatePoints();
-
-			$profile->avatar = $newAvatar;
+		if (!empty($file['name'])) {
+			$acl = ED::acl();
+			$profile->bindAvatar($file, $acl);
 		}
 
 		// Save user params
@@ -166,16 +172,17 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 		// Assign all the params in an array
 		$userParamsArr = array(
-						'facebook',
-						'show_facebook',
-						'twitter',
-						'show_twitter',
-						'linkedin',
-						'show_linkedin',
-						'skype',
-						'show_skype',
-						'website',
-						'show_website');
+				'facebook',
+				'show_facebook',
+				'twitter',
+				'show_twitter',
+				'linkedin',
+				'show_linkedin',
+				'skype',
+				'show_skype',
+				'website',
+				'show_website'
+		);
 
 		foreach ($userParamsArr as $key) {
 			if (isset($post[$key])) {
@@ -185,71 +192,54 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 		$profile->params = $userparams->toString();
 
-		// Save site details
-		$siteDetails = ED::registry();
+		// Render additional tabs
+		JPluginHelper::importPlugin('easydiscuss');
+		JFactory::getApplication()->triggerEvent('onBeforeSaveUser', array(&$profile, &$post));
 
-		// Assign the site details into an array
-		$siteDetailsArr = array(
-						'siteUrl',
-						'siteUsername',
-						'sitePassword',
-						'ftpUrl',
-						'ftpUsername',
-						'ftpPassword',
-						'optional');
-
-		foreach ($siteDetailsArr as $key) {
-			if (isset($post[$key])) {
-				$siteDetails->set($key, $post[$key]);
-			}
-		}
-
-		$profile->site = $siteDetails->toString();
-
-		if ($profile->store() && $my->save(true)) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_SAVED'), 'info');
+		if ($profile->store() && $userSaved) {
+			ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_SAVED'), 'success');
 
 			// @rule: Badges when they change their profile picture
-			ED::history()->log('easydiscuss.update.profile', $my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_PROFILE'));
-			ED::badges()->assign('easydiscuss.update.profile', $my->id);
+			ED::history()->log('easydiscuss.update.profile', $this->my->id, JText::_('COM_EASYDISCUSS_BADGES_HISTORY_UPDATED_PROFILE'));
+			ED::badges()->assign('easydiscuss.update.profile', $this->my->id);
 
 			// Only give points the first time the user edits their profile.
 			if (!$profile->edited) {
-				ED::points()->assign('easydiscuss.update.profile', $my->id);
+				ED::points()->assign('easydiscuss.update.profile', $this->my->id);
 
 				$profile->edited = true;
 				$profile->store();
 			}
 		} else {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_PROFILE_SAVE_ERROR'), 'error');
-			$this->app->redirect(EDR::_('view=profile&layout=edit', false));
+			ED::redirect(EDR::_('view=profile&layout=edit', false));
 			return;
 		}
 
-		$this->app->redirect(EDR::_('view=profile&layout=edit', false));
+		ED::redirect(EDR::_('view=profile&layout=edit', false));
 		return;
 	}
 
-	public function _trim(&$text)
+	protected function trim(&$text)
 	{
-		$text = JString::trim($text);
+		$text = EDJString::trim($text);
 	}
 
-	public function _validateProfileFields($post)
+	protected function validateProfile($post)
 	{
-		if (JString::strlen($post['fullname']) == 0) {
+		if (EDJString::strlen($post['fullname']) == 0) {
 			$message = JText::_('COM_EASYDISCUSS_REALNAME_EMPTY');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			return false;
 		}
 
-		if (JString::strlen($post['nickname']) == 0) {
+		if (EDJString::strlen($post['nickname']) == 0) {
 			$message = JText::_('COM_EASYDISCUSS_NICKNAME_EMPTY');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			return false;
 		}
 
-		if (JString::strlen($post['email']) == 0) {
+		if (EDJString::strlen($post['email']) == 0) {
 			$message = JText::_('COM_ED_EMAIL_EMPTY');
 			ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 			return false;
@@ -265,7 +255,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 		if (!empty($post['password'])) {
 
-			if (JString::strlen($post['password']) < 4) {
+			if (EDJString::strlen($post['password']) < 4) {
 				$message = JText::_('COM_EASYDISCUSS_PROFILE_PASSWORD_TOO_SHORT');
 				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
 				return false;
@@ -288,19 +278,26 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 			}
 		}
 
+		if (isset($post['alias']) && $post['alias']) {
+
+			$validAlias = $this->checkAlias($post['alias']);
+
+			if (!$validAlias) {
+				$message = JText::_('COM_EASYDISCUSS_ALIAS_NOT_AVAILABLE');
+				ED::setMessage($message, DISCUSS_QUEUE_ERROR);
+				return false;
+			}
+		}
+
 		return true;
 	}
 
-	public function _upload($profile, $type = 'profile')
-	{
-		$newAvatar  = '';
-
-		//can do avatar upload for post in future.
-		$newAvatar  = ED::uploadAvatar($profile);
-
-		return $newAvatar;
-	}
-
+	/**
+	 * Allows caller to remove their picture
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function removePicture()
 	{
 		$my = JFactory::getUser();
@@ -342,7 +339,7 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		}
 
 		$message = JText::_('COM_EASYDISCUSS_USER_DISABLED');
-		ED::setMessageQueue($message , DISCUSS_QUEUE_SUCCESS);
+		ED::setMessage($message , DISCUSS_QUEUE_SUCCESS);
 		$this->setRedirect(EDR::_( 'index.php?option=com_easydiscuss' , false ));
 	}
 
@@ -382,14 +379,14 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 
 		// Ensure that the user is logged in
 		if (!$this->my->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_PLEASE_LOGIN_INFO'));
+			throw ED::exception('COM_EASYDISCUSS_PLEASE_LOGIN_INFO', ED_MSG_ERROR);
 		}
 
 		$table = ED::table('download');
 		$exists = $table->load(array('userid' => $this->my->id));
 
 		if ($exists) {
-			return JError::raiseError(500, JText::_('COM_ED_GDPR_DOWNLOAD_ERROR_MULTIPLE_REQUEST'));
+			throw ED::exception('COM_ED_GDPR_DOWNLOAD_ERROR_MULTIPLE_REQUEST', ED_MSG_ERROR);
 		}
 
 		$params = array();
@@ -403,15 +400,13 @@ class EasyDiscussControllerProfile extends EasyDiscussController
 		$redirect = EDR::_('view=profile&layout=download', false);
 
 		$message = JText::_('COM_ED_GDPR_REQUEST_DATA_SUCCESS');
-		ED::setMessageQueue($message , DISCUSS_QUEUE_SUCCESS);
+		ED::setMessage($message , DISCUSS_QUEUE_SUCCESS);
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 }
 
-
-require_once(JPATH_SITE.'/components/com_users/models/profile.php');
-class EasyDiscussModelProfileEx extends UsersModelProfile
+class EasyDiscussModelProfileEx extends EDUsersModelProfile
 {
 	/**
 	 * @since	4.0
@@ -441,10 +436,10 @@ class EasyDiscussModelProfileEx extends UsersModelProfile
 		}
 
 		// add com_users forms and fields path
-		JForm::addFormPath(JPATH_SITE . '/components/com_users/models/forms');
-		JForm::addFieldPath(JPATH_SITE . '/components/com_users//models/fields');
-		JForm::addFormPath(JPATH_SITE . '/components/com_users//model/form');
-		JForm::addFieldPath(JPATH_SITE . '/components/com_users//model/field');
+		JForm::addFormPath(JPATH_ADMINISTRATOR . '/components/com_users/models/forms');
+		JForm::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_users//models/fields');
+		JForm::addFormPath(JPATH_ADMINISTRATOR . '/components/com_users//model/form');
+		JForm::addFieldPath(JPATH_ADMINISTRATOR . '/components/com_users//model/field');
 
 		$form = parent::getForm($data, $loadData);
 		return $form;

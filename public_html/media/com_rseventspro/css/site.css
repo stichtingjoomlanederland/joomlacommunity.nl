@@ -146,16 +146,6 @@ div.rs_heading a {
 	margin-top: 10px;
 }
 
-#locationForm label {
-	display: block;
-    float: left;
-    width: 10%;
-}
-
-#locationForm input {
-    width: 50%;
-}
-
 .rs_rss {
 	margin: 5px;
     text-align: right !important;
@@ -170,7 +160,7 @@ div.rs_heading a {
 .rs_files, .rs_av_tickets {
 	list-style: none outside none !important;
 	padding: 0 !important;
-	margin-left: 10px !important;
+	margin-left: 0;
 }
 
 #rsepro-rating {
@@ -178,6 +168,7 @@ div.rs_heading a {
 	list-style: outside none none;
     margin-top: 9px;
 	margin-left: 0;
+	padding: 0;
 }
 
 #rsepro-rating li {
@@ -784,6 +775,7 @@ ul.rs_files li{
 #cropcontainer {
 	border: 10px solid #ddd;
 	margin: 0 auto;
+	box-sizing: content-box;
 }
 
 .rsepro_legend_selected, .rsepro_legend_selected:hover {
@@ -831,6 +823,10 @@ ul.rs_files li{
 
 #rsepro-filter-price {
     padding: 11px 15px;
+}
+
+#rsepro-navbar-j4 #rsepro-filter-price {
+    padding: 6px 15px;
 }
 
 .rsepro-min-price {
@@ -962,10 +958,6 @@ ul.rs_files li{
 
 #rsegetdir {
 	margin-bottom: 9px;
-}
-
-#locationForm label {
-	float: none;
 }
 
 #rs_results {
@@ -1219,4 +1211,52 @@ textarea.invalid {
 
 .rs_location_info {
 	margin-top: 5px;
+}
+
+#upload_file {
+	position:absolute;
+	z-index:2;
+	top:0;
+	left:0;
+	filter: alpha(opacity=0);
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	opacity:0;
+	background-color:transparent;
+	color:transparent;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+}
+
+#rseproModal .modal-body,
+#rseproTermsModal .modal-body,
+#rseCartModal .modal-body,
+#newField .modal-body,
+#copyFields .modal-body,
+#rseCartMModal .modal-body,
+#rseCheckoutMModal .modal-body,
+#rseTicketsModal .modal-body,
+#rseImageModal .modal-body,
+#rseReportModal .modal-body,
+#rseUnsubscribeModal .modal-body,
+#rseSubscribeModal .modal-body,
+#rseMessageModal .modal-body,
+#rseInviteModal .modal-body,
+#rseFromModal .modal-body,
+#rseModal .modal-body,
+#rsepro-edit-event-photo .modal-body,
+#rsepro-edit-event-file .modal-body,
+#rsepro-add-new-speaker .modal-body,
+#rsepro-add-new-sponsor .modal-body,
+#rsepro-add-new-categ .modal-body,
+#rseTicketModal .modal-body,
+#rseproFacebookLog .modal-body,
+#rseproGoogleLog .modal-body,
+#batchevents .modal-body {
+	overflow-y: auto;
+}
+
+.rsepro-form-text {
+	display: block;
+	margin-top: .25rem;
 }

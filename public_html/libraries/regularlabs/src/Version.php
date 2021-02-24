@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -241,7 +241,7 @@ class Version
 			var RLEM_TOKEN = '" . JSession::getFormToken() . "';
 		"
 		);
-		Document::script('regularlabsmanager/script.min.js', '20.7.20564');
+		Document::script('regularlabsmanager/script.min.js', '20.12.24168');
 
 		$url = 'https://download.regularlabs.com?ext=' . $alias . '&j=3';
 

@@ -1,6 +1,6 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Libraries\acymPlugin;
 
 class plgAcymOnline extends acymPlugin
 {
@@ -10,7 +10,7 @@ class plgAcymOnline extends acymPlugin
         $this->pluginDescription->name = acym_translation('ACYM_WEBSITE_LINKS');
     }
 
-    public function dynamicText()
+    public function dynamicText($mailId)
     {
         return $this->pluginDescription;
     }
@@ -19,6 +19,15 @@ class plgAcymOnline extends acymPlugin
     {
         $others = [];
         $others['readonline'] = ['default' => acym_translation('ACYM_VIEW_ONLINE', true), 'desc' => acym_translation('ACYM_VIEW_ONLINE_DESC')];
+        if (ACYM_CMS == 'joomla') {
+            $profilePage = acym_getPageLink('view=frontusers&layout=profile');
+            $others['modify_profile'] = [
+                'default' => acym_translation('ACYM_MODIFY_MY_PROFILE', true),
+                'desc' => acym_translation('ACYM_MODIFY_PROFILE_DESC'),
+                'disabled' => empty($profilePage),
+                'tooltip' => acym_translation('ACYM_NO_PROFILE_MENU'),
+            ];
+        }
 
         ?>
 		<script language="javascript" type="text/javascript">
@@ -58,8 +67,10 @@ class plgAcymOnline extends acymPlugin
 
             <?php
             foreach ($others as $tagname => $tag) {
-                $onclick = 'changeOnlineTag(\''.$tagname.'\');';
-                echo '<div class="grid-x small-12 cell acym__row__no-listing acym__listing__row__popup text-left"  onclick="'.$onclick.'" id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
+                $onclick = !empty($tag['disabled']) ? '' : 'onclick="changeOnlineTag(\''.$tagname.'\');"';
+                $class = !empty($tag['disabled']) ? 'acym__listing__row__popup--disabled' : '';
+                $rowHtml = '<div class="grid-x small-12 cell acym__row__no-listing acym__listing__row__popup text-left '.$class.'" '.$onclick.' id="tr_'.$tagname.'" ><div class="cell small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
+                echo !empty($tag['disabled']) ? acym_tooltip($rowHtml, $tag['tooltip'], 'cell') : $rowHtml;
             }
             ?>
 		</div>
@@ -71,7 +82,7 @@ class plgAcymOnline extends acymPlugin
     {
         if (empty($email->body)) return;
 
-        $match = '#(?:{|%7B)readonline(?:}|%7D)(.*)(?:{|%7B)/readonline(?:}|%7D)#Uis';
+        $match = '#(?:{|%7B)(readonline|modify_profile)(?:}|%7D)(.*)(?:{|%7B)/(readonline|modify_profile)(?:}|%7D)#Uis';
         $results = [];
         $found = preg_match_all($match, $email->body, $results);
 
@@ -81,20 +92,25 @@ class plgAcymOnline extends acymPlugin
         foreach ($results[0] as $i => $oneTag) {
             if (isset($tags[$oneTag])) continue;
 
-            $link = 'archive&task=view&id='.$email->id.'&userid={subtag:id}-{subtag:key}&'.acym_noTemplate();
-            $link .= $this->getLanguage($email->links_language);
-            if (!empty($email->key)) $link .= '&key='.$email->key;
+            if (ACYM_CMS == 'joomla' && strpos($oneTag, 'modify_profile') !== false) {
+                $link = acym_getPageLink('view=frontusers&layout=profile');
+                $link .= strpos($link, '?') ? '&' : '?';
+                $link .= 'id={subtag:id}&key={subtag:key}';
+            } else {
+                $link = 'archive&task=view&id='.$email->id.'&userid={subtag:id}-{subtag:key}&'.acym_noTemplate(false);
+                $link .= $this->getLanguage($email->links_language);
+                if (!empty($email->key)) $link .= '&key='.$email->key;
+                $link = acym_frontendLink($link);
+            }
 
-            $link = acym_frontendLink($link);
 
-            if (empty($results[1][$i])) {
+            if (empty($results[2][$i])) {
                 $tags[$oneTag] = $link;
             } else {
-                $tags[$oneTag] = '<a style="text-decoration:none;" href="'.$link.'" target="_blank"><span class="acym_online">'.$results[1][$i].'</span></a>';
+                $tags[$oneTag] = '<a style="text-decoration:none;" href="'.$link.'" target="_blank"><span class="acym_online">'.$results[2][$i].'</span></a>';
             }
         }
 
         $this->pluginHelper->replaceTags($email, $tags);
     }
 }
-

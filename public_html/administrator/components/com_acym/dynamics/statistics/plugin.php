@@ -1,6 +1,7 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+use AcyMailing\Libraries\acymPlugin;
+use AcyMailing\Classes\MailClass;
 
 class plgAcymStatistics extends acymPlugin
 {
@@ -9,40 +10,45 @@ class plgAcymStatistics extends acymPlugin
         $id = acym_getVar('int', 'id');
         if (!empty($id)) {
             $mail = acym_loadObject(
-                'SELECT mail.`subject`, campaign.`id` AS campaignId 
+                'SELECT mail.`name`, campaign.`id` AS campaignId, mail.`id`
                 FROM #__acym_mail AS mail 
                 LEFT JOIN #__acym_campaign AS campaign ON mail.`id` = campaign.`mail_id` 
                 WHERE mail.`id` = '.intval($id)
             );
             if (empty($mail)) {
-                $subject = '';
+                $name = '';
+                $id = 0;
             } else {
-                $subject = $mail->subject;
+                $name = $mail->name;
                 if (!empty($mail->campaignId)) {
-                    $subject .= ' ['.acym_translation('ACYM_ID').' '.$mail->campaignId.']';
+                    $name .= ' ['.acym_translation('ACYM_ID').' '.$mail->campaignId.']';
                 }
+                $id = $mail->id;
             }
-            echo json_encode(['value' => $subject]);
+
+            echo json_encode(['text' => $name, 'value' => $id]);
             exit;
         }
 
         $return = [];
         $search = acym_getVar('string', 'search', '');
+        $search = utf8_encode($search);
 
         $mails = acym_loadObjectList(
-            'SELECT mail.`id`, mail.`subject`, campaign.`id` AS campaignId 
+            'SELECT mail.`id`, mail.`name`, mail.`subject`, mail.`type`, campaign.`id` AS campaignId 
             FROM #__acym_mail AS mail 
             LEFT JOIN #__acym_campaign AS campaign ON mail.`id` = campaign.`mail_id` 
-            WHERE mail.`subject` LIKE '.acym_escapeDB('%'.$search.'%').' OR mail.`name` LIKE '.acym_escapeDB('%'.$search.'%').' 
-            ORDER BY mail.`subject` ASC'
+            WHERE mail.`subject` LIKE '.acym_escapeDB('%'.$search.'%').' OR mail.`name` LIKE '.acym_escapeDB('%'.$search.'%').'
+            ORDER BY mail.`name` ASC'
         );
 
-        $mailClass = acym_get('class.mail');
+        $mailClass = new MailClass();
         $mails = $mailClass->decode($mails);
 
         foreach ($mails as $oneMail) {
+            $name = in_array($oneMail->type, $mailClass::TYPES_NO_NAME) ? $oneMail->subject : $oneMail->name;
             $campaignId = empty($oneMail->campaignId) ? '' : ' ['.acym_translation('ACYM_ID').' '.$oneMail->campaignId.']';
-            $return[] = [$oneMail->id, $oneMail->subject.$campaignId];
+            $return[] = [$oneMail->id, $name.$campaignId];
         }
 
         echo json_encode($return);
@@ -63,7 +69,12 @@ class plgAcymStatistics extends acymPlugin
         $filters['statistics'] = new stdClass();
         $filters['statistics']->name = acym_translation('ACYM_STATISTICS');
         $filters['statistics']->option = '<div class="intext_select_automation cell">';
-        $filters['statistics']->option .= acym_select($status, 'acym_action[filters][__numor__][__numand__][statistics][status]', 'open', 'class="intext_select_automation acym__select"');
+        $filters['statistics']->option .= acym_select(
+            $status,
+            'acym_action[filters][__numor__][__numand__][statistics][status]',
+            'open',
+            'class="intext_select_automation acym__select"'
+        );
         $filters['statistics']->option .= '</div>';
         $filters['statistics']->option .= '<div class="intext_select_automation cell">';
         $ajaxParams = json_encode(['plugin' => __CLASS__, 'trigger' => 'searchMail',]);
@@ -80,7 +91,7 @@ class plgAcymStatistics extends acymPlugin
     {
         $this->onAcymProcessFilter_statistics($query, $options, $num);
 
-        return acym_translation_sprintf('ACYM_SELECTED_USERS', $query->count());
+        return acym_translationSprintf('ACYM_SELECTED_USERS', $query->count());
     }
 
     public function onAcymProcessFilter_statistics(&$query, $options, $num)
@@ -92,7 +103,7 @@ class plgAcymStatistics extends acymPlugin
         }
 
         if (empty($options['status']) || !in_array($options['status'], ['opened', 'notopen', 'failed', 'bounced', 'notsent', 'sent'])) {
-            acym_enqueueMessage(acym_translation_sprintf('ACYM_UNKNOWN_OPERATOR', $options['status']), 'warning');
+            acym_enqueueMessage(acym_translationSprintf('ACYM_UNKNOWN_OPERATOR', $options['status']), 'warning');
 
             return;
         }
@@ -124,15 +135,14 @@ class plgAcymStatistics extends acymPlugin
         if (!empty($automationFilter['statistics'])) {
             $status = acym_translation('ACYM_'.strtoupper($automationFilter['statistics']['status']));
 
-            $mailClass = acym_get('class.mail');
-            $mail = $mailClass->getOneById($automationFilter['statistics']['mail']);
+            $mailClass = new MailClass();
+            $mail = $mailClass->getOneById(empty($automationFilter['statistics']['mail']) ? 0 : $automationFilter['statistics']['mail']);
 
             if (empty($mail)) {
-                $automationFilter = acym_translation_sprintf('ACYM_NOT_FOUND', acym_translation('ACYM_MAIL'));
+                $automationFilter = acym_translationSprintf('ACYM_NOT_FOUND', acym_translation('ACYM_MAIL'));
             } else {
-                $automationFilter = acym_translation_sprintf('ACYM_FILTER_STATISTICS_SUMMARY', $status, $mail->subject, $mail->id);
+                $automationFilter = acym_translationSprintf('ACYM_FILTER_STATISTICS_SUMMARY', $status, $mail->subject, $mail->id);
             }
         }
     }
 }
-

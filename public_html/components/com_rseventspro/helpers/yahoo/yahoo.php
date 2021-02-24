@@ -84,7 +84,7 @@ class YahooUtil {
     return sprintf("http://%s%s",$_SERVER["HTTP_HOST"],$_SERVER["REQUEST_URI"]);
   }
 
-    function verify_signature($consumer, $token=NULL, $oauth_signature) {
+    function verify_signature($consumer, $token=NULL, $oauth_signature=NULL) {
         $oauth_signature_method = new OAuthSignatureMethod_HMAC_SHA1();
         $oauth_consumer = new OAuthConsumer($consumer->key, $consumer->secret);
         $oauth_token = ($token) ? new OAuthToken($token->key, $token->secret) : NULL;

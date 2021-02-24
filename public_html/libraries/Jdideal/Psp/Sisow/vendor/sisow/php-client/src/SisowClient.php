@@ -4,9 +4,9 @@ namespace Sisow;
 
 use Sisow\Exceptions\SisowException;
 use Sisow\Helpers\XmlHelper;
+use Sisow\Requests\Merchants;
 use Sisow\Requests\Directory;
 use Sisow\Requests\Invoices;
-use Sisow\Requests\Merchants;
 use Sisow\Requests\Ping;
 use Sisow\Requests\Transactions;
 

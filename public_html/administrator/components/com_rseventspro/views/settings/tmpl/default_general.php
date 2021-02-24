@@ -8,11 +8,16 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 $fieldsets = array('license','datetime','miscellaneous');
 foreach ($fieldsets as $fieldset) {
-	echo JHtml::_('rsfieldset.start', 'adminform', JText::_($this->fieldsets[$fieldset]->label));
+	echo '<fieldset class="options-form">';
+	echo '<legend>'.JText::_($this->fieldsets[$fieldset]->label).'</legend>';
+	
 	foreach ($this->form->getFieldset($fieldset) as $field) {
-		if (!file_exists(JPATH_SITE.'/components/com_community/libraries/core.php') && $field->fieldname == 'jsactivity')
+		if (!file_exists(JPATH_SITE.'/components/com_community/libraries/core.php') && $field->fieldname == 'jsactivity') {
 			continue;
-		echo JHtml::_('rsfieldset.element', $field->label, $field->input);
+		}
+		
+		echo $field->renderField();
 	}
-	echo JHtml::_('rsfieldset.end');
+	
+	echo '</fieldset>';
 }

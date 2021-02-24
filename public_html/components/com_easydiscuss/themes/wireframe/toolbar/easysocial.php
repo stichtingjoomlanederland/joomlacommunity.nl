@@ -12,103 +12,126 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="ed-toolbar-dropdown-nav">
-	<div class="ed-toolbar-dropdown-nav__item">
-		<span class="ed-toolbar-dropdown-nav__link">
-			<div class="ed-toolbar-dropdown-nav__name"><?php echo JText::_('COM_ED_SOCIAL');?></div>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<b><?php echo JText::_('COM_ED_SOCIAL');?></b>
+			</div>
+		</a>
+	</div>
+	<?php if ($esConfig->get('pages.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::pages();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_PAGES'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-			<ol class="g-list-unstyled ed-toolbar-dropdown-nav__meta-lists">
-				<?php if ($esConfig->get('pages.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::pages();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_PAGES'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('groups.enabled')) { ?>
+		<div class="ed-toolbar-dropdown-nav__item ">
+			<a href="<?php echo ESR::groups();?>" class="ed-toolbar-dropdown-nav__link">
+				<div class="ed-toolbar-dropdown-nav__name">
+					<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_GROUPS'); ?>
+				</div>
+			</a>
+		</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('groups.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::groups();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_GROUPS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('events.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::events();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_EVENTS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('events.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::events();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_EVENTS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('friends.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::friends();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_FRIENDS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('friends.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::friends();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_FRIENDS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('friends.invites.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::friends(array('layout' => 'invite'));?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_INVITE_FRIENDS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('friends.invites.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::friends(array('layout' => 'invite'));?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_INVITE_FRIENDS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('followers.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::followers();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_FOLLOWERS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('followers.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::followers();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_FOLLOWERS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('video.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::videos();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_VIDEOS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('video.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::videos();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_VIDEOS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('audio.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::audios();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_AUDIOS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('audio.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::audios();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_AUDIOS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<?php if ($esConfig->get('photos.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::photos();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_PHOTOS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('photos.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::photos();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PROFILE_PHOTOS'); ?>
-					</a>
-				</li>
-				<?php } ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::users();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PEOPLE'); ?>
+			</div>
+		</a>
+	</div>
 
-				<li>
-					<a href="<?php echo ESR::users();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_PEOPLE'); ?>
-					</a>
-				</li>
+	<?php if ($esConfig->get('polls.enabled')) { ?>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::polls();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_POLLS'); ?>
+			</div>
+		</a>
+	</div>
+	<?php } ?>
 
-				<?php if ($esConfig->get('polls.enabled')) { ?>
-				<li>
-					<a href="<?php echo ESR::polls();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_POLLS');?>
-					</a>
-				</li>
-				<?php } ?>
-
-				<li>
-					<a href="<?php echo ESR::conversations();?>">
-						<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_CONVERSATIONS');?>
-					</a>
-				</li>
-			</ol>
-		</span>
+	<div class="ed-toolbar-dropdown-nav__item ">
+		<a href="<?php echo ESR::conversations();?>" class="ed-toolbar-dropdown-nav__link">
+			<div class="ed-toolbar-dropdown-nav__name">
+				<?php echo JText::_('COM_EASYSOCIAL_TOOLBAR_CONVERSATIONS'); ?>
+			</div>
+		</a>
 	</div>
 </div>

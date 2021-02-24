@@ -1,11 +1,13 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
+<div id="acym__editor__content" class="grid-x acym__content acym__editor__area">
 	<div class="cell grid-x grid-margin-x align-right">
 		<input type="hidden" id="acym__mail__edit__editor" value="<?php echo acym_escape($data['mail']->editor); ?>">
-		<input type="hidden" class="acym__wysid__hidden__save__thumbnail" id="editor_thumbnail" name="editor_thumbnail" value="<?php echo acym_escape($data['mail']->thumbnail); ?>" />
+		<input type="hidden"
+			   class="acym__wysid__hidden__save__thumbnail"
+			   id="editor_thumbnail"
+			   name="editor_thumbnail"
+			   value="<?php echo acym_escape($data['mail']->thumbnail); ?>" />
 		<input type="hidden" id="acym__mail__edit__editor__social__icons" value="<?php echo empty($data['social_icons']) ? '{}' : acym_escape($data['social_icons']); ?>">
-		<input type="hidden" id="acym__mail__type" name="mail[type]" value="<?php echo empty($data['mail']->type) ? 'standard' : $data['mail']->type; ?>">
+		<input type="hidden" id="acym__mail__type" name="mail[type]" value="<?php echo empty($data['mail']->type) ? $data['mailClass']::TYPE_STANDARD : $data['mail']->type; ?>">
 		<input type="hidden" name="list_ids" value="<?php echo empty($data['list_id'][0]) ? 0 : $data['list_id'][0]; ?>">
         <?php
         include acym_getView('mails', 'edit_actions', true);
@@ -18,14 +20,17 @@ defined('_JEXEC') or die('Restricted access');
         ?>
 		<div class="cell medium-auto">
 			<label>
-                <?php echo acym_translation($data['mail']->type == 'automation' ? 'ACYM_NAME' : 'ACYM_TEMPLATE_NAME'); ?>
+                <?php echo acym_translation($data['mail']->type == $data['mailClass']::TYPE_AUTOMATION ? 'ACYM_NAME' : 'ACYM_TEMPLATE_NAME'); ?>
 				<input name="mail[name]" type="text" class="acy_required_field" value="<?php echo acym_escape($data['mail']->name); ?>" required>
 			</label>
 		</div>
 		<div class="cell medium-auto">
 			<label>
                 <?php echo acym_translation('ACYM_EMAIL_SUBJECT'); ?>
-				<input name="mail[subject]" type="text" value="<?php echo acym_escape($data['mail']->subject); ?>" <?php echo in_array($data['mail']->type, ['welcome', 'unsubscribe', 'automation']) ? 'required' : ''; ?>>
+				<input name="mail[subject]" type="text" value="<?php echo acym_escape($data['mail']->subject); ?>" <?php echo in_array(
+                    $data['mail']->type,
+                    [$data['mailClass']::TYPE_WELCOME, $data['mailClass']::TYPE_UNSUBSCRIBE, $data['mailClass']::TYPE_AUTOMATION]
+                ) ? 'required' : ''; ?>>
 			</label>
 		</div>
         <?php if (!empty($data['lists'])) { ?>
@@ -54,24 +59,33 @@ defined('_JEXEC') or die('Restricted access');
                                 ?>
 							</label>
 						</div>
-						<textarea class="acym__blue" name="editor_stylesheet" id="acym__mail__edit__html__stylesheet" cols="30" rows="15" type="text"><?php echo $stylesheet; ?></textarea>
+						<textarea
+								name="editor_stylesheet"
+								id="acym__mail__edit__html__stylesheet"
+								cols="30"
+								rows="15"
+								type="text"><?php echo $stylesheet; ?></textarea>
 					</div>
 					<div class="cell medium-auto">
 						<label for="acym__mail__edit__custom__header"><?php echo acym_translation('ACYM_CUSTOM_HEADERS'); ?></label>
-						<textarea class="acym__blue" id="acym__mail__edit__custom__header" name="editor_headers" cols="30" rows="15" type="text"><?php echo acym_escape($data['mail']->headers); ?></textarea>
+						<textarea id="acym__mail__edit__custom__header" name="editor_headers" cols="30" rows="15" type="text"><?php echo acym_escape(
+                                $data['mail']->headers
+                            ); ?></textarea>
 					</div>
 
-					<div class="cell grid-x">
-						<div class="cell medium-shrink">
-							<label for="acym__mail__edit__preheader">
-                                <?php
-                                echo acym_translation('ACYM_EMAIL_PREHEADER');
-                                echo acym_info('ACYM_EMAIL_PREHEADER_DESC');
-                                ?>
-							</label>
+                    <?php if (!$data['multilingual']) { ?>
+						<div class="cell grid-x">
+							<div class="cell medium-shrink">
+								<label for="acym__mail__edit__preheader">
+                                    <?php
+                                    echo acym_translation('ACYM_EMAIL_PREHEADER');
+                                    echo acym_info('ACYM_EMAIL_PREHEADER_DESC');
+                                    ?>
+								</label>
+							</div>
+							<input id="acym__mail__edit__preheader" name="mail[preheader]" type="text" maxlength="255" value="<?php echo acym_escape($data['mail']->preheader); ?>">
 						</div>
-						<input id="acym__mail__edit__preheader" name="mail[preheader]" type="text" maxlength="255" value="<?php echo acym_escape($data['mail']->preheader); ?>">
-					</div>
+                    <?php } ?>
 				</div>
 			</div>
 		</div>
@@ -83,13 +97,11 @@ defined('_JEXEC') or die('Restricted access');
 <?php
 acym_formOptions();
 
-$editor = acym_get('helper.editor');
-$editor->content = $data['mail']->body;
-$editor->autoSave = !empty($data['mail']->autosave) ? $data['mail']->autosave : '';
-if (!empty($data['mail']->editor)) $editor->editor = $data['mail']->editor;
-if (!empty($data['mail']->id)) $editor->mailId = $data['mail']->id;
-if (!empty($data['mail']->type)) $editor->automation = $data['isAutomationAdmin'];
-if (!empty($data['mail']->settings)) $editor->settings = $data['mail']->settings;
-if (!empty($data['mail']->stylesheet)) $editor->stylesheet = $data['mail']->stylesheet;
-echo $editor->display();
-
+$data['editor']->content = $data['mail']->body;
+$data['editor']->autoSave = !empty($data['mail']->autosave) ? $data['mail']->autosave : '';
+if (!empty($data['mail']->editor)) $data['editor']->editor = $data['mail']->editor;
+if (!empty($data['mail']->id)) $data['editor']->mailId = $data['mail']->id;
+if (!empty($data['mail']->type)) $data['editor']->automation = $data['isAutomationAdmin'];
+if (!empty($data['mail']->settings)) $data['editor']->settings = $data['mail']->settings;
+if (!empty($data['mail']->stylesheet)) $data['editor']->stylesheet = $data['mail']->stylesheet;
+echo $data['editor']->display();

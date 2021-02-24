@@ -127,7 +127,7 @@ class EasyDiscussLinkedIn extends EDLinkedInConsumer
 		// Decorate the data
 		if ($result) {
 			$elements = $result->elements;
-			$elements = EB::makeArray($elements[0]);
+			$elements = ED::makeArray($elements[0]);
 
 			$email = $elements['handle~']['emailAddress'];
 		}
@@ -206,7 +206,7 @@ class EasyDiscussLinkedIn extends EDLinkedInConsumer
 
 		// Linkedin now restricts the message and text size.
 		// To be safe, we'll use 380 characters instead of 400.
-		$options['text'] = JString::substr($options['text'], 0, 256);
+		$options['text'] = EDJString::substr($options['text'], 0, 256);
 
 		return $options;
 	}

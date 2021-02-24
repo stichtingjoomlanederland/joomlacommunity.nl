@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -18,7 +18,6 @@ use FOF30\Container\Container;
 use FOF30\Controller\Controller;
 use FOF30\Controller\Mixin\PredefinedTaskList;
 use FOF30\Date\Date;
-use JLoader;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 use Joomla\CMS\Uri\Uri;
@@ -79,7 +78,7 @@ class Backup extends Controller
 
 		$model->setState('tag', AKEEBA_BACKUP_ORIGIN);
 		$model->setState('backupid', $backupId);
-		$model->setState('description', Text::_('COM_AKEEBA_BACKUP_DEFAULT_DESCRIPTION') . ' ' . $dateNow->format(Text::_('DATE_FORMAT_LC2'), true));
+		$model->setState('description', $model->getDefaultDescription() . ' (Frontend)');
 		$model->setState('comment', '');
 
 		$array = $model->startBackup();
@@ -171,9 +170,9 @@ class Backup extends Controller
 		$tempURL = Route::_('index.php?option=com_akeeba', false, $ssl);
 		$uri     = new Uri($tempURL);
 
+		$uri->delVar('key');
 		$uri->setVar('view', 'Backup');
 		$uri->setVar('task', 'step');
-		$uri->setVar('key', $this->input->get('key', '', 'none', 2));
 		$uri->setVar('profile', $this->input->get('profile', 1, 'int'));
 
 		if (!empty($backupId))
@@ -187,7 +186,8 @@ class Backup extends Controller
 
 		$uri->setVar('lang', $languageTag);
 
-		$redirectionUrl = $uri->toString();
+		$key            = $this->input->get('key', '', 'none', 2);
+		$redirectionUrl = $uri->toString() . '&key=' . urlencode($key);
 
 		$this->customRedirect($redirectionUrl);
 	}

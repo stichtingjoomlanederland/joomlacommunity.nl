@@ -2,17 +2,18 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Categories</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>3rd September 2020</creationDate>
+	<creationDate>22nd February 2021</creationDate>
 	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://www.stackideas.com</authorUrl>
-	<version>4.1.21</version>
+	<version>5.0.1</version>
 	<description><![CDATA[This module will display a list of categories in EasyDiscuss.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_categories.ini</language>
 	</languages>
 	<files>
+		<folder>scripts</folder>
 		<folder>tmpl</folder>
 		<filename>helper.php</filename>
 		<filename module="mod_easydiscuss_categories">mod_easydiscuss_categories.php</filename>
@@ -60,10 +61,6 @@
 					<option value="0">JNO</option>
 				</field>
 				<field name="showpostcnt" type="radio" class="btn-group" default="1" label="MOD_DISCUSSIONSCATEGORIES_SHOW_POSTCOUNT" description="MOD_DISCUSSIONSCATEGORIES_SHOW_POSTCOUNT_DESC">
-					<option value="1">JYES</option>
-					<option value="0">JNO</option>
-				</field>
-				<field name="show_subcategory_count" type="radio" class="btn-group" default="1" label="Show Subcategory Count" description="Determines if the module should display the subcategory count">
 					<option value="1">JYES</option>
 					<option value="0">JNO</option>
 				</field>

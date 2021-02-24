@@ -35,7 +35,7 @@ class DiscussPoll extends EasyDiscussTable
 
 	public function loadByValue( $value , $postId )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT * FROM ' . $db->nameQuote( $this->_tbl ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'value' ) . '=' . $db->Quote( $value ) . ' '
 				. 'AND ' . $db->nameQuote( 'post_id' ) . '=' . $db->Quote( $postId );
@@ -54,7 +54,7 @@ class DiscussPoll extends EasyDiscussTable
 	{
 		$state	= parent::delete( $pk );
 
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_polls_users' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'poll_id' ) . '=' . $db->Quote( $this->id );

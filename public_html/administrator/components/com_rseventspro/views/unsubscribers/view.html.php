@@ -24,7 +24,5 @@ class RseventsproViewUnsubscribers extends JViewLegacy
 		
 		JToolBar::getInstance('toolbar')->appendButton( 'Link', 'arrow-down', JText::_('COM_RSEVENTSPRO_EXPORT_CSV'), JRoute::_('index.php?option=com_rseventspro&task=unsubscribers.export&id='.JFactory::getApplication()->input->getInt('id',0)));
 		JToolBarHelper::deleteList('','unsubscribers.delete');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

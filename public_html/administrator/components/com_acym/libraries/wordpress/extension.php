@@ -1,0 +1,144 @@
+<?php
+
+use AcyMailing\Classes\PluginClass;
+
+function acym_isExtensionActive($extension)
+{
+    if (function_exists('is_plugin_active')) return is_plugin_active($extension);
+
+    return file_exists(WP_PLUGIN_DIR.DS.$extension);
+}
+
+function acym_getPluginsPath($file, $dir)
+{
+    return substr(plugin_dir_path($file), 0, strpos(plugin_dir_path($file), plugin_basename($dir)));
+}
+
+function acym_getPluginPath($plugin)
+{
+    $corePath = ACYM_BACK.'dynamics'.DS.$plugin.DS.'plugin.php';
+    if (file_exists($corePath)) return $corePath;
+
+    return ACYM_ADDONS_FOLDER_PATH.$plugin.DS.'plugin.php';
+}
+
+function acym_coreAddons()
+{
+    return [
+        (object)[
+            'title' => acym_translation('ACYM_ARTICLE'),
+            'folder_name' => 'post',
+            'version' => '7.2.0',
+            'active' => '1',
+            'category' => 'Content management',
+            'level' => 'starter',
+            'uptodate' => '1',
+            'features' => '["content"]',
+            'description' => '- Insert WordPress posts in your emails<br/>- Insert the latest posts of a category in an automatic email',
+            'latest_version' => '7.2.0',
+            'type' => 'CORE',
+        ],
+        (object)[
+            'title' => acym_translation('ACYM_PAGE'),
+            'folder_name' => 'page',
+            'version' => '7.2.0',
+            'active' => '1',
+            'category' => 'Content management',
+            'level' => 'starter',
+            'uptodate' => '1',
+            'features' => '["content"]',
+            'description' => '- Insert pages in your emails',
+            'latest_version' => '7.2.0',
+            'type' => 'CORE',
+        ],
+        (object)[
+            'title' => acym_translation('ACYM_CREATE_USER'),
+            'folder_name' => 'createuser',
+            'version' => '7.2.0',
+            'active' => '1',
+            'category' => 'User management',
+            'level' => 'starter',
+            'uptodate' => '1',
+            'features' => '[]',
+            'description' => '- Automatically creates a site user when an AcyMailing subscriber is created',
+            'latest_version' => '7.2.0',
+            'type' => 'CORE',
+        ],
+    ];
+}
+
+function acym_isTrackingSalesActive()
+{
+    $trackingWoocommerce = false;
+    acym_trigger('onAcymIsTrackingWoocommerce', [&$trackingWoocommerce], 'plgAcymWoocommerce');
+
+    return $trackingWoocommerce;
+}
+
+function acym_loadPlugins()
+{
+    $dynamicsLoadedLast = ['managetext'];
+    $dynamics = acym_getFolders(ACYM_BACK.'dynamics');
+
+    $pluginClass = new PluginClass();
+    $plugins = $pluginClass->getAll('folder_name');
+
+    foreach ($dynamics as $key => $oneDynamic) {
+        if (!empty($plugins[$oneDynamic]) && '0' === $plugins[$oneDynamic]->active) unset($dynamics[$key]);
+        if ('managetext' === $oneDynamic) unset($dynamics[$key]);
+    }
+
+    $pluginsLoadedLast = ['tableofcontents'];
+    foreach ($plugins as $pluginFolder => $onePlugin) {
+        if (in_array($pluginFolder, $dynamics) || '0' === $onePlugin->active) continue;
+        if (in_array($pluginFolder, $pluginsLoadedLast)) {
+            array_unshift($dynamicsLoadedLast, $pluginFolder);
+        } else {
+            $dynamics[] = $pluginFolder;
+        }
+    }
+
+    $dynamics = array_merge($dynamics, $dynamicsLoadedLast);
+
+    global $acymPlugins;
+    global $acymAddonsForSettings;
+
+    $integrationsRaw = [];
+    do_action_ref_array('acym_load_installed_integrations', [&$integrationsRaw]);
+
+    $integrations = [];
+    foreach ($integrationsRaw as $oneIntegration) {
+        $addonName = strtolower(substr($oneIntegration['className'], 7));
+        $integrations[$addonName] = $oneIntegration;
+
+        if (!in_array($addonName, $dynamics)) $dynamics[] = $addonName;
+    }
+    $integrationsClasses = array_keys($integrations);
+
+    foreach ($dynamics as $oneDynamic) {
+        if (in_array($oneDynamic, $integrationsClasses)) {
+            $dynamicFile = $integrations[$oneDynamic]['path'].DS.'plugin.php';
+        } else {
+            $dynamicFile = acym_getPluginPath($oneDynamic);
+        }
+        $className = 'plgAcym'.ucfirst($oneDynamic);
+
+        if (isset($acymPlugins[$className]) || !file_exists($dynamicFile) || (!class_exists($className) && !include_once $dynamicFile)) continue;
+        if (!class_exists($className)) continue;
+
+        $plugin = new $className();
+
+        if (in_array($oneDynamic, $integrationsClasses)) {
+            $pluginClass->addIntegrationIfMissing($plugin);
+        }
+
+        if (in_array($plugin->cms, ['all', 'Joomla'])) $acymAddonsForSettings[$className] = $plugin;
+        if (!in_array($plugin->cms, ['all', 'Joomla']) || !$plugin->installed) continue;
+
+        $acymPlugins[$className] = $plugin;
+    }
+}
+
+class JFormField
+{
+}

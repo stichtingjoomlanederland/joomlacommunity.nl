@@ -7,13 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewEvent extends JViewLegacy
-{	
-	protected $item;
-	protected $config;
-	protected $layout;
-	protected $tab;
-	protected $eventClass;
-	
+{
 	public function display($tpl = null) {
 		$this->document		= JFactory::getDocument();
 		$this->config		= rseventsproHelper::getConfig();
@@ -24,7 +18,14 @@ class RseventsproViewEvent extends JViewLegacy
 		if ($this->layout == 'edit') {
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/events.php';
 			
+			if (rseventsproHelper::isJ4()) { 
+				JHtml::_('bootstrap.framework');
+			}
+			
 			$this->form			= $this->get('Form');
+			$this->dependencies	= $this->get('FormDependencies');
+			$this->ticketsform	= $this->get('FormTickets');
+			$this->couponsform	= $this->get('FormCoupons');
 			$this->eventClass	= RSEvent::getInstance($this->item->id);
 			$this->tickets		= $this->eventClass->getTickets();
 			$this->coupons		= $this->eventClass->getCoupons();
@@ -81,24 +82,42 @@ class RseventsproViewEvent extends JViewLegacy
 	
 	protected function addToolBar() {
 		$this->item->name ? JToolBarHelper::title(JText::sprintf('COM_RSEVENTSPRO_EDIT_EVENT',$this->item->name),'rseventspro48') : JToolBarHelper::title(JText::_('COM_RSEVENTSPRO_ADD_EVENT'),'rseventspro48');
-		JToolBarHelper::apply('event.apply');
-		JToolBarHelper::save('event.save');
+		
+		$toolbar = JToolBar::getInstance('toolbar');
+		
+		$layout = new JLayoutFile('joomla.toolbar.standard');
+		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_APPLY'), 'btnClass' => 'btn btn-success', 'id' => '', 'htmlAttributes' => '', 'onclick' => 'RSEventsPro.Event.save(\'event.apply\');', 'class' => 'icon-save', 'doTask' => 'RSEventsPro.Event.save(\'event.apply\');'));
+		$toolbar->appendButton('Custom', $dhtml, 'apply', true);
+		
+		$layout = new JLayoutFile('joomla.toolbar.standard');
+		$dhtml = $layout->render(array('text' => JText::_('JTOOLBAR_SAVE'), 'btnClass' => 'btn btn-success', 'id' => '', 'htmlAttributes' => '', 'onclick' => 'RSEventsPro.Event.save(\'event.save\');', 'class' => 'icon-save', 'doTask' => 'RSEventsPro.Event.save(\'event.save\');'));
+		$toolbar->appendButton('Custom', $dhtml, 'apply', true);
+		
 		JToolBarHelper::save2copy('event.copy');
-		JToolBarHelper::custom('preview','zoom-in','zoom-in',JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'),false);
+		
+		$layout = new JLayoutFile('joomla.toolbar.standard');
+		$dhtml = $layout->render(array('text' => JText::_('COM_RSEVENTSPRO_PREVIEW_EVENT'), 'btnClass' => 'btn', 'id' => '', 'htmlAttributes' => '', 'onclick' => 'rsepro_preview()', 'class' => 'icon-zoom-in', 'doTask' => 'rsepro_preview()'));
+		$toolbar->appendButton('Custom', $dhtml, 'preview', true);
+		
 		JToolBarHelper::cancel('event.cancel');
 		
-		JHtml::_('rseventspro.chosen');
-		JHtml::_('jquery.ui', array('core', 'sortable'));
+		if (!rseventsproHelper::isJ4()) {
+			JHtml::_('formbehavior.chosen', 'select');
+			JHtml::_('jquery.ui', array('core', 'sortable'));
+			JHtml::_('rseventspro.tags', '#tags');
+		} else {
+			JHtml::script('com_rseventspro/jquery-ui.min.js', array('relative' => true, 'version' => 'auto'));
+		}
 		
 		// Load scripts
 		JHtml::script('com_rseventspro/edit.js', array('relative' => true, 'version' => 'auto'));
-		JHtml::stylesheet('com_rseventspro/edit.css', array('relative' => true, 'version' => 'auto'));
+		JHtml::stylesheet('com_rseventspro/edit'.(rseventsproHelper::isJ4() ? '.j4' : '').'.css', array('relative' => true, 'version' => 'auto'));
 		
 		// Load RSEvents!Pro plugins
 		rseventsproHelper::loadPlugins();
 		
 		// Load custom scripts
-		$this->app->triggerEvent('rsepro_addCustomScripts');
+		$this->app->triggerEvent('onrsepro_addCustomScripts');
 		
 		$mapParams = array(
 			'id' => 'rsepro-location-map',

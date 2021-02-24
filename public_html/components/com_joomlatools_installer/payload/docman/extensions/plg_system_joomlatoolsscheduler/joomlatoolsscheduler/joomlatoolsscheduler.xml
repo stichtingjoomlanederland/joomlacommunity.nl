@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="3.0" group="system" method="upgrade" overwrite="true">
+    <identifier>plg:system.joomlatoolsscheduler</identifier>
+    <name>plg_system_joomlatoolsscheduler</name>
+    <author>Joomlatools</author>
+    <creationDate>September 2017</creationDate>
+    <copyright>Copyright (C) 2015 Timble CVBA (http://www.timble.net)</copyright>
+    <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>support@joomlatools.com</authorEmail>
+    <authorUrl>www.joomlatools.com</authorUrl>
+    <version>1.0.0</version>
+    <description />
+
+    <files>
+        <filename plugin="joomlatoolsscheduler">joomlatoolsscheduler.php</filename>
+        <folder>language</folder>
+    </files>
+
+    <params />
+
+    <config />
+</extension>

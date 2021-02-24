@@ -321,8 +321,12 @@ abstract class RSCommentsHelper
 		}	
 
 		$comment = preg_replace('#\[\/?(b|i|u|s|url|img|list|quote|code)\]#', '', $comment);
-		if($config->enable_smiles == 1) $comment = RSCommentsEmoticons::cleanText($comment);
+		if ($config->enable_smiles == 1) $comment = RSCommentsEmoticons::cleanText($comment);
 		$comment = RSCommentsHelper::breakwords($comment);
+		
+		if ($config->prepare) {
+			$comment = JHtml::_('content.prepare',$comment);
+		}
 		
 		return $comment;
 	}

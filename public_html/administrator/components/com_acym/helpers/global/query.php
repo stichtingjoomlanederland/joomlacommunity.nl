@@ -1,15 +1,13 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_getTables()
 {
     return acym_loadResultArray('SHOW TABLES');
 }
 
-function acym_getColumns($table, $acyTable = true, $putPrefix = true)
+function acym_getColumns($table, $acyTable = true, $addPrefix = true)
 {
-    if ($putPrefix) {
+    if ($addPrefix) {
         $prefix = $acyTable ? '#__acym_' : '#__';
         $table = $prefix.$table;
     }
@@ -51,4 +49,3 @@ function acym_addLimit(&$query, $limit = 1, $offset = null)
     if (!empty($offset)) $query .= intval($offset).',';
     $query .= intval($limit);
 }
-

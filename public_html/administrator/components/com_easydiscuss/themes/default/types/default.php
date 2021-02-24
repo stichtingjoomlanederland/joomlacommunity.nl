@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 $saveOrder = ($order == 'lft' && $orderDirection == 'asc');
 $originalOrders	= array();
@@ -27,7 +27,7 @@ $originalOrders	= array();
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -50,24 +50,23 @@ $originalOrders	= array();
 					<th width="5%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_PUBLISHED'), 'a.published', $orderDirection, $order); ?>
 					</th>
-					<?php if (count($types) > 1) { ?>
 					<th width="10%" class="center">
+						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_TYPE');?>
+					</th>
+					<th width="10%" class="center">
+						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_ICON'), 'a.icon', $orderDirection, $order); ?>
+					</th>
+
+					<?php if (count($types) > 1) { ?>
+					<th width="15%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ORDER'), 'lft', 'desc', $order); ?>
 						<?php echo JHTML::_('grid.order', $types); ?>
 					</th>
 					<?php } ?>
 					<th width="10%" class="center">
-						<?php echo JText::_('COM_EASYDISCUSS_TABLE_COLUMN_TYPE');?>
-					</th>
-					<th width="10%" class="center">
-						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_SUFFIX'), 'a.suffix', $orderDirection, $order); ?>
-					</th>
-					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_CREATED'), 'a.created', $orderDirection, $order); ?>
 					</th>
-					<th width="10%" class="center">
-						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_ADMIN_POST_TYPES_ALIAS'), 'a.alias', $orderDirection, $order); ?>
-					</th>
+
 					<th width="5%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('Id'), 'a.id', $orderDirection, $order); ?>
 					</th>
@@ -91,13 +90,6 @@ $originalOrders	= array();
 					<td class="center">
 						<?php echo $this->html('table.state', 'types', $type, 'published'); ?>
 					</td>
-
-					<?php if (count($types) > 1) { ?>
-					<td class="order">
-						<?php echo $this->html('table.ordering', 'order', $orderkey + 1, count($ordering), true); ?>
-						<?php $originalOrders[] = $orderkey + 1; ?>
-					</td>
-					<?php } ?>
 					
 					<td class="center">
 						<?php
@@ -109,20 +101,25 @@ $originalOrders	= array();
 					</td>
 
 					<td class="center">	
-						<?php if ($type->suffix) { ?>
-							<?php echo $type->suffix; ?>
+						<?php if ($type->icon) { ?>
+							<i class="fa <?php echo $type->icon; ?>" title="<?php echo $type->icon; ?>">
+							</i>
 						<?php } else { ?>
-							<?php echo JText::_('COM_EASYDISCUSS_NOT_AVAILABLE'); ?>
+							&mdash;
 						<?php } ?>
 					</td>
+
+					<?php if (count($types) > 1) { ?>
+					<td class="order">
+						<?php echo $this->html('table.ordering', 'order', $orderkey + 1, count($ordering), true); ?>
+						<?php $originalOrders[] = $orderkey + 1; ?>
+					</td>
+					<?php } ?>
 
 					<td class="center">
 						<?php echo $type->created; ?>
 					</td>
 
-					<td class="center">
-						<?php echo $type->alias; ?>
-					</td>
 					<td class="center">
 						<?php echo $type->id;?>
 					</td>
@@ -152,5 +149,5 @@ $originalOrders	= array();
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="" />
 
-	<?php echo $this->html('form.hidden', 'post_types', 'types'); ?>
+	<?php echo $this->html('form.action', 'post_types', 'types'); ?>
 </form>

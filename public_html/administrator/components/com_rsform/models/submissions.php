@@ -20,6 +20,8 @@ class RsformModelSubmissions extends JModelLegacy
 	
 	public $export = false;
 	public $rows = 0;
+	public $exportType = '';
+	public $stripLines = false;
 
 	public function __construct($config = array())
 	{
@@ -323,6 +325,10 @@ class RsformModelSubmissions extends JModelLegacy
 							if ($must_escape)
 							{
 								$result->FieldValue = RSFormProHelper::htmlEscape($result->FieldValue);
+							}
+							elseif ($this->exportType === 'csv' && !$this->stripLines)
+							{
+								$result->FieldValue = nl2br($result->FieldValue);
 							}
 						}
 						else
@@ -1145,6 +1151,8 @@ class RsformModelSubmissions extends JModelLegacy
 
         $h = fopen($file, 'r');
 
+		$this->previewHeaders = array();
+
         if (is_resource($h))
         {
             for ($i = 0; $i < 5; $i++)
@@ -1153,9 +1161,14 @@ class RsformModelSubmissions extends JModelLegacy
 
                 if ($data !== false)
                 {
-                    if ($skipHeaders && $i == 0)
+                    if ($i == 0)
                     {
-                        continue;
+						$this->previewHeaders = $data;
+
+						if ($skipHeaders)
+						{
+							continue;
+						}
                     }
                     $lines[] = $data;
                 }
@@ -1169,6 +1182,11 @@ class RsformModelSubmissions extends JModelLegacy
 
         return $lines;
     }
+
+	public function getPreviewSelectedData()
+	{
+		return $this->previewHeaders;
+	}
 
     public function confirm($cid)
 	{

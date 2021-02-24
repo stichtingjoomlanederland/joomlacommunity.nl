@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -14,6 +14,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filesystem\Folder;
+use Joomla\CMS\Installer\Adapter\ComponentAdapter;
 use Joomla\CMS\Installer\InstallerScript;
 use Joomla\CMS\Language\Text;
 use Joomla\Registry\Registry;
@@ -116,7 +117,6 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 	 */
 	public function preflight($type, $parent): bool
 	{
-		// Clean up files and folders if any
 		$this->removeFiles();
 
 		return true;
@@ -136,17 +136,12 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 	 */
 	public function postflight($type, $parent): void
 	{
-		// Migrate the old settings
 		$this->migrateSettings();
-
-		// Install the CLI script
 		$this->installCliScript($parent);
-
-		// Install the library
 		$this->installLibrary($parent);
-
-		// Check for statuses
 		$this->installStatuses();
+		$this->fixFailureStatus();
+		$this->addRecurringProfile();
 	}
 
 	/**
@@ -251,7 +246,7 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 				}
 			}
 		}
-// {"status_mismatch":"0","admin_order_payment":"0","admin_status_failed":"0","inform_email":"1","jdidealgateway_emailto":"abc@def.gh","customer_change_status":"0"}
+
 		$emails = [
 			'status_mismatch',
 			'admin_order_payment',
@@ -326,6 +321,14 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 			->where($db->quoteName('ordering') . ' = 1');
 		$db->setQuery($query, 0, 1)
 			->execute();
+
+		$columns = $db->getTableColumns('#__jdidealgateway_messages');
+
+		if (array_key_exists('pid', $columns))
+		{
+			$db->setQuery('ALTER TABLE ' . $db->quoteName('#__jdidealgateway_messages') . ' DROP COLUMN ' . $db->quoteName('pid'))
+				->execute();
+		}
 	}
 
 	/**
@@ -517,9 +520,42 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 	}
 
 	/**
+	 * Fix the failed status to failure status.
+	 *
+	 * @return  void
+	 *
+	 * @since   6.2.1
+	 */
+	private function fixFailureStatus(): void
+	{
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->quoteName(['id','paymentInfo']))
+			->from($db->quoteName('#__jdidealgateway_profiles'))
+			->where($db->quoteName('psp') . ' IN (' . implode(',', $db->quote(['advanced', 'buckaroo', 'kassacompleet', 'onlinekassa'])) . ')');
+		$db->setQuery($query);
+		$profiles = $db->loadObjectList();
+
+		$query->clear()
+			->update($db->quoteName('#__jdidealgateway_profiles'));
+
+		foreach ($profiles as $profile)
+		{
+			$profile->paymentInfo = str_ireplace('"failedStatus":', '"failureStatus":', $profile->paymentInfo);
+
+			$query->clear('where')
+				->clear('set')
+				->set($db->quoteName('paymentInfo') . ' = ' . $db->quote($profile->paymentInfo))
+				->where($db->quoteName('id') . ' = ' . (int) $profile->id);
+			$db->setQuery($query)
+				->execute();
+		}
+	}
+
+	/**
 	 * Called on install
 	 *
-	 * @param   JAdapterInstance  $adapter  The object responsible for running this script
+	 * @param   ComponentAdapter  $adapter  The object responsible for running this script
 	 *
 	 * @return  boolean  True on success
 	 *
@@ -527,7 +563,7 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 	 *
 	 * @throws  Exception
 	 */
-	public function install(JAdapterInstance $adapter)
+	public function install(ComponentAdapter $adapter)
 	{
 		Factory::getApplication()->enqueueMessage(Text::_('COM_ROPAYMENTS_INSTALL_PLUGIN'), 'notice');
 
@@ -537,7 +573,7 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 	/**
 	 * Called on update
 	 *
-	 * @param   JAdapterInstance  $adapter  The object responsible for running this script
+	 * @param   ComponentAdapter  $adapter  The object responsible for running this script
 	 *
 	 * @return  boolean  True on success
 	 *
@@ -545,10 +581,80 @@ class Com_JdidealgatewayInstallerScript extends InstallerScript
 	 *
 	 * @throws  Exception
 	 */
-	public function update(JAdapterInstance $adapter): bool
+	public function update(ComponentAdapter $adapter): bool
 	{
 		Factory::getApplication()->enqueueMessage(Text::_('COM_ROPAYMENTS_UPDATE_PLUGIN'), 'notice');
 
 		return true;
+	}
+
+	/**
+	 * Called on install
+	 *
+	 * @param   ComponentAdapter  $adapter  The object responsible for running this script
+	 *
+	 * @return  boolean  True on success
+	 *
+	 * @since   4.8.0
+	 *
+	 * @throws  Exception
+	 */
+	public function uninstall(ComponentAdapter $adapter)
+	{
+		Folder::delete(JPATH_SITE . '/libraries/Jdideal');
+
+		return true;
+	}
+
+	/**
+	 * Add the profile ID for customers and subscriptions.
+	 *
+	 * @return  void
+	 *
+	 * @since   6.3.0
+	 */
+	private function addRecurringProfile()
+	{
+		$db    = Factory::getDbo();
+		$query = $db->getQuery(true)
+			->select($db->quoteName(['id', 'paymentInfo']))
+			->from($db->quoteName('#__jdidealgateway_profiles'))
+			->where($db->quoteName('alias') . ' = ' . $db->quote('mollie'));
+		$db->setQuery($query);
+		$profiles = $db->loadObjectList();
+
+		foreach ($profiles as $profile)
+		{
+			$settings = new Registry($profile->paymentInfo);
+
+			if ((int) $settings->get('recurring') === 0)
+			{
+				continue;
+			}
+
+			$query->clear()
+				->select('COUNT(*)')
+				->from($db->quoteName('#__jdidealgateway_customers'))
+				->where($db->quoteName('profileId') . ' = 0');
+			$db->setQuery($query);
+
+			$count = $db->loadResult();
+
+			if ((int) $count === 0)
+			{
+				continue;
+			}
+
+			$query->clear()
+				->update($db->quoteName('#__jdidealgateway_customers'))
+				->set($db->quoteName('profileId') . ' = ' . (int) $profile->id);
+			$db->setQuery($query)
+				->execute();
+
+			$query->clear('update')
+				->update($db->quoteName('#__jdidealgateway_subscriptions'));
+			$db->setQuery($query)
+				->execute();
+		}
 	}
 }

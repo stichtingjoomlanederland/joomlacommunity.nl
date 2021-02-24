@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewUsers extends EasyDiscussAdminView
 {
 	/**
@@ -25,12 +23,14 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 	{
 		$this->checkAccess('discuss.manage.users');
 
-
-		// Set page attributes
 		$this->title('COM_EASYDISCUSS_USERS');
 
 		// Register toolbar items
-		JToolbarHelper::deleteList();
+		JToolBarHelper::custom('assignBadge', 'badge', '', JText::_('COM_ED_ASSIGN_BADGE'));
+		JToolbarHelper::deleteList(JText::_('COM_ED_DELETE_USER_CONFIRMATION'));
+
+		$categoryId = $this->input->get('category_id', 0, 'int');
+		$moderator = $this->input->get('moderator', 0, 'int');
 
 		// Get the selected filter
 		$filter = $this->getUserState('users.filter_state', 'filter_state', '*', 'word');
@@ -43,8 +43,17 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		$order = $this->getUserState('users.filter_order', 'filter_order', 'id', 'cmd');
 		$orderDirection = $this->getUserState('users.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
+		$browse = $this->input->get('browse', 0, 'int');
+		$browseFunction = $this->input->get('browsefunction', 'selectUser', 'default');
+
 		$model = ED::model('Users');
-		$users = $model->getUsers();
+		$users = array();
+
+		if ($categoryId && $moderator) {
+			$users = $model->getModerators($categoryId);
+		} else {
+			$users = $model->getUsers();
+		}
 
 		// Get the pagination
 		$pagination = $model->getPagination();
@@ -52,33 +61,35 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		if ($users) {
 			foreach ($users as &$user) {
 				$user->usergroups = $this->getGroupTitle($user->id);
-				$user->totalTopics = $this->getTotalTopicCreated($user->id);
+				$user->totalTopics = ($browse) ? 0 : $this->getTotalTopicCreated($user->id);
 			}
 		}
 
-		$browse = $this->input->get('browse', 0, 'int');
-		$browseFunction = $this->input->get('browsefunction', 'selectUser', 'default');
-		$prefix = $this->input->get('prefix', '', 'cmd');
-
 		$this->set('filter', $filter);
 		$this->set('search', $search);
-		$this->set('prefix', $prefix);
 		$this->set('users', $users);
 		$this->set('pagination', $pagination);
 		$this->set('browse', $browse);
 		$this->set('browsefunction', $browseFunction);
+
+		$this->set('categoryId', $categoryId);
+		$this->set('moderator', $moderator);
+		
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
 
 		parent::display('users/default');
 	}
 
+	/**
+	 * Renders the form to edit or create user
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
 	public function form($tpl = null)
 	{
 		$this->checkAccess('discuss.manage.users');
-
-		// Initialise variables
-		$config = ED::config();
 
 		$id = $this->input->get('id', 0, 'int');
 
@@ -89,14 +100,12 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		JToolBarHelper::apply();
 		JToolBarHelper::save();
 		JToolBarHelper::cancel();
+		JToolbarHelper::custom('resetRank', '', '', JText::_('COM_EASYDISCUSS_RESET_RANK'), false);
 
 		$userparams	= json_decode($profile->get('params'));
-		$siteDetails = json_decode($profile->get('site'));
-
 		$userparams = ED::getRegistry($userparams);
-		$siteDetails = ED::getRegistry($siteDetails);
 
-		$avatarIntegration = $config->get('layout_avatarIntegration', 'default');
+		$avatarIntegration = $this->config->get('layout_avatarIntegration', 'default');
 
 		$user = JFactory::getUser($id);
 		$isNew = ($user->id == 0) ? true : false;
@@ -105,8 +114,6 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 
 		$model = ED::model('Badges');
 		$history = $model->getBadgesHistory($profile->id);
-
-		$params = $user->getParameters(true);
 
 		// Badge id's that are assigned to the user.
 		$badgeIds = '';
@@ -128,27 +135,24 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		// Get active tab
 		$active = $this->input->get('active', 'account', 'word');
 
-		if ($this->config->get('layout_avatar')) {
+		if (!$this->config->get('layout_text_avatar')) {
 			$maxSizeInMB = (int) $this->config->get('main_upload_maxsize', 0);
+			$this->set('maxSizeInMB', $maxSizeInMB);
 		}
 
 		// Get editor for signature.
 		$opt = array('defaults', $profile->getSignature(true));
 		$composer = ED::composer($opt);
 
-		$this->set('maxSizeInMB', $maxSizeInMB);
 		$this->set('active', $active);
 		$this->set('badgeIds', $badgeIds);
 		$this->set('badges', $badges);
 		$this->set('history', $history);
-		$this->set('config', $config);
 		$this->set('profile', $profile);
 		$this->set('user', $user);
 		$this->set('isNew', $isNew);
-		$this->set('params', $params);
 		$this->set('avatarIntegration', $avatarIntegration);
 		$this->set('userparams', $userparams);
-		$this->set('siteDetails', $siteDetails);
 		$this->set('composer', $composer);
 
 		parent::display('user/default');
@@ -165,6 +169,7 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.users');
 
 		$this->setHeading('COM_ED_DOWNLOAD_REQUESTS');
+		$this->addHelpButton('/docs/easydiscuss/administrators/configuration/general-data-protection-regulation');
 
 		JToolbarHelper::deleteList('', 'removeRequest');
 		JToolBarHelper::custom('purgeAll','purgeAll','icon-32-unpublish.png', 'COM_EASYDISCUSS_SPOOLS_PURGE_ALL_BUTTON', false);
@@ -198,7 +203,7 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 
 	public function getGroupTitle($user_id)
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$sql = "SELECT title FROM `#__usergroups` AS ug";
 		$sql .= " left join  `#__user_usergroup_map` as map on (ug.id = map.group_id)";
@@ -216,7 +221,7 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 
 	public function getTotalTopicCreated($userId)
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query  = 'SELECT COUNT(1) AS CNT FROM `#__discuss_posts`';
 		$query  .= ' WHERE `user_id` = ' . $db->Quote($userId);
@@ -235,9 +240,9 @@ class EasyDiscussViewUsers extends EasyDiscussAdminView
 		$filter_state = $app->getUserStateFromRequest('com_easydiscuss.users.filter_state', 'filter_state', '*', 'word');
 		$search = $app->getUserStateFromRequest('com_easydiscuss.users.search', 'search', '', 'string');
 
-		$search = trim(JString::strtolower($search));
-		$order = $app->getUserStateFromRequest('com_easydiscuss.users.filter_order', 'filter_order', 'id', 'cmd');
-		$orderDirection = $app->getUserStateFromRequest('com_easydiscuss.users.filter_order_Dir', 'filter_order_Dir', '', 'word');
+		$search			= trim(EDJString::strtolower( $search ) );
+		$order			= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order',		'filter_order',		'id',	'cmd' );
+		$orderDirection	= $app->getUserStateFromRequest( 'com_easydiscuss.users.filter_order_Dir',	'filter_order_Dir',	'',		'word' );
 
 		$userModel = ED::model('Users');
 		$users = $userModel->getUsers();

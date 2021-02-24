@@ -438,7 +438,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 
 			$avatar_config_path	= $config->get('main_avatarpath');
 			$avatar_config_path	= rtrim($avatar_config_path, '/');
-			$avatar_config_path	= JString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
+			$avatar_config_path	= EDJString::str_ireplace('/', DIRECTORY_SEPARATOR, $avatar_config_path);
 
 			// Get the upload path
 			$target_file_path = JPATH_ROOT . '/' . $avatar_config_path;
@@ -613,7 +613,7 @@ class EasyDiscussMigratorKunena extends EasyDiscussMigratorBase
 			$credentials .= $match[1] . "<br />";
 
 			// next, let replace the content with empty space.
-			$text = JString::str_ireplace($code, '', $text);
+			$text = EDJString::str_ireplace($code, '', $text);
 		}
 
 		$data["params_siteurl"] = '';

@@ -146,6 +146,7 @@ class DiscussDownload extends EasyDiscussTable
 
 	/**
 	 * Method used to send email notification to user who requested to download GDPR details.
+	 *
 	 * @since  4.1
 	 * @access public
 	 */
@@ -158,7 +159,7 @@ class DiscussDownload extends EasyDiscussTable
 		$emailData = array();
 		$emailData['downloadLink'] = $this->getDownloadLink(true);
 		$emailData['actorName'] = $my->user->name;
-		$emailData['emailTemplate'] = 'email.gdpr.ready.php';
+		$emailData['emailTemplate'] = 'email.gdpr.ready';
 
 		$body = $mailer->generateEmailBody($emailData);
 		$email = $my->user->email;
@@ -166,6 +167,7 @@ class DiscussDownload extends EasyDiscussTable
 
 		// add into mail queue
 		$mailer->addQueue($email, $subject, $body);
+
 		return true;
 	}
 
@@ -192,7 +194,7 @@ class DiscussDownload extends EasyDiscussTable
 		header("Content-Disposition: attachment; filename=$fileName");
 		header("Content-Length: " . filesize($file));
 
-		echo JFile::read($file);
+		echo file_get_contents($file);
 		exit;
 	}
 

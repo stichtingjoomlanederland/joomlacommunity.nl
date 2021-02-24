@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Private Limited. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -107,7 +107,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 
 	public function insertRuleset($cid, $type, $saveData)
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$rules = $this->getRules('action', $type, $cid);
 
@@ -135,8 +135,6 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getRuleSet($type, $cid)
 	{
@@ -207,8 +205,6 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTabs()
 	{
@@ -237,7 +233,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 
 	public function getRuleSets($type='group', $cid='')
 	{
-		$db 		= DiscussHelper::getDBO();
+		$db 		= ED::db();
 
 		$rulesets	= new stdClass();
 		$ids		= array();
@@ -328,7 +324,7 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 		$db = $this->db;
 
 		$search = $this->app->getUserStateFromRequest('com_easydiscuss.acls.search', 'search', '', 'string');
-		$search = $db->getEscapedtrim(JString::strtolower($search));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -378,4 +374,22 @@ class EasyDiscussModelAcl extends EasyDiscussAdminModel
 
 		return $orderby;
 	}
+
+	/**
+	 * Retrieve the title of the user group given the group id
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function getUsergroupTitle($id)
+	{
+		$db = ED::db();
+
+		$query = 'SELECT `title` FROM `#__usergroups` WHERE `id`=' . $db->Quote($id);
+
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		return $result;
+	}	
 }

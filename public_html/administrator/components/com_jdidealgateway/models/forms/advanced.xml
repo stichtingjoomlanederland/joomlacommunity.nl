@@ -11,7 +11,7 @@
                required="true"
                size="1"
                labelclass="config"
-               class="advancedSelect">
+               class="advancedSelect custom-select">
         </field>
 
         <field name="IDEAL_PrivatekeyPass"
@@ -47,7 +47,7 @@
                size="1"
                default="1"
                labelclass="config"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                showon="IDEAL_Bank:RABOBANKSEPA,RABOBANKSEPATEST,INGSEPA,INGSEPATEST">
             <option value="1">COM_ROPAYMENTS_ADVANCED_NEW_CERTIFICATE</option>
         </field>
@@ -67,7 +67,7 @@
                description="COM_ROPAYMENTS_WAIT_TIME_ADVANCED_DESC"
                required="true"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS"/>
@@ -79,7 +79,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="verifiedStatus"
@@ -89,7 +89,7 @@
                required="false"
                size="1"
                default="C"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="cancelledStatus"
@@ -99,17 +99,17 @@
                required="false"
                size="1"
                default="X"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
-        <field name="failedStatus"
+        <field name="failureStatus"
                type="jdideal.status"
                label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
                description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
                required="false"
                size="1"
                default="F"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="openStatus"
@@ -119,7 +119,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
@@ -131,7 +131,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="IDEAL_Privatekey" type="hidden" default="priv.pem"/>

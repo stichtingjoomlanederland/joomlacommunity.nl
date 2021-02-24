@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,18 +11,22 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussCategory extends EasyDiscuss
+class EasyDiscussCategory
 {
+	// This contains the error message.
+	public $error = null;
+
 	// This is the DiscussConversation table
 	protected $table = null;
 
 	// This is the binded data
 	protected $bindData = array();
 
+	private $config = null;
+
 	public function __construct($item)
 	{
-		parent::__construct();
-
+		$this->config = ED::config();
 		$this->table = ED::table('Category');
 
 		// For object that is being passed in
@@ -46,8 +50,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function __get($key)
 	{
@@ -67,8 +69,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function set($key, $value)
 	{
@@ -80,8 +80,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function bind($data)
 	{
@@ -95,8 +93,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function normalize()
 	{
@@ -120,8 +116,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function validate()
 	{
@@ -129,7 +123,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		$this->normalize();
 
 		if (!$this->table->title) {
-            $this->setError('COM_EASYDISCUSS_CATEGORY_EMPTY_TITLE');
+			$this->setError('COM_EASYDISCUSS_CATEGORY_EMPTY_TITLE');
 			return false;
 		}
 
@@ -144,7 +138,7 @@ class EasyDiscussCategory extends EasyDiscuss
 		// if user enable container option to yes, we need to ensure that
 		// do not have any post created in this category
 		if ($postCount != 0 && $this->table->container) {
-            $this->setError('COM_EASYDISCUSS_CATEGORY_UNABLE_SET_AS_CONTAINER');
+			$this->setError('COM_EASYDISCUSS_CATEGORY_UNABLE_SET_AS_CONTAINER');
 			return false;
 		}
 
@@ -156,8 +150,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function save($updateOrdering = false)
 	{
@@ -170,8 +162,15 @@ class EasyDiscussCategory extends EasyDiscuss
 			return $state;
 		}
 
-		// Whenever a category is saved, we need to update the acl as well
 		$model = ED::model('Category');
+
+		// Whenever a category is saved, we need to update the acl as well
+		// if (isset($this->bindData['inherit_acl']) && $this->bindData['inherit_acl']) {
+		// 	$model->deleteACL($this->table->id);
+		// } else {
+		// 	$model->updateACL($this->table->id, $this->bindData, null);
+		// }
+
 		$model->updateACL($this->table->id, $this->bindData, null);
 
 		// We also need to update the ordering of all categories when a category is saved
@@ -186,8 +185,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function delete()
 	{
@@ -225,6 +222,13 @@ class EasyDiscussCategory extends EasyDiscuss
 		$this->deleteAvatar();
 		$this->deleteACL();
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_DELETED_CATEGORY', 'category', array(
+			'categoryTitle' => JText::_($this->table->title)
+		));
+
 		return true;
 	}
 
@@ -233,8 +237,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function deleteACL()
 	{
@@ -247,8 +249,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function deleteAvatar($store = false)
 	{
@@ -264,12 +264,109 @@ class EasyDiscussCategory extends EasyDiscuss
 	}
 
 	/**
+	 * Duplicate the current category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function duplicate()
+	{
+		// Clone the category
+		$clone = clone($this->table);
+		$title = JText::sprintf('COM_ED_DUPLICATE_CATEGORY_TITLE', JText::_($this->title));
+
+		$options = array(
+			'id' => '',
+			'title' => $title,
+			'alias' => $clone->generateAlias($title),
+			'avatar' => '',
+			'level' => 0,
+			'lft' => '',
+			'rgt' => '',
+			'default' => 0
+		);
+
+		// Ensure that the default is not copied over when cloning
+		$clone->bind($options);
+
+		// Save the cloned category
+		$clone->store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_DUPLICATED_CATEGORY', 'category', array(
+			'categoryTitle' => JText::_($this->table->title)
+		));
+
+		$model = ED::model('Category');
+
+		// Duplicate the ACL for the new clone category
+		$model->duplicateAcl($this, $clone);
+
+		return $clone;
+	}
+
+	/**
+	 * Sets an error message
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function setError($message = '')
+	{
+		$this->error = JText::_($message);
+	}
+
+	/**
+	 * Get an error message
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function getError($message = '')
+	{
+		return $this->error;
+	}
+
+	/**
+	 * Check if has an error message
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function hasError()
+	{
+		return !empty($this->error);
+	}
+
+	/**
+	 * Check for permission based on the given acl rule
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getAccess($userId = null, $rule = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
+	{
+		$useGlobal = $this->global_acl;
+		$model = ED::model('Category');
+
+		// Check for global access and return it
+		if ($useGlobal) {
+			return $model->isGlobalPermissionAllowed($userId, $rule);
+		}
+
+		$disallowed = $model->getDisallowedCategories($userId, $rule);
+		$access = !in_array($this->table->id, $disallowed);
+
+		return $access;
+	}
+
+	/**
 	 * Generates an alias
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function generateAlias()
 	{
@@ -300,8 +397,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAlias()
 	{
@@ -320,8 +415,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function isPublic()
 	{
@@ -329,12 +422,21 @@ class EasyDiscussCategory extends EasyDiscuss
 	}
 
 	/**
+	 * Determines if this category is published
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function isPublished()
+	{
+		return (bool) $this->published;
+	}
+
+	/**
 	 * Determines if this category is a subcategory
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function isSubcategory()
 	{
@@ -346,8 +448,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function isContainer()
 	{
@@ -359,8 +459,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function canViewReplies($userId = null)
 	{
@@ -372,11 +470,7 @@ class EasyDiscussCategory extends EasyDiscuss
 
 			// If user is not a moderator, check again
 			if (!$items[$this->table->id]) {
-
-				$model = ED::model('Category');
-				$disallowed = $model->getDisallowedCategories($userId, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
-				$items[$this->table->id] = !in_array($this->table->id, $disallowed);
-
+				$items[$this->table->id] = $this->getAccess($userId, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 			}
 		}
 
@@ -388,8 +482,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function canPublicAccess()
 	{
@@ -408,7 +500,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 */
 	public function canPost($userId = null)
 	{
-
 		// if this is a container, no one can post into this category.
 		if ($this->isContainer()) {
 			return false;
@@ -430,20 +521,7 @@ class EasyDiscussCategory extends EasyDiscuss
 			return $items[$this->table->id];
 		}
 
-
-		$user = ED::user($userId);
-		$allowed = false;
-
-
-		// If this is a private category, we need to do additional checks here.
-		$model = ED::model('Category');
-		$disallowed = $model->getDisallowedCategories($userId, DISCUSS_CATEGORY_ACL_ACTION_SELECT);
-
-		if (!in_array($this->table->id, $disallowed)) {
-			$allowed = true;
-		}
-
-		$items[$this->table->id] = $allowed;
+		$items[$this->table->id] = $this->getAccess($userId, DISCUSS_CATEGORY_ACL_ACTION_SELECT);
 
 		return $items[$this->table->id];
 	}
@@ -453,20 +531,18 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function canAccess($userId = null)
+	public function canAccess($userId = null, $useCache = true)
 	{
 		static $items = array();
 
-		if (isset($items[$this->table->id])) {
+		if ($useCache && isset($items[$this->table->id])) {
 			return $items[$this->table->id];
 		}
 
-		$model = ED::model('Category');
-		$disallowed = $model->getDisallowedCategories($userId);
-		$items[$this->table->id] = !in_array($this->table->id, $disallowed);
+		$allowed = $this->getAccess($userId, DISCUSS_CATEGORY_ACL_ACTION_VIEW);
+
+		$items[$this->table->id] = $allowed && $this->isPublished();
 
 		return $items[$this->table->id];
 	}
@@ -476,8 +552,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function canReply($userId = null)
 	{
@@ -487,10 +561,26 @@ class EasyDiscussCategory extends EasyDiscuss
 			return $items[$this->table->id];
 		}
 
-		$model = ED::model('Category');
-		$disallowed = $model->getDisallowedCategories($userId, DISCUSS_CATEGORY_ACL_ACTION_REPLY);
+		$items[$this->table->id] = $this->getAccess($userId, DISCUSS_CATEGORY_ACL_ACTION_REPLY);
 
-		$items[$this->table->id] = !in_array($this->table->id, $disallowed);
+		return $items[$this->table->id];
+	}
+
+	/**
+	 * Determines if the user can reply to discussions under this category
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function canComment($userId = null)
+	{
+		static $items = array();
+
+		if (isset($items[$this->table->id])) {
+			return $items[$this->table->id];
+		}
+
+		$items[$this->table->id] = $this->getAccess($userId, DISCUSS_CATEGORY_ACL_ACTION_COMMENT);
 
 		return $items[$this->table->id];
 	}
@@ -500,14 +590,39 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getTitle()
+	public function getTitle($truncate = false)
 	{
-		$title = JText::_($this->table->title);
+		static $cache = [];
 
-		return $title;
+		$key = $this->id . $truncate;
+
+		if (!isset($cache[$key])) {
+			$cache[$key] = JText::_($this->table->title);
+
+			if ($truncate !== false && EDJString::strlen($cache[$key]) > $truncate) {
+				$cache[$key] =EDJString::substr($cache[$key], 0, $truncate) . JText::_('COM_EASYDISCUSS_ELLIPSES');
+			}
+		}
+
+		return $cache[$key];
+	}
+
+	/**
+	 * Colour identifier for the category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getColour()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$cache[$this->id] = $this->getParam('cat_colour', '#000');
+		}
+
+		return $cache[$this->id];
 	}
 
 	/**
@@ -515,8 +630,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getDescription()
 	{
@@ -525,13 +638,28 @@ class EasyDiscussCategory extends EasyDiscuss
 		return $desc;
 	}
 
+	/**
+	 * Icon identifier for the category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getIcon()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$cache[$this->id] = $this->getParam('cat_icon', 'far fa-folder');
+		}
+
+		return $cache[$this->id];
+	}
 
 	/**
 	 * Retrieves the total number of unresolved posts from this category.
 	 *
 	 * @since	3.0
 	 * @access	public
-	 * @return	int
 	 */
 	public function getUnresolvedCount( $excludeFeatured = false )
 	{
@@ -555,7 +683,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @return	int
 	 */
 	public function getUnreadCount($excludeFeatured = false)
 	{
@@ -600,8 +727,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAvatar()
 	{
@@ -626,8 +751,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getRSSLink()
 	{
@@ -636,7 +759,7 @@ class EasyDiscussCategory extends EasyDiscuss
 
 	public function getRSSPermalink($external = false)
 	{
-  		$url = 'view=categories&layout=listings&category_id=' . $this->id;
+		$url = 'view=categories&layout=listings&category_id=' . $this->id;
 		$url = ED::feeds()->getFeedURL($url);
 
 		return $url;
@@ -647,8 +770,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getModerators()
 	{
@@ -670,7 +791,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @return	string	The RSS url.
 	 */
 	public function getAtomLink()
 	{
@@ -681,26 +801,106 @@ class EasyDiscussCategory extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieves the permalink to create a new post
+	 *
+	 * @since	4.0
+	 * @access	public
+	 */
+	public function getAskPermalink($xhtml = true, $external = false)
+	{
+		static $cache = [];
+
+		$key = $this->table->id . $xhtml . $external;
+
+		if (!isset($cache[$key])) {
+			$url = 'view=ask&category=' . $this->table->id;
+
+			if ($external) {
+				$cache[$key] = EDR::getRoutedURL($url, $xhtml, true);
+			}
+
+			if (!$external) {
+				$cache[$key] = EDR::_($url, $xhtml);
+			}
+		}
+
+
+		return $cache[$key];
+	}
+
+	/**
 	 * Retrieves the permalink of the category
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPermalink($xhtml = true, $external = false)
 	{
-		$url = 'view=forums&category_id=' . $this->table->id;
-		// $url = 'view=categories&layout=listings&category_id=' . $this->table->id;
+		static $cache = [];
 
-		if ($external) {
-			$url = EDR::getRoutedURL($url, false, true);
-		} else {
-			$url = EDR::_($url, $xhtml);
+		$key = $this->table->id . $xhtml . $external;
+
+		if (!isset($cache[$key])) {
+			$url = 'view=categories&layout=listings&category_id=' . $this->table->id;
+
+			if ($external) {
+				$cache[$key] = EDR::getRoutedURL($url, $xhtml, true);
+			}
+
+			if (!$external) {
+				$cache[$key] = EDR::_($url, $xhtml);
+			}
 		}
 
 
-		return $url;
+		return $cache[$key];
+	}
+
+	/**
+	 * Retrieves the list of subcategories from this category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getSubcategories()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->id])) {
+			$cache[$this->id] = [];
+
+			$categoriesModel = ED::model('Categories');
+			$childs = $categoriesModel->getChildCategories($this->id, true, false);
+
+			if ($childs) {
+				$categoryModel = ED::model('Category');
+
+				foreach ($childs as $item) {
+					$child = ED::category($item);
+
+					$totalSubcategories = 0;
+					$categoryModel->getTotalViewableChilds($child->id, $totalSubcategories);
+					$child->totalSubcategories = $totalSubcategories;
+
+					if ($child->totalSubcategories) {
+						$childSubcategories = $categoriesModel->getCategories([
+							'parent_id' => $child->id
+						]);
+
+						$child->childs = [];
+
+						foreach ($childSubcategories as $row) {
+							$grandchild = ED::category($row);
+							$child->childs[] = $grandchild;
+						}
+					}
+
+					$cache[$this->id][] = $child;
+				}
+			}
+		}
+
+		return $cache[$this->id];
 	}
 
 	/**
@@ -708,8 +908,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalSubcategories()
 	{
@@ -728,8 +926,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getTotalPosts($options = array())
 	{
@@ -750,8 +946,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getParams()
 	{
@@ -768,12 +962,29 @@ class EasyDiscussCategory extends EasyDiscuss
 	}
 
 	/**
+	 * Retrieves the parent category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getParent()
+	{
+		static $cache = array();
+
+		if (!isset($cache[$this->parent_id])) {
+			$parent = ED::category($this->parent_id);
+
+			$cache[$this->parent_id] = $parent;
+		}
+
+		return $cache[$this->parent_id];
+	}
+
+	/**
 	 * Retrieves the category settings
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getParam($key, $default = '')
 	{
@@ -787,8 +998,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getBreadcrumbs()
 	{
@@ -818,8 +1027,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	private function getNestedPathway($parent, &$data)
 	{
@@ -843,7 +1050,8 @@ class EasyDiscussCategory extends EasyDiscuss
 		$gid = array();
 		$db = ED::db();
 
-		$userId = $this->my->id;
+		$user = JFactory::getUser();
+		$userId = $user->id;
 
 		if (isset($options['useUserId'])) {
 			if ($options['useUserId']) {
@@ -854,10 +1062,10 @@ class EasyDiscussCategory extends EasyDiscuss
 
 			$userId = $options['useUserId'];
 		} else {
-			if ($this->my->guest) {
+			if ($user->guest) {
 				$gid = JAccess::getGroupsByUser(0, false);
 			} else {
-				$gid = JAccess::getGroupsByUser($this->my->id, false);
+				$gid = JAccess::getGroupsByUser($user->id, false);
 			}
 		}
 
@@ -925,7 +1133,11 @@ class EasyDiscussCategory extends EasyDiscuss
 		$sql .= " 	( acat.`private` = 0 ) OR";
 		$sql .= " 	( (acat.`private` = 1) AND (" . $userId . " > 0) ) OR";
 		// joomla groups.
-		$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ")) > 0 ) )";
+		$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('0') . " ) > 0 ";
+		$sql .= " OR ";
+		$sql .= " (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = " . $db->Quote('0') ." AND cacl.`acl_id` = $acl AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('1') . " ) > 0";
+
+		$sql .= ") )";
 		$sql .= " )";
 		//ending bracket
 		$sql .= " )";
@@ -937,7 +1149,7 @@ class EasyDiscussCategory extends EasyDiscuss
 
 	}
 
-	public static function getChildIds( $parentId = 0 )
+	public static function getChildIds($parentId = 0)
 	{
 		static $childIds = array();
 
@@ -958,7 +1170,7 @@ class EasyDiscussCategory extends EasyDiscuss
 
 		if( empty($categories) )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 			$query	= 'SELECT * FROM ' . $db->nameQuote( '#__discuss_category' ) . ' order by lft asc';
 
 			$db->setQuery( $query );
@@ -984,128 +1196,37 @@ class EasyDiscussCategory extends EasyDiscuss
 		}
 	}
 
-	public function getChildCategories($parentId , $isPublishedOnly = false, $includePrivate = true, $exclusion = array(), $ordering = false, $aclType = DISCUSS_CATEGORY_ACL_ACTION_VIEW)
-	{
-		static $categories = array();
-
-		$config = ED::getConfig();
-		$db	= ED::db();
-		$my	= JFactory::getUser();
-		$app = JFactory::getApplication();
-
-		$sig = $parentId . '-' . (int) $isPublishedOnly . '-' . (int) $includePrivate;
-
-		if (!array_key_exists($sig, $categories)) {
-			$db	= ED::db();
-
-			$sortConfig = $config->get('layout_ordering_category','latest');
-
-			if ($ordering) {
-				$sortConfig = $ordering;
-			}
-
-			// $query  = 'SELECT a.`id`, a.`title`, a.`alias`, a.`private`,a.`default`, a.`container`';
-			$query = 'SELECT a.*';
-			$query .= ' FROM `#__discuss_category` as a';
-			$query .= ' WHERE a.`parent_id` = ' . $db->Quote($parentId);
-
-			if (!$app->isAdmin()) {
-				// We don't need to check for language in backend because only frontend has the language filter
-				$filterLanguage = JFactory::getApplication()->getLanguageFilter();
-
-				if ($filterLanguage) {
-					$query .= ' AND ' . ED::getLanguageQuery('a.language');
-				}
-			}
-
-			if ($isPublishedOnly) {
-				$query	.=  ' AND a.`published` = ' . $db->Quote('1');
-			}
-
-			if (!$app->isAdmin()) {
-
-				if (!$includePrivate) {
-					//check categories acl here.
-					$catIds = ED::getAclCategories($aclType, $my->id, $parentId);
-
-					if (count($catIds) > 0) {
-
-						$strIds = '';
-
-						foreach ($catIds as $cat) {
-							$strIds = (empty($strIds)) ? $cat->id : $strIds . ', ' . $cat->id;
-						}
-
-						$query .= ' AND a.id NOT IN (';
-						$query .= $strIds;
-						$query .= ')';
-					}
-				}
-			}
-
-			// Exclude category list.
-			if (!empty($exclusion)) {
-
-				$excludeQuery = 'AND a.`id` NOT IN (';
-
-				for ($i = 0 ; $i < count($exclusion); $i++) {
-
-					$id = $exclusion[$i];
-
-					$excludeQuery .= $db->Quote($id);
-
-					if (next($exclusion) !== false) {
-						$excludeQuery .= ',';
-					}
-				}
-
-				$excludeQuery .= ')';
-
-				$query .= $excludeQuery;
-			}
-
-			switch($sortConfig) {
-				case 'alphabet' :
-					$orderBy = ' ORDER BY a.`title` ';
-					break;
-				case 'ordering' :
-					$orderBy = ' ORDER BY a.`lft` ';
-					break;
-				case 'latest' :
-					$orderBy = ' ORDER BY a.`created` ';
-					break;
-				default	:
-					$orderBy = ' ORDER BY a.`lft` ';
-					break;
-			}
-
-			$sort = $config->get('layout_sort_category', 'asc');
-
-			$query .= $orderBy.$sort;
-
-			$db->setQuery($query);
-			$result = $db->loadObjectList();
-
-			$categories[$sig] = $result;
-		}
-
-		return $categories[$sig];
-	}
-
 	/**
 	 * Get a list of acl that is assigned to this category
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
-	public function getAssignedGroups($action = 'view')
+	public function getAssignedGroups($action = 'view', $type = 'group')
 	{
-		$model = ED::model('Category');
-		$groups = $model->getAssignedGroups($this->table->id, $action);
+		static $groups = [];
 
-		return $groups;
+		$key = $this->table->id . $action;
+
+		if (!isset($groups[$key])) {
+			$model = ED::model('Category');
+			$groups[$key] = $model->getAssignedGroups($this->table->id, $action, $type);
+		}
+
+		return $groups[$key];
+	}
+
+	/**
+	 * Determines if this category has children
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function hasChildren()
+	{
+		$children = $this->getTotalSubcategories() > 0;
+
+		return $children;
 	}
 
 	/**
@@ -1113,32 +1234,30 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function printTrees($child, $level)
 	{
-        $wrapperStart = '<ul class="ed-tree__list">';
-        $wrapperEnd = '</ul>';
+		$wrapperStart = '<ul class="ed-tree__list">';
+		$wrapperEnd = '</ul>';
 
-        $addWrapper = false;
-        $tree = '';
+		$addWrapper = false;
+		$tree = '';
 
-        foreach ( $child as $item ) {
-            if ($item->parent_id == $level ) {
+		foreach ( $child as $item ) {
+			if ($item->parent_id == $level ) {
 
-                $addWrapper = true;
+				$addWrapper = true;
 
-                $theme = ED::themes();
-                $theme->set('category', $item);
-                $output = $theme->output('site/categories/default.item');
+				$theme = ED::themes();
+				$theme->set('category', $item);
+				$output = $theme->output('site/categories/default.item');
 
-                $tree = $tree . '<li class="ed-tree__item">' . $output . $this->printTrees($child, $item->id) . "</li>";
-            }
-        }
+				$tree = $tree . '<li class="ed-tree__item">' . $output . $this->printTrees($child, $item->id) . "</li>";
+			}
+		}
 
-        $tree = $addWrapper ? $wrapperStart . $tree . $wrapperEnd : $tree;
-        return $tree;
+		$tree = $addWrapper ? $wrapperStart . $tree . $wrapperEnd : $tree;
+		return $tree;
 	}
 
 	/**
@@ -1146,8 +1265,6 @@ class EasyDiscussCategory extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function move( $direction , $where = '' )
 	{
@@ -1319,41 +1436,50 @@ class EasyDiscussCategory extends EasyDiscuss
 		}
 	}
 
-    /**
-     * Maps existing data back to the table
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function toData()
-    {
-        // Convert the table to an array
-        $data = new stdClass();
+	/**
+	 * Maps existing data back to the table
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function toData()
+	{
+		// Convert the table to an array
+		$data = new stdClass();
 
-        $data->id = $this->table->id;
-        $data->permalink = $this->getPermalink(false, true);
-        $data->title = $this->table->title;
-        $data->alias = $this->table->alias;
-        $data->description = $this->table->description;
-        $data->created = $this->table->created;
-        $data->published = $this->table->published;
-        $data->posts = $this->getTotalPosts();
+		$data->id = $this->table->id;
+		$data->permalink = $this->getPermalink(false, true);
+		$data->title = $this->table->title;
+		$data->alias = $this->table->alias;
+		$data->description = $this->table->description;
+		$data->created = $this->table->created;
+		$data->published = $this->table->published;
+		$data->posts = $this->getTotalPosts();
 
-        $data->subcategories = array();
+		$data->subcategories = array();
 
-        $subcategories = $this->getChildCategories($this->table->id);
+		$model = ED::model('Categories');
+		$subcategories = $model->getChildCategories($this->table->id);
 
-        if ($subcategories) {
-        	foreach ($subcategories as $subcategory) {
-        		$category = ED::category($subcategory);
+		if ($subcategories) {
+			foreach ($subcategories as $subcategory) {
+				$category = ED::category($subcategory);
 
-        		$data->subcategories[] = $category->toData();
-        	}
-        }
+				$data->subcategories[] = $category->toData();
+			}
+		}
 
-        return $data;
-    }
+		return $data;
+	}
 
+	/**
+	 * Determine whether its permission allows users to upload attachments to this category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function allowUploadAttachments()
+	{
+		return $this->getAccess(null, DISCUSS_CATEGORY_ACL_ACTION_UPLOAD_ATTACHMENT);
+	}
 }

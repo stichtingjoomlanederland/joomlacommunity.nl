@@ -16,25 +16,12 @@ if (!empty($this->item->image)) {
 	$image .= '<br /><br /></span><div class="clearfix"></div>';
 } ?>
 
-<script type="text/javascript">
-	Joomla.submitbutton = function(task) {
-		if (task == 'sponsor.cancel' || document.formvalidator.isValid(document.getElementById('adminForm'))) {
-			Joomla.submitform(task, document.getElementById('adminForm'));
-		} else {
-			alert('<?php echo $this->escape(JText::_('JGLOBAL_VALIDATION_FORM_FAILED'));?>');
-		}
-	}
-</script>
-
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=sponsor&layout=edit&id='.(int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-validate form-horizontal" enctype="multipart/form-data">
-	<div class="row-fluid">
-		<?php echo JHtml::_('rsfieldset.start', 'adminform'); ?>
-		<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('published'), $this->form->getInput('published')); ?>
-		<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('name'), $this->form->getInput('name')); ?>
-		<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('url'), $this->form->getInput('url')); ?>
-		<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('image'), $image.$this->form->getInput('image')); ?>
-		<?php echo JHtml::_('rsfieldset.end'); ?>
-	</div>
+	<?php echo $this->form->renderField('published'); ?>
+	<?php echo $this->form->renderField('name'); ?>
+	<?php echo $this->form->renderField('url'); ?>
+	<?php echo RSEventsproAdapterGrid::renderField('&nbsp;',$image); ?>
+	<?php echo $this->form->renderField('image'); ?>
 
 	<?php echo JHTML::_('form.token'); ?>
 	<input type="hidden" name="task" value="" />

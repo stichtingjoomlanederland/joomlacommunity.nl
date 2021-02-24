@@ -1,12 +1,15 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acympluginHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Libraries\acymObject;
+
+class PluginHelper extends acymObject
 {
     public $wraped = false;
     public $name = 'content';
     public $mailerHelper;
+    public $wrappedText = '';
 
     public function getFormattedResult($elements, $parameter)
     {
@@ -116,11 +119,11 @@ class acympluginHelper extends acymObject
                     if (is_numeric($date)) {
                         $date = acym_getDate($replaceme, '%Y-%m-%d %H:%M:%S');
                     }
-                    $dateObj = new DateTime($date);
-                    $nowObj = new DateTime();
+                    $dateObj = new \DateTime($date);
+                    $nowObj = new \DateTime();
                     $diff = $dateObj->diff($nowObj);
                     $replaceme = $diff->format($mytag->format);
-                } catch (Exception $e) {
+                } catch (\Exception $e) {
                     $replaceme = 'Error using the "diff" parameter in your tag. Please make sure the DateTime() and diff() functions are available on your server.';
                 }
             }
@@ -155,7 +158,7 @@ class acympluginHelper extends acymObject
 
 
         if (!empty($mytag->maxheight) || !empty($mytag->maxwidth)) {
-            $imageHelper = acym_get('helper.image');
+            $imageHelper = new ImageHelper();
             $imageHelper->maxHeight = empty($mytag->maxheight) ? 999 : $mytag->maxheight;
             $imageHelper->maxWidth = empty($mytag->maxwidth) ? 999 : $mytag->maxwidth;
             $replaceme = $imageHelper->resizePictures($replaceme);
@@ -164,18 +167,38 @@ class acympluginHelper extends acymObject
 
     public function replaceVideos(&$text)
     {
-        $text = preg_replace('#\[embed=videolink][^}]*youtube[^=]*=([^"/}]*)[^}]*}\[/embed]#i', '<a target="_blank" href="http://www.youtube.com/watch?v=$1"><img src="http://img.youtube.com/vi/$1/0.jpg"/></a>', $text);
-        $text = preg_replace('#<video[^>]*youtube\.com/embed/([^"/]*)[^>]*>[^>]*</video>#i', '<a target="_blank" href="http://www.youtube.com/watch?v=$1"><img src="http://img.youtube.com/vi/$1/0.jpg"/></a>', $text);
-        $text = preg_replace('#{JoooidContent[^}]*youtube[^}]*id"[^"]*"([^}"]*)"[^}]*}#i', '<a target="_blank" href="http://www.youtube.com/watch?v=$1"><img src="http://img.youtube.com/vi/$1/0.jpg"/></a>', $text);
-        $text = preg_replace('#<iframe[^>]*src="[^"]*youtube[^"]*embed/([^"?]*)(\?[^"]*)?"[^>]*>[^<]*</iframe>#Uis', '<a target="_blank" href="http://www.youtube.com/watch?v=$1"><img src="http://img.youtube.com/vi/$1/0.jpg"/></a>', $text);
-        $text = preg_replace('#{youtube}[^{]+v=([^{&]+)(&[^{]*)?{/youtube}#Uis', '<a target="_blank" href="http://www.youtube.com/watch?v=$1"><img src="http://img.youtube.com/vi/$1/0.jpg"/></a>', $text);
+        $text = preg_replace(
+            '#\[embed=videolink][^}]*youtube[^=]*=([^"/}]*)[^}]*}\[/embed]#i',
+            '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
+            $text
+        );
+        $text = preg_replace(
+            '#<video[^>]*youtube\.com/embed/([^"/]*)[^>]*>[^>]*</video>#i',
+            '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
+            $text
+        );
+        $text = preg_replace(
+            '#{JoooidContent[^}]*youtube[^}]*id"[^"]*"([^}"]*)"[^}]*}#i',
+            '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
+            $text
+        );
+        $text = preg_replace(
+            '#<iframe[^>]*src="[^"]*youtube[^"]*embed/([^"?]*)(\?[^"]*)?"[^>]*>[^<]*</iframe>#Uis',
+            '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
+            $text
+        );
+        $text = preg_replace(
+            '#{youtube}[^{]+v=([^{&]+)(&[^{]*)?{/youtube}#Uis',
+            '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
+            $text
+        );
 
         $text = preg_replace('#{vimeo}(https://vimeo.com/[^{]+){/vimeo}#Uis', '<iframe src="$1"></iframe>', $text);
         $text = preg_replace('#{vimeo}([^{]+){/vimeo}#Uis', '<iframe src="https://player.vimeo.com/video/$1"></iframe>', $text);
 
         if (preg_match_all('#<iframe[^>]*src="[^"]*vimeo[^"]*/(\d+)([&/\?][^"]*)?"[^>]*>[^<]*</iframe>#Uis', $text, $matches)) {
             foreach ($matches[1] as $key => $match) {
-                $hash = acym_fileGetContent('http://vimeo.com/api/v2/video/'.$match.'.php');
+                $hash = acym_fileGetContent('https://vimeo.com/api/v2/video/'.$match.'.php');
                 $hash = @unserialize($hash);
                 if (empty($hash)) continue;
 
@@ -186,9 +209,15 @@ class acympluginHelper extends acymObject
                     $replace = strpos($hash[0]['thumbnail_large'], '_') === false ? '.' : '_';
                     $hash[0]['thumbnail_large'] = substr($hash[0]['thumbnail_large'], 0, strrpos($hash[0]['thumbnail_large'], $replace)).'_'.$width[1].$extension;
                 }
-                $thumbnail = 'https://i.vimeocdn.com/filter/overlay?src='.urlencode($hash[0]['thumbnail_large']).'&src='.urlencode('http://f.vimeocdn.com/p/images/crawler_play.png');
+                $thumbnail = 'https://i.vimeocdn.com/filter/overlay?src='.urlencode($hash[0]['thumbnail_large']).'&src='.urlencode(
+                        'https://f.vimeocdn.com/p/images/crawler_play.png'
+                    );
 
-                $text = str_replace($matches[0][$key], '<a target="_blank" href="'.acym_escape($hash[0]['url']).'"><img class="donotresize" alt="" src="'.acym_escape($thumbnail).'" /></a>', $text);
+                $text = str_replace(
+                    $matches[0][$key],
+                    '<a target="_blank" href="'.acym_escape($hash[0]['url']).'"><img class="donotresize" alt="" src="'.acym_escape($thumbnail).'" /></a>',
+                    $text
+                );
             }
         }
 
@@ -298,79 +327,34 @@ class acympluginHelper extends acymObject
         return "src='".str_replace(' ', '%20', $matches[1])."'";
     }
 
-    public function fixPictureDim(&$html)
-    {
-        if (!preg_match_all('#(<img)([^>]*>)#i', $html, $results)) {
-            return;
-        }
-
-        static $replace = [];
-        foreach ($results[0] as $num => $oneResult) {
-            if (isset($replace[$oneResult])) {
-                continue;
-            }
-
-            if (strpos($oneResult, 'width=') || strpos($oneResult, 'height=')) {
-                continue;
-            }
-            if (preg_match('#[^a-z_\-]width *:([0-9 ]{1,8})#i', $oneResult, $res) || preg_match('#[^a-z_\-]height *:([0-9 ]{1,8})#i', $oneResult, $res)) {
-                continue;
-            }
-
-            if (!preg_match('#src="([^"]*)"#i', $oneResult, $url)) {
-                continue;
-            }
-
-            $imageUrl = $url[1];
-
-            $replace[$oneResult] = $oneResult;
-
-            $base = str_replace(['http://www.', 'https://www.', 'http://', 'https://'], '', ACYM_LIVE);
-            $replacements = ['https://www.'.$base, 'http://www.'.$base, 'https://'.$base, 'http://'.$base];
-            $localpict = false;
-            foreach ($replacements as $oneReplacement) {
-                if (strpos($imageUrl, $oneReplacement) === false) {
-                    continue;
-                }
-                $imageUrl = str_replace([$oneReplacement, '/'], [ACYM_ROOT, DS], urldecode($imageUrl));
-                $localpict = true;
-                break;
-            }
-
-            if (!$localpict) {
-                continue;
-            }
-
-            $dim = @getimagesize($imageUrl);
-            if (!$dim) {
-                continue;
-            }
-            if (empty($dim[0]) || empty($dim[1])) {
-                continue;
-            }
-
-            $replace[$oneResult] = str_replace('<img', '<img width="'.$dim[0].'" height="'.$dim[1].'"', $oneResult);
-        }
-
-        if (empty($replace)) {
-            return;
-        }
-
-        $html = str_replace(array_keys($replace), $replace, $html);
-    }
-
     public function replaceTags(&$email, $tags, $html = false)
     {
         if (empty($tags)) return;
 
         $htmlVars = ['body'];
-        $textVars = ['subject', 'From', 'FromName', 'ReplyTo', 'ReplyName', 'bcc', 'cc', 'fromname', 'fromemail', 'replyname', 'replyemail', 'params'];
+        $textVars = [
+            'subject',
+            'AltBody',
+            'From',
+            'FromName',
+            'ReplyTo',
+            'ReplyName',
+            'bcc',
+            'cc',
+            'fromname',
+            'fromemail',
+            'replyname',
+            'replyemail',
+            'params',
+            'preheader',
+            'Preheader',
+        ];
 
         $variables = array_merge($htmlVars, $textVars);
 
         if ($html) {
             if (empty($this->mailerHelper)) {
-                $this->mailerHelper = acym_get('helper.mailer');
+                $this->mailerHelper = new MailerHelper();
             }
 
             $textreplace = [];
@@ -397,21 +381,24 @@ class acympluginHelper extends acymObject
             }
         } elseif (is_string($text) && !empty($text)) {
             foreach ($replacement as $code => $value) {
+                $codes = [$code, urlencode($code)];
                 $safePregValue = str_replace('$', '\$', $value);
 
-                $text = preg_replace(
-                    '#<span[^>]+'.preg_quote($code, '#').'.+</em>[^<]*</span>#Uis',
-                    $safePregValue,
-                    $text
-                );
+                foreach ($codes as $oneCode) {
+                    $text = preg_replace(
+                        '#<span[^>]+'.preg_quote($oneCode, '#').'.+</em>[^<]*</span>#Uis',
+                        $safePregValue,
+                        $text
+                    );
 
-                $text = preg_replace(
-                    '#(<tr[^>]+)data-dynamic="'.preg_quote($code, '#').'"([^>]+>[^<]*<td[^>]*>).+</i>[^<]*</td>[^<]*</tr>#Uis',
-                    '$1$2&zwj;'.$safePregValue.'</td></tr>',
-                    $text
-                );
+                    $text = preg_replace(
+                        '#(<tr[^>]+)data-dynamic="'.preg_quote($oneCode, '#').'"([^>]+>[^<]*<td[^>]*>).+</i>[^<]*</td>[^<]*</tr>#Uis',
+                        '$1$2'.$safePregValue.'</td></tr>',
+                        $text
+                    );
 
-                $text = str_replace($code, $value, $text);
+                    $text = str_replace($oneCode, $value, $text);
+                }
             }
         }
 
@@ -423,7 +410,24 @@ class acympluginHelper extends acymObject
         $results = [];
 
         $match = '#(?:{|%7B)'.$tagfamily.'(?:%3A|\\:)(.*)(?:}|%7D)#Ui';
-        $variables = ['subject', 'body', 'From', 'FromName', 'ReplyTo', 'ReplyName', 'bcc', 'cc', 'fromname', 'fromemail', 'replyname', 'replyemail', 'params'];
+        $variables = [
+            'subject',
+            'AltBody',
+            'body',
+            'From',
+            'FromName',
+            'ReplyTo',
+            'ReplyName',
+            'bcc',
+            'cc',
+            'fromname',
+            'fromemail',
+            'replyname',
+            'replyemail',
+            'params',
+            'preheader',
+            'Preheader',
+        ];
         $found = false;
         foreach ($variables as $var) {
             if (empty($email->$var)) continue;
@@ -469,7 +473,7 @@ class acympluginHelper extends acymObject
     {
         $oneTag = str_replace(['[time]+', '[time]-'], [urlencode('[time]+'), urlencode('[time]-')], $oneTag);
         $arguments = explode('|', strip_tags(urldecode($oneTag)));
-        $tag = new stdClass();
+        $tag = new \stdClass();
         $tag->id = $arguments[0];
         $tag->default = '';
         for ($i = 1, $a = count($arguments) ; $i < $a ; $i++) {
@@ -543,7 +547,10 @@ class acympluginHelper extends acymObject
         for ($i = 0 ; $i < $numChar ; $i++) {
             if ($newText[$i] == '<') {
                 foreach ($allowedTags as $oneAllowedTag) {
-                    if ($numChar >= ($i + strlen($oneAllowedTag) + 1) && substr($newText, $i, strlen($oneAllowedTag) + 1) == '<'.$oneAllowedTag && (in_array($newText[$i + strlen($oneAllowedTag) + 1], [' ', '>']))) {
+                    if ($numChar >= ($i + strlen($oneAllowedTag) + 1) && substr($newText, $i, strlen($oneAllowedTag) + 1) == '<'.$oneAllowedTag && (in_array(
+                            $newText[$i + strlen($oneAllowedTag) + 1],
+                            [' ', '>']
+                        ))) {
                         $write = false;
                         $open[] = '</'.$oneAllowedTag.'>';
                     }
@@ -556,7 +563,10 @@ class acympluginHelper extends acymObject
                 }
 
                 foreach ($aloneAllowedTags as $oneAllowedTag) {
-                    if ($numChar >= ($i + strlen($oneAllowedTag) + 1) && substr($newText, $i, strlen($oneAllowedTag) + 1) == '<'.$oneAllowedTag && (in_array($newText[$i + strlen($oneAllowedTag) + 1], [' ', '/', '>']))) {
+                    if ($numChar >= ($i + strlen($oneAllowedTag) + 1) && substr($newText, $i, strlen($oneAllowedTag) + 1) == '<'.$oneAllowedTag && (in_array(
+                            $newText[$i + strlen($oneAllowedTag) + 1],
+                            [' ', '/', '>']
+                        ))) {
                         $write = false;
                     }
                 }
@@ -593,7 +603,14 @@ class acympluginHelper extends acymObject
             return 'Wrong format supplied: '.$format->tag->format;
         }
 
-        $invertValues = ['TOP_LEFT' => 'TOP_RIGHT', 'TITLE_IMG' => 'TITLE_IMG_RIGHT', 'COL_LEFT' => 'COL_RIGHT', 'TOP_RIGHT' => 'TOP_LEFT', 'TITLE_IMG_RIGHT' => 'TITLE_IMG', 'COL_RIGHT' => 'COL_LEFT'];
+        $invertValues = [
+            'TOP_LEFT' => 'TOP_RIGHT',
+            'TITLE_IMG' => 'TITLE_IMG_RIGHT',
+            'COL_LEFT' => 'COL_RIGHT',
+            'TOP_RIGHT' => 'TOP_LEFT',
+            'TITLE_IMG_RIGHT' => 'TITLE_IMG',
+            'COL_RIGHT' => 'COL_LEFT',
+        ];
         if (!empty($format->tag->invert) && !empty($invertValues[$format->tag->format])) {
             $format->tag->format = $invertValues[$format->tag->format];
         }
@@ -652,11 +669,16 @@ class acympluginHelper extends acymObject
 
         if (!empty($format->title)) {
             if (!empty($format->link)) {
-                if (empty($format->tag->type) || $format->tag->type != 'title') {
-                    $format->title = '<a'.(!empty($format->tag->type) && $format->tag->type == 'title' ? ' class="acym_title"' : '').' href="'.$format->link.'" target="_blank" name="'.$this->name.'-'.$format->tag->id.'"><h2 class=""acym_title">'.$format->title.'</h2></a>';
-                } else {
-                    $format->title = '<a'.(!empty($format->tag->type) && $format->tag->type == 'title' ? ' class="acym_title"' : '').' href="'.$format->link.'" target="_blank" name="'.$this->name.'-'.$format->tag->id.'">'.$format->title.'</a>';
+                if (empty($format->tag->type) || $format->tag->type !== 'title') {
+                    $format->title = '<h2 class="acym_title">'.$format->title.'</h2>';
                 }
+
+                $title = '<a';
+                if (!empty($format->tag->type) && $format->tag->type === 'title') $title .= ' class="acym_title"';
+                $title .= ' href="'.$format->link.'" target="_blank" name="'.$this->name.'-'.$format->tag->id.'">';
+                $title .= $format->title;
+                $title .= '</a>';
+                $format->title = $title;
             } else {
                 if (empty($format->tag->type) || $format->tag->type != 'title') {
                     $format->title = '<h2 class="acym_title">'.$format->title.'</h2>';
@@ -671,6 +693,7 @@ class acympluginHelper extends acymObject
         if (!empty($format->description)) {
             $format->description = $this->wrapText($format->description, $format->tag);
         }
+        $this->wrappedText = $format->description;
 
 
         $rowText = '<div class="acydescription">';
@@ -741,7 +764,7 @@ class acympluginHelper extends acymObject
             return $result;
         }
 
-        $imageHelper = acym_get('helper.image');
+        $imageHelper = new ImageHelper();
         if ($tag->pict === 'resized') {
             $imageHelper->maxHeight = empty($tag->maxheight) ? 150 : $tag->maxheight;
             $imageHelper->maxWidth = empty($tag->maxwidth) ? 150 : $tag->maxwidth;
@@ -759,7 +782,16 @@ class acympluginHelper extends acymObject
 
     public function getFormatOption($plugin, $default = 'TOP_LEFT', $singleElement = true, $function = 'updateTag')
     {
-        $contentformat = ['TOP_LEFT' => '-208', 'TOP_RIGHT' => '-260', 'TITLE_IMG' => '0', 'TITLE_IMG_RIGHT' => '-52', 'CENTER_IMG' => '-104', 'TOP_IMG' => '-156', 'COL_LEFT' => '-312', 'COL_RIGHT' => '-364'];
+        $contentformat = [
+            'TOP_LEFT' => '-208',
+            'TOP_RIGHT' => '-260',
+            'TITLE_IMG' => '0',
+            'TITLE_IMG_RIGHT' => '-52',
+            'CENTER_IMG' => '-104',
+            'TOP_IMG' => '-156',
+            'COL_LEFT' => '-312',
+            'COL_RIGHT' => '-364',
+        ];
 
         $name = $singleElement ? 'contentformat' : 'contentformatauto';
 
@@ -775,7 +807,11 @@ class acympluginHelper extends acymObject
             $files = acym_getFiles(ACYM_MEDIA.'plugins', '^'.$plugin);
             foreach ($files as $oneFile) {
                 $reset .= "document.getElementById('".$name.$oneFile."').style.backgroundPosition = '-480px -5px';document.getElementById('".$name.$oneFile."').style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05)';";
-                $result .= '<span id="'.$name.$oneFile.'" class="btn acybuttonformat" style="background-position: -480px -5px;height:34px;" onclick="selectFormat'.$name.'(\''.$oneFile.'\',\''.$oneFile.'\',true);"></span>'.substr($oneFile, 0, strlen($oneFile) - 4).'<br/>';
+                $result .= '<span id="'.$name.$oneFile.'" class="btn acybuttonformat" style="background-position: -480px -5px;height:34px;" onclick="selectFormat'.$name.'(\''.$oneFile.'\',\''.$oneFile.'\',true);"></span>'.substr(
+                        $oneFile,
+                        0,
+                        strlen($oneFile) - 4
+                    ).'<br/>';
             }
             $result .= '<br />';
         }
@@ -789,7 +825,12 @@ class acympluginHelper extends acymObject
 
         if (!$singleElement) {
             $result .= '<br /><input type="hidden" id="'.$name.'invert" value="0"/>';
-            $result .= '<span id="'.$name.'invertbutton" class="btn acybuttonformat" style="background-position:-415px -8px;width:58px;height:30px;" onclick="toggleInvert'.$name.'();"></span>'.acym_tooltip('Alternatively display the image on the left and right', 'Alternate', '', 'Alternate');
+            $result .= '<span id="'.$name.'invertbutton" class="btn acybuttonformat" style="background-position:-415px -8px;width:58px;height:30px;" onclick="toggleInvert'.$name.'();"></span>'.acym_tooltip(
+                    'Alternatively display the image on the left and right',
+                    'Alternate',
+                    '',
+                    'Alternate'
+                );
         }
 
         $result .= '<span class="btn acyokbutton acybuttonformat" onclick="togglediv'.$name.'();">'.acym_translation('ACY_CLOSE').'</span>';
@@ -885,8 +926,12 @@ class acympluginHelper extends acymObject
                     ).'</div>';
                 $currentOption .= '<span id="pictsize'.$suffix.'" class="cell grid-x" '.$resizeDisplay.'>
                                 <div class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_DIMENSIONS').'</div>
-                                <div class="cell large-7">'.acym_translation('ACYM_WIDTH').' <input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
-                                x '.acym_translation('ACYM_HEIGHT').' <input class="intext_input" name="pictheight'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxHeight).'"/>
+                                <div class="cell large-7">'.acym_translation(
+                        'ACYM_WIDTH'
+                    ).' <input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
+                                x '.acym_translation(
+                        'ACYM_HEIGHT'
+                    ).' <input class="intext_input" name="pictheight'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxHeight).'"/>
                             	</div>
                             </span>';
                 $jsOptionsMerge[] = '
@@ -912,7 +957,9 @@ class acympluginHelper extends acymObject
                 $currentOption .= '<div class="cell grid-x">';
                 foreach ($option['options'] as $value => $title) {
                     $currentOption .= '<div class="cell medium-6">
-                                <input type="checkbox" name="'.acym_escape($option['name'].$suffix).'" value="'.acym_escape($value).'" id="'.acym_escape($value.$suffix).'" onclick="'.$updateFunction.'();" '.($title[1] ? 'checked="checked"' : '').'/>
+                                <input type="checkbox" name="'.acym_escape($option['name'].$suffix).'" value="'.acym_escape($value).'" id="'.acym_escape(
+                            $value.$suffix
+                        ).'" onclick="'.$updateFunction.'();" '.($title[1] ? 'checked="checked"' : '').'/>
                                 <label style="margin-left:5px" for="'.acym_escape($value.$suffix).'">'.acym_translation($title[0]).'</label>
                             </div>';
                 }
@@ -961,14 +1008,22 @@ class acympluginHelper extends acymObject
 
                 $default = empty($option['default']) ? null : $option['default'];
                 if (!empty($default) && strpos($default, ',')) list($default, $defaultOrder) = explode(',', $default);
+
+                $attributes = [
+                    'onchange' => $updateFunction.'();',
+                    'id' => $option['name'].$suffix,
+                ];
+                if ($option['name'] === 'order') {
+                    $attributes['class'] = 'acym__dynamics__ordering__select';
+                }
                 $currentOption .= acym_select(
                     $selectOptions,
                     $option['name'].$suffix,
                     $default,
-                    'onchange="'.$updateFunction.'();" id="'.$option['name'].$suffix.'"'
+                    $attributes
                 );
 
-                if ($option['name'] == 'order') {
+                if ($option['name'] === 'order') {
 
                     $dirs = [
                         'desc' => acym_translation('ACYM_DESC'),
@@ -979,7 +1034,11 @@ class acympluginHelper extends acymObject
                             $dirs,
                             'orderdir',
                             $defaultOrder,
-                            'onchange="'.$updateFunction.'();" style="width: 115px;"'
+                            [
+                                'onchange' => $updateFunction.'();',
+                                'style' => 'width: 115px;',
+                                'class' => 'acym__dynamics__ordering__select',
+                            ]
                         );
 
                     $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'[name="'.$option['name'].$suffix.'"]\').val() + "," + jQuery(\'[name="orderdir"]\').val();';
@@ -1016,18 +1075,27 @@ class acympluginHelper extends acymObject
                 if (!isset($option['default'])) $option['default'] = '';
                 $class = empty($option['class']) ? 'acym_plugin_text_field' : $option['class'];
                 $placeholder = empty($option['placeholder']) ? '' : ' placeholder="'.acym_escape($option['placeholder']).'"';
-                $currentOption .= '<input type="text" name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" onchange="'.$updateFunction.'();" value="'.acym_escape($option['default']).'" class="'.acym_escape($class).'" '.$placeholder.'/>';
+                $currentOption .= '<input type="text" name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" onchange="'.$updateFunction.'();" value="'.acym_escape(
+                        $option['default']
+                    ).'" class="'.acym_escape($class).'" '.$placeholder.'/>';
                 $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'input[name="'.$option['name'].$suffix.'"]\').val();';
             } elseif ($option['type'] == 'number') {
                 $min = empty($option['min']) ? '' : ' min="'.$option['min'].'"';
                 $max = empty($option['max']) ? '' : ' max="'.$option['max'].'"';
                 $class = empty($option['class']) ? 'acym_plugin_text_field' : $option['class'];
-                $currentOption .= '<input type="number"'.$min.$max.' name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" onchange="'.$updateFunction.'();" value="'.intval($option['default']).'" class="'.acym_escape($class).'" />';
+                $currentOption .= '<input type="number"'.$min.$max.' name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" onchange="'.$updateFunction.'();" value="'.intval(
+                        $option['default']
+                    ).'" class="'.acym_escape($class).'" />';
                 $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'input[name="'.$option['name'].$suffix.'"]\').val();';
             } elseif ($option['type'] == 'intextfield') {
                 $inputType = 'text';
                 if (!empty($option['isNumber']) && $option['isNumber'] === 1) $inputType = 'number';
-                $currentOption .= acym_translation_sprintf($option['text'], '<input type="'.$inputType.'" name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" class="intext_input" value="'.acym_escape($option['default']).'" onchange="'.$updateFunction.'();"/>');
+                $currentOption .= acym_translationSprintf(
+                    $option['text'],
+                    '<input type="'.$inputType.'" name="'.$option['name'].$suffix.'" id="'.$option['name'].$suffix.'" class="intext_input" value="'.acym_escape(
+                        $option['default']
+                    ).'" onchange="'.$updateFunction.'();"/>'
+                );
                 $jsOptionsMerge[] = 'otherinfo += "| '.$option['name'].':" + jQuery(\'input[name="'.$option['name'].$suffix.'"]\').val();';
             } elseif ($option['type'] == 'date') {
                 $relativeTime = '-';
@@ -1050,7 +1118,9 @@ class acympluginHelper extends acymObject
             if (!empty($option['tooltip'])) {
                 $currentLabel .= '&nbsp;'.acym_info($option['tooltip'], 'acym_plugin_field_'.$option['name']);
             }
-            $currentLabel = '<label class="cell large-5 acym_plugin_field acym_plugin_field_'.$option['type'].'" for="'.acym_escape($option['name'].$suffix).'">'.$currentLabel.'</label>';
+            $currentLabel = '<label class="cell large-5 acym_plugin_field acym_plugin_field_'.$option['type'].'" for="'.acym_escape(
+                    $option['name'].$suffix
+                ).'">'.$currentLabel.'</label>';
 
             $outputStructure['options'][$option['section']][$currentLabel] = $currentOption;
         }
@@ -1070,7 +1140,9 @@ class acympluginHelper extends acymObject
         $output = '';
         if (!empty($outputStructure['topOptions'])) {
             foreach ($outputStructure['topOptions'] as $label => $oneOption) {
-                $output .= '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open">'.acym_translation($label).'<i class="acymicon-keyboard_arrow_up"></i></p>';
+                $output .= '<p class="acym__wysid__right__toolbar__p acym__wysid__right__toolbar__p__open acym__title">';
+                $output .= acym_translation($label).'<i class="acymicon-keyboard_arrow_up"></i>';
+                $output .= '</p>';
                 $output .= '<div class="acym__wysid__right__toolbar__design--show acym__wysid__right__toolbar__design acym__wysid__context__modal__container grid-x">';
                 $output .= $oneOption;
                 $output .= '</div>';
@@ -1082,6 +1154,9 @@ class acympluginHelper extends acymObject
                 <!--
                 var _selectedRows'.$suffix.' = [];
                 var _selectedRows = [];
+                if("undefined" === typeof _additionalInfo'.$suffix.') {
+                	var _additionalInfo'.$suffix.' = {};
+                 }
                 ';
         if (!empty($defaultValues->id) && (empty($defaultValues->defaultPluginTab) || $dynamicIdentifier === $defaultValues->defaultPluginTab)) {
             $delimiter = strpos($defaultValues->id, '-') ? '-' : ',';
@@ -1130,6 +1205,9 @@ class acympluginHelper extends acymObject
     
                     '.implode("\r\n\r\n", $jsOptionsMerge).'
     
+    				for (let [index, info] of Object.entries(_additionalInfo'.$suffix.')){
+    					otherinfo += "| "+index+":"+info;
+    				}
                     ';
 
         if ($type == 'individual') {
@@ -1155,8 +1233,18 @@ class acympluginHelper extends acymObject
         $output .= '
                     acym_editorWysidDynammic.insertDContent(tag);
                 }
+               
+                function addAdditionalInfo'.$suffix.'(index, value){
+                	_additionalInfo'.$suffix.'[index] = value;
+                	'.$updateFunction.'();
+                }
                 //-->
             </script>';
+
+        if ($type == 'individual') {
+            acym_trigger('displayCustomViewEditor', [&$output], 'plgAcym'.ucfirst($dynamicIdentifier));
+            $output .= '<input type="hidden" id="acym__dynamic__update__function" value="'.$updateFunction.'">';
+        }
 
         return $output;
     }
@@ -1190,4 +1278,3 @@ class acympluginHelper extends acymObject
         }
     }
 }
-

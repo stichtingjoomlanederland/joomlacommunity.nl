@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -11,14 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewTags extends EasyDiscussView
 {
 	/**
 	 * Filters tags on a given filter
 	 *
-	 * @since	4.1
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function filter()
@@ -45,11 +43,9 @@ class EasyDiscussViewTags extends EasyDiscussView
 		$contents = '';
 
 		foreach ($tags as $tag) {
-			$theme->set('tag', $tag);
-			$contents .= $theme->output('site/tags/default.item');
+			$contents .= $theme->html('card.tag', $tag);
 		}
 
-		$this->ajax->resolve($contents, $pagination);
-		return $this->ajax->send();
+		return $this->ajax->resolve($contents, $pagination);
 	}
 }

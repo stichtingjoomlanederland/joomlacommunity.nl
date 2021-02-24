@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -23,15 +23,16 @@ require_once ($path);
 
 // Ensure that it renders ED stylesheets
 ED::init();
+$lib = ED::modules($module);
 
-$my	= ED::user();
-$isLoggedIn	= ED::modules()->getLoginStatus();
+$my = ED::user();
+$isLoggedIn = ED::modules()->getLoginStatus();
 
 $return = ED::modules()->getReturnURL($params, $isLoggedIn);
 
 $config = ED::config();
 
-$badges	= $my->getBadges();
+$badges = $my->getBadges();
 
 // Retrieve user's ranking
 $ranking = '';

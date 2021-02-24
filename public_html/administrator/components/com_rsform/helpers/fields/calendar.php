@@ -149,6 +149,7 @@ class RSFormProFieldCalendar extends RSFormProField
 				  ' id="hiddencal'.$this->customId.'"'.
 				  ' type="hidden"'.
 				  ' name="hidden['.$this->formId.'_'.$id.']"'.
+			      ' data-rsfp-original-date="' . $this->escape($hiddenValue) . '"' .
 				  ' />';
 		
 		$html = $this->setFieldOutput($input, $button, $container, $hidden, $layout);

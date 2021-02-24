@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerRoles extends EasyDiscussController
 {
@@ -17,7 +17,7 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 	{
 		parent::__construct();
 
-		$this->checkAccess('discuss.manage.roles');
+		$this->checkAccess('discuss.manage.users');
 
 		$this->registerTask('add', 'edit');
 		$this->registerTask('save', 'save');
@@ -38,10 +38,10 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$role->load($roleId);
 
 		if (empty($post['title'])) {
-			ED::setMessage('COM_ED_ROLE_EMPTY_TITLE_MESSAGE', 'error');
+			ED::setMessage('COM_ED_ROLE_EMPTY_TITLE_MESSAGE', ED_MSG_ERROR);
 			$url .= $isNew ? $formUrl : $formUrl .'&id=' . $role->id;
 
-			return $this->app->redirect($url);
+			return ED::redirect($url);
 		}
 
 		$excludeId = null;
@@ -63,19 +63,24 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$ids = $model->getSelectedUserGroupIds(array('usergroup_id' => $excludeId));
 
 		if (!$skip && in_array($post['usergroup_id'], $ids)) {
-			ED::setMessage('COM_ED_ROLE_ONE_ROLE_MESSAGE', 'error');
+			ED::setMessage('COM_ED_ROLE_ONE_ROLE_MESSAGE', ED_MSG_ERROR);
 			$url .= $isNew ? $formUrl : $formUrl .'&id=' . $role->id;
 
-			return $this->app->redirect($url);
+			return ED::redirect($url);
 		}
 
+		$post['description'] = '';
 		$post['created_user_id'] = $this->my->id;
 		$role->bind($post);
 
-		$role->title = JString::trim($role->title);
+		$role->title = EDJString::trim($role->title);
+		$role->created_time = ED::date()->toSql();
 
 		if (!$role->store()) {
-			return JError::raiseError(500, $role->getError());
+			ED::setMessage($role->getError(), ED_MSG_ERROR);
+			$url .= $isNew ? $formUrl : $formUrl .'&id=' . $role->id;
+			
+			return ED::redirect($url);
 		}
 
 		ED::setMessage('COM_EASYDISCUSS_ROLE_SAVED', 'success');
@@ -84,12 +89,21 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 			$url .= $formUrl .'&id=' . $role->id;
 		}
 
-		$this->app->redirect($url);
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogMsg = $isNew ? 'COM_ED_ACTIONLOGS_AUTHOR_CREATED_NEW_ROLE' : 'COM_ED_ACTIONLOGS_AUTHOR_UPDATED_ROLE';
+
+		$actionlog->log($actionlogMsg, 'user', array(
+			'roleTitle' => $role->title,
+			'link' => 'index.php?option=com_easydiscuss&view=roles&layout=form&id=' . $role->id
+		));
+
+		ED::redirect($url);
 	}
 
 	public function cancel()
 	{
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		return ED::redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function remove()
@@ -97,33 +111,43 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$roles = $this->input->get('cid', '', 'POST');
 		$message = '';
 		$type = 'success';
+		$redirection = 'index.php?option=com_easydiscuss&view=roles';
 
 		if (empty($roles)) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
-			$type = 'error';
+			$type = ED_MSG_ERROR;
 		} else {
 			$table = ED::table('Role');
 
-			foreach($roles as $role) {
+			// log the current action into database.
+			$actionlog = ED::actionlog();
+
+			foreach ($roles as $role) {
 				
 				$table->load($role);
 
-				if (!$table->delete()) {
+				$roleTitle = $table->title;
+
+				$state = $table->delete();
+
+				if (!$state) {
 					$message = JText::_('COM_EASYDISCUSS_REMOVE_ROLE_ERROR');
-					$type = 'error';
+					$type = ED_MSG_ERROR;
 
 					ED::setMessage($message, $type);
-
-					return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+					return ED::redirect($redirection);
 				}
+
+				$actionlog->log('COM_ED_ACTIONLOGS_AUTHOR_DELETED_USER_ROLE', 'user', array(
+					'roleTitle' => $roleTitle
+				));				
 			}
 
 			$message = JText::_('COM_EASYDISCUSS_ROLE_DELETED');
 		}
 
 		ED::setMessage($message, $type);
-
-		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		ED::redirect($redirection);
 	}
 
 	public function publish()
@@ -131,24 +155,30 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$roles = $this->input->get('cid', array(0), 'POST');
 		$message = '';
 		$type = 'success';
+		$redirection = 'index.php?option=com_easydiscuss&view=roles';
 
-		if (count($roles) <= 0){
+		if (count($roles) <= 0) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
-			$type = 'error';
-		} else {
-			$model = ED::model('Roles');
+			$type = ED_MSG_ERROR;
 
-			if ($model->publish($roles, 1)) {
-				$message = JText::_('COM_EASYDISCUSS_ROLE_PUBLISHED_MSG');
-			} else {
+		} else {
+
+			$model = ED::model('Roles');
+			$state = $model->publish($roles, 1);
+
+			if (!$state) {
 				$message = JText::_('COM_EASYDISCUSS_ROLE_PUBLISH_ERROR');
-				$type = 'error';
+				$type = ED_MSG_ERROR;
+
+				ED::setMessage($message, $type);
+				return ED::redirect($redirection);
 			}
+
+			$message = JText::_('COM_EASYDISCUSS_ROLE_PUBLISHED_MSG');
 		}
 
 		ED::setMessage($message, $type);
-
-		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		ED::redirect($redirection);
 	}
 
 	public function unpublish()
@@ -156,24 +186,29 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$roles = $this->input->get('cid', array(0), 'POST');
 		$message = '';
 		$type = 'success';
+		$redirection = 'index.php?option=com_easydiscuss&view=roles';
 
 		if (count($roles) <= 0) {
 			$message = JText::_('COM_EASYDISCUSS_INVALID_ROLE_ID');
-			$type = 'error';
+			$type = ED_MSG_ERROR;
+
 		} else {
 			$model = ED::model('Roles');
+			$state = $model->publish($roles, 0);
 
-			if ($model->publish($roles, 0)) {
-				$message = JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISHED');
-			} else {
+			if (!$state) {
 				$message = JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISH_ERROR');
-				$type = 'error';
+				$type = ED_MSG_ERROR;
+
+				ED::setMessage($message, $type);
+				return ED::redirect($redirection);
 			}
+
+			$message = JText::_('COM_EASYDISCUSS_ROLE_UNPUBLISHED');
 		}
 
 		ED::setMessage($message, $type);
-
-		$this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		ED::redirect($redirection);
 	}
 
 	public function orderdown()
@@ -207,7 +242,7 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 			$row->move($direction);
 		}
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		return ED::redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 
 	public function saveOrder()
@@ -221,6 +256,6 @@ class EasyDiscussControllerRoles extends EasyDiscussController
 		$message = JText::_('COM_EASYDISCUSS_ROLES_ORDERING_SAVED');
 		$type = 'message';
 		ED::setMessage($message, $type);
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=roles');
+		return ED::redirect('index.php?option=com_easydiscuss&view=roles');
 	}
 }

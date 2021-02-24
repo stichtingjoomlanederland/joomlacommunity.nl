@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 }
 </style>
 
-<div class="ed-editor-widget t-lg-mt--xl">
+<div class="ed-editor-widget">
 	<div class="ed-editor-widget__title">
 		<?php echo JText::_('COM_EASYDISCUSS_POST_CREATE_TAGS'); ?>
 	</div>
@@ -26,8 +26,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php echo JText::_('COM_EASYDISCUSS_POST_CREATE_TAGS_INFO'); ?>
 	</div>
 
-	<div class="form-group" data-ed-tags-list>
-		<select name="tags[]" data-placeholder="<?php echo JText::_('COM_EASYDISCUSS_ADD_TAG_PLACEHOLDER'); ?>" class="form-control <?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'xchosen-rtl' : '';?>" multiple data-ed-tags-select>
+	<div class="o-form-group t-mb--no" data-ed-tags-list>
+		<select name="tags[]" data-placeholder="<?php echo JText::_('COM_EASYDISCUSS_ADD_TAG_PLACEHOLDER'); ?>" class="o-form-control <?php echo JFactory::getDocument()->getDirection() == 'rtl' ? 'xchosen-rtl' : '';?>" multiple data-ed-tags-select>
 		<?php if ($tags) { ?>
 			<?php foreach ($tags as $tag) { ?>
 			<?php

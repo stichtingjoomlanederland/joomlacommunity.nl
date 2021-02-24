@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -81,20 +81,18 @@ class JdidealgatewayViewJdidealgateway extends HtmlView
 		/** @var JdidealgatewayModelLogs $logsModel */
 		$logsModel = BaseDatabaseModel::getInstance('Logs', 'JdidealgatewayModel');
 
-		// Load the items
 		$this->items = $logsModel->getItems();
 
-		// Load all addons
 		$this->addons = new Addon;
 
-		// Show the toolbar
 		$this->toolbar();
 
-		// Render the sidebar
-		$this->jdidealgatewayHelper->addSubmenu('jdidealgateway');
-		$this->sidebar = JHtmlSidebar::render();
+		if (JVERSION < 4)
+		{
+			$this->jdidealgatewayHelper->addSubmenu('jdidealgateway');
+			$this->sidebar = JHtmlSidebar::render();
+		}
 
-		// Display it all
 		return parent::display($tpl);
 	}
 
@@ -119,7 +117,6 @@ class JdidealgatewayViewJdidealgateway extends HtmlView
 			$app->get('sitename') . ' - ' . Text::_('JADMINISTRATION') . ' - ' . strip_tags(Text::_('COM_ROPAYMENTS_JDIDEAL'))
 		);
 
-		// Options button.
 		if (Factory::getUser()->authorise('core.admin', 'com_jdidealgateway'))
 		{
 			ToolbarHelper::preferences('com_jdidealgateway');

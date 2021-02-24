@@ -1,27 +1,21 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="acym__subscription__form__popup__overlay acym__subscription__form-erase" id="acym_fulldiv_<?php echo $form->form_tag_name; ?>">
+<div id="acym_fulldiv_<?php echo $form->form_tag_name; ?>" class="acym__subscription__form__popup__overlay acym__subscription__form-erase">
 	<div class="acym__subscription__form__popup">
 		<p class="acym__subscription__form__popup__close">X</p>
-        <?php if ($edition) {
+        <?php
+        if ($edition) {
             echo '<form action="#" onsubmit="return false;" id="'.$form->form_tag_name.'">';
         } else {
-            echo '<form acym-data-id="'.$form->id.'" action="'.$form->form_tag_action.'" id="'.$form->form_tag_name.'" name="'.$form->form_tag_name.'" enctype="multipart/form-data" onsubmit="return submitAcymForm(\'subscribe\',\''.$form->form_tag_name.'\', \'acySubmitSubForm\')">';
+            $cookieExpirationAttr = empty($form->cookie['cookie_expiration']) ? 'acym-data-cookie="1"' : 'acym-data-cookie="'.$form->cookie['cookie_expiration'].'"';
+            echo '<form acym-data-id="'.$form->id.'" '.$cookieExpirationAttr.' action="'.$form->form_tag_action.'" id="'.$form->form_tag_name.'" name="'.$form->form_tag_name.'" enctype="multipart/form-data" onsubmit="return submitAcymForm(\'subscribe\',\''.$form->form_tag_name.'\', \'acymSubmitSubForm\')">';
         }
-        if (in_array($form->style_options['position'], ['image-top', 'image-left'])) include ACYM_PARTIAL.'forms'.DS.'image.php';
+        if (in_array($form->style_options['position'], ['image-top', 'image-left'])) include acym_getPartial('forms', 'image');
         echo '<div class="acym__subscription__form__popup__fields-button">';
-        include ACYM_PARTIAL.'forms'.DS.'fields.php';
-        include ACYM_PARTIAL.'forms'.DS.'button.php';
+        include acym_getPartial('forms', 'fields');
+        include acym_getPartial('forms', 'button');
         echo '</div>';
-        if (in_array($form->style_options['position'], ['image-bottom', 'image-right'])) include ACYM_PARTIAL.'forms'.DS.'image.php';
+        if (in_array($form->style_options['position'], ['image-bottom', 'image-right'])) include acym_getPartial('forms', 'image');
+        include acym_getPartial('forms', 'hidden_params');
         ?>
-		<input type="hidden" name="ctrl" value="frontusers" />
-		<input type="hidden" name="task" value="notask" />
-		<input type="hidden" name="option" value="<?php echo acym_escape(ACYM_COMPONENT); ?>" />
-		<input type="hidden" name="ajax" value="1">
-		<input type="hidden" name="acy_source" value="<?php echo 'Form ID '.$form->id; ?>">
-		<input type="hidden" name="acyformname" value="<?php echo $form->form_tag_name; ?>">
-		<input type="hidden" name="acysubmode" value="form_acym">
 		</form>
 	</div>
 </div>
@@ -107,7 +101,10 @@ defined('_JEXEC') or die('Restricted access');
 	<script type="text/javascript">
         function acym_closePopupform<?php echo $form->form_tag_name;?>(element) {
             element.style.display = 'none';
-            document.cookie = 'acym_form_<?php echo $form->id;?>=' + Date.now() + ';';
+
+            let exdate = new Date();
+            exdate.setDate(exdate.getDate() + <?php echo empty($form->cookie['cookie_expiration']) ? 1 : $form->cookie['cookie_expiration'];?>);
+            document.cookie = 'acym_form_<?php echo $form->id;?>=' + Date.now() + ';expires=' + exdate.toUTCString() + ';path=/';
         }
 
         document.querySelector('.acym__subscription__form__popup__overlay').addEventListener('click', function (event) {
@@ -128,5 +125,4 @@ defined('_JEXEC') or die('Restricted access');
 
 	</script>
 <?php } ?>
-<?php include ACYM_PARTIAL.'forms'.DS.'cookie.php'; ?>
-
+<?php if (!$edition) include acym_getPartial('forms', 'cookie'); ?>

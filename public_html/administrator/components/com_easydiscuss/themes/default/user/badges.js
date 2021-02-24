@@ -6,7 +6,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 	buttonRemove.live('click', function() {
 		if (confirm('<?php echo JText::_('COM_EASYDISCUSS_CONFIRM_REMOVE_BADGE', true); ?>')) {
 			var badgeId = $(this).data('id');
-			var element = $(this).parents('li');
+			var element = $(this).parents('[data-badge-item]');
 
 			EasyDiscuss.ajax('admin/views/user/deleteBadge', {
 				"badgeId" : badgeId,
@@ -17,7 +17,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 					element.find('.badgeList .emptyList').show();
 				}
 
-				element.find('[data-ed-message]').html(message).removeClass('hidden').addClass('active');
+				$('[data-ed-message]').html(message).removeClass('t-hidden').addClass('active');
 			}).fail(function(message) {
 				console.log(message);
 			})
@@ -28,17 +28,17 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	buttonSaveMessage.live('click', function() {
 		var badgeId = $(this).data('id');
-		var element = $(this).parents('li');
+		var element = $(this).parents('[data-badge-item]');
 		var customMessage = element.find('#customMessage').val();
 
 		EasyDiscuss.ajax('admin/views/user/customMessage', {
 			"badgeId" : badgeId,
 			"customMessage" : customMessage,
 			"userId" : userId
-		}).done(function(state,message) {
-			element.find('[data-ed-message]').html(message).removeClass('hidden').addClass('active');
+		}).done(function(state, message) {
+			$('[data-ed-message]').html(message).removeClass('t-hidden').addClass('active');
 		}).fail(function(state, message) {
-				console.log(message);
+			console.log(message);
 		})
 	});
 });

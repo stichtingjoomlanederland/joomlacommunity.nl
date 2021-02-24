@@ -12,59 +12,54 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
-	<width>400</width>
-	<height>340</height>
+	<width>480</width>
+	<height>400</height>
 	<selectors type="json">
 	{
+		"{dialogCloseButton}": ".ed-dialog-close-button",
 		"{closeButton}" : "[data-close-button]",
 		"{form}" : "[data-form-response]",
-		"{submitButton}" : "[data-submit-button]"
+		"{submitButton}" : "[data-submit-button]",
+		"{selectInput}" : "[data-field-suggest]"
 	}
 	</selectors>
 	<bindings type="javascript">
 	{
-		"{closeButton} click": function() {
-			this.parent.close();
-		},
 		"{submitButton} click": function() {
+
+			var selected = this.selectInput().val();
+			if (selected == "") {
+				return false;
+			}
+
 			this.form().submit();
 		}
 	}
 	</bindings>
 	<title><?php echo JText::_('COM_EASYDISCUSS_MERGE_POST_TITLE'); ?></title>
 	<content>
-		<p class="mb-10">
+		<p class="t-mb--lg">
 			<?php echo JText::_('COM_EASYDISCUSS_MERGE_POST_DESC'); ?>
 		</p>
 
 		<form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
-
-			<div>
-				<span class="label label-info small"><?php echo JText::_('COM_EASYDISCUSS_NOTE');?>:</span>
-				<span class="small"><?php echo JText::_('COM_EASYDISCUSS_MERGE_NOTES');?></span>
+			<div class="t-mt--lg t-mb--lg">
+				<select name="id" class="o-form-select" data-field-suggest>
+					<option value=""><?php echo JText::_('COM_ED_MERGE_SELECT_POST');?></option>
+				</select>
 			</div>
 			
-			<div class="mt-20">
-				<?php if ($posts){ ?>
-					<select name="id" class="inputbox full-width" data-field-suggest>
-						<?php foreach ($posts as $post) { ?>
-							<?php if ($post->id != $current) { ?>
-								<option value="<?php echo $post->id;?>"><?php echo $post->id; ?> - <?php echo $this->escape($post->title); ?></option>
-							<?php } ?>
-						<?php } ?>
-					</select>
-				<?php } else { ?>
-					<div class="o-alert o-alert--error"><?php echo JText::_('COM_EASYDISCUSS_MERGE_NO_POSTS');?></div>
-				<?php } ?>
+			<div class="t-mt--lg">
+				<?php echo JText::_('COM_EASYDISCUSS_MERGE_NOTES');?>
 			</div>
 			
 			<input type="hidden" name="current" value="<?php echo $current;?>" />
-			<?php echo $this->html('form.hidden', 'posts', 'posts', 'merge');?>
+			<?php echo $this->html('form.action', 'posts', 'posts', 'merge');?>
 
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
-		<button data-submit-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_MERGE'); ?></button>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_MERGE'); ?></button>
 	</buttons>
 </dialog>

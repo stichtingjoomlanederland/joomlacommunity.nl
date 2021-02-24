@@ -102,19 +102,19 @@ class EasyDiscussSearchItem extends EasyDiscuss
 			$startpos = ($pos - 10) >= 0 ? $pos - 10 : 0;
 			$endpos = ($pos - 10) >= 0 ? 10 : ($pos - $startpos);
 
-			$front = JString::substr($introtext, $startpos, $endpos);
+			$front = EDJString::substr($introtext, $startpos, $endpos);
 
-			if (JString::strlen($introtext) > $endpos) {
-				$endpos = $pos + JString::strlen($needle);
-				$end = JString::substr($introtext, $endpos, 10);
+			if (EDJString::strlen($introtext) > $endpos) {
+				$endpos = $pos + EDJString::strlen($needle);
+				$end = EDJString::substr($introtext, $endpos, 10);
 
-				if (JString::strlen($front) > 0) {
+				if (EDJString::strlen($front) > 0) {
 					$text  = $text . $front;
 				}
 
 				$text  = $text . $needle;
 
-				if (JString::strlen($end) > 0) {
+				if (EDJString::strlen($end) > 0) {
 					$text  = $text . $end . '...';
 				}
 			} else {

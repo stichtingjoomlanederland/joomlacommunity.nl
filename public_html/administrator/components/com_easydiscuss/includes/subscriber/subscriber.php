@@ -31,7 +31,7 @@ class EasyDiscussSubscriber extends EasyDiscuss
 		$email = ( isset($data['poster_email']) ) ? $data['poster_email'] : '';
 		$name = ( isset($data['poster_name']) ) ? $data['poster_name'] : '';
 
-		$subscribe = DiscussHelper::getTable( 'Subscribe' );
+		$subscribe = ED::table( 'Subscribe' );
 
 		if( empty($userObj->id) ) {
 			$subscribe->userid		= 0;

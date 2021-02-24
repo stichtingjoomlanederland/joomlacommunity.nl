@@ -74,15 +74,14 @@
 				<option value="0">JNO</option>
 			</field>
 			
-			<field name="from" type="rscalendar" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_FROM" description="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_FROM_DESC" />
-			<field name="to" type="rscalendar" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_TO" description="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_TO_DESC" filter="SERVER_UTC" />
+			<field name="from" type="rscalendar" class="form-control" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_FROM" description="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_FROM_DESC" />
+			<field name="to" type="rscalendar" class="form-control" default="" label="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_TO" description="COM_RSEVENTSPRO_EVENTS_MAP_VIEW_TO_DESC" filter="SERVER_UTC" />
 			
-			<field name="categories" type="category" description="COM_RSEVENTSPRO_SELECT_CATEGORIES_DESC" extension="com_rseventspro" label="COM_RSEVENTSPRO_SELECT_CATEGORIES" multiple="multiple" class="rs200 rschosen" />
-			<field name="locations" type="rslocations" default="" label="COM_RSEVENTSPRO_SELECT_LOCATIONS" description="COM_RSEVENTSPRO_SELECT_LOCATIONS_DESC" multiple="multiple" class="rs200 rschosen" show_root="false" />
-			<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_SELECT_TAGS" description="COM_RSEVENTSPRO_SELECT_TAGS_DESC" multiple="multiple" class="rs200 rschosen" />
-			<field name="speakers" type="sql" description="COM_RSEVENTSPRO_SELECT_SPEAKERS_DESC" label="COM_RSEVENTSPRO_SELECT_SPEAKERS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_speakers" sql_where="published=1" key_field="id" value_field="name" />
-			<field name="sponsors" type="sql" description="COM_RSEVENTSPRO_SELECT_SPONSORS_DESC" label="COM_RSEVENTSPRO_SELECT_SPONSORS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_sponsors" sql_where="published=1" key_field="id" value_field="name" />
-			
+			<field name="categories" type="rscategories" description="COM_RSEVENTSPRO_SELECT_CATEGORIES_DESC" extension="com_rseventspro" label="COM_RSEVENTSPRO_SELECT_CATEGORIES" multiple="multiple" class="rschosen" />
+			<field name="locations" type="rslocations" default="" label="COM_RSEVENTSPRO_SELECT_LOCATIONS" description="COM_RSEVENTSPRO_SELECT_LOCATIONS_DESC" multiple="multiple" class="rschosen" show_root="false" />
+			<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_SELECT_TAGS" description="COM_RSEVENTSPRO_SELECT_TAGS_DESC" multiple="multiple" class="rschosen" />
+			<field name="speakers" type="rsspeakers" description="COM_RSEVENTSPRO_SELECT_SPEAKERS_DESC" label="COM_RSEVENTSPRO_SELECT_SPEAKERS" multiple="multiple" class="rschosen" />
+			<field name="sponsors" type="rssponsors" description="COM_RSEVENTSPRO_SELECT_SPONSORS_DESC" label="COM_RSEVENTSPRO_SELECT_SPONSORS" multiple="multiple" class="rschosen" />
 			<field name="choosen" type="rschosen" />
 		</fieldset>
 	</fields>

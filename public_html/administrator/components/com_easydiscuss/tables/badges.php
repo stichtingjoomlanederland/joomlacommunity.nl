@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -42,7 +42,7 @@ class DiscussBadges extends EasyDiscussTable
 			return parent::load($key);
 		}
 
-		$db = ED::getDBO();
+		$db = ED::db();
 
 		$query	= 'SELECT ' . $db->nameQuote('id') . ' FROM ' . $db->nameQuote($this->_tbl) . ' '
 				. 'WHERE ' . $db->nameQuote('alias') . '=' . $db->Quote($key);
@@ -53,7 +53,7 @@ class DiscussBadges extends EasyDiscussTable
 		// Try replacing ':' to '-' since Joomla replaces it
 		if (!$id) {
 			$query	= 'SELECT id FROM ' . $this->_tbl . ' '
-					. 'WHERE alias=' . $db->Quote(JString::str_ireplace(':', '-', $key));
+					. 'WHERE alias=' . $db->Quote(EDJString::str_ireplace(':', '-', $key));
 			$db->setQuery($query);
 
 			$id = $db->loadResult();
@@ -67,8 +67,6 @@ class DiscussBadges extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function achieved($userId = null)
 	{
@@ -95,7 +93,7 @@ class DiscussBadges extends EasyDiscussTable
 
 	public function bindImage($elementName)
 	{
-		$file = JRequest::getVar($elementName, '', 'FILES');
+		$file = $this->input->files->get($elementName, '');
 
 		if (!isset($file['tmp_name']) || empty($file['tmp_name'])) {
 			return false;
@@ -148,7 +146,16 @@ class DiscussBadges extends EasyDiscussTable
 
 	public function delete($pk = null)
 	{
+		// retrieve the badge title here
+		$badgeTitle = $this->title;
+
 		$state = parent::delete($pk);
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_DELETED_BADGES', 'badges', array(
+			'badgeTitle' => JText::_($badgeTitle)
+		));
 
 		return $state;
 	}
@@ -168,7 +175,7 @@ class DiscussBadges extends EasyDiscussTable
 	 **/
 	public function getAchievedDate( $userId )
 	{
-		$badgeUser	= ED::getTable('BadgesUsers');
+		$badgeUser	= ED::table('BadgesUsers');
 		$badgeUser->loadByUser($userId , $this->id);
 
 		$date = ED::date($badgeUser->created);
@@ -186,7 +193,7 @@ class DiscussBadges extends EasyDiscussTable
 	 */
 	public function getTotalAchievers()
 	{
-		$db 	= ED::getDBO();
+		$db 	= ED::db();
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_badges_users' ) . ' AS a '
 				. 'INNER JOIN ' . $db->nameQuote( '#__discuss_badges' ) . ' AS b '
 				. 'ON b.' . $db->nameQuote( 'id' ) . '=a.' . $db->nameQuote( 'badge_id' ) . ' '
@@ -216,7 +223,7 @@ class DiscussBadges extends EasyDiscussTable
 	 **/
 	public function getUsers( $excludeSelf = false )
 	{
-		$db		= ED::getDBO();
+		$db		= ED::db();
 		$query	= 'SELECT DISTINCT(`user_id`) FROM ' . $db->nameQuote( '#__discuss_badges_users' ) . ' AS a '
 				. 'INNER JOIN ' . $db->nameQuote( '#__discuss_badges' ) . ' AS b '
 				. 'ON b.' . $db->nameQuote( 'id' ) . '=a.' . $db->nameQuote( 'badge_id' ) . ' '
@@ -248,5 +255,49 @@ class DiscussBadges extends EasyDiscussTable
 		}
 
 		return $users;
+	}
+
+	/**
+	 * Method to publish for the badges
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function publish($items = array(), $state = 1, $userId = 0)
+	{
+		$this->published = 1;
+
+		$state = parent::store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_PUBLISHED_BADGES', 'badges', array(
+			'link' => 'index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $this->id,
+			'badgeTitle' => $this->title
+		));
+
+		return $state;	
+	}
+
+	/**
+	 * Method to unpublish for the badges
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function unpublish($items = array())
+	{
+		$this->published = 0;
+
+		$state = parent::store();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_UNPUBLISHED_BADGES', 'badges', array(
+			'link' => 'index.php?option=com_easydiscuss&view=badges&layout=form&id=' . $this->id,
+			'badgeTitle' => $this->title
+		));
+
+		return $state;
 	}
 }

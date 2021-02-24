@@ -1,128 +1,44 @@
-ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
-	
-	window.insertVideoCode = function(videoURL , caretPosition , elementId) {
+var loaded = false;
 
-		if (videoURL.length == 0) {
-			return false;
-		}
+// If jquery already exists on the page, use jquery to attach as it seems to be much faster than ed.require
+if (jQuery.length) {
 
-		var textarea = $('textarea[name=' + elementId + ']');
-		var tag = '[video]' + videoURL + '[/video]';
+jQuery(document).ready(function($) {
+	var joomlaClass = "<?php echo ED::isJoomla4() ? 'is-joomla-4' : 'is-joomla-3'; ?>";
 
-		// If this is at the first position, we don't want to do anything here.
-		if (caretPosition == 0) {
-
-			$(textarea).val(tag);
-			EasyDiscuss.dialog().close();
-			return true;
-		}
-
-		var contents = $(textarea).val();
-
-		$(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
-	};
-
-	window.insertPhotoCode = function(photoURL , caretPosition , elementId) {
-
-		if (photoURL.length == 0) {
-			return false;
-		}
-
-		var textarea = $('textarea[name=' + elementId + ']');
-		var tag = '[img]' + photoURL + '[/img]';
-
-		// If this is at the first position, we don't want to do anything here.
-		if (caretPosition == 0) {
-
-			$(textarea).val(tag);
-			EasyDiscuss.dialog().close();
-			return true;
-		}
-
-		var contents = $(textarea).val();
-
-		$(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
-	};
-
-	window.insertLinkCode = function(linkURL , linkTitle, caretPosition , elementId) {
-
-		if (linkURL.length == 0) {
-			return false;
-		}
-
-		if (linkTitle.length == 0) {
-			linkTitle = 'Title';
-		}
-
-		var textarea = $('textarea[name=' + elementId + ']');
-		var tag = '[url=' + linkURL + ']'+ linkTitle +'[/url]';
-
-		// If this is at the first position, we don't want to do anything here.
-		if (caretPosition == 0) {
-
-			$(textarea).val(tag);
-			EasyDiscuss.dialog().close();
-			return true;
-		}
-
-		var contents = $(textarea).val();
-
-		$(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
-	};
-
-	window.insertArticleCode = function(articleId, contentType, caretPosition , elementId, contents, dialogRecipient) {
-
-		if (articleId.length == 0) {
-			return false;
-		}
-
-		var tag = '[article type=' + contentType + ']'+ articleId +'[/article]';
-
-		// If this is coming from dialog composer, we need to reload back the dialog
-		if (dialogRecipient > 0) {
-			var newContents = tag;
-			
-			if (caretPosition != 0 || contents.length > 0) {
-				newContents = contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length);
-			}
-
-			renderComposer(dialogRecipient, newContents);
-			return true;
-		}
-
-		var textarea = $('textarea[name=' + elementId + ']');
-		var contents = $(textarea).val();
-		var contentsExist = contents.length;
-
-		// If this is at the first position, we don't want to do anything here.
-		// Avoid some cases if user insert these code at the first line, the rest content will went missing
-		if (caretPosition == 0 && contentsExist == 0) {
-
-			$(textarea).val(tag);
-			EasyDiscuss.dialog().close();
-			return true;
-		}
-
-		$(textarea).val(contents.substring(0, caretPosition) + tag + contents.substring(caretPosition, contents.length));
-	};
+	$('body').addClass('si-theme--light ' + joomlaClass);
 });
 
+loaded = true;
+}
 
+ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
+
+	if (!loaded) {
+		var bodyClassName = 'is-joomla-<?php echo ED::isJoomla4() ? "4" : "3";?>';
+		bodyClassName += ' si-theme--light';
+		document.body.className += ' ' + bodyClassName; 
+	}
+
+	// Append help button
+	var helpButton = $('#help-button-template');
+
+	if (helpButton.length > 0) {
+		helpButton.children().appendTo('#toolbar');
+	}
+});
 
 ed.require(['edq'], function($){
 
-	// Script to handle expand / hide of sidebar items
-	$('[data-sidebar-link]').on('click', function() {
-
-		var link = $(this);
-
-		link
-			.parents('[data-sidebar-item]')
-			.toggleClass('active');
-	});
-
 	// Fix the header for mobile view
 	$('.container-nav').appendTo($('.header'));
+
+	// If the page has tabs, we need to add into the app-head
+	var hasTabs = $('#ed .nav.nav-tabs').length > 0;
+
+	if (hasTabs) {
+		$('#ed .app-head').addClass('has-tab-bar');
+	}
 
 	$(window).scroll(function () {
 		if ($(this).scrollTop() > 50) {
@@ -133,53 +49,45 @@ ed.require(['edq'], function($){
 	});
 
 	$('.nav-sidebar-toggle').click(function(){
+		console.log('click');
 		$('html').toggleClass('show-easydiscuss-sidebar');
 		$('.subhead-collapse').removeClass('in').css('height', 0);
 	});
 
-	var wrapper = $('[data-ed-wrapper]');
+	$('.nav-subhead-toggle').click(function(){
+		$('html').removeClass('show-easydiscuss-sidebar');
+		$('.subhead-collapse').toggleClass('in').css('height', 'auto');
+	});
 
-	$(document).ready(function() {
+	// Hide joomla's sidebar wrapper
+	var sidebar = $('#ed [data-sidebar]');
+	var sidebarHtml = sidebar.html();
 
-		$.ajax({
-			url: "<?php echo ED_SERVICE_VERSION;?>",
-			jsonp: "callback",
-			dataType: "jsonp",
-			data: {
-				"apikey": "<?php echo $this->config->get('main_apikey');?>",
-				"current": "<?php echo $version;?>"
-			},
-			success: function(data) {
+	var joomlaSidebar = $('#sidebarmenu');
+	var joomlaSidebarNav = joomlaSidebar.find('> nav');
 
-				if (data.error) {
-					$('#ed.ed-backend').prepend('<div style="margin-bottom: 0;padding: 15px 24px;font-size: 12px;" class="app-alert o-alert o-alert--danger"><div class="row-table"><div class="col-cell cell-tight"><i class="app-alert__icon fa fa-bolt"></i></div><div class="col-cell alert-message">' + data.error + '</div></div></div>');
-				}
 
-				var version = {
-					"latest": data.version,
-					"local": "<?php echo $version;?>"
-				};
+	var joomlaMenu = joomlaSidebarNav.find('ul.main-nav');
 
-				var outdated = EasyDiscuss.compareVersion(version.local, version.latest) === -1;
+	joomlaMenu.hide();
 
-				// Applicable only on dashboard
-				$('[data-online-version]').html(version.latest);
-				$('[data-local-version]').html(version.local);
+	var joomlaSidebarTemplate = $('[data-j4-sidebar]').html();
 
-				if (outdated) {
-					wrapper.addClass('is-outdated');
+	joomlaMenu.prepend(joomlaSidebarTemplate);
 
-					// This is only applicable to the dashboard view
-					$('[data-version-checks]').toggleClass('require-updates');
+	// Append our own sidebar
+	joomlaSidebarNav.append(sidebarHtml);
 
-					return;
-				}
+	var edMenu = joomlaSidebarNav.find('ul.app-sidebar-nav');
 
-				// This is only applicable to the dashboard view
-				$('[data-version-checks]').toggleClass('latest-updates');
-			}
-		});
+	$(document).on('click.back.joomla', '[data-back-joomla]', function() {
+		joomlaMenu.show();
+		edMenu.hide();
+	});
 
+	$(document).on('click.back.easydiscuss', '[data-back-easydiscuss]', function() {
+		joomlaMenu.hide();
+		edMenu.show();
 	});
 
 });

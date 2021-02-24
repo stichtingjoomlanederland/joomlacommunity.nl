@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -324,7 +324,7 @@ abstract class BrowseView
 	 *
 	 * @return  mixed   The label of the currently selected option
 	 */
-	public static function getOptionName($selected = null, $data, $optKey = 'value', $optText = 'text', $selectFirst = true)
+	public static function getOptionName($selected, $data, $optKey = 'value', $optText = 'text', $selectFirst = true)
 	{
 		$ret = null;
 

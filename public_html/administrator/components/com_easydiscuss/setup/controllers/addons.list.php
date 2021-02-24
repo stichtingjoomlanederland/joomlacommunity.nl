@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -26,13 +26,14 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 
 			$result = new stdClass();
 			$result->html = '<div style="padding:20px;background: #f4f4f4;border: 1px dotted #d7d7d7;margin-top:20px;">In development mode, this option is disabled.</div>';
+			$result->scripts = array();
 
 			return $this->output($result);
 		}
 
 		// Construct the extraction path for the module
-		$modulesExtractPath = ED_TMP . '/modules';
-		$pluginsExtractPath = ED_TMP . '/plugins';
+		$modulesExtractPath = SI_TMP . '/modules';
+		$pluginsExtractPath = SI_TMP . '/plugins';
 
 		// Get the modules list
 		$modules = $this->getModulesList($path, $modulesExtractPath);
@@ -70,7 +71,7 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 	 * @since	4.2.0
 	 * @access	public
 	 */
-	private function getMaintenanceScripts()
+	public function getMaintenanceScripts()
 	{
 		$maintenance = ED::maintenance();
 		$previous = $this->getPreviousVersion('scriptversion');
@@ -94,11 +95,11 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 	 * @since	4.2.0
 	 * @access	public
 	 */
-	private function getPluginsList($path, $tmp)
+	public function getPluginsList($path, $tmp)
 	{
 		$zip = $path . '/plugins.zip';
 
-		$state = JArchive::extract($zip, $tmp);
+		$state = $this->extractArchive($zip, $tmp);
 
 		// @TODO: Return errors
 		if (!$state) {
@@ -121,7 +122,7 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 				$manifest = $item . '/' . $element . '.xml';
 
 				// Read the xml file
-				$parser = JFactory::getXml($manifest);
+				$parser = ED::getXml($manifest);
 
 				if (!$parser) {
 					continue;
@@ -153,11 +154,11 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 	 * @since	4.2.0
 	 * @access	public
 	 */
-	private function getModulesList($path, $tmp)
+	public function getModulesList($path, $tmp)
 	{
 		$zip = $path . '/modules.zip';
 
-		$state = JArchive::extract($zip, $tmp);
+		$state = $this->extractArchive($zip, $tmp);
 
 		if (!$state) {
 			return false;
@@ -183,7 +184,7 @@ class EasyDiscussControllerAddonsList extends EasyDiscussSetupController
 			$manifest = $item . '/' . $element . '.xml';
 
 			// Read the xml file
-			$parser = JFactory::getXml($manifest);
+			$parser = ED::getXml($manifest);
 
 			$module = new stdClass();
 			$module->title = (string) $parser->name;

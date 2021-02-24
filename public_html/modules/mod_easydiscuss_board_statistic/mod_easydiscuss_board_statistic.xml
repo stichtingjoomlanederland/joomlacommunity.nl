@@ -1,26 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension type="module" version="3.0" client="site" method="upgrade">
-	<name>EasyDiscuss - Board Statistic</name>
+	<name>EasyDiscuss - Board Statistics</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>3rd September 2020</creationDate>
-	<copyright>Copyright 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
+	<creationDate>22nd February 2021</creationDate>
+	<copyright>Copyright Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>4.1.21</version>
+	<version>5.0.1</version>
 	<description><![CDATA[This module will display EasyDiscuss board statistic.]]></description>
 	<languages>
 		<language tag="en-GB">en-GB.mod_easydiscuss_board_statistic.ini</language>
 	</languages>
 	<files>
-		<folder>images</folder>
 		<folder>tmpl</folder>
+		<filename>helper.php</filename>
 		<filename module="mod_easydiscuss_board_statistic">mod_easydiscuss_board_statistic.php</filename>
 		<filename>mod_easydiscuss_board_statistic.xml</filename>
 	</files>
 	<config>
 		<fields name="params">
+			<fieldset name="basic">
+				<field name="layout" type="modulelayout" label="JFIELD_ALT_LAYOUT_LABEL" description="JFIELD_ALT_MODULE_LAYOUT_DESC" />
+
+				<field name="show_total_posts" type="radio" class="btn-group" default="1" label="Show Total Posts" description="Determines if the module should display the number of total posts on the site">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+
+				<field name="show_total_resolved" type="radio" class="btn-group" default="1" label="Show Total Resolved Posts" description="Determines if the module should display the number of total resolved posts on the site">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+
+				<field name="show_total_unresolved" type="radio" class="btn-group" default="1" label="Show Total Unresolved Posts" description="Determines if the module should display the number of total unresolved posts on the site">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+
+				<field name="show_latest_member" type="radio" class="btn-group" default="1" label="Show Latest Member" description="Determines if the module should display the latest member from the site">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+
+				<field name="show_total_users" type="radio" class="btn-group" default="0" label="Show Total Users" description="Determines if the module should display the total number of users on the site">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+
+				<field name="show_total_guests" type="radio" class="btn-group" default="0" label="Show Total Guests" description="Determines if the module should display the total number of guests on the site">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+
+				<field name="show_online_users" type="radio" class="btn-group" default="1" label="Show Online Users" description="Determines if the module should display the list of online users in the module">
+					<option value="1">Yes</option>
+					<option value="0">No</option>
+				</field>
+			</fieldset>
+
 			<fieldset name="advanced">
+				<field name="moduleclass_sfx" type="text" label="COM_MODULES_FIELD_MODULECLASS_SFX_LABEL" description="COM_MODULES_FIELD_MODULECLASS_SFX_DESC" />
 				<field name="cache" type="list" default="0" label="COM_MODULES_FIELD_CACHING_LABEL" description="COM_MODULES_FIELD_CACHING_DESC" >
 					<option value="1">JGLOBAL_USE_GLOBAL</option>
 					<option value="0">COM_MODULES_FIELD_VALUE_NOCACHING</option>

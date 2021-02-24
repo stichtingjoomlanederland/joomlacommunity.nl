@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -119,5 +119,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="" />
 
-	<?php echo $this->html('form.hidden', 'subscription', 'subscription'); ?>
+	<?php echo $this->html('form.action', 'subscription', 'subscription'); ?>
 </form>

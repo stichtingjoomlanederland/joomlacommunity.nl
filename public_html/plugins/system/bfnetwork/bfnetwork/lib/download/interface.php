@@ -37,6 +37,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @note This file has been modified by mySites.gurut and no longer reflects the original work of its author.
  */
 interface AcuDownloadInterface
 {

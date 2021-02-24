@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -267,7 +267,6 @@ class ControlPanel extends Model
 		$this->container->params->set('confwiz_upgrade', 1);
 		$this->container->params->set('siteurl', str_replace('/administrator', '', Uri::base()));
 		$this->container->params->set('jlibrariesdir', Factory::getFilesystemTools()->TranslateWinPath(JPATH_LIBRARIES));
-		$this->container->params->set('jversion', '1.6');
 		$this->container->params->save();
 	}
 
@@ -347,7 +346,6 @@ class ControlPanel extends Model
 		$dbInstaller = new Installer(
 			$this->container->db,
 			JPATH_ADMINISTRATOR . '/components/com_akeeba/sql/xml'
-
 		);
 
 		$dbInstaller->updateSchema();

@@ -1,17 +1,17 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname(__FILE__) . '/model.php';
+require_once(__DIR__ . '/model.php');
 
 class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 {
@@ -27,7 +27,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 		//get the number of events from database
 		$limit = $mainframe->getUserStateFromRequest('com_easydiscuss.post_priorities.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		$limitstart = JRequest::getVar('limitstart', 0, '', 'int');
+		$limitstart = $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -54,7 +54,7 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 		$filter_state = $mainframe->getUserStateFromRequest( 'com_easydiscuss.post_priorities.filter_state', 'filter_state', '', 'word' );
 		$search = $mainframe->getUserStateFromRequest( 'com_easydiscuss.post_priorities.search', 'search', '', 'string' );
-		$search = $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$search = $db->getEscaped( trim(EDJString::strtolower( $search ) ) );
 
 
 		$where = array();
@@ -98,8 +98,6 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getAllPriorities()
 	{
@@ -108,8 +106,19 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 		$db->setQuery($query);
 
 		$result = $db->loadObjectList();
+		$priorities = [];
 
-		return $result;
+		if (!$result) {
+			return $priorities;
+		}
+
+		if ($result) {
+			foreach ($result as $row) {
+				$priorities[] = ED::priority($row);
+			}
+		}
+
+		return $priorities;
 	}
 
 	/**
@@ -245,9 +254,8 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 
 		$db->setQuery($query);
 
-		if($db->getErrorNum() > 0)
-		{
-			JError::raiseError( $db->getErrorNum() , $db->getErrorMsg() . $db->stderr());
+		if ($db->getErrorNum() > 0) {
+			throw ED::exception($db->getErrorMsg() . $db->stderr(), ED_MSG_ERROR);
 		}
 
 		$result	= $db->loadObjectList();
@@ -279,8 +287,8 @@ class EasyDiscussModelPriorities extends EasyDiscussAdminModel
 		$db->setQuery($query);
 		$result	= $db->Query();
 
-		if($db->getErrorNum()){
-			JError::raiseError( 500, $db->stderr());
+		if ($db->getErrorNum()) {
+			throw ED::exception($db->stderr(), ED_MSG_ERROR);
 		}
 
 		return $result;

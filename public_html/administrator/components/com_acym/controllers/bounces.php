@@ -1,6 +1,15 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Controllers;
+
+use AcyMailing\Classes\ListClass;
+use AcyMailing\Classes\RuleClass;
+use AcyMailing\Helpers\BounceHelper;
+use AcyMailing\Helpers\CronHelper;
+use AcyMailing\Helpers\SplashscreenHelper;
+use AcyMailing\Helpers\ToolbarHelper;
+use AcyMailing\Helpers\UpdateHelper;
+use AcyMailing\Libraries\acymController;
 
 class BouncesController extends acymController
 {
@@ -12,7 +21,7 @@ class BouncesController extends acymController
 
     public function listing()
     {
-        $splashscreenHelper = acym_get('helper.splashscreen');
+        $splashscreenHelper = new SplashscreenHelper();
         $data = [];
 
         if (acym_level(2)) {
@@ -22,10 +31,10 @@ class BouncesController extends acymController
                 $data['isEnterprise'] = true;
             } else {
                 acym_setVar('layout', 'listing');
-                $bounceClass = acym_get('class.rule');
-                $listsClass = acym_get('class.list');
+                $ruleClass = new RuleClass();
+                $listsClass = new ListClass();
 
-                $bounceRules = $bounceClass->getAll();
+                $bounceRules = $ruleClass->getAll();
 
                 $data = [
                     'allRules' => $bounceRules,
@@ -46,7 +55,7 @@ class BouncesController extends acymController
 
     public function prepareToolbar(&$data)
     {
-        $toolbarHelper = acym_get('helper.toolbar');
+        $toolbarHelper = new ToolbarHelper();
         $toolbarHelper->addButton(acym_translation('ACYM_CONFIGURE'), ['data-task' => 'config', 'id' => 'acym__bounce__button__config', 'type' => 'button'], 'settings');
         $toolbarHelper->addButton(acym_translation('ACYM_RESET_DEFAULT_RULES'), ['data-task' => 'reinstall', 'type' => 'button'], 'repeat');
         $toolbarHelper->addButton(acym_translation('ACYM_RUN_BOUNCE_HANDLING'), ['data-task' => 'test'], 'play_arrow');
@@ -57,10 +66,10 @@ class BouncesController extends acymController
 
     public function edit()
     {
-        $ruleClass = acym_get('class.rule');
+        $ruleClass = new RuleClass();
         acym_setVar("layout", "edit");
         $ruleId = acym_getVar("int", "id", 0);
-        $listsClass = acym_get('class.list');
+        $listsClass = new ListClass();
 
         $rule = "";
 
@@ -69,7 +78,7 @@ class BouncesController extends acymController
             $this->breadcrumb[acym_translation($rule->name)] = acym_completeLink('bounces&task=edit&id='.$ruleId);
         } else {
             $this->breadcrumb[acym_translation('ACYM_NEW')] = acym_completeLink('bounces&task=edit');
-            $rule = new stdClass();
+            $rule = new \stdClass();
             $rule->name = '';
             $rule->active = 1;
             $rule->regex = '';
@@ -92,26 +101,20 @@ class BouncesController extends acymController
     public function apply()
     {
         $this->saveRule();
-        acym_setVar("id", acym_getVar('array', 'bounce')['id']);
         $this->edit();
-
-
-        return;
     }
 
     public function save()
     {
         $this->saveRule();
         $this->listing();
-
-        return;
     }
 
     public function saveRule()
     {
         $rule = acym_getVar('array', 'bounce');
 
-        $ruleClass = acym_get('class.rule');
+        $ruleClass = new RuleClass();
 
         $rule['executed_on'] = !empty($rule['executed_on']) ? json_encode($rule['executed_on']) : '[]';
 
@@ -130,7 +133,7 @@ class BouncesController extends acymController
             $rule['ordering'] = $ruleClass->getOrderingNumber() + 1;
         }
 
-        $ruleObject = new stdClass();
+        $ruleObject = new \stdClass();
         $ruleObject->executed_on = '[]';
         $ruleObject->action_message = '[]';
         $ruleObject->action_user = '[]';
@@ -150,6 +153,7 @@ class BouncesController extends acymController
             acym_enqueueMessage(acym_translation('ACYM_ERROR_SAVING'), 'error');
         } else {
             acym_enqueueMessage(acym_translation('ACYM_SUCCESSFULLY_SAVED'), 'success');
+            acym_setVar('id', $res);
         }
     }
 
@@ -175,13 +179,13 @@ class BouncesController extends acymController
     {
         acym_increasePerf();
 
-        $bounceClass = acym_get('helper.bounce');
-        $bounceClass->report = true;
-        if (!$bounceClass->init()) {
+        $bounceHelper = new BounceHelper();
+        $bounceHelper->report = true;
+        if (!$bounceHelper->init()) {
             return;
         }
-        if (!$bounceClass->connect()) {
-            acym_display($bounceClass->getErrors(), 'error');
+        if (!$bounceHelper->connect()) {
+            acym_display($bounceHelper->getErrors(), 'error');
 
             return;
         }
@@ -190,20 +194,20 @@ class BouncesController extends acymController
         $disp .= "<style>body{font-size:12px;font-family: Arial,Helvetica,sans-serif;padding-top:30px;}</style>\n</head>\n<body>";
         echo $disp;
 
-        acym_display(acym_translation_sprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')), 'success');
-        $nbMessages = $bounceClass->getNBMessages();
-        acym_display(acym_translation_sprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages), 'info');
+        acym_display(acym_translationSprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')), 'success');
+        $nbMessages = $bounceHelper->getNBMessages();
+        $nbMessagesReport = acym_translationSprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages);
+        acym_display($nbMessagesReport, 'info');
 
         if (empty($nbMessages)) {
             exit;
         }
 
-        $bounceClass->handleMessages();
-        $bounceClass->close();
+        $bounceHelper->handleMessages();
 
-        $cronHelper = acym_get('helper.cron');
-        $cronHelper->messages[] = acym_translation_sprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages);
-        $cronHelper->detailMessages = $bounceClass->messages;
+        $cronHelper = new CronHelper();
+        $cronHelper->messages[] = $nbMessagesReport;
+        $cronHelper->detailMessages = $bounceHelper->messages;
         $cronHelper->saveReport();
 
         if ($this->config->get('bounce_max', 0) != 0 && $nbMessages > $this->config->get('bounce_max', 0)) {
@@ -215,8 +219,8 @@ class BouncesController extends acymController
             }
         }
 
-        echo "</body></html>";
-        while ($bounceClass->obend-- > 0) {
+        echo '</body></html>';
+        while ($bounceHelper->obend-- > 0) {
             ob_start();
         }
         exit;
@@ -260,8 +264,7 @@ class BouncesController extends acymController
 
     public function test()
     {
-
-        $ruleClass = acym_get('class.rule');
+        $ruleClass = new RuleClass();
 
         if ($ruleClass->getOrderingNumber() < 1) {
             acym_enqueueMessage(acym_translation('ACYM_NO_RULES'), 'error');
@@ -272,37 +275,37 @@ class BouncesController extends acymController
         }
 
         acym_increasePerf();
-        $bounceClass = acym_get('helper.bounce');
-        $bounceClass->report = true;
+        $bounceHelper = new BounceHelper();
+        $bounceHelper->report = true;
 
-        if ($bounceClass->init()) {
-            if ($bounceClass->connect()) {
-                $nbMessages = $bounceClass->getNBMessages();
-                acym_enqueueMessage(acym_translation_sprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')), "success");
-                $bounceClass->close();
+        if ($bounceHelper->init()) {
+            if ($bounceHelper->connect()) {
+                $nbMessages = $bounceHelper->getNBMessages();
+                $bounceHelper->close();
+                $messages = [
+                    acym_translationSprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')),
+                    acym_translationSprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages),
+                ];
+
                 if (!empty($nbMessages)) {
-                    acym_enqueueMessage(
-                        [
-                            acym_translation_sprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages),
-                            acym_modal(
-                                acym_translation('ACYM_CLICK_BOUNCE'),
-                                '',
-                                null,
-                                'data-reveal-larger',
-                                'data-ajax="true" data-iframe="&ctrl=bounces&task=process" class="acym__color__light-blue cursor-pointer" style="margin: 0"'
-                            ),
-                        ],
-                        'info'
+                    $messages[] = acym_modal(
+                        acym_translation('ACYM_CLICK_BOUNCE'),
+                        '',
+                        null,
+                        'data-reveal-larger',
+                        'data-ajax="true" data-iframe="&ctrl=bounces&task=process" class="acym__color__light-blue cursor-pointer" style="margin: 0"'
                     );
                 }
+
+                acym_enqueueMessage($messages, 'info');
             } else {
-                $errors = $bounceClass->getErrors();
+                $errors = $bounceHelper->getErrors();
                 if (!empty($errors)) {
                     acym_enqueueMessage($errors, 'error');
                     $errorString = implode(' ', $errors);
                     $port = $this->config->get('bounce_port', '');
                     if (preg_match('#certificate#i', $errorString) && !$this->config->get('bounce_certif', false)) {
-                        acym_enqueueMessage(acym_translation_sprintf('ACYM_YOU_MAY_TURN_ON_OPTION', '<i>'.acym_translation('ACYM_SELF_SIGNED_CERTIFICATE').'</i>'), 'warning');
+                        acym_enqueueMessage(acym_translationSprintf('ACYM_YOU_MAY_TURN_ON_OPTION', '<i>'.acym_translation('ACYM_SELF_SIGNED_CERTIFICATE').'</i>'), 'warning');
                     } elseif (!empty($port) && !in_array($port, ['993', '143', '110'])) {
                         acym_enqueueMessage(acym_translation('ACYM_BOUNCE_WRONG_PORT'), 'warning');
                     }
@@ -310,15 +313,15 @@ class BouncesController extends acymController
             }
         }
 
-        return $this->listing();
+        $this->listing();
     }
 
     public function reinstall()
     {
-        $ruleClass = acym_get('class.rule');
+        $ruleClass = new RuleClass();
         $ruleClass->cleanTable();
 
-        $updateHelper = acym_get('helper.update');
+        $updateHelper = new UpdateHelper();
         $updateHelper->installBounceRules();
 
         return $this->listing();
@@ -333,7 +336,7 @@ class BouncesController extends acymController
     {
         $rulesSelected = acym_getVar('array', 'elements_checked');
 
-        $ruleClass = acym_get('class.rule');
+        $ruleClass = new RuleClass();
         $ruleClass->delete($rulesSelected);
 
         $this->listing();
@@ -341,10 +344,9 @@ class BouncesController extends acymController
 
     public function passSplash()
     {
-        $splashscreenHelper = acym_get('helper.splashscreen');
+        $splashscreenHelper = new SplashscreenHelper();
         $splashscreenHelper->setDisplaySplashscreenForViewName('bounces', 0);
 
         $this->listing();
     }
 }
-

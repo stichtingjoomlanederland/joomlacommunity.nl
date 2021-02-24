@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/date/date.php');
 
@@ -18,33 +18,33 @@ class EasyDiscussControllerRules extends EasyDiscussController
     public function __construct()
     {
         parent::__construct();
-        $this->jConfig = ED::jConfig();
 
         $this->checkAccess('discuss.manage.rules');
+        $this->jConfig = ED::jConfig();
     }
 
 	public function remove()
 	{
 		// Request forgeries check
 		ED::checkToken();
+
 		$ids = $this->input->get('cid', '', 'var');
+
+		$rule = ED::table('Rules');
 
 		// @task: Sanitize the id's to integer.
 		foreach ($ids as $id) {
-			
-			$id	= (int) $id;
-			$rule = ED::table('BadgesRules');
-			$rule->load($id);
+			$rule->load((int) $id);
 			$rule->delete();
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_RULE_IS_NOW_DELETED') , 'success');
-		$this->app->redirect('index.php?option=com_easydiscuss&view=rules');
+		ED::redirect('index.php?option=com_easydiscuss&view=rules');
 	}
 
 	public function newrule()
 	{
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+		return ED::redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
 	}
 
 	public function install()
@@ -55,11 +55,12 @@ class EasyDiscussControllerRules extends EasyDiscussController
 		// $file = $this->input->get('rule', '', 'FILES');
 		$file = $this->input->files->get('rule', '');
 		$files = array();
+		$redirection = 'index.php?option=com_easydiscuss&view=rules&layout=install';
 
 		// @task: If there's no tmp_name in the $file, we assume that the data sent is corrupted.
 		if (!isset($file['tmp_name'])) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), ED_MSG_ERROR);
+			return ED::redirect($redirection);
 		}
 
 		// There are various MIME type for compressed file. So let's check the file extension instead.
@@ -70,17 +71,17 @@ class EasyDiscussControllerRules extends EasyDiscussController
 
 			// @rule: Copy zip file to temporary location
 			if( !JFile::copy($file['tmp_name'], $path)) {
-				ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), 'error');
-				return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+				ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), ED_MSG_ERROR);
+				return ED::redirect($redirection);
 			}
 
 			jimport('joomla.filesystem.archive');
 			$tmp = md5(ED::date()->toSql());
 			$dest = rtrim($this->jConfig->get('tmp_path'), '/') . '/' . $tmp;
 
-			if (!JArchive::extract($path, $dest)) {
-				ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), 'error');
-				return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+			if (!EDArchive::extract($path, $dest)) {
+				ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), ED_MSG_ERROR);
+				return ED::redirect($redirection);
 			}
 
 			$files = JFolder::files($dest, '.', true, true);
@@ -96,14 +97,14 @@ class EasyDiscussControllerRules extends EasyDiscussController
 			}
 
 			if (empty($files)) {
-				ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), 'error');
-				return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+				ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID_RULE_FILE'), ED_MSG_ERROR);
+				return ED::redirect($redirection);
 			}
 		}
 
 		if (empty($files)) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_RULE_INSTALL_FAILED'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+			ED::setMessage(JText::_('COM_EASYDISCUSS_RULE_INSTALL_FAILED'), ED_MSG_ERROR);
+			return ED::redirect($redirection);
 		}
 
 		foreach ($files as $file) {
@@ -112,13 +113,13 @@ class EasyDiscussControllerRules extends EasyDiscussController
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_RULE_INSTALL_SUCCESS'), 'success');
 
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=rules&layout=install');
+		return ED::redirect($redirection);
 	}
 
 	private function installXML($path)
 	{
 		// @task: Try to read the temporary file.
-		$contents = JFile::read($path);
+		$contents = file_get_contents($path);
 		$parser = ED::getXML($contents, false);
 
 		// @task: Bind appropriate values from the xml file into the database table.
@@ -131,11 +132,19 @@ class EasyDiscussControllerRules extends EasyDiscussController
 		$rule->set('published', 1);
 		$rule->set('created', ED::date()->toSql());
 
-
 		if ($rule->exists($rule->command)) {
 			return;
 		}
 
-		return $rule->store();
+		$state = $rule->store();
+
+		if ($state) {
+			$actionlog = ED::actionlog();
+			$actionlog->log('COM_ED_ACTIONLOGS_CREATED_RULES', 'rules', array(
+				'ruleTitle' => $rule->title
+			));
+		}
+
+		return $state;
 	}
 }

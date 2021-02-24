@@ -8,9 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewTag extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	
 	public function display($tpl = null) {
 		$this->form 		= $this->get('Form');
 		$this->item 		= $this->get('Item');

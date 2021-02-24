@@ -89,6 +89,7 @@ abstract class modRseventsProUpcoming {
 		}
 		
 		if (!empty($tags)) {
+			$tags = modRseventsProUpcoming::getTagsIds($tags);
 			$tags = array_map('intval',$tags);
 			
 			$subquery->clear()
@@ -221,5 +222,17 @@ abstract class modRseventsProUpcoming {
 		}
 		
 		return false;
+	}
+	
+	protected static function getTagsIds($tags) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		$query->clear()
+			->select($db->qn('id'))
+			->from($db->qn('#__rseventspro_tags'))
+			->where($db->qn('name').' IN ('.rseventsproHelper::quoteImplode($tags).')');
+		$db->setQuery($query);
+		return $db->loadColumn();
 	}
 }

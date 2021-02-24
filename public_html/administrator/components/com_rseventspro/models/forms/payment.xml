@@ -3,7 +3,7 @@
 	<field name="id" type="hidden" label="JGLOBAL_FIELD_ID_LABEL" description ="JGLOBAL_FIELD_ID_DESC" size="10" default="0" readonly="true" />
 	<field name="name" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_PAYMENT_NAME" description="COM_RSEVENTSPRO_PAYMENT_NAME_DESC" required="true" size="70" />
 	<field name="details" type="editor" class="inputbox" label="COM_RSEVENTSPRO_PAYMENT_DETAILS" description="COM_RSEVENTSPRO_PAYMENT_DETAILS_DESC" filter="JComponentHelper::filterText" buttons="true" />
-	<field name="tax_type" type="radio" class="btn-group" label="COM_RSEVENTSPRO_PAYMENT_TAX_TYPE" description="COM_RSEVENTSPRO_PAYMENT_TAX_TYPE_DESC" filter="intval" default="0">
+	<field name="tax_type" type="list" label="COM_RSEVENTSPRO_PAYMENT_TAX_TYPE" description="COM_RSEVENTSPRO_PAYMENT_TAX_TYPE_DESC" filter="intval" default="0">
 		<option value="0">COM_RSEVENTSPRO_PAYMENT_TAX_TYPE_FIXED</option>
 		<option value="1">COM_RSEVENTSPRO_PAYMENT_TAX_TYPE_PERCENTAGE</option>
 	</field>

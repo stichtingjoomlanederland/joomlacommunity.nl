@@ -119,7 +119,7 @@ class EasyDiscussGdprPost extends EasyDiscussGdprAbstract
 
 		$intro = $post->getContent();
 		$intro = strip_tags($intro);
-		$intro = JString::substr($intro, 0, $config->get('layout_introtextlength')) . JText::_('COM_EASYDISCUSS_ELLIPSES');
+		$intro = EDJString::substr($intro, 0, $config->get('layout_introtextlength')) . JText::_('COM_EASYDISCUSS_ELLIPSES');
 
 		$postType = $post->isReply() ? JText::_('COM_ED_GDPR_POSTTYPE_REPLY') : JText::_('COM_ED_GDPR_POSTTYPE_POST');
 		$date = ED::date($post->created);
@@ -133,7 +133,7 @@ class EasyDiscussGdprPost extends EasyDiscussGdprAbstract
 			<?php echo $date->format($this->getDateFormat());?>
 		</div>
 		<div class="gdpr-item__label">
-			<span class="gdpr-label"><?php echo JString::strtoupper($postType);?></span>
+			<span class="gdpr-label"><?php echo EDJString::strtoupper($postType);?></span>
 		</div>
 		<?php
 		$contents = ob_get_contents();
@@ -232,7 +232,7 @@ class EasyDiscussGdprPost extends EasyDiscussGdprAbstract
 
 					$code = $codes[$i];
 
-					$content = JString::str_ireplace($code, '<img src="{%MEDIA%}" alt="' . $filename . '" height="auto" width="100%">', $content);
+					$content = EDJString::str_ireplace($code, '<img src="{%MEDIA%}" alt="' . $filename . '" height="auto" width="100%">', $content);
 				}
 
 				$i++;

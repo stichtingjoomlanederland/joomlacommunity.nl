@@ -22,8 +22,9 @@ class plgContentEasyDiscuss extends JPlugin
 
 	public function __construct(&$subject , $params)
 	{
-		$this->extension = JRequest::getString('option');
-		$this->view = JRequest::getString('view');
+		$this->input = JFactory::getApplication()->input;
+		$this->extension = $this->input->get('option', '', 'string');
+		$this->view = $this->input->get('view', '', 'string');
 
 		// Load language file for use throughout the plugin
 		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
@@ -454,7 +455,8 @@ class plgContentEasyDiscuss extends JPlugin
 		$sort = ED::request()->get('sort', ED::getDefaultRepliesSorting(), 'word');
 		$limitstart = ED::request()->get('limitstart', 0);
 
-		$replies = $post->getReplies(true, $limit, $sort, $limitstart);
+		$rOptions = array('limit' => $limit, 'sort' => $sort, 'limitstart' => $limitstart);
+		$replies = $post->getReplies($rOptions);
 
 		// Get the pagination for replies
 		$pagination = $model->getPagination();
@@ -474,7 +476,7 @@ class plgContentEasyDiscuss extends JPlugin
 		$system->acl = $acl;
 
 		// add bbcode settings - DO NOT MOVE THIS LINE
-		$bbcodeSettings = ED::themes()->output('admin/structure/settings');
+		$bbcodeSettings = ED::themes()->output('site/composer/editors/bbcode.settings');
 
 		// DO NOT MOVE THESE LINE
 		ob_start();
@@ -506,15 +508,12 @@ class plgContentEasyDiscuss extends JPlugin
 		switch($this->extension)
 		{
 			 case 'com_content':
-
-				require_once(JPATH_ROOT . '/components/com_content/helpers/route.php');
-
 				JTable::addIncludePath(JPATH_ROOT . '/libraries/joomla/database/table');
 
 				$category = JTable::getInstance('Category' , 'JTable');
 				$category->load($article->catid);
 
-				$url = ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid);
+				$url = EDContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid);
 
 				// Check for SEF enabled
 				if ($sefEnabled) {
@@ -524,7 +523,7 @@ class plgContentEasyDiscuss extends JPlugin
 				
 				} else {
 
-					$url = JRoute::_(ContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid));
+					$url = JRoute::_(EDContentHelperRoute::getArticleRoute($article->id . ':' . $article->alias , $article->catid));
 				}
 
 				// SEF url
@@ -794,7 +793,7 @@ class plgContentEasyDiscuss extends JPlugin
 	{
 		$params = $this->getParams();
 
-		$id = JRequest::getInt('id');
+		$id = $this->input->get('id', 0, 'int');
 
 		$article = JTable::getInstance('Content', 'JTable');
 		$article->load($id);
@@ -840,7 +839,7 @@ class plgContentEasyDiscuss extends JPlugin
 	{
 		$params = $this->getParams();
 
-		$id = JRequest::getInt('id');
+		$id = $this->input->get('id', 0, 'int');
 
 		$article = JTable::getInstance('Content', 'JTable');
 		$article->load($id);

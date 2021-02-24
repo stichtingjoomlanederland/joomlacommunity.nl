@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,17 +9,18 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
+use Joomla\CMS\HTML\HTMLHelper;
+require_once ED_ROOT . '/views/views.php';
 
 class EasyDiscussViewAsk extends EasyDiscussView
 {
 	/**
-	 * Responds to the getcategory ajax call by return a list of category items.
+	 * Retrieves the list of child categories given the parent category
 	 *
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	null
 	 */
 	public function getCategory()
 	{
@@ -46,72 +47,51 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$this->ajax->resolve($items);
 	}
 
-	public function buildcategorytier()
+	/**
+	 * Renders a preview of the post
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function preview()
 	{
-		$id = $this->input->get('id', 0, 'int');
+		$content = $this->input->get('content', '', 'raw');
 
-		if (empty($id)) {
-			return $this->ajax->reject();
+		if (empty($content)) {
+			$this->ajax->resolve(JText::_('COM_ED_NOTHING_TO_PREVIEW'));
 		}
 
-		$loop = true;
-		$scategory = ED::table('Category');
-		$scategory->load($id);
+		$data['content'] = $content;
 
-		$model = ED::model('categories');
-		$tier = array();
+		// @task: We'll need to find a better way to do this instead of binding it to post object.
+		$post = ED::post();
+		$post->bind($data);
 
-		$searchId = $scategory->parent_id;
-		
-		while($loop) {
-			
-			if (empty($searchId)) {
-				$loop = false;
-			} else {
-				$category = ED::table('Category');
-				$category->load($searchId);
-				$tier[]	= $category;
+		$content = ED::formatContent($post);
 
-				$searchId = $category->parent_id;
+		// Check if the formatted contents contains any scripts from gist.
+		// Console throw warning - It isn't possible to preview asynchronously-loaded external script.
+		preg_match_all('/(\<script.*src=\"(https?:\/\/gist.github.com.*)\".*\<\/script>)/Ui', $content, $scripts);
+
+		$notice = '';
+
+		if (count($scripts[0])) {
+
+			for ($i = 0; $i < count($scripts[0]); $i++) {
+				$script = $scripts[1][$i];
+				$link = HTMLHelper::link($scripts[2][$i], $scripts[2][$i], ['target' => '_blank']);
+
+				$content = EDJString::str_ireplace($script, $link, $content);
 			}
+
+			$notice = JText::_('COM_ED_PREVIEW_NOTICE');
 		}
 
-		// get the root tier
-		$root = array_pop($tier);
-
-		//reverse the array order
-		$tier = array_reverse($tier);
-		array_push($tier, $scategory);
-
-		$categories = array();
-		
-		foreach ($tier as $cat) {
-			$pItem = new stdClass();
-			$pItem->id = $cat->id;
-			$pItem->parent_id = $cat->parent_id;
-			$pItem->hasChild = 1;
-
-			$items = $model->getChildCategories($cat->parent_id, true, true);
-
-			if (!$items) {
-				$pItem->hasChild = 0;
-				$categories[] = $pItem;
-				continue;
-			}
-
-			for ($i = 0; $i < count($items); $i++) {
-				$item = $items[$i];
-
-				$category = ED::table('Category');
-				$category->load($item->id);
-
-				$item->hasChild = $category->getChildCount();
-			}
-
-			$pItem->childs = $items;
-			$categories[] = $pItem;
+		if (empty($content)) {
+			$this->ajax->resolve(JText::_('COM_ED_NOTHING_TO_PREVIEW'));
 		}
 
-		$this->ajax->resolve($categories);
+		$this->ajax->resolve($content, $notice);
 	}
 }
+

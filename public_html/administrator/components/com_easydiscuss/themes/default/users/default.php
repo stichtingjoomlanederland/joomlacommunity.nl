@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,11 +14,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 
 	<div class="app-filter-bar">
-		<div class="app-filter-bar__cell app-filter-bar__cell--search">
+		<div class="app-filter-bar__cell app-filter-bar__cell--search app-filter-bar__cell--divider-right">
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
-		
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -26,10 +24,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 	</div>
-
-	<?php if (!$browse) { ?>
-		<?php echo $this->html('table.notice', 'COM_EASYDISCUSS_USERS_MANAGEMENT_DELETE_NOTICE'); ?>
-	<?php } ?>
 
 	<div class="panel-table">
 		<table class="app-table table" data-ed-table>
@@ -79,7 +73,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 					<td>
 						<?php if ($browse) { ?>
-							<a href="javascript:void(0);" onclick="parent.<?php echo $browsefunction; ?>('<?php echo $user->id;?>','<?php echo addslashes($this->escape($user->name));?>','<?php echo $prefix; ?>');"><?php echo $user->name;?></a>
+							<a href="javascript:void(0);" onclick="parent.<?php echo $browsefunction; ?>('<?php echo $user->id;?>','<?php echo addslashes($this->escape($user->name));?>');"><?php echo $user->name;?></a>
 						<?php } else { ?>
 							<a href="index.php?option=com_easydiscuss&view=users&layout=form&id=<?php echo $user->id;?>"><?php echo $user->name;?></a>
 						<?php } ?>
@@ -107,8 +101,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 			<?php } else { ?>
 				<tr>
-					<td colspan="7" align="center">
-						<?php echo JText::_('COM_EASYDISCUSS_NO_USERS_YET');?>
+					<td colspan="7" class="center">
+						<?php echo JText::_('COM_ED_NO_USERS_YET');?>
 					</td>
 				</tr>
 			<?php } ?>
@@ -129,12 +123,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<?php if ($browse) { ?>
 	<input type="hidden" name="browse" value="1" />
 	<input type="hidden" name="browsefunction" value="<?php echo $browsefunction; ?>" />
+
+	<input type="hidden" name="category_id" value="<?php echo $categoryId; ?>" />
+	<input type="hidden" name="moderator" value="<?php echo $moderator; ?>" />
+
 	<input type="hidden" name="tmpl" value="component" />
-	<input type="hidden" name="prefix" value="<?php echo $prefix; ?>" />
 	<?php } ?>
 
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="" />
 
-	<?php echo $this->html('form.hidden', 'user', 'users'); ?>
+	<?php echo $this->html('form.action', 'user', 'users'); ?>
 </form>

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,22 +9,21 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once dirname( __FILE__ ) . '/model.php';
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.filesystem.folder');
 jimport('joomla.filesystem.file');
 
+require_once(__DIR__ . '/model.php');
+
 class EasyDiscussModelSettings extends EasyDiscussAdminModel
 {
-	function &getThemes()
+	public function getThemes()
 	{
-		static $themes	= null;
+		static $themes = null;
 
-		if( is_null( $themes ) )
-		{
-			$themes	= JFolder::folders( DISCUSS_THEMES );
+		if (is_null($themes)) {
+			$themes	= JFolder::folders(DISCUSS_THEMES);
 		}
 
 		return $themes;
@@ -35,8 +34,6 @@ class EasyDiscussModelSettings extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function save($data)
 	{
@@ -68,13 +65,13 @@ class EasyDiscussModelSettings extends EasyDiscussAdminModel
 		return true;
 	}
 
-	function &_getParams( $key = 'config' )
+	public function _getParams($key = 'config')
 	{
 		static $params	= null;
 
 		if( is_null( $params ) )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$query	= 'SELECT ' . $db->nameQuote( 'params' ) . ' '
 					. 'FROM ' . $db->nameQuote( '#__discuss_configs' ) . ' '
@@ -87,16 +84,15 @@ class EasyDiscussModelSettings extends EasyDiscussAdminModel
 		return $params;
 	}
 
-	function getConfig()
+	public function getConfig()
 	{
-		static $config	= null;
+		static $config = null;
 
-		if( is_null( $config ) )
-		{
-			$params		= $this->_getParams( 'config' );
+		if (is_null($config)) {
+			$params	= $this->_getParams('config');
 
 
-			$config		= DiscussHelper::getRegistry( $params );
+			$config = ED::getRegistry($params);
 		}
 
 		return $config;

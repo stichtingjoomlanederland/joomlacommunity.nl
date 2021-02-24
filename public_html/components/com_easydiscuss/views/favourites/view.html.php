@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewFavourites extends EasyDiscussView
 {
 	/**
@@ -20,15 +18,12 @@ class EasyDiscussViewFavourites extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function display($tpl = null)
 	{
 		// Ensure that this feature is enabled
 		if (!$this->config->get('main_favorite')) {
-			ED::setMessage('COM_EASYDISCUSS_FEATURE_IS_DISABLED', 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
 
 		// Ensure that the user is logged in
@@ -37,16 +32,10 @@ class EasyDiscussViewFavourites extends EasyDiscussView
 		ED::setPageTitle('COM_EASYDISCUSS_FAVOURITES_TITLE');
 		ED::setMeta();
 
-		// Load the user's profile
-		$profile = ED::profile($this->my->id);
-
 		// If profile is invalid, throw an error.
-		if (!$profile->id || !$this->my->id) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND'));
+		if (!$this->my->id) {
+			throw ED::exception('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND', ED_MSG_ERROR);
 		}
-
-		// Get user badges
-		$badges = $profile->getBadges();
 
 		// Add view
 		$this->logView();
@@ -56,20 +45,16 @@ class EasyDiscussViewFavourites extends EasyDiscussView
 		$options = array(
 			'userId' => $this->my->id,
 			'filter' => 'favourites'
-			);
+		);
 
-		// $posts = $model->getData(true, 'latest', null, 'favourites');
 		$posts = $model->getDiscussions($options);
 		$posts = ED::formatPost($posts);
 
 		$pagination = $model->getPagination();
-		$pagination = $pagination->getPagesLinks();
 
 		$this->set('posts', $posts);
-		$this->set('profile', $profile);
-		$this->set('badges', $badges);
 		$this->set('pagination', $pagination);
 		
-		parent::display('favourites/default');
+		parent::display('favourites/listings/default');
 	}
 }

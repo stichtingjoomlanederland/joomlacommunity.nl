@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -339,7 +339,6 @@ class Request
 				$jdideal->log('Caught an error: ' . $exception->getMessage(), $logId);
 			}
 
-			// Start validating transaction
 			if (!$transactionStatus['isOK'])
 			{
 				$jdideal->log('Transaction status is not OK', $logId);
@@ -469,6 +468,8 @@ class Request
 				// Send out the emails if needed
 				try
 				{
+					$jdideal->log('Send customer change status email', $logId);
+					$jdideal->log(json_encode($orderData), $logId);
 					$this->emailCustomerChangeStatus(
 						$jdideal,
 						$responseStatus,
@@ -484,6 +485,7 @@ class Request
 
 				try
 				{
+					$jdideal->log('Send admin order payment email', $logId);
 					$this->emailAdminOrderPayment(
 						$jdideal,
 						$transactionDetails,
@@ -527,7 +529,8 @@ class Request
 			// Load the HTTP driver
 			try
 			{
-				$http         = HttpFactory::getHttp(null, array('curl', 'stream'));
+				$options      = new Registry;
+				$http         = HttpFactory::getHttp($options, ['curl', 'stream']);
 				$notifyMethod = 'get';
 
 				if (method_exists($extensionAddon, 'notifyMethod'))
@@ -537,7 +540,6 @@ class Request
 
 				$jdideal->log('Notify method: ' . $notifyMethod, $logId);
 
-				// Call the URL
 				switch ($notifyMethod)
 				{
 					case 'post':
@@ -578,7 +580,6 @@ class Request
 				$jdideal->log('Redirecting customer to: ' . $redirect, $logId);
 			}
 
-			// Trigger the callback
 			$extensionAddon->callBack(array_merge($resultData, (array) $transactionDetails));
 		}
 

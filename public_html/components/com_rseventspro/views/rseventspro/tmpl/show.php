@@ -70,16 +70,16 @@ rseventsproMapHelper::loadMap($mapParams);
 } ?>
 <!--//end Initialize map-->
 
-<?php JFactory::getApplication()->triggerEvent('rsepro_onBeforeEventDisplay',array(array('event' => &$event, 'categories' => &$categories, 'tags' => &$tags))); ?>
+<?php JFactory::getApplication()->triggerEvent('onrsepro_onBeforeEventDisplay',array(array('event' => &$event, 'categories' => &$categories, 'tags' => &$tags))); ?>
 
 <div id="rs_event_show"<?php echo $event->published == 3 ? ' class="rsepro_canceled_event_show"' : ''; ?>>
 	
 	<!-- Event Message -->
 	<?php if ($full && $event->event_full && !$this->eventended) { ?>
-	<div class="alert rse_event_message"><?php echo $event->event_full; ?></div>
+	<div class="alert alert-info rse_event_message"><?php echo $event->event_full; ?></div>
 	<?php } ?>
 	<?php if ($this->eventended && $event->event_ended) { ?>
-	<div class="alert rse_event_message"><?php echo $event->event_ended; ?></div>
+	<div class="alert alert-info rse_event_message"><?php echo $event->event_ended; ?></div>
 	<?php } ?>
 	<!-- end Event Message -->
 
@@ -94,82 +94,82 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!-- Admin options -->
 		<?php if ($this->admin || $event->owner == $this->user || $event->sid == $this->user) { ?>
 		<div class="btn-group">
-			<button data-toggle="dropdown" class="btn dropdown-toggle"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADMIN_OPTIONS'); ?> <span class="caret"></span></button>
+			<button data-toggle="dropdown" data-bs-toggle="dropdown" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?> dropdown-toggle"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_ADMIN_OPTIONS'); ?> <span class="caret"></span></button>
 			<ul class="dropdown-menu">
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=edit&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=edit&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-pencil fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT'); ?>
 					</a>
 				</li>
 				<?php if ($event->rsvp) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=rsvp&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=rsvp&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_RSVP_GUESTS'); ?>
 					</a>
 				</li>
 				<?php } else { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SUBSCRIBERS'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				
 				<?php if (rseventsproHelper::hasUnsubscribers($event->id)) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=unsubscribers&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBERS'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				
 				<?php if (rseventsproHelper::hasWaitingList($event->id)) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=waitinglist&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-users fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITINGLIST'); ?>
 					</a>
 				</li>
 				<?php } ?>
-				<li>
-					<a href="<?php echo $messageURL; ?>" rel="rs_message"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseMessageModal\').modal(\'show\');"'; ?>>
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo $messageURL; ?>" rel="rs_message"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseMessageModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-envelope-o fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_MESSAGE_TO_GUESTS'); ?>
 					</a>
 				</li>
 				<?php if (!$this->eventended) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=reminder&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=reminder&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-envelope fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SEND_REMINDER'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				<?php if ($this->eventended) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=postreminder&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=postreminder&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-envelope fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SEND_POST_REMINDER'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				<?php if ($this->report) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=reports&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=reports&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-flag fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_REPORTS'); ?>
 					</a>
 				</li>
 				<?php } ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=scan&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=scan&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-barcode fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_SCAN_TICKET'); ?>
 					</a>
 				</li>
 				<?php if ($event->published != 3) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.cancelevent&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_CANCEL_CONFIRMATION', true); ?>');">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.cancelevent&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_CANCEL_CONFIRMATION', true); ?>');">
 						<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_CANCEL_EVENT'); ?>
 					</a>
 				</li>
 				<?php } ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
 						<i class="fa fa-trash fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_EVENT'); ?>
 					</a>
 				</li>
@@ -179,43 +179,55 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!--//end Admin options -->
 
 		<?php if (!($this->admin || $event->owner == $this->user || $event->sid == $this->user) && $this->permissions['can_edit_events']) { ?>
-		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=edit&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="btn">
-			<i class="fa fa-pencil fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT'); ?>
-		</a>
+		<div class="btn-group">
+			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=edit&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>">
+				<i class="fa fa-pencil fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_EDIT'); ?>
+			</a>
+		</div>
 		<?php } ?>
 		
 		<?php if (!($this->admin || $event->owner == $this->user || $event->sid == $this->user) && $this->permissions['can_delete_events']) { ?>
-		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="btn" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
-			<i class="fa fa-trash fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_EVENT'); ?>
-		</a>
+		<div class="btn-group">
+			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.remove&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_CONFIRMATION'); ?>');">
+				<i class="fa fa-trash fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_DELETE_EVENT'); ?>
+			</a>
+		</div>
 		<?php } ?>
 
 	<!-- Invite/Join/Unsubscribe -->	
 		<?php if ($this->cansubscribe['status'] || rseventsproHelper::validWaitingList($event->id)) { ?>
-		<a href="<?php echo $subscribeURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
-			<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_JOIN'); ?>
-		</a>
+		<div class="btn-group">
+			<a href="<?php echo $subscribeURL; ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>" rel="rs_subscribe"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
+				<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_JOIN'); ?>
+			</a>
+		</div>
 		<?php } ?>
 		
 		<?php $fullEvent = rseventsproHelper::eventisfull($this->event->id, false); ?>
 		<?php $fullEvent = $this->event->overbooking ? $fullEvent && !$this->cansubscribe['status'] : $fullEvent; ?>
 		<?php if ($fullEvent && !$this->eventended && rseventsproHelper::hasWaitingList($event->id)) { ?>
-		<a href="<?php echo $waitinglistURL; ?>" class="btn" rel="rs_subscribe"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseSubscribeModal\').modal(\'show\');"'; ?>>
-			<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITING_LIST'); ?>
-		</a>
+		<div class="btn-group">
+			<a href="<?php echo $waitinglistURL; ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>" rel="rs_subscribe"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseWaitingModal\').modal(\'show\');"'; ?>>
+				<i class="fa fa-check fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_WAITING_LIST'); ?>
+			</a>
+		</div>
 		<?php } ?>
 		
 		<?php if (!$this->eventended) { ?>
 		<?php if ($this->issubscribed) { ?>
 		<?php if ($this->canunsubscribe) { ?>
 		<?php if ($this->issubscribed == 1) { ?>
-		<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="btn">
-			<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
-		</a>
+		<div class="btn-group">
+			<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.unsubscribe&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>">
+				<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
+			</a>
+		</div>
 		<?php } else { ?>
-		<a href="<?php echo $unsubscribeURL; ?>" class="btn" <?php echo $modal == 2 ? 'rel="rs_unsubscribe"' : 'onclick="jQuery(\'#rseUnsubscribeModal\').modal(\'show\');"'; ?>>
-			<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
-		</a>
+		<div class="btn-group">
+			<a href="<?php echo $unsubscribeURL; ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>" <?php echo $modal == 2 ? 'rel="rs_unsubscribe"' : 'onclick="jQuery(\'#rseUnsubscribeModal\').modal(\'show\');"'; ?>>
+				<i class="fa fa-times fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE'); ?>
+			</a>
+		</div>
 		<?php } ?>
 		<?php } ?>
 		<?php } ?>
@@ -223,43 +235,43 @@ rseventsproMapHelper::loadMap($mapParams);
 		
 		<?php if ((!$this->eventended && !empty($this->options['show_invite'])) || $this->report || !empty($this->options['show_print']) || !empty($this->options['show_export']) || $this->config->timezone) { ?>
 		<div class="btn-group">
-			<button data-toggle="dropdown" class="btn dropdown-toggle"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_USER_OPTIONS'); ?> <span class="caret"></span></button>
+			<button data-toggle="dropdown" data-bs-toggle="dropdown" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?> dropdown-toggle"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_USER_OPTIONS'); ?> <span class="caret"></span></button>
 			<ul class="dropdown-menu">
 				<?php if (!$this->eventended && !empty($this->options['show_invite'])) { ?>
-				<li>
-					<a href="<?php echo $inviteURL; ?>" rel="rs_invite"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseInviteModal\').modal(\'show\');"'; ?>>
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo $inviteURL; ?>" rel="rs_invite"<?php if ($links == 1 && $modal == 1) echo ' onclick="jQuery(\'#rseInviteModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-plus fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_INVITE'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				
 				<?php if ($this->report) { ?>
-				<li>
-					<a href="<?php echo $reportURL; ?>" rel="rs_report"<?php if ($modal == 1) echo ' onclick="jQuery(\'#rseReportModal\').modal(\'show\');"'; ?>>
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo $reportURL; ?>" rel="rs_report"<?php if ($modal == 1) echo ' onclick="jQuery(\'#rseReportModal\').modal(\'show\');"'; ?>>
 						<i class="fa fa-flag fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_REPORT'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				
 				<?php if (!empty($this->options['show_print'])) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=print&tmpl=component&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="window.open(this.href,'print','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,top=200,left=200,directories=no,location=no'); return false;">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=print&tmpl=component&id='.rseventsproHelper::sef($event->id,$event->name)); ?>" onclick="window.open(this.href,'print','status=no,toolbar=no,scrollbars=yes,titlebar=no,menubar=no,resizable=yes,width=640,height=480,top=200,left=200,directories=no,location=no'); return false;">
 						<i class="fa fa-print fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EVENT_PRINT'); ?>
 					</a>
 				</li>
 				<?php } ?>
 				
 				<?php if (!empty($this->options['show_export'])) { ?>
-				<li>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.export&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
+				<li class="nav-item">
+					<a class="nav-link" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.export&id='.rseventsproHelper::sef($event->id,$event->name)); ?>">
 						<i class="fa fa-calendar fa-fw"></i> <?php echo JText::_('COM_RSEVENTSPRO_EXPORT_EVENT'); ?>
 					</a> 
 				</li> 
 				<?php } ?>
 				
 				<?php if ($this->config->timezone) { ?>
-				<li>
-					<a rel="rs_timezone"<?php if ($modal == 1) echo ' href="#timezoneModal" data-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?>>
+				<li class="nav-item">
+					<a class="nav-link" rel="rs_timezone"<?php if ($modal == 1) echo ' href="#timezoneModal" data-toggle="modal" data-bs-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?>>
 						<i class="fa fa-clock-o fa-fw"></i> <?php echo rseventsproHelper::getTimezone(); ?>
 					</a> 
 				</li>
@@ -274,19 +286,21 @@ rseventsproMapHelper::loadMap($mapParams);
 		<?php if (rseventsproHelper::canRSVP($event->id)) { ?>
 		<?php if (!$this->eventended) { ?>
 		<div id="rsepro_rsvp" class="btn-group">
-			<a id="rsepro_going" class="btn <?php if ($rsvpOptions->rsvp == 'going') echo 'btn-success hasTooltip'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'going') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'going');"<?php } ?>>
+			<a id="rsepro_going" class="btn <?php echo $rsvpOptions->rsvp == 'going' ? 'btn-success hasTooltip' : 'btn-secondary'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'going') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'going');"<?php } ?>>
 				<?php echo JText::_('COM_RSEVENTSPRO_RSVP_GOING'); ?>
 			</a>
-			<a id="rsepro_interested" class="btn <?php if ($rsvpOptions->rsvp == 'interested') echo 'btn-success hasTooltip'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'interested') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'interested');"<?php } ?>>
+			<a id="rsepro_interested" class="btn <?php echo $rsvpOptions->rsvp == 'interested' ? 'btn-success hasTooltip' : 'btn-secondary'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'interested') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'interested');"<?php } ?>>
 				<?php echo JText::_('COM_RSEVENTSPRO_RSVP_INTERESTED'); ?>
 			</a>
-			<a id="rsepro_notgoing" class="btn <?php if ($rsvpOptions->rsvp == 'notgoing') echo 'btn-success hasTooltip'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'notgoing') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'notgoing')"<?php } ?>>
+			<a id="rsepro_notgoing" class="btn <?php echo $rsvpOptions->rsvp == 'notgoing' ? 'btn-success hasTooltip' : 'btn-secondary'; ?><?php echo $rsvpOptions->offClass; ?>" title="<?php if ($rsvpOptions->rsvp == 'notgoing') echo JText::_('COM_RSEVENTSPRO_RSVP_INFO'); ?> <?php echo $rsvpOptions->offTitle; ?>" <?php if ($rsvpOptions->canRSVP) { ?>onclick="rsepro_rsvp(<?php echo $event->id; ?>, 'notgoing')"<?php } ?>>
 				<?php echo JText::_('COM_RSEVENTSPRO_RSVP_NOT_GOING'); ?>
 			</a>
 		</div>
 		<?php } else { ?>
 		<?php if (isset($rsvpOptions->rsvp)) { ?>
-		<button class="btn btn-success disabled"><?php echo rseventsproHelper::RSVPStatus($rsvpOptions->rsvp); ?></button>
+		<div id="rsepro_rsvp" class="btn-group">
+			<button class="btn btn-success disabled"><?php echo rseventsproHelper::RSVPStatus($rsvpOptions->rsvp); ?></button>
+		</div>
 		<?php } ?>
 		<?php } ?>
 		<?php } ?>
@@ -484,9 +498,9 @@ rseventsproMapHelper::loadMap($mapParams);
 	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LIST_SPONSORS'); ?></h3>
 	<?php $schunks = array_chunk($sponsors, 4); ?>
 	<?php foreach ($schunks as $sponsors) { ?>
-	<ul class="thumbnails rsepro-sponsors">
+	<ul class="thumbnails rsepro-sponsors clearfix">
 	<?php foreach($sponsors as $sponsor) { ?>
-		<li class="span3">
+		<li class="<?php echo RSEventsproAdapterGrid::column(3); ?>">
 			<div class="thumbnail center">
 				<?php if ($sponsor->url) { ?><a href="<?php echo $sponsor->url; ?>" target="_blank"><?php } ?>
 				<?php if ($sponsor->image) { ?>
@@ -507,9 +521,9 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!-- Speakers -->
 	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LIST_SPEAKERS'); ?></h3>
 	<?php foreach ($chunks as $speakers) { ?>
-	<ul class="thumbnails rsepro-speakers">
+	<ul class="thumbnails rsepro-speakers clearfix">
 	<?php foreach($speakers as $speaker) { ?>
-		<li class="span3">
+		<li class="<?php echo RSEventsproAdapterGrid::column(3); ?>">
 			<div class="thumbnail">
 				<?php if ($speaker->image) { ?>
 				<img class="rsepro-speaker-image" src="<?php echo JUri::root(); ?>components/com_rseventspro/assets/images/speakers/<?php echo $speaker->image; ?>" alt="<?php echo $speaker->name; ?>" width="<?php echo rseventsproHelper::getConfig('speaker_icon_width', 'int', 100); ?>" height="<?php echo rseventsproHelper::getConfig('speaker_icon_height', 'int', 150); ?>" />
@@ -588,7 +602,7 @@ rseventsproMapHelper::loadMap($mapParams);
 	<?php if (!empty($this->options['show_map']) && !empty($event->coordinates) && rseventsproHelper::getConfig('map')) { ?>
 		<div id="map-canvas" style="width: 100%; height: 200px;"></div>
 		
-		<?php if (rseventsproHelper::getConfig('map') == 'google') { ?>
+		<?php if (rseventsproHelper::getConfig('map') == 'google' && $this->config->google_map_direction) { ?>
 		<br />
 		<div class="rsepro-map-directions">
 			<a target="_blank" class="hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_DIRECTIONS_CAR'); ?>" href="https://maps.google.com/?saddr=Current+Location&daddr=<?php echo $event->coordinates; ?>&driving">
@@ -668,9 +682,9 @@ rseventsproMapHelper::loadMap($mapParams);
 	<?php foreach ($this->RSVPguests as $type => $guests) { ?>
 	<?php if (!empty($guests)) { ?>
 	<h3><?php echo JText::_('COM_RSEVENTSPRO_RSVP_EVENT_GUESTS_'.strtoupper($type)); ?></h3>
-	<ul class="thumbnails">
+	<ul class="rs_guests">
 	<?php foreach ($guests as $guest) { ?>
-		<li class="thumbnail">
+		<li>
 			<?php if (!empty($guest->url)) { ?><a href="<?php echo $guest->url; ?>"><?php } ?>
 			<?php echo $guest->avatar; ?>
 			<p class="center"><?php echo $guest->name; ?></p>
@@ -685,7 +699,7 @@ rseventsproMapHelper::loadMap($mapParams);
 	<?php } ?>
 	<!--//end Show subscribers -->
 
-	<?php JFactory::getApplication()->triggerEvent('rsepro_onAfterEventDisplay',array(array('event' => $event, 'categories' => $categories, 'tags' => $tags))); ?>
+	<?php JFactory::getApplication()->triggerEvent('onrsepro_onAfterEventDisplay',array(array('event' => $event, 'categories' => $categories, 'tags' => $tags))); ?>
 
 	<!-- Comments -->
 	<?php if ($event->comments) { ?>
@@ -728,7 +742,7 @@ if ($modal == 1) {
 }
 
 if ($links == 1 && $modal == 1) {
-	if ($this->cansubscribe['status']) {
+	if ($this->cansubscribe['status'] || rseventsproHelper::validWaitingList($event->id)) {
 		echo JHtml::_('bootstrap.renderModal', 'rseSubscribeModal', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_JOIN'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribe&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl), 'bodyHeight' => 70));
 	}
 	
@@ -738,6 +752,10 @@ if ($links == 1 && $modal == 1) {
 	
 	if (!$this->eventended && !empty($this->options['show_invite'])) {
 		echo JHtml::_('bootstrap.renderModal', 'rseInviteModal', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_INVITE'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=invite&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl), 'bodyHeight' => 70));
+	}
+	
+	if ($fullEvent && !$this->eventended && rseventsproHelper::hasWaitingList($event->id)) {
+		echo JHtml::_('bootstrap.renderModal', 'rseWaitingModal', array('title' => JText::_('COM_RSEVENTSPRO_EVENT_WAITING_LIST'), 'url' => rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting&id='.rseventsproHelper::sef($event->id,$event->name).$tmpl), 'bodyHeight' => 70));
 	}
 }
 ?>

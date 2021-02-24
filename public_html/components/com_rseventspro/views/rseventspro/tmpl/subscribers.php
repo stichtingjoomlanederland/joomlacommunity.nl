@@ -17,55 +17,46 @@ function rs_clear() {
 </script>
 
 <form method="post" action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=subscribers&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>" name="adminForm" id="adminForm">
-	<div class="row-fluid">
-		<div class="input-append">
-			<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="<?php echo $this->filter_word; ?>" size="35" /> 
-			<button type="button" class="button btn hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?>" onclick="adminForm.submit();"><i class="fa fa-search"></i></button> 
-			<button type="button" class="button btn hasTooltip" title="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR'); ?>" onclick="rs_clear();"><i class="fa fa-times"></i></button>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo RSEventsproAdapterGrid::inputGroup('<input type="text" name="search" id="searchstring" onchange="adminForm.submit();" value="'.$this->filter_word.'" class="form-control" />', null, '<button type="button" class="btn btn-primary hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH').'" onclick="adminForm.submit();"><i class="fa fa-search"></i></button> <button type="button" class="btn btn-danger hasTooltip" title="'.JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR').'" onclick="rs_clear();"><i class="fa fa-times"></i></button>'); ?>
+		</div>
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?> text-right">
+			<a class="btn btn-secondary" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportguests&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_SUBSCRIBERS'); ?></a>
+			<a class="btn btn-secondary" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a>
 		</div>
 	</div>
-	<div class="row-fluid">
-		<div class="span4">
-			<?php echo $this->lists['tickets']; ?>
-		</div>
-		
-		<div class="span4">
-			<?php echo $this->lists['state']; ?>
-		</div>
-		
-		<div class="span4">
-			<a class="btn" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($this->row->id,$this->row->name),false,rseventsproHelper::itemid($this->row->id)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_BACK'); ?></a>
-			<a class="btn" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.exportguests&id='.rseventsproHelper::sef($this->row->id,$this->row->name)); ?>"><?php echo JText::_('COM_RSEVENTSPRO_SUBSCRIBERS_EXPORT_SUBSCRIBERS'); ?></a>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?> mt-3 mb-3">
+		<div class="<?php echo RSEventsproAdapterGrid::column(12); ?>">
+			<?php echo RSEventsproAdapterGrid::inputGroup($this->lists['tickets'], null, $this->lists['state']); ?>
 		</div>
 	</div>
 	
-	<br /><br />
-	
-	<div class="well well-small">
-		<table class="table table-striped">
-			<thead>
-				<th><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET'); ?></th>
-				<th class="center"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET_PRICE'); ?></th>
-				<th class="center"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET_SOLD'); ?></th>
-			</thead>
-			
-			<?php if ($this->tickets) { ?>
-			<?php foreach ($this->tickets as $ticket) {  ?>
-			<tr>
-				<td><?php echo $ticket->name; ?></td>
-				<td class="center"><?php echo $ticket->price > 0 ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?></td>
-				<td class="center"><?php echo rseventsproHelper::getTicketCount($ticket); ?></td>
-			</tr>
-			<?php } ?>
-			<?php } else { ?>
-			<tr>
-				<td><?php echo JText::_('COM_RSEVENTSPRO_FREE_ENTRANCE'); ?></td>
-				<td class="center">-</td>
-				<td class="center"><?php echo rseventsproHelper::getTicketCountNoEntrance($this->row->id); ?></td>
-			</tr>
-			<?php } ?>
-		</table>
-	</div>
+	<?php if ($this->row->registration) { ?>	
+	<table class="table table-striped">
+		<thead>
+			<th><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET'); ?></th>
+			<th class="center"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET_PRICE'); ?></th>
+			<th class="center"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_DASH_TICKET_SOLD'); ?></th>
+		</thead>
+		
+		<?php if ($this->tickets) { ?>
+		<?php foreach ($this->tickets as $ticket) {  ?>
+		<tr>
+			<td><?php echo $ticket->name; ?></td>
+			<td class="center"><?php echo $ticket->price > 0 ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?></td>
+			<td class="center"><?php echo rseventsproHelper::getTicketCount($ticket); ?></td>
+		</tr>
+		<?php } ?>
+		<?php } else { ?>
+		<tr>
+			<td><?php echo JText::_('COM_RSEVENTSPRO_FREE_ENTRANCE'); ?></td>
+			<td class="center">-</td>
+			<td class="center"><?php echo rseventsproHelper::getTicketCountNoEntrance($this->row->id); ?></td>
+		</tr>
+		<?php } ?>
+	</table>
+	<?php } ?>
 	
 	<?php $count = count($this->data); ?>
 	<?php if (!empty($this->data)) { ?>

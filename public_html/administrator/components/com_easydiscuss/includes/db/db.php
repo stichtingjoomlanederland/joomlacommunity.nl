@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyBlog is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussDb
 {
-	public $db 		= null;
+	public $db = null;
 
 	public function __construct()
 	{
@@ -35,57 +35,80 @@ class EasyDiscussDb
 		return $this->db->escape($text, $extra);
 	}
 
-	public function __call( $method , $args )
+	public function __call($method, $args)
 	{
-		$refArray	= array();
+		$refArray = array();
 
-		if( $args )
-		{
-			foreach( $args as &$arg )
-			{
+		if ($args) {
+			foreach ($args as &$arg) {
 				$refArray[]	=& $arg;
 			}
 		}
 
-		return call_user_func_array( array( $this->db , $method ) , $refArray );
+		return call_user_func_array(array($this->db, $method), $refArray);
 	}
 
+	/**
+	 * Alias for quote.
+	 *
+	 * @access public
+	 */
+	public function q($item, $escape = true)
+	{
+		return $this->quote($item, $escape);
+	}
 
 	/**
-     * Alias for quote.
-     *
-     * @access public
-     */
-    public function q($item, $escape = true)
-    {
-        return $this->quote($item, $escape);
-    }
+	 * Override parent's query method
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function query()
+	{
+		return $this->db->execute();
+	}
 
-    /**
-     * Alias for quotename.
-     *
-     * @access public
-     */
-    public function qn($name, $as = null)
-    {
-        return $this->quoteName($name, $as);
-    }
+	/**
+	 * Proxy for getErrorNum method for Joomla4 compatibility
+	 *
+	 * @since   5.0.0
+	 * @access  public
+	 */
+	public function getErrorNum()
+	{
+		if (method_exists($this->db, 'getErrorNum')) {
+			return $this->db->getErrorNum();
+		}
 
-    /**
-     * helper files to add Quote into value from an array
-     *
-     * @access public
-     */
-    public function implode($values)
-    {
-        $str = '';
+		return $this->db->getConnection()->errno;
+	}
 
-        foreach($values as $val) {
-            $str .= ($str) ? ',' . $this->Quote($val) : $this->Quote($val);
-        }
+	/**
+	 * Alias for quotename.
+	 *
+	 * @access public
+	 */
+	public function qn($name, $as = null)
+	{
+		return $this->quoteName($name, $as);
+	}
 
-        return $str;
-    }
+	/**
+	 * helper files to add Quote into value from an array
+	 *
+	 * @access public
+	 */
+	public function implode($values)
+	{
+		$str = '';
+
+		foreach($values as $val) {
+			$str .= ($str) ? ',' . $this->Quote($val) : $this->Quote($val);
+		}
+
+		return $str;
+	}
 
 	/**
 	 * Synchronizes the database for easydiscuss
@@ -95,155 +118,162 @@ class EasyDiscussDb
 	 * @param	string
 	 * @return
 	 */
-    public static function sync($from = '')
-    {
-        $db = ED::db();
+	public static function sync($from = '')
+	{
+		$db = ED::db();
 
-        // List down files within the updates folder
-        $path = DISCUSS_ADMIN_ROOT . '/updates';
+		// List down files within the updates folder
+		$path = DISCUSS_ADMIN_ROOT . '/updates';
 
-        jimport('joomla.filesystem.folder');
-        jimport('joomla.filesystem.file');
+		jimport('joomla.filesystem.folder');
+		jimport('joomla.filesystem.file');
 
-        $scripts= array();
+		$scripts= array();
 
-        if ($from) {
-            $folders = JFolder::folders($path);
+		if ($from) {
+			$folders = JFolder::folders($path);
 
-            if ($folders) {
+			if ($folders) {
 
-                foreach ($folders as $folder) {
+				foreach ($folders as $folder) {
 
-                    // Because versions always increments, we don't need to worry about smaller than (<) versions.
-                    // As long as the folder is greater than the installed version, we run updates on the folder.
-                    // We cannot do $folder > $from because '1.2.8' > '1.2.15' is TRUE
-                    // We want > $from, NOT >= $from
+					// Because versions always increments, we don't need to worry about smaller than (<) versions.
+					// As long as the folder is greater than the installed version, we run updates on the folder.
+					// We cannot do $folder > $from because '1.2.8' > '1.2.15' is TRUE
+					// We want > $from, NOT >= $from
 
-                    if (version_compare($folder, $from) === 1) {
-                        $fullPath = $path . '/' . $folder;
+					if (version_compare($folder, $from) === 1) {
+						$fullPath = $path . '/' . $folder;
 
-                        // Get a list of sql files to execute
-                        $files = JFolder::files( $fullPath , '.json$' , false , true );
+						// Get a list of sql files to execute
+						$files = JFolder::files( $fullPath , '.json$' , false , true );
 
-                        foreach ($files as $file) {
-                            $data = json_decode(JFile::read($file));
-                            $scripts    = array_merge($scripts, $data);
-                        }
-                    }
-                }
-            }
-        } else {
+						foreach ($files as $file) {
+							$data = json_decode(file_get_contents($file));
+							$scripts    = array_merge($scripts, $data);
+						}
+					}
+				}
+			}
+		} else {
 
-            $files = JFolder::files($path, '.json$', true, true);
+			$files = JFolder::files($path, '.json$', true, true);
 
-            // If there is nothing to process, skip this
-            if (!$files) {
-                return false;
-            }
+			// If there is nothing to process, skip this
+			if (!$files) {
+				return false;
+			}
 
-            foreach ($files as $file) {
-                $data = json_decode(JFile::read($file));
-                $scripts = array_merge($scripts, $data);
-            }
-        }
+			foreach ($files as $file) {
+				$data = json_decode(file_get_contents($file));
+				$scripts = array_merge($scripts, $data);
+			}
+		}
 
-        if (!$scripts) {
-            return false;
-        }
+		if (!$scripts) {
+			return false;
+		}
 
-        $tables = array();
-        $indexes = array();
-        $affected = 0;
+		$tables = array();
+		$indexes = array();
+		$affected = 0;
 
 
-        foreach ($scripts as $script) {
+		foreach ($scripts as $script) {
 
-            $columnExist = true;
-            $indexExist = true;
+			$columnExist = true;
+			$indexExist = true;
 
-            if (isset($script->column)) {
+			if (isset($script->column)) {
 
-                // Store the list of tables that needs to be queried
-                if (!isset($tables[$script->table])) {
-                    $tables[$script->table] = $db->getTableColumns($script->table);
-                }
+				// Store the list of tables that needs to be queried
+				if (!isset($tables[$script->table])) {
+					$tables[$script->table] = $db->getTableColumns($script->table);
+				}
 
-                // Check if the column is in the fields or not
-                $columnExist = in_array($script->column, $tables[$script->table]);
-            }
+				// Check if the column is in the fields or not
+				$columnExist = in_array($script->column, $tables[$script->table]);
+			}
 
-            if (isset($script->index)) {
+			if (isset($script->index)) {
 
-                // Get the list of indexes on a table
-                if (!isset($indexes[$script->table])) {
-                    $indexes[$script->table] = $db->getTableIndexes($script->table);
-                }
+				// Get the list of indexes on a table
+				if (!isset($indexes[$script->table])) {
+					$indexes[$script->table] = $db->getTableIndexes($script->table);
+				}
 
-                $indexExist = in_array($script->index, $indexes[$script->table]);
-            }
+				$indexExist = in_array($script->index, $indexes[$script->table]);
+			}
 
-            if (!$columnExist || !$indexExist) {
-                $db->setQuery($script->query);
-                $db->Query();
+			if (!$columnExist || !$indexExist) {
+				$db->setQuery($script->query);
+				$db->Query();
 
-                $affected   += 1;
-            }
-        }
+				$affected   += 1;
+			}
+		}
 
-        return $affected;
-    }
+		return $affected;
+	}
 
-    /**
-     * Retrieve table columns
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public function getTableColumns($tableName)
-    {
-        $db = JFactory::getDBO();
+	/**
+	 * Retrieve table columns
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public function getTableColumns($tableName)
+	{
+		$db = JFactory::getDBO();
 
-        $query  = 'SHOW FIELDS FROM ' . $db->quoteName($tableName);
+		$query  = 'SHOW FIELDS FROM ' . $db->quoteName($tableName);
 
-        $db->setQuery($query);
+		$db->setQuery($query);
 
-        $rows = $db->loadObjectList();
-        $fields = array();
+		$rows = $db->loadObjectList();
+		$fields = array();
 
-        foreach ($rows as $row) {
-            $fields[] = $row->Field;
-        }
+		foreach ($rows as $row) {
+			$fields[] = $row->Field;
+		}
 
-        return $fields;
-    }
+		return $fields;
+	}
 
-    /**
-     * Retrieves table indexes from a specific table.
-     *
-     * @since   4.0
-     * @access  public
-     * @param   string
-     * @return
-     */
-    public static function getTableIndexes($tableName)
-    {
-        $db = JFactory::getDBO();
+	/**
+	 * Retrieves table indexes from a specific table.
+	 *
+	 * @since   4.0
+	 * @access  public
+	 */
+	public static function getTableIndexes($tableName)
+	{
+		$db = JFactory::getDBO();
 
-        $query = 'SHOW INDEX FROM ' . $db->quoteName($tableName);
+		$query = 'SHOW INDEX FROM ' . $db->quoteName($tableName);
 
-        $db->setQuery($query);
+		$db->setQuery($query);
 
-        $result = $db->loadObjectList();
+		$result = $db->loadObjectList();
 
-        $indexes = array();
+		$indexes = array();
 
-        foreach ($result as $row) {
-            $indexes[] = $row->Key_name;
-        }
+		foreach ($result as $row) {
+			$indexes[] = $row->Key_name;
+		}
 
-        return $indexes;
-    }
+		return $indexes;
+	}
 
+	/**
+	 * Override JDatabase setQuery behavior.
+	 */
+	public function setQuery($query, $offset = 0, $limit = 0)
+	{
+		if (is_array($query)) {
+			$query 	= implode(' ', $query);
+		}
+
+		return call_user_func_array(array($this->db, __FUNCTION__), array($query, $offset, $limit));
+	}
 }

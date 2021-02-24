@@ -1,6 +1,7 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	var wrapper = $('[<?php echo $editorId;?>]');
+
 	var list = $('[data-ed-polls-list]');
 	
 	var insertPoll = wrapper.find('[data-ed-polls-insert]');
@@ -9,6 +10,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	// Bind the add url reference
 	$(document)
+		.off('click.ed.polls.remove', insertPoll.selector)
 		.on('click.ed.polls.insert', insertPoll.selector, function() {
 
 			// Clone the first item on the list.
@@ -23,6 +25,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	// Bind the remove url reference
 	$(document)
+		.off('click.ed.polls.remove', removePoll.selector)
 		.on('click.ed.polls.remove', removePoll.selector, function() {
 
 			var parent = $(this).parent();
@@ -47,6 +50,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
 	// Bind enter key 
 	$(document)
+		.off('keyup.ed.polls.input', inputPoll.selector)
 		.on('keyup.ed.polls.input', inputPoll.selector, function(event) {
 
 			if (event.keyCode == 13) {

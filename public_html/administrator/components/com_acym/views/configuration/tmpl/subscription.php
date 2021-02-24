@@ -1,10 +1,15 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="acym__configuration__subscription acym__content acym_area padding-vertical-1 padding-horizontal-2">
-	<div class="acym_area_title"><?php echo acym_translation('ACYM_SUBSCRIPTION'); ?></div>
-	<div class="grid-x">
+<div class="acym__configuration__subscription acym__content acym_area padding-vertical-1 padding-horizontal-2">
+	<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_SUBSCRIPTION'); ?></div>
+	<div class="grid-x margin-y">
 		<div class="cell grid-x grid-margin-x">
-            <?php echo acym_switch('config[allow_visitor]', $this->config->get('allow_visitor'), acym_translation('ACYM_ALLOW_VISITOR'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny"); ?>
+            <?php echo acym_switch(
+                'config[allow_visitor]',
+                $this->config->get('allow_visitor'),
+                acym_translation('ACYM_ALLOW_VISITOR'),
+                [],
+                'xlarge-3 medium-5 small-9',
+                'auto'
+            ); ?>
 		</div>
 		<div class="cell grid-x grid-margin-x">
             <?php
@@ -14,28 +19,52 @@ defined('_JEXEC') or die('Restricted access');
                 acym_translation('ACYM_GENERATE_NAME').acym_info('ACYM_GENERATE_NAME_DESC'),
                 [],
                 'xlarge-3 medium-5 small-9',
-                'auto',
-                'tiny'
+                'auto'
             );
             ?>
 		</div>
 		<div class="cell grid-x grid-margin-x">
-            <?php echo acym_switch('config[require_confirmation]', $this->config->get('require_confirmation'), acym_translation('ACYM_REQUIRE_CONFIRMATION'), [], 'xlarge-3 medium-5 small-9', "auto", "tiny", 'confirm_config'); ?>
+            <?php
+            echo acym_switch(
+                'config[require_confirmation]',
+                $this->config->get('require_confirmation'),
+                acym_translation('ACYM_REQUIRE_CONFIRMATION').acym_info('ACYM_REQUIRE_CONFIRMATION_DESC'),
+                [],
+                'xlarge-3 medium-5 small-9',
+                'auto',
+                '',
+                'confirm_config'
+            );
+            ?>
 		</div>
 		<div class="cell grid-x" id="confirm_config">
 			<div class="cell grid-x">
 				<div class="cell xlarge-3 medium-5"></div>
 				<div class="cell medium-auto">
-					<a class=" button" href="<?php echo acym_completeLink('mails&task=edit&notification=acy_confirm&type_editor=acyEditor'); ?>"><?php echo acym_translation('ACYM_EDIT_EMAIL'); ?></a>
+                    <?php if (acym_isAllowed('mails')) { ?>
+						<a class="button button-secondary margin-bottom-1"
+						   href="<?php echo acym_completeLink('mails&task=edit&notification=acy_confirm&type_editor=acyEditor'); ?>">
+                            <?php echo acym_translation('ACYM_EDIT_EMAIL'); ?>
+						</a>
+                    <?php } ?>
 				</div>
 			</div>
 			<label for="confirm_redirect" class="cell grid-x margin-bottom-1">
 				<span class="cell xlarge-3 medium-5 acym_vcenter"><?php echo acym_translation('ACYM_CONFIRMATION_REDIRECTION'); ?></span>
-				<input id="confirm_redirect" class="cell xlarge-4 medium-auto margin-bottom-0" type="text" name="config[confirm_redirect]" value="<?php echo acym_escape($this->config->get('confirm_redirect')); ?>">
+				<input id="confirm_redirect"
+					   class="cell xlarge-4 medium-auto margin-bottom-0"
+					   type="text"
+					   name="config[confirm_redirect]"
+					   value="<?php echo acym_escape($this->config->get('confirm_redirect')); ?>">
 				<span class="cell large-auto hide-for-large-only hide-for-medium-only"></span>
 			</label>
 		</div>
-		<div class="cell medium-3"><?php echo acym_translation('ACYM_ALLOW_MODIFICATION'); ?></div>
+		<div class="cell medium-3">
+            <?php
+            echo acym_translation('ACYM_ALLOW_MODIFICATION_UNAUTH');
+            echo '&nbsp;'.acym_info('ACYM_ALLOW_MODIFICATION_DESC');
+            ?>
+		</div>
 		<div class="cell medium-9">
             <?php
             $allowModif = [
@@ -50,8 +79,8 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 
 <div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
-	<div class="acym_area_title"><?php echo acym_translation('ACYM_NOTIFICATIONS'); ?></div>
-	<div class="grid-x grid-margin-x">
+	<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_NOTIFICATIONS'); ?></div>
+	<div class="grid-x grid-margin-x margin-y">
         <?php
         foreach ($data['notifications'] as $identifier => $notification) {
             ?>
@@ -81,10 +110,13 @@ defined('_JEXEC') or die('Restricted access');
                 );
                 ?>
 			</div>
-			<div class="cell large-2 medium-4 shrink">
-				<a class="button" href="<?php echo acym_completeLink('mails&task=edit&notification='.$identifier.'&type_editor=acyEditor'); ?>">
-                    <?php echo acym_translation('ACYM_EDIT_EMAIL'); ?>
-				</a>
+			<div class="cell large-2 medium-4 shrink grid-x">
+                <?php if (acym_isAllowed('mails')) { ?>
+					<a class="cell shrink button button-secondary acym__configuration__edit-email"
+					   href="<?php echo acym_completeLink('mails&task=edit&notification='.$identifier.'&type_editor=acyEditor'); ?>">
+                        <?php echo acym_translation('ACYM_EDIT_EMAIL'); ?>
+					</a>
+                <?php } ?>
 			</div>
 			<div class="cell xxlarge-2 xlarge-1 hide-for-large-only medium-8 hide-for-small-only"></div>
             <?php
@@ -94,30 +126,30 @@ defined('_JEXEC') or die('Restricted access');
 </div>
 
 <div class="acym__configuration__subscription acym__content acym_area padding-vertical-1 padding-horizontal-2">
-	<div class="acym_area_title"><?php echo acym_translation_sprintf('ACYM_XX_INTEGRATION', ACYM_CMS_TITLE); ?></div>
+	<div class="acym__title acym__title__secondary"><?php echo acym_translationSprintf('ACYM_XX_INTEGRATION', ACYM_CMS_TITLE); ?></div>
 
     <?php
     if (!acym_isPluginActive('acymtriggers')) {
-        acym_display(acym_translation_sprintf('ACYM_NEEDS_SYSTEM_PLUGIN', 'AcyMailing - Joomla integration'), 'error', false);
+        acym_display(acym_translationSprintf('ACYM_NEEDS_SYSTEM_PLUGIN', 'AcyMailing - Joomla integration'), 'error', false);
     }
     ?>
 
-	<div class="grid-x">
+	<div class="grid-x margin-y">
 		<div class="cell grid-x grid-margin-x">
             <?php
             echo acym_switch(
                 'config[regacy]',
                 $this->config->get('regacy'),
-                acym_translation('ACYM_CREATE_ACY_USER_FOR_CMS_USER'),
+                acym_translation('ACYM_CREATE_SUBSCRIBER_FOR_CMS_USER'),
                 [],
                 'xlarge-3 medium-5 small-9',
                 'auto',
-                'tiny',
+                '',
                 'acym__config__regacy'
             );
             ?>
 		</div>
-		<div class="cell grid-x" id="acym__config__regacy">
+		<div class="cell grid-x margin-y" id="acym__config__regacy">
 			<div class="cell grid-x grid-margin-x">
                 <?php
                 echo acym_switch(
@@ -127,7 +159,7 @@ defined('_JEXEC') or die('Restricted access');
                     [],
                     'xlarge-3 medium-5 small-9',
                     'auto',
-                    'tiny',
+                    '',
                     'regforceconf_config'
                 );
                 ?>
@@ -137,11 +169,11 @@ defined('_JEXEC') or die('Restricted access');
                 echo acym_switch(
                     'config[regacy_delete]',
                     $this->config->get('regacy_delete'),
-                    acym_translation('ACYM_DELETE_USER_OF_CMS_USER'),
+                    acym_translation('ACYM_DELETE_SUBSCRIBER_OF_CMS_USER'),
                     [],
                     'xlarge-3 medium-5 small-9',
                     'auto',
-                    'tiny',
+                    '',
                     'regdelete_config'
                 );
                 ?>
@@ -160,7 +192,7 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell xlarge-5 hide-for-medium-only hide-for-small-only"></div>
 			<div class="cell xlarge-3 medium-5">
 				<label for="acym__config__regacy-lists">
-                    <?php echo acym_translation('ACYM_DISPLAYED_LISTS').acym_info(acym_translation('ACYM_DISPLAYED_LISTS_DESC')); ?>
+                    <?php echo acym_translation('ACYM_DISPLAYED_LISTS').acym_info('ACYM_DISPLAYED_LISTS_DESC'); ?>
 				</label>
 			</div>
 			<div class="cell xlarge-4 medium-7">
@@ -168,7 +200,7 @@ defined('_JEXEC') or die('Restricted access');
                 echo acym_selectMultiple(
                     $data['lists'],
                     'config[regacy_lists]',
-                    explode(',', $this->config->get('regacy_lists')),
+                    explode(',', $this->config->get('regacy_lists', '')),
                     ['class' => 'acym__select', 'id' => 'acym__config__regacy-lists'],
                     'id',
                     'name'
@@ -179,7 +211,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="cell xlarge-3 medium-5">
 				<label for="acym__config__regacy-checkedlists">
-                    <?php echo acym_translation('ACYM_LISTS_CHECKED_DEFAULT').acym_info(acym_translation('ACYM_LISTS_CHECKED_DEFAULT_DESC')); ?>
+                    <?php echo acym_translation('ACYM_LISTS_CHECKED_DEFAULT').acym_info('ACYM_LISTS_CHECKED_DEFAULT_DESC'); ?>
 				</label>
 			</div>
 			<div class="cell xlarge-4 medium-7">
@@ -187,7 +219,7 @@ defined('_JEXEC') or die('Restricted access');
                 echo acym_selectMultiple(
                     $data['lists'],
                     'config[regacy_checkedlists]',
-                    explode(',', $this->config->get('regacy_checkedlists')),
+                    explode(',', $this->config->get('regacy_checkedlists', '')),
                     ['class' => 'acym__select', 'id' => 'acym__config__regacy-checkedlists'],
                     'id',
                     'name'
@@ -198,7 +230,7 @@ defined('_JEXEC') or die('Restricted access');
 
 			<div class="cell xlarge-3 medium-5">
 				<label for="acym__config__regacy-autolists">
-                    <?php echo acym_translation('ACYM_AUTO_SUBSCRIBE_TO').acym_info(acym_translation('ACYM_AUTO_SUBSCRIBE_TO_DESC')); ?>
+                    <?php echo acym_translation('ACYM_AUTO_SUBSCRIBE_TO').acym_info('ACYM_AUTO_SUBSCRIBE_TO_DESC'); ?>
 				</label>
 			</div>
 			<div class="cell xlarge-4 medium-7">
@@ -206,7 +238,7 @@ defined('_JEXEC') or die('Restricted access');
                 echo acym_selectMultiple(
                     $data['lists'],
                     'config[regacy_autolists]',
-                    explode(',', $this->config->get('regacy_autolists')),
+                    explode(',', $this->config->get('regacy_autolists', '')),
                     ['class' => 'acym__select', 'id' => 'acym__config__regacy-autolists'],
                     'id',
                     'name'
@@ -258,4 +290,3 @@ defined('_JEXEC') or die('Restricted access');
 <!-- Integrations -->
 <?php
 acym_trigger('onRegacyOptionsDisplay', [$data['lists']]);
-

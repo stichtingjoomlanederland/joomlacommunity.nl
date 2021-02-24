@@ -3,7 +3,7 @@
  * Akeeba Engine
  *
  * @package   akeebaengine
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -155,7 +155,7 @@ abstract class Base
 	{
 		if (empty($args))
 		{
-			return;
+			return null;
 		}
 
 		switch ($method)
@@ -172,6 +172,8 @@ abstract class Base
 				return $this->escape($args[0], $args[1] ?? false);
 				break;
 		}
+
+		return null;
 	}
 
 	/**

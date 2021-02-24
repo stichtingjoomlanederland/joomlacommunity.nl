@@ -1,11 +1,9 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><form id="acym_form" enctype="multipart/form-data" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
+<form id="acym_form" enctype="multipart/form-data" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm">
 	<div id="acym__file__select">
 		<div class="acym__file__select grid-x">
 			<div class="acym__file__select__arbo acym__file__select__area cell grid-x">
                 <?php
-                $fileTreeType = acym_get('type.fileTree');
+                $fileTreeType = $data['fileTreeType'];
                 echo $fileTreeType->display($data['folders'], $data['uploadFolder'], 'currentFolder');
                 ?>
 			</div>
@@ -53,10 +51,12 @@ defined('_JEXEC') or die('Restricted access');
 				<input type="hidden" name="currentFolder" value="<?php echo acym_escape($data['uploadFolder']); ?>" />
 				<input type="hidden" name="id" value="<?php echo acym_escape($data['map']); ?>" />
 				<div class="cell medium-auto hide-for-small-only"></div>
-				<button type="button" class="cell medium-shrink button button-secondary acy_button_submit" id="acym__file__select__area__import" type="submit" data-task="select"> <?php echo acym_translation('ACYM_IMPORT'); ?> </button>
+				<button type="button"
+						class="cell medium-shrink button button-secondary acy_button_submit"
+						type="submit"
+						data-task="select"> <?php echo acym_translation('ACYM_IMPORT'); ?> </button>
 			</div>
 		</div>
 	</div>
     <?php acym_formOptions(); ?>
 </form>
-

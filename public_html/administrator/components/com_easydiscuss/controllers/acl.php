@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -26,7 +26,7 @@ class EasyDiscussControllerAcl extends EasyDiscussController
 
 	public function cancel()
 	{
-		$this->app->redirect('index.php?option=com_easydiscuss&view=acls');
+		ED::redirect('index.php?option=com_easydiscuss&view=acls');
 	}
 
 	/**
@@ -34,7 +34,6 @@ class EasyDiscussControllerAcl extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	private
-	 * @return
 	 */
 	public function save()
 	{
@@ -48,9 +47,9 @@ class EasyDiscussControllerAcl extends EasyDiscussController
 		if (!$cid) {
 			$message = JText::_('COM_EASYDISCUSS_ACL_INVALID_ID_TYPE');
 
-			ED::setMessage($message, 'error');
+			ED::setMessage($message, ED_MSG_ERROR);
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		if ($this->getTask() == 'apply') {
@@ -62,9 +61,9 @@ class EasyDiscussControllerAcl extends EasyDiscussController
 
 		if (!$state) {
 			$message = JText::_('COM_EASYDISCUSS_ACL_ERROR_UPDATE');
-			ED::setMessage($message, 'error');
+			ED::setMessage($message, ED_MSG_ERROR);
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		$post = $this->input->getArray('post');
@@ -89,17 +88,25 @@ class EasyDiscussControllerAcl extends EasyDiscussController
 		// Try to insert the new items
 		$state = $model->insertRuleset($cid, 'group', $data);
 
+		// Retrieve the Joomla user group title during edit
+		$groupTitle = $model->getUsergroupTitle($cid);
+
+		$actionlog = ED::actionlog();
+		$actionlog->log('COM_ED_ACTIONLOGS_ACL_UPDATE', 'acls', array(
+			'link' => $redirect,
+			'group' => JText::_($groupTitle)
+		));
+
 		if (!$state) {
 			$message = JText::_('COM_EASYDISCUSS_ACL_ERROR_SAVING');
 
-			ED::setMessage($message, 'error');
-
-			return $this->app->redirect($redirect);
+			ED::setMessage($message, ED_MSG_ERROR);
+			return ED::redirect($redirect);
 		}
 
 		$message = JText::_('COM_EASYDISCUSS_ACL_SUCCESSFULLY_SAVED');
 		ED::setMessage($message, 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 }

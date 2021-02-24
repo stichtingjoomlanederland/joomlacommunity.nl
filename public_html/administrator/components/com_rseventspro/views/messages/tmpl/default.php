@@ -10,15 +10,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 JHtml::_('behavior.keepalive'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=messages'); ?>" method="post" name="adminForm" id="adminForm" class="form-validate form-horizontal" autocomplete="off">
-	<div class="row-fluid">
-		<div id="j-sidebar-container" class="span2">
-			<?php echo JHtmlSidebar::render(); ?>
-		</div>
-		<div id="j-main-container" class="span10 j-main-container">
+	<?php echo RSEventsproAdapterGrid::sidebar(); ?>
+		<fieldset class="options-form">
 			<table class="table table-striped">
-				<thead>
-					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_TYPE'); ?></th>
-				</thead>
 				<tbody>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CONF_EMAIL_REGISTRATION_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=registration'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_REGISTRATION_EMAIL'); ?></a></td>
@@ -67,11 +61,11 @@ JHtml::_('behavior.keepalive'); ?>
 					</tr>
 				</tbody>
 			</table>
-			
+		</fieldset>
+		
+		<fieldset class="options-form">
+			<legend><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_RSVP'); ?></legend>
 			<table class="table table-striped">
-				<thead>
-					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_RSVP'); ?></th>
-				</thead>
 				<tbody>
 					<tr>
 						<td><a href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=rsvpgoing'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_RSVPGOING'); ?></a></td>
@@ -84,11 +78,11 @@ JHtml::_('behavior.keepalive'); ?>
 					</tr>
 				</tbody>
 			</table>
-			
+		</fieldset>
+		
+		<fieldset class="options-form">
+			<legend><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_WAITINGLIST'); ?></legend>
 			<table class="table table-striped">
-				<thead>
-					<th><?php echo JText::_('COM_RSEVENTSPRO_CONF_EMAIL_WAITINGLIST'); ?></th>
-				</thead>
 				<tbody>
 					<tr>
 						<td><a class="<?php echo rseventsproHelper::tooltipClass(); ?>" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST_USER_INFO')); ?>" href="<?php echo JRoute::_('index.php?option=com_rseventspro&view=message&type=waitinglistuser'); ?>"><?php echo JText::_('COM_RSEVENTSPRO_MESSAGE_WAITINGLIST_USER'); ?></a></td>
@@ -101,9 +95,9 @@ JHtml::_('behavior.keepalive'); ?>
 					</tr>
 				</tbody>
 			</table>
-			
-			<?php JFactory::getApplication()->triggerEvent('rsepro_extraEmails', array(array('view' => $this))); ?>
-		</div>
+		</fieldset>
+		
+		<?php JFactory::getApplication()->triggerEvent('onrsepro_extraEmails', array(array('view' => $this))); ?>
 	</div>
 	
 	<input type="hidden" name="task" value="" />

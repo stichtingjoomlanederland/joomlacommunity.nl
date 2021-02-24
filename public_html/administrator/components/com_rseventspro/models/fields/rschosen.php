@@ -26,11 +26,12 @@ class JFormFieldRSChosen extends JFormFieldHidden
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/html.php';
 		}
 		
-		// Load jQuery
-		rseventsproHelper::loadjQuery();
-		
-		// Load Chosen library
-		JHtml::_('rseventspro.chosen','.rschosen');
+		if (!rseventsproHelper::isJ4()) {
+			// Load jQuery
+			rseventsproHelper::loadjQuery();
+			// Load Chosen library
+			JHtml::_('rseventspro.chosen','.rschosen');
+		}
 	}
 	
 	/**

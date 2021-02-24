@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -29,7 +29,7 @@ class Pkg_AkeebaInstallerScript
 	 *
 	 * @var   string
 	 */
-	protected $minimumPHPVersion = '7.1.0';
+	protected $minimumPHPVersion = '7.2.0';
 
 	/**
 	 * The minimum Joomla! version required to install this extension
@@ -76,6 +76,7 @@ class Pkg_AkeebaInstallerScript
 	protected $uninstallPlugins = [
 		['jsonapi', 'akeebabackup'],
 		['legacyapi', 'akeebabackup'],
+		['system', 'akeebaupdatecheck'],
 	];
 
 	/**
@@ -173,10 +174,24 @@ class Pkg_AkeebaInstallerScript
 			}
 		}
 
+		// Joomla 3: Always uninstall plg_console_akeebabackup (it's J4 only)
+		if (version_compare(JVERSION, '3.999.999', 'le'))
+		{
+			$this->uninstallPlugin('console', 'akeebabackup');
+		}
+
 		// Always enable these extensions
 		if (isset($this->extensionsToAlwaysEnable) && !empty($this->extensionsToAlwaysEnable))
 		{
 			$this->enableExtensions($this->extensionsToAlwaysEnable);
+		}
+
+		// Joomla 4: Always enable the plg_console_akeebabackup plugin
+		if (version_compare(JVERSION, '3.999.999', 'gt'))
+		{
+			$this->enableExtensions([
+				['plugin', 'akeebabackup', 1, 'console'],
+			]);
 		}
 
 		/**

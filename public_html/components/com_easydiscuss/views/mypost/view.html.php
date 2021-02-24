@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewMypost extends EasyDiscussView
 {
@@ -31,7 +29,7 @@ class EasyDiscussViewMypost extends EasyDiscussView
 
 		// If profile is invalid, throw an error.
 		if (!$profile->id || !$this->my->id) {
-			return JError::raiseError(404, JText::_('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND'));
+			throw ED::exception('COM_EASYDISCUSS_USER_ACCOUNT_NOT_FOUND', ED_MSG_ERROR);
 		}
 
 		$postsModel = ED::model('Posts');
@@ -41,42 +39,12 @@ class EasyDiscussViewMypost extends EasyDiscussView
 
 		// format resultset.
 		$posts = ED::formatPost($posts);
-		// now we need to attach the post status and types into the resultset.
-		$posts = ED::getPostStatusAndTypes($posts);
 
 		$pagination	= $postsModel->getPagination();
-		$pagination	= $pagination->getPagesLinks('mypost');
-
-		// Get user badges
-		$badges = $profile->getBadges();
-
-		$userModel = ED::model('Users');
-
-		// Get posts graph
-		$postsHistory = $userModel->getPostsGraph($profile->id);
-
-		// Format the ticks for the posts
-		$postsTicks = array();
-
-		foreach ($postsHistory->dates as $dateString) {
-
-			// Normalize the date string first
-			$dateString = str_ireplace('/', '-', $dateString);
-			$date = ED::date($dateString);
-
-			$postsTicks[] = $date->display(JText::_('COM_EASYDISCUSS_DATE_DM'));
-		}
-
-		$postsCreated = json_encode($postsHistory->count);
-		$postsTicks = json_encode($postsTicks);
 
 		$this->set('posts', $posts);
-		$this->set('profile', $profile);
 		$this->set('pagination', $pagination);
-		$this->set('badges', $badges);
-		$this->set('postsCreated', $postsCreated);
-		$this->set('postsTicks', $postsTicks);
 
-		parent::display('mypost/default');
+		parent::display('mypost/listing/default');
 	}
 }

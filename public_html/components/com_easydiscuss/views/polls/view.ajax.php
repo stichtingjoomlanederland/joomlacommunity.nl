@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewPolls extends EasyDiscussView
 {
 	/**
@@ -20,8 +18,6 @@ class EasyDiscussViewPolls extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function vote()
 	{
@@ -36,7 +32,7 @@ class EasyDiscussViewPolls extends EasyDiscussView
 
 		// Ensure that the poll choice is valid
 		if (!$id || !$choice->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 		// Get the poll
@@ -44,7 +40,7 @@ class EasyDiscussViewPolls extends EasyDiscussView
 
 		// Ensure that the user can really vote
 		if (!$poll->canVote()) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 		// Vote for the choice now.
@@ -70,8 +66,6 @@ class EasyDiscussViewPolls extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getVoters()
 	{
@@ -80,7 +74,7 @@ class EasyDiscussViewPolls extends EasyDiscussView
 		$choice = ED::pollchoice($id);
 
 		if (!$id || !$choice->id) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 		$voters = $choice->getVoters();
@@ -97,15 +91,13 @@ class EasyDiscussViewPolls extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function lock()
 	{
 		$postId = $this->input->get('id', 0, 'int');
 
 		if (!$postId) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 
@@ -113,7 +105,7 @@ class EasyDiscussViewPolls extends EasyDiscussView
 
 		// Ensure that the user is really allowed to lock the polls
 		if (!$post->canLockPolls()) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 		// Lock the polls
@@ -127,22 +119,20 @@ class EasyDiscussViewPolls extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function unlock()
 	{
 		$postId = $this->input->get('id', 0, 'int');
 
 		if (!$postId) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 		$post = ED::post($postId);
 
 		// Ensure that the user is really allowed to lock the polls
 		if (!$post->canLockPolls()) {
-			return JError::raiseError(500, JText::_('COM_EASYDISCUSS_NOT_ALLOWED'));
+			throw ED::exception('COM_EASYDISCUSS_NOT_ALLOWED', ED_MSG_ERROR);
 		}
 
 		// Lock the polls

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,19 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(__DIR__ . '/controller.php');
-
 class EasydiscussControllerComments extends EasyDiscussController
 {
-	public function __construct()
-	{
-		parent::__construct();
-	}
-
 	/**
 	 * Converts a comment into a discussion reply
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function convert()
@@ -31,15 +24,17 @@ class EasydiscussControllerComments extends EasyDiscussController
 		ED::checkToken();
 
 		// Get the comment and post id from the request.
-		$id = $this->input->get('id', 0, 'int');
+		$commentId = $this->input->get('commentId', 0, 'int');
 		$postId = $this->input->get('postId', 0, 'int');
 
-		// Load the comment table
-		$comment = ED::table('Comment');
-		$comment->load($id);
+		$comment = ED::comment($commentId);
+
+		if (!$comment->canConvert()) {
+			die();
+		}
 
 		// Throws error if the comment id is not provided.
-		if (!$id || !$comment->id) {
+		if (!$commentId || !$comment->id) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_INVALID_COMMENT_ID_PROVIDED'), 'error');
 			return;
 		}
@@ -53,12 +48,17 @@ class EasydiscussControllerComments extends EasyDiscussController
 			return;
 		}
 
+		// Get redirection link so that we can redirect the user back
+		$permalink = $post->getPermalink(false, false);
+
 		// If this post is not a question, we'll need to get the parent id.
 		if (!$post->isQuestion()) {
 			$parent = $post->getParent();
 
 			// Re-assign $post to be the parent.
 			$post = ED::post($parent->id);
+
+			$permalink = $post->getPermalink(false, false);
 		}
 
 		$content = $comment->comment;
@@ -73,6 +73,8 @@ class EasydiscussControllerComments extends EasyDiscussController
 		$data['content'] = $content;
 		$data['parent_id'] = $post->id;
 		$data['user_id'] = $comment->user_id;
+		$data['latitude'] = '';
+		$data['longitude'] = '';
 
 		// Load the post library
 		$post = ED::post();
@@ -83,14 +85,16 @@ class EasydiscussControllerComments extends EasyDiscussController
 
 		// Throws error if the store process hits error
 		if (!$state) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_ERROR_SAVING_REPLY'), 'error');
-			return;
+			ED::setMessage('COM_EASYDISCUSS_COMMENTS_ERROR_SAVING_REPLY', 'error');
+
+			return ED::redirect($permalink);
 		}
 
 		// Once the reply is successfully stored, delete the particular comment.
 		$comment->delete();
 
-		ED::setMessage(JText::_('COM_EASYDISCUSS_COMMENTS_SUCCESS_CONVERTED_COMMENT_TO_REPLY'), 'success');
-		return;
+		ED::setMessage('COM_EASYDISCUSS_COMMENTS_SUCCESS_CONVERTED_COMMENT_TO_REPLY', 'success');
+
+		return ED::redirect($permalink);
 	}
 }

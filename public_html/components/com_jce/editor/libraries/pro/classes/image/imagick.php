@@ -581,6 +581,10 @@ class WFImageImagick
                 $this->handle->setImageCompressionQuality($quality);
                 break;
 
+            case IMAGETYPE_WEBP:
+                $this->handle->setImageCompressionQuality((array_key_exists('quality', $options)) ? $options['quality'] : 100);
+                break;
+
             case IMAGETYPE_JPEG:
             default:
                 $this->handle->setImageCompression(Imagick::COMPRESSION_JPEG);

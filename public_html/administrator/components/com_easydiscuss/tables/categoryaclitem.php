@@ -38,7 +38,7 @@ class DiscussCategoryAclItem extends EasyDiscussTable
 
 	public function getAllRuleItems()
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query = 'select * from `#__discuss_category_acl_item` order by id';
 		$db->setQuery($query);

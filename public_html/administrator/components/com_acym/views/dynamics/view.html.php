@@ -1,7 +1,9 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class dynamicsViewDynamics extends acymView
+namespace AcyMailing\Views;
+
+use AcyMailing\Libraries\acymView;
+
+class DynamicsViewDynamics extends acymView
 {
 }

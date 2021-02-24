@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -15,22 +15,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="row">
 		<div class="col-md-6">
 			<div class="panel">
-				<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_BADGES_UPLOAD_CSV_FILES'); ?>
+				<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_BADGES_UPLOAD_CSV_FILES', '', '/docs/easydiscuss/administrators/configuration/mass-assign-badges'); ?>
 				
 				<div class="panel-body">
 					<div class="row">
-						<div class="pull-right mr-20">
-							<a href="https://stackideas.com/docs/easydiscuss/administrators/configuration/mass-assign-badges" target="_blank" class="btn btn-default">
-								<?php echo JText::_('View Documentation'); ?>
-							</a>
-						</div>
-
-						<div class="pull-left ml-20">
+						<div class="col-md-12">
 							<code>"USER_ID"</code> , <code>"BADGE_ID"</code> , <code>"ACHIEVED_DATE"</code>
 						</div>
 					</div>
 
-					<div class="mb-20 mt-20">
+					<div class="t-lg-mt--lg">
 						<ul class="list-unstyled">
 							<li>
 								<code>USER_ID</code> - <?php echo JText::_('COM_EASYDISCUSS_BADGES_USER_ID_DESC'); ?>
@@ -44,11 +38,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</ul>
 					</div>
 
-					<div>
-						<input type="file" name="package" id="package" data-uniform />
-						<button class="btn btn-sm btn-primary installUpload"><?php echo JText::_('COM_EASYDISCUSS_BADGES_UPLOAD_CSV_FILE')?> &raquo;</button>
+					<div class="row t-mt--md">
+						<div class="col-md-8">
+							<div class="o-input-group">
+								<input type="file" class="o-form-control" name="package" id="package" data-uniform />
+								<button class="o-btn o-btn--primary installUpload"><?php echo JText::_('COM_EASYDISCUSS_BADGES_UPLOAD_CSV_FILE')?> &raquo;</button>
+							</div>
+						</div>
 					</div>
-
 				</div>
 			</div>
 		</div>

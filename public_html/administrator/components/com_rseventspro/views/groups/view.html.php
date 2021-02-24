@@ -23,7 +23,5 @@ class RseventsproViewGroups extends JViewLegacy
 		JToolBarHelper::addNew('group.add');
 		JToolBarHelper::editList('group.edit');
 		JToolBarHelper::deleteList('','groups.delete');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -15,34 +15,22 @@ jimport('joomla.utilities.date');
 
 class EasyDiscussDateObj extends EasyDiscuss
 {
-	private $date 		= null;
-
-
-
+	private $date = null;
 
 	/**
 	 * Legacy
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function toFormat($format = 'l, d F Y')
 	{
 		return $this->format($format);
 	}
 
-	public function setOffset( $offset ) {
-		if( DiscussHelper::getJoomlaVersion() >= '3.0' )
-		{
-			$tz = new DateTimeZone($offset);
-			return $this->date->setTimezone($tz);
-		}
-
-		return $this->date->setOffset( $offset );
+	public function setOffset( $offset )
+	{
+		$tz = new DateTimeZone($offset);
+		return $this->date->setTimezone($tz);
 	}
-
-
-
 }

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.filesystem.file');
 
-class EasyDiscussThemes extends EasyDiscuss
+require_once(__DIR__ . '/helpers/abstract.php');
+
+class EasyDiscussThemes
 {
 	public $vars = array();
 	public $params = null;
@@ -22,26 +24,16 @@ class EasyDiscussThemes extends EasyDiscuss
 
 	public function __construct($overrideTheme = null, $options = array())
 	{
-		parent::__construct();
-
+		$this->config = ED::config();
+		$this->jconfig = ED::jConfig();
+		$this->my = JFactory::getUser();
+		
 		// Determine if this is an admin location
 		if (isset($options['admin']) && $options['admin']) {
 			$this->admin = true;
 		}
 
-		// Determine the configured theme
-		$theme = $this->config->get('layout_site_theme', $overrideTheme);
-
-		// @TODO: Remove this
-		// $theme = 'wireframe';
-
-		$this->defaultTheme = 'wireframe';
-
-		if ($theme == 'simplistic') {
-			$theme = $this->defaultTheme;
-		}
-
-		$this->theme = $theme;
+		$this->theme = 'wireframe';
 
 		// If a view is provided into the theme, the theme files could call methods from a view
 		if (isset($options['view']) && is_object($options['view'])) {
@@ -49,11 +41,19 @@ class EasyDiscussThemes extends EasyDiscuss
 		}
 
 		$obj = new stdClass();
-		$this->config = ED::config();
-		$this->my = JFactory::getUser();
-		$this->acl = ED::acl();
-		$this->profile = ED::user($this->my->id);
-		$this->jconfig = ED::jConfig();
+	}
+
+	public function __get($key)
+	{
+		if ($key == 'acl') {
+			return ED::acl();
+		}
+
+		if ($key == 'profile') {
+			return ED::profile();
+		}
+
+		return $this->$key;
 	}
 
 	/**
@@ -72,8 +72,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPath()
 	{
@@ -88,8 +86,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	5.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function renderModule($position, $attributes = array(), $content = null)
 	{
@@ -141,9 +137,9 @@ class EasyDiscussThemes extends EasyDiscuss
 		return ED::string()->getNoun($text, $count, $includeCount);
 	}
 
-	public function getParam( $key , $default = null )
+	public function getParam($key, $default = null)
 	{
-		return $this->params->get( $key , $default );
+		return $this->params->get($key, $default);
 	}
 
 	/**
@@ -237,24 +233,16 @@ class EasyDiscussThemes extends EasyDiscuss
 			extract($vars);
 		}
 
-
 		$templateFile = $path . $extension;
 		$templateContent = '';
 
 		ob_start();
-			include($templateFile);
-			$templateContent = ob_get_contents();
+		include($templateFile);
+		$templateContent = ob_get_contents();
 		ob_end_clean();
 
 		// Embed script for template
-		$scriptFile = $path . '.js'; // the path might now pointing to override folder. we will need to check if this js file exist or not. if not, let get the non-override path.
-
-		if (! JFile::exists($scriptFile)) {
-			// we will need to point the folder to non-overridden path
-			$tmppath = $this->resolve($namespace, false);
-			$scriptFile = $tmppath . '.js';
-		}
-
+		$scriptFile = $path . '.js';
 
 		// Generate a uid for the script file
 		$uid = md5($scriptFile);
@@ -264,7 +252,7 @@ class EasyDiscussThemes extends EasyDiscuss
 
 		if (!$exists) {
 
-			$scriptFileExists = JFile::exists($scriptFile);
+			$scriptFileExists = file_exists($scriptFile);
 
 			if ($scriptFileExists) {
 
@@ -282,7 +270,9 @@ class EasyDiscussThemes extends EasyDiscuss
 				ob_end_clean();
 
 				// Add to collection of scripts
-				if ($this->doc->getType() == 'html') {
+				$doc = JFactory::getDocument();
+				
+				if ($doc->getType() == 'html') {
 					ED::scripts()->add($uid, $scriptContent);
 				} else {
 
@@ -302,7 +292,6 @@ class EasyDiscussThemes extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @return	string	The absolute URI to the images path
 	 */
 	public function getPathUri($location)
 	{
@@ -322,25 +311,33 @@ class EasyDiscussThemes extends EasyDiscuss
 	 */
 	public function html($namespace)
 	{
+		static $classes = array();
+
 		$helper = explode('.', $namespace);
 		$helperName	= $helper[0];
 		$methodName	= $helper[1];
 
-		$file = dirname(__FILE__) . '/helpers/' . strtolower($helperName) . '.php';
-
 		// Remove the first 2 arguments from the args.
 		$args = func_get_args();
-		$args = array_splice( $args , 1 );
+		$args = array_splice($args, 1);
 
-		include_once($file);
+		if (!isset($classes[$helperName])) {
+			$file = __DIR__ . '/helpers/' . strtolower($helperName) . '.php';
 
-		$class = 'EasyDiscussThemesHelper' . ucfirst($helperName);
+			include_once($file);
 
-		if (!method_exists($class, $methodName)) {
+			$class = 'EasyDiscussThemesHelper' . ucfirst($helperName);
+
+			$classes[$helperName] = new $class();
+		}
+
+		$object = $classes[$helperName];
+
+		if (!method_exists($object, $methodName)) {
 			return false;
 		}
 
-		return call_user_func_array(array($class, $methodName), $args);
+		return call_user_func_array(array($object, $methodName), $args);
 	}
 
 	public function __call($method, $args)
@@ -362,10 +359,11 @@ class EasyDiscussThemes extends EasyDiscuss
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function resolve($namespace='', $checkOverridden = true)
+	public function resolve($namespace = '', $checkOverridden = true)
 	{
 		$parts = explode('/', $namespace);
-		$location = $parts[0];
+		$explodedParts = $parts;
+		$location = $explodedParts[0];
 		$path = '';
 		$extension = '.php';
 
@@ -389,7 +387,7 @@ class EasyDiscussThemes extends EasyDiscuss
 		if ($checkOverridden) {
 			// Overriden Theme
 			$path = JPATH_ROOT . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $namespace;
-			$exists = JFile::exists($path . $extension);
+			$exists = file_exists($path . $extension);
 
 			if ($exists) {
 				return $path;
@@ -398,16 +396,16 @@ class EasyDiscussThemes extends EasyDiscuss
 
 		// Current Theme
 		$path = DISCUSS_THEMES . '/' . $this->theme . '/' . $namespace;
-		$exists = JFile::exists($path . $extension);
+		$exists = file_exists($path . $extension);
 
 		if (!$exists) {
 
 			// lets fall back to wireframe theme
-			$path = DISCUSS_THEMES . '/' . $this->defaultTheme . '/' . $namespace;
-			$exists = JFile::exists($path . $extension);
+			$path = DISCUSS_THEMES . '/wireframe/' . $namespace;
+			$exists = file_exists($path . $extension);
 
-			if (! $exists) {
-				return JError::raiseError(500, JText::sprintf('The file you requested for does not exists, %1$s', $path . $extension));
+			if (!$exists) {
+				throw ED::exception(JText::sprintf('The file you requested for does not exists, %1$s', $path . $extension), ED_MSG_ERROR);
 			}
 
 		}
@@ -445,16 +443,21 @@ class EasyDiscussThemes extends EasyDiscuss
 	 */
 	public function renderAvatarClass($user)
 	{
-		$config = ED::config();
+		static $cache = [];
 
-		$hasEnableAvatarImage = $config->get('layout_avatar');
+		if (!isset($cache[$user->id])) {
+			$config = ED::config();
+			$useTextAvatar = $config->get('layout_text_avatar');
 
-		$avatarClass = '';
+			$avatarClass = '';
 
-		if (!$hasEnableAvatarImage) {
-			$avatarClass = 'o-avatar--text ' . 'o-avatar--bg-' .  $user->getNameInitial()->code;
+			if ($useTextAvatar) {
+				$avatarClass = 'o-avatar--text ' . 'o-avatar--bg-' .  $user->getNameInitial()->code;
+			}
+
+			$cache[$user->id] = $avatarClass;
 		}
 
-		return $avatarClass;
+		return $cache[$user->id];
 	}	
 }

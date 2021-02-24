@@ -47,6 +47,13 @@ class PlgButtonPwtimage extends CMSPlugin
 		{
 			if (path)
 			{	
+				var array = path.split(', ');
+				
+				if (array.length > 1)
+				{
+					path = array[0];
+				}
+					
 				var tag = '{image';
 				
 				tag += ' path=\"' + path + '\"';

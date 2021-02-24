@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.7PRO
+ * @version         6.3.8PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -15,7 +15,7 @@ require_once __DIR__ . '/script.install.helper.php';
 
 class PlgActionlogDBReplacerInstallerScript extends PlgActionlogDBReplacerInstallerScriptHelper
 {
-	public $name           = 'DB_REPLACER';
+	public $name           = 'DBREPLACER';
 	public $alias          = 'dbreplacer';
 	public $extension_type = 'plugin';
 	public $plugin_folder  = 'actionlog';

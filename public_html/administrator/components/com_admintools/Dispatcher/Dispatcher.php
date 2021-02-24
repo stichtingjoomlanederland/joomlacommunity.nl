@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 namespace Akeeba\AdminTools\Admin\Dispatcher;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
 use Akeeba\AdminTools\Admin\Model\MasterPassword;
@@ -144,7 +144,7 @@ class Dispatcher extends \FOF30\Dispatcher\Dispatcher
 		if ($this->container->platform->getDocument()->getType() == 'html')
 		{
 			HTMLHelper::_('jquery.framework');
-			$this->container->template->addJS('admin://components/com_admintools/media/js/namespace.min.js', false, false, ADMINTOOLS_VERSION);
+			$this->container->template->addJS('admin://components/com_admintools/media/js/namespace.min.js', false, false, $this->container->mediaVersion);
 		}
 	}
 }

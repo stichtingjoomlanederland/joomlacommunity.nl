@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,49 +12,60 @@ use Akeeba\AdminTools\Admin\Helper\Select;
 use FOF30\Utils\FEFHelper\Html as FEFHtml;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Uri\Uri;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $js = FEFHtml::jsOrderingBackend($this->order);
 $this->getContainer()->template->addJSInline($js);
 
 $model = $this->getModel();
+$baseUri = Uri::base();
+
+if (substr($baseUri, -14) == 'administrator/')
+{
+	$baseUri = substr($baseUri, 0, -14);
+}
+
 
 // Let's check if the system plugin is correctly installed AND published
 echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 
 ?>
 
-<form name="enableForm" action="index.php" method="post" class="akeeba-form--inline">
-	<div class="akeeba-form-group">
-		<label for="urlredirection"><?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_PREFERENCE'); ?></label>
-		<?php echo HTMLHelper::_('FEFHelper.select.booleanswitch', 'urlredirection', $this->urlredirection) ?>
-	</div>
-	<button class="akeeba-btn--dark--small"><?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_PREFERENCE_SAVE') ?></button>
-
-	<input type="hidden" name="option" id="option" value="com_admintools" />
-	<input type="hidden" name="view" id="view" value="Redirections" />
-	<input type="hidden" name="task" id="task" value="applypreference" />
-</form>
+<div class="akeeba-panel--info">
+	<form name="enableForm" action="index.php" method="post" class="akeeba-form--inline">
+		<div class="akeeba-form-group">
+			<label for="urlredirection"><?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_PREFERENCE'); ?></label>
+			<?php echo HTMLHelper::_('FEFHelper.select.booleanswitch', 'urlredirection', $this->urlredirection) ?>
+		</div>
+		<div class="akeeba-form-group--actions">
+			<button class="akeeba-btn--primary--small"><?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_PREFERENCE_SAVE') ?></button>
+		</div>
+		<input type="hidden" name="option" id="option" value="com_admintools" />
+		<input type="hidden" name="view" id="view" value="Redirections" />
+		<input type="hidden" name="task" id="task" value="applypreference" />
+	</form>
+</div>
 
 <form action="index.php" method="post" name="adminForm" id="adminForm" class="akeeba-form">
 
 	<section class="akeeba-panel--33-66 akeeba-filter-bar-container">
 		<div class="akeeba-filter-bar akeeba-filter-bar--left akeeba-form-section akeeba-form--inline">
 			<div class="akeeba-filter-element akeeba-form-group">
-				<input type="text" name="source"
-					   placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_SOURCE'); ?>"
-					   id="filter_source" onchange="document.adminForm.submit();"
-					   value="<?php echo $this->escape($this->filters['source']); ?>"
-					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_SOURCE'); ?>" />
-			</div>
-
-			<div class="akeeba-filter-element akeeba-form-group">
 				<input type="text" name="dest"
 					   placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_DEST'); ?>"
 					   id="filter_dest" onchange="document.adminForm.submit();"
 					   value="<?php echo $this->escape($this->filters['dest']); ?>"
 					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_DEST'); ?>" />
+			</div>
+
+			<div class="akeeba-filter-element akeeba-form-group">
+				<input type="text" name="source"
+					   placeholder="<?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_SOURCE'); ?>"
+					   id="filter_source" onchange="document.adminForm.submit();"
+					   value="<?php echo $this->escape($this->filters['source']); ?>"
+					   title="<?php echo Text::_('COM_ADMINTOOLS_LBL_REDIRECTION_SOURCE'); ?>" />
 			</div>
 
 			<div class="akeeba-filter-element akeeba-form-group">
@@ -82,10 +93,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 				<input type="checkbox" name="toggle" value="" onclick="Joomla.checkAll(this);" />
 			</th>
 			<th>
-				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_REDIRECTION_SOURCE', 'source', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_REDIRECTION_DEST', 'dest', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
-				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_REDIRECTION_DEST', 'dest', $this->order_Dir, $this->order, 'browse'); ?>
+				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_LBL_REDIRECTION_SOURCE', 'source', $this->order_Dir, $this->order, 'browse'); ?>
 			</th>
 			<th>
 				<?php echo HTMLHelper::_('grid.sort', 'COM_ADMINTOOLS_REDIRECTIONS_FIELD_KEEPURLPARAMS', 'keepurlparams', $this->order_Dir, $this->order, 'browse'); ?>
@@ -103,7 +114,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 		</tr>
 		</tfoot>
 		<tbody>
-		<?php if (!count($this->items)): ?>
+		<?php if (!(is_array($this->items) || $this->items instanceof \Countable ? count($this->items) : 0)): ?>
 			<tr>
 				<td colspan="6">
 					<?php echo Text::_('COM_ADMINTOOLS_ERR_REDIRECTION_NOITEMS') ?>
@@ -126,14 +137,14 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 					</td>
 					<td><?php echo HTMLHelper::_('grid.id', ++$i, $row->id); ?></td>
 					<td>
-						<a href="<?php echo $row->source ?>" target="_blank">
-							<?php echo htmlentities($row->source) ?>
-							<span class="akion-android-open"></span>
+						<a href="<?php echo $edit ?>">
+							<span class="muted"><?= $baseUri ?></span><strong><?php echo $row->dest ?></strong>
 						</a>
 					</td>
 					<td>
-						<a href="<?php echo $edit ?>">
-							<?php echo $row->dest ?>
+						<a href="<?php echo $row->source ?>" target="_blank">
+							<?php echo htmlentities($row->source) ?>
+							<span class="akion-android-open"></span>
 						</a>
 					</td>
 					<td>

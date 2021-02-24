@@ -1,20 +1,77 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussViewCategories extends EasyDiscussView
 {
+	/**
+	 * Renders a popbox for category
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function popbox()
+	{
+		$id = $this->input->get('id', 0, 'int');
+
+		// guest should not allowed.
+		if (!$id) {
+			return $this->ajax->fail(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
+		}
+
+		$category = ED::category($id);
+
+		$theme = ED::themes();
+		$theme->set('category', $category);
+		$contents = $theme->output('site/popbox/category');
+
+		return $this->ajax->resolve($contents);
+	}
+
+	/**
+	 * Renders list of categories for filter
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function getCategoriesForFilter()
+	{
+		$activeCategoryId = $this->input->get('activeCategoryId', 0, 'int');
+		$parentCategory = $this->input->get('parent_id', 0, 'int');
+
+		$model = ED::model('categories');
+		$categories = $model->getChildCategories($parentCategory);
+
+		if ($categories) {
+			foreach ($categories as &$category) {
+				$category = ED::category($category);
+			}
+		}
+
+		$activeCategory = ED::category();
+
+		if ($activeCategoryId) {
+			$activeCategory = ED::category($activeCategoryId);
+		}
+
+		$theme = ED::themes();
+		$theme->set('rootLevel', false);
+		$theme->set('activeCategory', $activeCategory);
+		$theme->set('categories', $categories);
+		$contents = $theme->output('site/helpers/post/filters/category.nested');
+
+		return $this->ajax->resolve($contents);
+	}
+
 	/**
 	 * Display items in categories
 	 *
@@ -108,5 +165,40 @@ class EasyDiscussViewCategories extends EasyDiscussView
 		$output = $themes->output('site/forums/threads');
 
 		return $this->ajax->resolve($output, $paginationHtml);
+	}
+
+	/**
+	 * get categories post count
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function getPostCount()
+	{
+		$ids = $this->input->get('ids', array(), 'Array');
+
+		$data = array();
+
+		if ($ids) {
+			foreach ($ids as $id) {
+
+				$id = (int) $id;
+
+				if ($id) {
+					$model = ED::model('Category');
+					$count = $model->getTotalPosts($id);
+					$text = ED::string()->getNoun('COM_ED_POST_COUNT', $count, true);
+					
+					$obj = new stdClass();
+					$obj->id = $id;
+					$obj->count = $count;
+					$obj->text = $text;
+
+					$data[] = $obj;
+				}
+			}
+		}
+
+		return $this->ajax->resolve($data);
 	}
 }

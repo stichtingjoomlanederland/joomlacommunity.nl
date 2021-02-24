@@ -418,4 +418,54 @@ class EasyDiscussModelPolls extends EasyDiscussAdminModel
 
         return $pollQuestion->delete();
 	}
+
+    /**
+     * Duplicates a poll based on the post id given
+     *
+     * @since   5.0.0
+     * @access  public
+     */
+    public function duplicate($postId, $newPostId)
+    {
+        // Create a new poll question for this post.
+        $table = ED::table('PollQuestion');
+        $table->load(['post_id' => $postId]);
+
+        if (!$table->id) {
+            return false;
+        }
+
+        // Reset the id
+        $table->id = null;
+
+        $newPoll = ED::table('PollQuestion');
+        $newPoll->bind($table);
+
+        $newPoll->post_id = $newPostId;
+
+        // Store the new poll question to duplicate
+        $newPoll->store();
+
+        $post = ED::post($postId);
+        $poll = $post->getPoll();
+        $choices = [];
+
+        if ($poll && $poll->id) {
+            $choices = $poll->getChoices();
+        }
+
+        // Duplicate the choices
+        foreach ($choices as $choice) {
+            $poll = ED::table('Poll');
+            $poll->post_id = $newPostId;
+            $poll->multiple_polls = $choice->multiple_polls;
+            $poll->count = $choice->count;
+            $poll->value = $choice->value;
+
+            // Store the new choice
+            $poll->store();
+        }
+
+        return true;
+    }
 }

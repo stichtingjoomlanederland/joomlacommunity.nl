@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -37,7 +37,7 @@ defined('_JEXEC') or die('Unauthorized Access');
         </p>
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_CANCEL_BUTTON'); ?></button>
-        <button data-move-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_MOVE_BUTTON'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_CANCEL_BUTTON'); ?></button>
+        <button data-move-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_MOVE_BUTTON'); ?></button>
     </buttons>
 </dialog>

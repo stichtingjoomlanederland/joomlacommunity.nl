@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussViewDashboard extends EasyDiscussView
 {
@@ -20,8 +18,6 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function confirmDelete()
 	{
@@ -44,10 +40,8 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
-	public function delete()
+	public function deleteHoliday()
 	{
 		$id = $this->input->get('id', 0, 'int');
 
@@ -58,14 +52,14 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 
 		$holiday = ED::holiday($id);
 
+		if (!$holiday->canDelete()) {
+			die();
+		}
+
 		// Delete the holiday
 		$holiday->delete();
 
-		$theme = ED::themes();
-		$theme->set('id', $id);
-		$contents = $theme->output('site/dashboard/dialogs/delete.success');
-
-		return $this->ajax->resolve($contents);
+		return $this->ajax->resolve();
 	}
 
 	/**
@@ -73,21 +67,21 @@ class EasyDiscussViewDashboard extends EasyDiscussView
      *
      * @since   4.0
      * @access  public
-     * @param   string
-     * @return
      */
-	public function toggleState()
+	public function toggleHolidayState()
 	{
 		$id = $this->input->get('id', 0, 'int');
 		$state = $this->input->get('state', 0, 'int');
 
 		$holiday = ED::holiday($id);
+
+		if (!$holiday->canManage()) {
+			die();
+		}
 	
 		$holiday->set('published', $state);
-		
-
-		// save the holiday
 		$holiday->save();
+		
 		return $this->ajax->resolve();	
 	}
 

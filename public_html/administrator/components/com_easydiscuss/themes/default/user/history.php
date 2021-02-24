@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * Komento is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,13 +17,13 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_USER_HISTORY'); ?>
 				<div class="panel-body">
-					<div class="form-horizontal">
-						<div class="form-group">				
-	                        <div class="col-md-12">
+					<div class="">
+						<div class="o-form-group">
+							<div class="">
 								<ul class="user-history unstyled">
 									<?php if( $history ){ ?>
 										<?php foreach( $history as $history ){ ?>
-											<li class="mb-10">
+											<li class="t-mb--md">
 												<span><?php echo $history->created;?> - </span>
 												<span><?php echo $history->title; ?></span>
 											</li>

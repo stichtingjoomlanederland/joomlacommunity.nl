@@ -7,6 +7,10 @@ namespace Composer\Autoload;
 class ComposerStaticInitb04a3a213ab1e1b8cc8498b5714fbbcc
 {
     public static $prefixLengthsPsr4 = array (
+        'N' => 
+        array (
+            'Nahid\\JsonQ\\' => 12,
+        ),
         'E' => 
         array (
             'EmailReplyParser\\' => 17,
@@ -14,6 +18,10 @@ class ComposerStaticInitb04a3a213ab1e1b8cc8498b5714fbbcc
     );
 
     public static $prefixDirsPsr4 = array (
+        'Nahid\\JsonQ\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/nahid/jsonq/src',
+        ),
         'EmailReplyParser\\' => 
         array (
             0 => __DIR__ . '/..' . '/willdurand/email-reply-parser/src/EmailReplyParser',

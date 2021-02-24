@@ -91,7 +91,6 @@ class Order extends BaseResource
      */
     public $shippingAddress;
 
-
     /**
      * The payment method last used when paying for the order.
      *
@@ -143,6 +142,54 @@ class Order extends BaseResource
      * @var string|null
      */
     public $createdAt;
+
+    /**
+     * UTC datetime the order the order will expire in ISO-8601 format.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $expiresAt;
+
+    /**
+     * UTC datetime if the order is expired, the time of expiration will be present in ISO-8601 format.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $expiredAt;
+
+    /**
+     * UTC datetime if the order has been paid, the time of payment will be present in ISO-8601 format.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $paidAt;
+
+    /**
+     * UTC datetime if the order has been authorized, the time of authorization will be present in ISO-8601 format.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $authorizedAt;
+
+    /**
+     * UTC datetime if the order has been canceled, the time of cancellation will be present in ISO 8601 format.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $canceledAt;
+
+    /**
+     * UTC datetime if the order is completed, the time of completion will be present in ISO 8601 format.
+     *
+     * @example "2013-12-25T10:30:54+00:00"
+     * @var string|null
+     */
+    public $completedAt;
 
     /**
      * The order lines contain the actual things the customer bought.
@@ -295,6 +342,7 @@ class Order extends BaseResource
     public function cancelAllLines($data = [])
     {
         $data['lines'] = [];
+
         return $this->client->orderLines->cancelFor($this, $data);
     }
 
@@ -335,6 +383,7 @@ class Order extends BaseResource
     public function shipAll(array $options = [])
     {
         $options['lines'] = [];
+
         return $this->createShipment($options);
     }
 
@@ -409,7 +458,7 @@ class Order extends BaseResource
      */
     public function refunds()
     {
-        if (!isset($this->_links->refunds->href)) {
+        if (! isset($this->_links->refunds->href)) {
             return new RefundCollection($this->client, 0, null);
         }
 
@@ -431,15 +480,17 @@ class Order extends BaseResource
      */
     public function update()
     {
-        if (!isset($this->_links->self->href)) {
+        if (! isset($this->_links->self->href)) {
             return $this;
         }
 
-        $body = json_encode(array(
+        $body = json_encode([
             "billingAddress" => $this->billingAddress,
             "shippingAddress" => $this->shippingAddress,
             "orderNumber" => $this->orderNumber,
-        ));
+            "redirectUrl" => $this->redirectUrl,
+            "webhookUrl" => $this->webhookUrl,
+        ]);
 
         $result = $this->client->performHttpCallToFullUrl(MollieApiClient::HTTP_PATCH, $this->_links->self->href, $body);
 
@@ -467,7 +518,7 @@ class Order extends BaseResource
      */
     public function payments()
     {
-        if(! isset($this->_embedded, $this->_embedded->payments) ) {
+        if (! isset($this->_embedded, $this->_embedded->payments)) {
             return null;
         }
 
@@ -486,7 +537,7 @@ class Order extends BaseResource
     private function getPresetOptions()
     {
         $options = [];
-        if($this->client->usesOAuth()) {
+        if ($this->client->usesOAuth()) {
             $options["testmode"] = $this->mode === "test" ? true : false;
         }
 

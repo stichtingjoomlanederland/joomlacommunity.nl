@@ -1,8 +1,12 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymuserHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Classes\MailClass;
+use AcyMailing\Classes\UserClass;
+use AcyMailing\Libraries\acymObject;
+
+class UserHelper extends acymObject
 {
     public function exportdata($id)
     {
@@ -10,7 +14,7 @@ class acymuserHelper extends acymObject
             die('No user found');
         }
 
-        $userClass = acym_get('class.user');
+        $userClass = new UserClass();
         $user = $userClass->getOneByIdWithCustomFields($id);
         if (empty($user)) {
             die('No user found');
@@ -23,7 +27,7 @@ class acymuserHelper extends acymObject
 
         $exportFiles = [];
 
-        $xml = new SimpleXMLElement('<xml/>');
+        $xml = new \SimpleXMLElement('<xml/>');
         $userNode = $xml->addChild('user');
 
         $fields = acym_loadObjectList('SELECT name, field.option as options, type, value FROM #__acym_field as field', 'name');
@@ -82,7 +86,11 @@ class acymuserHelper extends acymObject
             $userNode->addChild($column, acym_escape($value));
         }
 
-        $subscription = acym_loadObjectList('SELECT list.name, list.id, user_list.subscription_date, user_list.unsubscribe_date, user_list.status FROM #__acym_user_has_list AS user_list JOIN #__acym_list AS list ON list.id = user_list.list_id WHERE user_list.user_id = '.intval($id));
+        $subscription = acym_loadObjectList(
+            'SELECT list.name, list.id, user_list.subscription_date, user_list.unsubscribe_date, user_list.status FROM #__acym_user_has_list AS user_list JOIN #__acym_list AS list ON list.id = user_list.list_id WHERE user_list.user_id = '.intval(
+                $id
+            )
+        );
         if (!empty($subscription)) {
             $dateFields = ['subscription_date', 'unsubscribe_date'];
             $subscriptionNode = $xml->addChild('subscription');
@@ -109,10 +117,14 @@ class acymuserHelper extends acymObject
             }
         }
 
-
-
-        $mailClass = acym_get('class.mail');
-        $statistics = $mailClass->decode(acym_loadObjectList('SELECT mail.subject, user_stats.* FROM #__acym_user_stat AS user_stats JOIN #__acym_mail AS mail ON mail.id = user_stats.mail_id WHERE user_stats.user_id = '.intval($id)));
+        $mailClass = new MailClass();
+        $statistics = $mailClass->decode(
+            acym_loadObjectList(
+                'SELECT mail.subject, user_stats.* FROM #__acym_user_stat AS user_stats JOIN #__acym_mail AS mail ON mail.id = user_stats.mail_id WHERE user_stats.user_id = '.intval(
+                    $id
+                )
+            )
+        );
         if (!empty($statistics)) {
             $dateFields = ['send_date', 'open_date'];
             $excludedFields = ['user_id'];
@@ -138,7 +150,9 @@ class acymuserHelper extends acymObject
             }
         }
 
-        $clickStats = acym_loadObjectList('SELECT url.url, url_click.date_click FROM #__acym_url_click AS url_click JOIN #__acym_url AS url ON url.id = url_click.url_id WHERE url_click.user_id = '.intval($id)); //todo ip à ajouter
+        $clickStats = acym_loadObjectList(
+            'SELECT url.url, url_click.date_click FROM #__acym_url_click AS url_click JOIN #__acym_url AS url ON url.id = url_click.url_id WHERE url_click.user_id = '.intval($id)
+        ); //todo ip à ajouter
         if (!empty($clickStats)) {
             $dateFields = ['date_click'];
             $clickStatsNode = $xml->addChild('click_statistics');
@@ -168,7 +182,7 @@ class acymuserHelper extends acymObject
         $tempFolder = ACYM_MEDIA.'tmp'.DS;
         acym_createArchive($tempFolder.'export_data_user_'.$id, $exportFiles);
 
-        $exportHelper = acym_get('helper.export');
+        $exportHelper = new ExportHelper();
         $exportHelper->setDownloadHeaders('export_data_user_'.$id, 'zip');
         readfile($tempFolder.'export_data_user_'.$id.'.zip');
 
@@ -177,4 +191,3 @@ class acymuserHelper extends acymObject
         exit;
     }
 }
-

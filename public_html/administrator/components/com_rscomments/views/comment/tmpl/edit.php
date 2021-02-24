@@ -10,6 +10,8 @@ JHtml::_('behavior.keepalive'); ?>
 
 <form action="<?php echo JRoute::_('index.php?option=com_rscomments&view=comment&layout=edit&IdComment='.(int) $this->item->IdComment); ?>" method="post" name="adminForm" id="adminForm" autocomplete="off" class="form-horizontal">
 	<?php 
+		$title = RSCommentsHelperAdmin::ArticleTitle($this->item->option, $this->item->id);
+		
 		foreach ($this->form->getFieldset() as $field) { 
 			if ($field->id == 'jform_date') continue;
 			
@@ -21,7 +23,7 @@ JHtml::_('behavior.keepalive'); ?>
 				
 				echo RSCommentsAdapterGrid::renderField(JText::_('COM_RSCOMMENTS_COMMENT_DATE'), RSCommentsHelperAdmin::showDate($this->item->date), true);
 				echo RSCommentsAdapterGrid::renderField(JText::_('COM_RSCOMMENTS_COMMENT_IP'), '<a href="https://apps.db.ripe.net/search/query.html?searchtext='.$this->item->ip.'" class="btn btn-info btn-small btn-sm" target="_blank">'.$this->item->ip.'</a>');
-				echo RSCommentsAdapterGrid::renderField(JText::_('COM_RSCOMMENTS_COMMENT_COMPONENT'), RSCommentsHelperAdmin::component($this->item->option).' &mdash; ID: '.$this->item->id, true);
+				echo RSCommentsAdapterGrid::renderField(JText::_('COM_RSCOMMENTS_COMMENT_COMPONENT'), RSCommentsHelperAdmin::component($this->item->option).($title ? ' - <em>'.$title.'</em>' : '').' &mdash; ID: '.$this->item->id, true);
 				
 				if (!empty($this->item->url)) {
 					echo RSCommentsAdapterGrid::renderField(JText::_('COM_RSCOMMENTS_COMMENT_PREVIEW'), '<a href="'.JURI::root().base64_decode($this->item->url).'" target="_blank" class="btn btn-info btn-small btn-sm"><i class="icon-eye-open"></i> '.JText::_('COM_RSCOMMENTS_COMMENT_PREVIEW_ITEM').'</a>');

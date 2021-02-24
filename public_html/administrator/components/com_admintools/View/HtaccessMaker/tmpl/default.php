@@ -1,14 +1,14 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 /** @var $this Html */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Select;
 use Akeeba\AdminTools\Admin\View\HtaccessMaker\Html;
@@ -90,6 +90,12 @@ $config = $this->htconfig;
 			<label for="reflectedxss"><?php echo JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_REFLECTEDXSS'); ?></label>
 
 			<?php echo JHtml::_('FEFHelper.select.booleanswitch', 'reflectedxss', $config->reflectedxss); ?>
+		</div>
+
+		<div class="akeeba-form-group">
+			<label for="svgneutralise"><?php echo JText::_('COM_ADMINTOOLS_LBL_HTACCESSMAKER_SVGNEUTRALISE'); ?></label>
+
+			<?php echo JHtml::_('FEFHelper.select.booleanswitch', 'svgneutralise', $config->svgneutralise); ?>
 		</div>
 
 		<div class="akeeba-form-group">

@@ -1,165 +1,145 @@
 <?php if ($site && $site->posts) { ?>
 
-<!-- Start Container -->
-<table width="560" align="center" cellpadding="0" cellspacing="0" border="0" class="container">
-    <tr>
-        <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
-    </tr>
-    <tr>
-        <td class="mobile" style="font-family:arial, sans-serif; font-size:18px; line-height:32px; font-weight:bold;">
-            <?php echo JText::_('COM_EASYDISCUSS_DIGEST_SITE_UPDATES'); ?>
-        </td>
-    </tr>
-    <tr>
-        <td class="mobile" style="font-family:arial, sans-serif; font-size:16px; line-height:26px;color:#888">
-            <?php echo JText::_('COM_EASYDISCUSS_DIGEST_NEW_DISCUSSIONS_POSTED'); ?>
-        </td>
-    </tr>
-    <tr>
-        <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
-    </tr>
+	<?php echo $this->html('email.spacer'); ?>
 
-    <?php foreach ($site->posts as $post) { ?>
-        <!-- Start Link -->
-        <tr>
-            <td style="font-family:Verdana, Arial, sans serif; font-size: 14px; color: #4d4d4d; line-height:18px;">
-                <a href="<?php echo $post->getPermalink(true); ?>" target="_blank" alias="" style="color: #458BC6; text-decoration: none;"><?php echo $post->getTitle(); ?></a>
-            </td>
-        </tr>
-        <tr>
-            <td style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #888; line-height:16px;">
-                <?php echo JText::_('COM_EASYDISCUSS_DIGEST_BY'); ?> <?php echo ($post->user_id) ? $post->getOwner()->getName() : $post->poster_name; ?>
-            </td>
-        </tr>
-        <tr>
-            <td style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #888; line-height:16px;">
-                <?php echo $post->getIntro(); ?>
-            </td>
-        </tr>
-        <tr>
-            <td height="15" style="line-height:10px; font-size:10px;"> </td><!-- Spacer -->
-        </tr>
-        <!-- End Link -->
-    <?php } ?>
+	<?php echo $this->html('email.sectionHeading', 'COM_EASYDISCUSS_DIGEST_SITE_UPDATES', 'COM_EASYDISCUSS_DIGEST_NEW_DISCUSSIONS_POSTED'); ?>
 
-        <tr>
-            <td height="10" style="line-height:10px; font-size:10px;"> </td><!-- Spacer -->
-        </tr>
+	<?php echo $this->html('email.spacer'); ?>
 
-    <tr>
-        <td height="20" style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #4d4d4d; line-height:18px;">
 
-                <?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_SUBSCRIPTION_STATEMENT' ); ?><br />
-                <?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_TO_UNSUBSCRIBE' );?>
-                <a style="font-size:12px; line-height:18px; color:#888; text-decoration:underline;" alias="" target="_blank" href="<?php echo $site->unlink;?>">
-                    <?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_CLICK_HERE' );?>
-                </a>.
-
-        </td>
-    </tr>
-
-    <tr>
-        <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
-    </tr>
-</table>
-
+	<?php foreach ($site->posts as $post) { ?>
+	<!--[if mso | IE]>
+	<table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:480px;" width="480"><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
+	<![endif]-->
+	<div style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:480px;">
+		<table role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;" cellspacing="0" cellpadding="0" border="0" align="center">
+		<tbody>
+		<tr>
+			<td style="direction:ltr;font-size:0px;padding:10px 20px;text-align:center;">
+				<!--[if mso | IE]>
+				<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:440px;">
+				<![endif]-->
+				<div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+					<tbody>
+					<tr>
+						<td style="vertical-align:top;padding:0;">
+							<table role="presentation" style="" width="100%" cellspacing="0" cellpadding="0" border="0">
+							<tbody>
+							<tr>
+								<td style="font-size:0px;padding:0;padding-top:10px;padding-bottom:4px;word-break:break-word;" align="left">
+									<div style="font-family:'Roboto', Arial, sans-serif;font-size:16px;font-weight:bold;line-height:22px;text-align:left;color:#444444;">
+										<a href="<?php echo $post->getPermalink(true); ?>" style="color: #4e72e2; text-decoration: none;"><?php echo $post->getTitle(); ?></a>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="font-size:0px;padding:0;padding-bottom:16px;word-break:break-word;" align="left">
+									<div style="font-family:'Roboto', Arial, sans-serif;font-size:13px;line-height:14px;text-align:left;color:#aaaaaa;">
+										<?php echo JText::_('COM_EASYDISCUSS_DIGEST_BY'); ?> <?php echo ($post->user_id) ? $post->getOwner()->getName() : $post->poster_name; ?>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="font-size:0px;padding:0;word-break:break-word;" align="left">
+									<div style="font-family:'Roboto', Arial, sans-serif;font-size:14px;line-height:18px;text-align:left;color:#888888;">
+										<?php echo $post->getIntro(); ?>
+									</div>
+								</td>
+							</tr>
+							</tbody>
+							</table>
+						</td>
+					</tr>
+					</tbody>
+					</table>
+				</div>
+				<!--[if mso | IE]>
+				</td></tr></table>
+				<![endif]-->
+			</td>
+	    </tr>
+		</tbody>
+		</table>
+	</div>
+	<!-- [if mso | IE]>
+	</td></tr></table>
+	<![endif]-->
+	<?php } ?>
 <?php } ?>
 
-
-<!-- Start Divider Decor -->
-<table width="560" align="center" cellpadding="0" cellspacing="0" border="0" class="container" bgcolor="#eee">
-    <tr>
-        <td>
-            <img style="min-width:560px; display:block; margin:0; padding:0" class="mobileOff" width="560" height="1" src="<?php echo rtrim(JURI::root(), '/'); ?>/media/com_easydiscuss/images/spacer.gif"/>
-        </td>
-    </tr>
-</table>
-<!-- End Divider Decor -->
-
-
-
 <?php if ($cats) { ?>
-    <?php foreach($cats as $cat) { ?>
-        <?php if ($cat->posts) { ?>
+	<?php echo $this->html('email.spacer');?>
 
+	<?php foreach($cats as $cat) { ?>
+		<?php if ($cat->posts) { ?>
+			<?php echo $this->html('email.spacer'); ?>
 
-        <table width="560" align="center" cellpadding="0" cellspacing="0" border="0" class="container">
-            <tr>
-                <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
-            </tr>
-            <tr>
-                <td class="mobile" style="font-family:arial, sans-serif; font-size:18px; line-height:32px; font-weight:bold;">
-                    <?php echo $cat->title; ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="mobile" style="font-family:arial, sans-serif; font-size:16px; line-height:26px;color:#888">
-                    <?php echo JText::sprintf('COM_EASYDISCUSS_DIGEST_NEW_DISCUSSIONS_POSTED_IN_CATEGORY', $cat->title); ?>
-                </td>
-            </tr>
-            <tr>
-                <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
-            </tr>
+			<?php echo $this->html('email.sectionHeading', $cat->title, JText::sprintf('COM_EASYDISCUSS_DIGEST_NEW_DISCUSSIONS_POSTED_IN_CATEGORY', $cat->title)); ?>
 
-            <?php foreach ($cat->posts as $post) { ?>
-                <!-- Start Link -->
-                <tr>
-                    <td style="font-family:Verdana, Arial, sans serif; font-size: 14px; color: #4d4d4d; line-height:18px;">
-                        <a href="<?php echo $post->getPermalink(true); ?>" target="_blank" alias="" style="color: #458BC6; text-decoration: none;">
-                            <?php echo $post->getTitle(); ?>
-                        </a>
-                    </td>
-                </tr>
+			<?php echo $this->html('email.spacer'); ?>
 
-                <tr>
-                    <td style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #888; line-height:16px;">
-                        <?php echo JText::_('COM_EASYDISCUSS_DIGEST_BY'); ?> <?php echo ($post->user_id) ? $post->getOwner()->getName() : $post->poster_name; ?> (<?php echo ($post->user_id) ? $post->getOwner()->getEmail() : $post->poster_email; ?>)
-                    </td>
-                </tr>
-                <tr>
-                    <td style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #888; line-height:16px;">
-                        <?php echo $post->getIntro(); ?>
-                    </td>
-                </tr>
-                <tr>
-                    <td height="15" style="line-height:10px; font-size:10px;"> </td><!-- Spacer -->
-                </tr>
+			<?php foreach ($cat->posts as $post) { ?>
+			<!--[if mso | IE]>
+			<table align="center" border="0" cellpadding="0" cellspacing="0" class="" style="width:480px;" width="480"><tr><td style="line-height:0px;font-size:0px;mso-line-height-rule:exactly;">
+			<![endif]-->
+			<div style="background:#ffffff;background-color:#ffffff;margin:0px auto;max-width:480px;">
+				<table role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;" cellspacing="0" cellpadding="0" border="0" align="center">
+				<tbody>
+				<tr>
+					<td style="direction:ltr;font-size:0px;padding:10px 20px;text-align:center;">
+						<!--[if mso | IE]>
+						<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:440px;">
+						<![endif]-->
+						<div class="mj-column-per-100 mj-outlook-group-fix" style="font-size:0px;text-align:left;direction:ltr;display:inline-block;vertical-align:top;width:100%;">
+							<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+							<tbody>
+							<tr>
+								<td style="vertical-align:top;padding:0;">
+									<table role="presentation" style="" width="100%" cellspacing="0" cellpadding="0" border="0">
+									<tbody>
+									<tr>
+										<td style="font-size:0px;padding:0;padding-top:10px;padding-bottom:4px;word-break:break-word;" align="left">
+											<div style="font-family:'Roboto', Arial, sans-serif;font-size:16px;font-weight:bold;line-height:22px;text-align:left;color:#444444;">
+												<a href="<?php echo $post->getPermalink(true); ?>" style="color: #4e72e2; text-decoration: none;"><?php echo $post->getTitle(); ?></a>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td style="font-size:0px;padding:0;padding-bottom:16px;word-break:break-word;" align="left">
+											<div style="font-family:'Roboto', Arial, sans-serif;font-size:13px;line-height:14px;text-align:left;color:#aaaaaa;">
+												<?php echo JText::_('COM_EASYDISCUSS_DIGEST_BY'); ?> <?php echo ($post->user_id) ? $post->getOwner()->getName() : $post->poster_name; ?>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<td style="font-size:0px;padding:0;word-break:break-word;" align="left">
+											<div style="font-family:'Roboto', Arial, sans-serif;font-size:14px;line-height:18px;text-align:left;color:#888888;">
+												<?php echo $post->getIntro(); ?>
+											</div>
+										</td>
+									</tr>
+									</tbody>
+									</table>
+								</td>
+							</tr>
+							</tbody>
+							</table>
+						</div>
+						<!--[if mso | IE]>
+						</td></tr></table>
+						<![endif]-->
+					</td>
+			    </tr>
+				</tbody>
+				</table>
+			</div>
+			<!-- [if mso | IE]>
+			</td></tr></table>
+			<![endif]-->
+			<?php } ?>
 
-                <!-- End Link -->
-            <?php } ?>
-
-            <tr>
-                <td height="10" style="line-height:10px; font-size:10px;"> </td><!-- Spacer -->
-            </tr>
-
-            <tr>
-                <td height="20" style="font-family:Verdana, Arial, sans serif; font-size: 12px; color: #4d4d4d; line-height:18px;">
-
-                        <?php echo JText::sprintf( 'COM_EASYDISCUSS_DIGEST_CATEGORY_SUBSCRIPTION_STATEMENT', $cat->title); ?>
-                        <?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_TO_UNSUBSCRIBE' );?>
-                        <a style="font-size:12px; line-height:18px; color:#888; text-decoration:underline;" alias="" target="_blank" href="<?php echo $cat->unlink;?>">
-                            <?php echo JText::_( 'COM_EASYDISCUSS_EMAILTEMPLATE_CLICK_HERE' );?>
-                        </a>.
-
-                </td>
-            </tr>
-
-            <tr>
-                <td height="20" style="line-height:20px; font-size:20px;"> </td><!-- Spacer -->
-            </tr>
-
-            </table>
-
-            <!-- Start Divider Decor -->
-            <table width="560" align="center" cellpadding="0" cellspacing="0" border="0" class="container" bgcolor="#eee">
-                <tr>
-                    <td>
-                        <img style="min-width:560px; display:block; margin:0; padding:0" class="mobileOff" width="560" height="1" src="<?php echo rtrim(JURI::root(), '/'); ?>/media/com_easydiscuss/images/spacer.gif"/>
-                    </td>
-                </tr>
-            </table>
-            <!-- End Divider Decor -->
-
-        <?php } ?>
-    <?php } ?>
+			<?php echo $this->html('email.spacer'); ?>
+		<?php } ?>
+	<?php } ?>
 <?php } ?>

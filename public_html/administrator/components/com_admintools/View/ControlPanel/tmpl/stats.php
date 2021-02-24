@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,7 +12,7 @@ use Joomla\CMS\Language\Text;
 /** @var $this Html */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $logUrl = 'index.php?option=com_admintools&view=SecurityExceptions&datefrom=%s&dateto=%s&groupbydate=0&groupbytype=0';
 

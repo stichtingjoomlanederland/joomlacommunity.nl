@@ -1,27 +1,29 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php //__START__enterprise_
 if (acym_level(2)) {
     ?>
 	<div class="acym_area padding-vertical-1 padding-horizontal-2">
-		<div class="acym_area_title"><?php echo acym_translation('ACYM_BOUNCE_HANDLING'); ?></div>
+		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_BOUNCE_HANDLING'); ?></div>
 
-		<div class="grid-x">
+		<div class="grid-x margin-y">
 			<label class="cell grid-x">
 				<span class="cell medium-3"><?php echo acym_translation('ACYM_SMTP_SERVER'); ?></span>
 				<input class="cell medium-4" type="text" name="config[bounce_server]" value="<?php echo acym_escape($this->config->get('bounce_server')); ?>">
 			</label>
 			<label class="cell grid-x">
-				<span class="cell medium-3"><?php echo acym_translation('ACYM_SMTP_PORT'); ?></span>
-				<input class="cell medium-2" type="text" name="config[bounce_port]" value="<?php echo acym_escape($this->config->get('bounce_port')); ?>">
+				<span class="cell medium-3"><?php echo acym_translation('ACYM_SMTP_PORT').acym_info('ACYM_BOUNCE_PORT_DESC'); ?></span>
+				<input
+					class="cell medium-2"
+					type="number"
+					name="config[bounce_port]"
+					value="<?php echo acym_escape($this->config->get('bounce_port')); ?>">
 			</label>
 			<label class="cell grid-x">
-				<span class="cell medium-3"><?php echo acym_translation('ACYM_CONNECTION_METHOD'); ?></span>
+				<span class="cell medium-3"><?php echo acym_translation('ACYM_CONNECTION_METHOD').acym_info('ACYM_CONNECTION_METHOD_DESC'); ?></span>
 				<div class="cell medium-2">
                     <?php
                     $connectionMethods = [
                         "" => "---",
-                        'imap' => 'IMAP',
+                        'imap' => 'IMAP ('.acym_translation('ACYM_RECOMMENDED').')',
                         'pop3' => 'POP3',
                         'pear' => 'POP3 ('.acym_translation('ACYM_WITHOUT_IMAP_EXT').')',
                     ];
@@ -88,11 +90,14 @@ if (acym_level(2)) {
 			<div class="cell grid-x">
                 <?php echo acym_switch('config[auto_bounce]', $this->config->get('auto_bounce'), acym_translation('ACYM_ENABLE_AUTO_BOUNCE'), [], 'medium-3'); ?>
 			</div>
-			<div class="cell grid-x grid-margin-x" id="acym__configuration__bounce__auto_bounce__configuration" <?php echo $this->config->get('auto_bounce') ? '' : "style='display: none'"; ?>>
+			<div class="cell grid-x grid-margin-x" id="acym__configuration__bounce__auto_bounce__configuration" <?php echo $this->config->get(
+                'auto_bounce'
+            ) ? '' : "style='display: none'"; ?>>
 				<div class="cell grid-x">
 					<label class="cell medium-3" for="delayvalue3"><?php echo acym_translation('ACYM_FREQUENCY'); ?></label>
 					<div class="cell medium-9">
-                        <?php $delayTypeBounceAuto = acym_get('type.delay');
+                        <?php
+                        $delayTypeBounceAuto = $data['typeDelay'];
                         echo $delayTypeBounceAuto->display('config[auto_bounce_frequency]', $this->config->get('auto_bounce_frequency', 21600), 1);
                         ?>
 					</div>
@@ -109,10 +114,8 @@ if (acym_level(2)) {
     <?php
 }
 if (!acym_level(2)) {
-    $data['version'] = 'enterprise';
-    echo '<div class="acym_area">
-            <div class="acym_area_title">'.acym_translation('ACYM_BOUNCE_HANDLING').'</div>';
-    include(ACYM_VIEW.'dashboard'.DS.'tmpl'.DS.'upgrade.php');
+    $data['isEnterprise'] = false;
+    echo '<div class="margin-top-1">';
+    include acym_getView('bounces', 'splashscreen');
     echo '</div>';
 } ?>
-

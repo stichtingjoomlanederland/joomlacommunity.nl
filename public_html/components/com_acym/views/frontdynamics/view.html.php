@@ -1,6 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\FrontViews;
+
+use AcyMailing\Libraries\acymView;
 
 class FrontdynamicsViewFrontdynamics extends acymView
 {
@@ -12,4 +14,3 @@ class FrontdynamicsViewFrontdynamics extends acymView
         parent::__construct();
     }
 }
-

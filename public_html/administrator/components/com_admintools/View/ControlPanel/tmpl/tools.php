@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,7 +11,7 @@ use Joomla\CMS\Uri\Uri;
 
 /** @var  Html $this For type hinting in the IDE */
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $uriBase = rtrim(Uri::base(), '/');
 
@@ -21,7 +21,7 @@ $uriBase = rtrim(Uri::base(), '/');
 		<h3><?php echo Text::_('COM_ADMINTOOLS_LBL_CONTROLPANEL_TOOLS'); ?></h3>
 	</header>
 
-	<div class="akeeba-grid--small">
+	<div class="akeeba-grid">
 		<?php if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN'): ?>
 			<a href="index.php?option=com_admintools&view=ConfigureFixPermissions" class="akeeba-action--teal">
 				<span class="akion-ios-gear"></span>

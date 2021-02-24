@@ -78,7 +78,7 @@ class DiscussLanguage extends EasyDiscussTable
 		jimport( 'joomla.filesystem.archive' );
 
 		// Extract the language's archive file
-		$state = JArchive::extract($storage, $folder);
+		$state = EDArchive::extract($storage, $folder);
 
 		// Throw some errors when we are unable to extract the zip file.
 		if (!$state) {
@@ -87,7 +87,7 @@ class DiscussLanguage extends EasyDiscussTable
 		}
 
 		// Read the meta data
-		$raw = JFile::read($folder . '/meta.json');
+		$raw = file_get_contents($folder . '/meta.json');
 		$meta = json_decode($raw);
 
 		foreach ($meta->resources as $resource) {

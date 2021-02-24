@@ -97,6 +97,10 @@ class WFTemplateManagerPluginConfig
             $config['templates'] = $list;
         }
 
+        if ($plugin->getParam('text_editor', 0)) {
+            $config['text_editor'] = 1;
+        }
+
         $settings['templatemanager'] = $config;
     }
 }

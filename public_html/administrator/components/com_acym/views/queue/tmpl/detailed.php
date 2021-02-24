@@ -1,53 +1,22 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acym__queue" class="acym__content">
-	<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
-
+<form id="acym_form" action="<?php echo acym_completeLink(acym_getVar('cmd', 'ctrl')); ?>" method="post" name="acyForm" data-abide novalidate>
+    <?php
+    $isEmpty = empty($data['allElements']) && empty($data['search']) && empty($data['tag']) && empty($data['status']);
+    if (!$isEmpty) {
+        $data['toolbar']->displayToolbar($data);
+    }
+    ?>
+	<div id="acym__queue" class="acym__content">
         <?php
-        $workflow = acym_get('helper.workflow');
-        echo $workflow->display($this->steps, 'detailed', false);
+        $workflow = $data['workflowHelper'];
+        echo $workflow->displayTabs($this->steps, 'detailed');
         ?>
 
-        <?php if (empty($data['allElements']) && empty($data['search']) && empty($data['tag']) && empty($data['status'])) { ?>
+        <?php if ($isEmpty) { ?>
 			<div class="grid-x text-center">
 				<h1 class="acym__listing__empty__title cell"><?php echo acym_translation('ACYM_YOU_DONT_HAVE_ANY_CAMPAIGN_IN_QUEUE'); ?></h1>
 				<h1 class="acym__listing__empty__subtitle cell"><?php echo acym_translation('ACYM_SEND_ONE_AND_SEE_HOW_AMAZING_QUEUE_IS'); ?></h1>
 			</div>
         <?php } else { ?>
-			<div class="grid-x grid-margin-x">
-				<div class="cell medium-auto">
-                    <?php echo acym_filterSearch($data["search"], 'dqueue_search', 'ACYM_SEARCH'); ?>
-				</div>
-				<div class="cell medium-auto">
-                    <?php
-                    $allTags = new stdClass();
-                    $allTags->name = acym_translation('ACYM_ALL_TAGS');
-                    $allTags->value = '';
-                    array_unshift($data["tags"], $allTags);
-
-                    echo acym_select(
-                        $data["tags"],
-                        'dqueue_tag',
-                        $data["tag"],
-                        'class="acym__queue__filter__tags acym__select"',
-                        'value',
-                        'name'
-                    );
-                    ?>
-				</div>
-				<div class="xxlarge-4 xlarge-3 large-2 hide-for-medium-only hide-for-small-only cell"></div>
-				<div class="cell medium-shrink">
-                    <?php
-                    echo acym_modal(
-                        acym_translation('ACYM_SEND_ALL'),
-                        '',
-                        null,
-                        'data-reveal-larger',
-                        'class="button expanded" data-reload="true" data-ajax="true" data-iframe="&ctrl=queue&task=continuesend&id=0&totalsend=0"'
-                    );
-                    ?>
-				</div>
-			</div>
             <?php if (empty($data['allElements'])) { ?>
 				<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
             <?php } else { ?>
@@ -94,7 +63,11 @@ defined('_JEXEC') or die('Restricted access');
                                 <?php echo $row->try; ?>
 							</div>
 							<div class="cell medium-1 text-center">
-								<i class="acymicon-trash-o acym_toggle_delete acym_delete_queue" data-acy-table="queue" data-acy-method="deleteOne" data-acy-elementid="<?php echo acym_escape($row->id.'_'.$row->user_id); ?>" confirmation="1"></i>
+								<i class="acymicon-trash-o acym_toggle_delete acym_delete_queue"
+								   data-acy-table="queue"
+								   data-acy-method="deleteOne"
+								   data-acy-elementid="<?php echo acym_escape($row->id.'_'.$row->user_id); ?>"
+								   confirmation="1"></i>
 							</div>
 						</div>
                     <?php } ?>
@@ -103,6 +76,5 @@ defined('_JEXEC') or die('Restricted access');
             <?php } ?>
         <?php } ?>
         <?php acym_formOptions(false, 'detailed'); ?>
-	</form>
-</div>
-
+	</div>
+</form>

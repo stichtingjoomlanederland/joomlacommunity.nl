@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2016 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -44,16 +44,20 @@ defined('_JEXEC') or die('Unauthorized Access');
 	</bindings>
 	<title><?php echo JText::_('COM_EASYDISCUSS_BBCODE_INSERT_PHOTO'); ?></title>
 	<content>
-		<form data-ed-photo-form>
-			<label for="photoURL">
-				<strong><?php echo JText::_('COM_EASYDISCUSS_PHOTO_URL');?>:</strong>
-			</label>
-			<input type="text" id="photoURL" value="" class="form-control" data-ed-photo-url />
-			<input type="hidden" id="message" value="<?php echo ED::string()->escape($contents); ?>" data-ed-message />
+		<form class="l-stack" data-ed-photo-form>
+			<div>
+				<label class="o-form-label" for="photo">
+					<strong><?php echo JText::_('COM_EASYDISCUSS_PHOTO_URL');?>:</strong>
+				</label>
+				<input type="text" id="photo" value="" class="o-form-control" data-ed-photo-url />
+				<input type="hidden" id="message" value="<?php echo ED::string()->escape($contents); ?>" data-ed-message />
+
+				<div class="o-form-text"><?php echo JText::_('COM_ED_PHOTO_TITLE_HELP');?></div>
+			</div>
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
-		<button data-submit-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_INSERT'); ?></button>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_INSERT'); ?></button>
 	</buttons>
 </dialog>

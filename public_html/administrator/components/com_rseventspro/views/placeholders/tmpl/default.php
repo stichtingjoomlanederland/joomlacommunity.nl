@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 JHtml::_('behavior.keepalive'); ?>
 
 <?php if ($this->placeholders) { ?>
-<fieldset>
+<fieldset class="options-form">
 	<legend><?php echo JText::_('COM_RSEVENTSPRO_EMAIL_PLACEHOLDERS'); ?></legend>
 	<table class="table table-striped table-condensed" id="placeholdersTable">
 	<?php foreach ($this->placeholders as $placeholder => $description) { ?>

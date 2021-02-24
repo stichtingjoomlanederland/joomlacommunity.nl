@@ -32,8 +32,8 @@ class EasyDiscussMigratorBase
 
 	public function easydiscussCategoryExists($category, $parentId = 0)
 	{
-		$title = JString::strtolower($category->title);
-		$alias = JString::strtolower($category->alias);
+		$title = EDJString::strtolower($category->title);
+		$alias = EDJString::strtolower($category->alias);
 
 		$query = 'select `id` from `#__discuss_category`';
 		$query .= ' where lower(`title`) = ' . $this->db->Quote($title);
@@ -63,7 +63,7 @@ class EasyDiscussMigratorBase
 		$category = ED::table('Category');
 
 		$category->title = $categoryObject->title;
-		$category->alias = JString::strtolower($categoryObject->alias);
+		$category->alias = EDJString::strtolower($categoryObject->alias);
 
 		// If kunena did not define the category publishing state, default it to enabled.
 		$category->published = !isset($categoryObject->published) ? true : $categoryObject->published;

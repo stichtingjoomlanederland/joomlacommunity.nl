@@ -1,23 +1,23 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
     "content-hash": "a36c01eabc20fa2114b7a3f43040587f",
     "packages": [
         {
             "name": "sisow/php-client",
-            "version": "1.0.0",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Sisow/php-client.git",
-                "reference": "c1b71cb90ef88d6b90fc8fa8b0a0755493428409"
+                "reference": "b0501c61a1b3290538d3d4fb0b722489ea00207d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Sisow/php-client/zipball/c1b71cb90ef88d6b90fc8fa8b0a0755493428409",
-                "reference": "c1b71cb90ef88d6b90fc8fa8b0a0755493428409",
+                "url": "https://api.github.com/repos/Sisow/php-client/zipball/b0501c61a1b3290538d3d4fb0b722489ea00207d",
+                "reference": "b0501c61a1b3290538d3d4fb0b722489ea00207d",
                 "shasum": ""
             },
             "require": {
@@ -63,7 +63,7 @@
                 "sofort",
                 "visa"
             ],
-            "time": "2019-11-20T10:44:25+00:00"
+            "time": "2020-09-16T06:49:38+00:00"
         }
     ],
     "packages-dev": [],
@@ -73,6 +73,5 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": [],
-    "plugin-api-version": "1.1.0"
+    "platform-dev": []
 }

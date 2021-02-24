@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -51,13 +51,12 @@ class JFormFieldRL_Version extends \RegularLabs\Library\Field
 			}
 		}
 
-		if ( ! strlen($extension) || ! strlen($xml))
+		if (empty($extension) || empty($xml))
 		{
 			return '';
 		}
 
-		$authorise = JFactory::getUser()->authorise('core.manage', 'com_installer');
-		if ( ! $authorise)
+		if ( ! JFactory::getUser()->authorise('core.manage', 'com_installer'))
 		{
 			return '';
 		}

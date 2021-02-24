@@ -169,7 +169,7 @@ class RSFormProConditions
                         // Run script just once
                         if (!in_array($detail->ComponentName, $uniques))
                         {
-                            $scriptConditions .= sprintf('rsfp_addCondition(%1$d, \'%2$s\', %3$s);', $formId, addslashes($detail->ComponentName), $function);
+                            $scriptConditions .= sprintf('rsfp_addCondition(%1$d, %2$s, %3$s);', $formId, json_encode($detail->ComponentName), $function);
 
                             $uniques[] = $detail->ComponentName;
                         }

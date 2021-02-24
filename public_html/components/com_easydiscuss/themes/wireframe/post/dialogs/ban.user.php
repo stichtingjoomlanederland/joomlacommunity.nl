@@ -64,11 +64,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
             <input type="hidden" id="postid" name="postid" value="<?php echo $post->id; ?>">
             <input type="hidden" id="postName" name="postName" value="<?php echo $post->getOwner()->getName(); ?>">
-            <?php echo $this->html('form.hidden', 'posts', 'posts', 'banUser');?>
+            <?php echo $this->html('form.action', 'posts', 'posts', 'banUser');?>
         </form>        
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
-        <button data-submit-button type="button" class="btn btn-danger btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CONFIRM_BAN'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+        <button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--danger"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CONFIRM_BAN'); ?></button>
     </buttons>
 </dialog>

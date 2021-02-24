@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div class="o-avatar-status is-offline">
 	<a href="javascript:void(0);"
-		class="o-avatar o-avatar--<?php echo $size; ?> <?php echo ED::themes()->renderAvatarClass($user); ?>"
+		class="o-avatar o-avatar--rounded o-avatar--<?php echo $size; ?> <?php echo ED::themes()->renderAvatarClass($user); ?>"
 		data-ed-provide="tooltip"
 		data-placement="top"
 		title="<?php echo JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>"

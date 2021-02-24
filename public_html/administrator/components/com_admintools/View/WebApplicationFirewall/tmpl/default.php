@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,7 +12,7 @@ use Joomla\CMS\Uri\Uri;
 /** @var $this  Html */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $baseUri = Uri::base();
 
@@ -21,11 +21,10 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 
 ?>
 <div class="akeeba-block--info">
-	<a class="close" data-dismiss="alert" href="#">×</a>
 	<?php echo Text::_('COM_ADMINTOOLS_LBL_CONFIGUREWAF_HTACCESSTIP'); ?>
 </div>
 
-<div class="akeeba-grid--small akeeba-panel">
+<div class="akeeba-grid akeeba-panel">
 	<a href="index.php?option=com_admintools&view=ConfigureWAF" class="akeeba-action--grey">
 		<span class="akion-flash"></span>
 		<?php echo Text::_('COM_ADMINTOOLS_TITLE_WAFCONFIG'); ?>

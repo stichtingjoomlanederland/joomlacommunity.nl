@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,7 +13,7 @@ use FOF30\Utils\FEFHelper\Html as FEFHtml;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 // Let's check if the system plugin is correctly installed AND published
 //echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
@@ -60,7 +60,7 @@ defined('_JEXEC') or die;
 		</tr>
 		</tfoot>
 		<tbody>
-		<?php if (!count($this->items)): ?>
+		<?php if (!(is_array($this->items) || $this->items instanceof \Countable ? count($this->items) : 0)): ?>
 			<tr>
 				<td colspan="6">
 					<?php echo Text::_('COM_ADMINTOOLS_ERR_TEMPSUPERUSERS_NOITEMS') ?>

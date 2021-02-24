@@ -8,10 +8,6 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 
 class RseventsproViewCategory extends JViewLegacy
 {
-	protected $form;
-	protected $item;
-	protected $state;
-	
 	public function display($tpl = null) {
 		$this->form		= $this->get('Form');
 		$this->item		= $this->get('Item');
@@ -39,7 +35,5 @@ class RseventsproViewCategory extends JViewLegacy
 		}
 
 		JToolbarHelper::cancel('category.cancel');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

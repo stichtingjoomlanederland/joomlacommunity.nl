@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -14,6 +14,7 @@ use Jdideal\Gateway;
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Http\HttpFactory;
+use Joomla\Registry\Registry;
 
 /**
  * TargetPay payment class.
@@ -322,10 +323,9 @@ class TargetPay
 			}
 		}
 
-		// Get the transporter
-		$http = HttpFactory::getHttp(null, ['curl', 'stream']);
+		$options = new Registry;
+		$http    = HttpFactory::getHttp($options, ['curl', 'stream']);
 
-		// Send request
 		return $http->post($sRequest, $aParams)->body;
 	}
 

@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -97,15 +97,15 @@ class JdidealgatewayViewProfiles extends HtmlView
 		$this->canDo        = ContentHelper::getActions('com_jdidealgateway');
 		$this->loggedInUser = Factory::getUser();
 
-		// Show the toolbar
 		$this->toolbar();
 
-		// Render the sidebar
-		$jdidealgatewayHelper = new JdidealGatewayHelper;
-		$jdidealgatewayHelper->addSubmenu('profiles');
-		$this->sidebar = JHtmlSidebar::render();
+		if (JVERSION < 4)
+		{
+			$jdidealgatewayHelper = new JdidealGatewayHelper;
+			$jdidealgatewayHelper->addSubmenu('profiles');
+			$this->sidebar = JHtmlSidebar::render();
+		}
 
-		// Display it all
 		return parent::display($tpl);
 	}
 

@@ -26,20 +26,24 @@ class DiscussVideoDailyMotion
 		return false;
 	}
 
-	public function getEmbedHTML( $url )
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		$code	= $this->getCode( $url );
 
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$width	= $config->get( 'bbcode_video_width' );
 		$height	= $config->get( 'bbcode_video_height' );
 
-		if( $code )
-		{
+		if ($code) {
 			$html 	= '<div class="ed-video ed-video--16by9"><iframe frameborder="0" width="' . $width . '" height="' . $height . '" src="http://www.dailymotion.com/embed/video/' . $code . '"></iframe></div>';
+
+			if ($isAmp) {
+				$html = '<amp-dailymotion data-videoid="' . $code . '" layout="responsive" width="' . $width . '" height="' . $height . '"></amp-dailymotion>';
+			}
 
 			return $html;
 		}
+
 		return false;
 	}
 }

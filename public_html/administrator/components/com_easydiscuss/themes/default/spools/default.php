@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -12,8 +12,6 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
-	
-	<?php //echo $this->html('table.notice', ''); ?>
 
 	<div class="app-filter-bar">
 		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size">
@@ -23,9 +21,13 @@ defined('_JEXEC') or die('Restricted access');
 		</div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left">
-			<div class="app-filter-bar__filter-wrap ml-20">
-				Please remember to setup the cronjobs if you are not sending emails on page load. 
-				<a href="https://stackideas.com/docs/easydiscuss/administrators/cronjobs" target="_blank" class="btn btn-primary btn-sm ml-10">Setting Up Cronjob</a>
+			<div class="app-filter-bar__filter-wrap t-ml--md">
+			<?php if (!$cronLastExecuted) { ?>
+					Please remember to setup the cronjobs if you are not sending emails on page load. 
+					<a href="https://stackideas.com/docs/easydiscuss/administrators/cronjobs" target="_blank" class="o-btn o-btn--default-o t-ml--sm o-btn--sm">Setting Up Cronjob</a>
+			<?php } else { ?>
+				<span class="t-text--success t-font-size--01"><?php echo JText::sprintf('COM_ED_CRON_LAST_EXECUTED', $cronLastExecuted); ?></span>
+			<?php } ?>
 			</div>
 		</div>
 
@@ -67,7 +69,7 @@ defined('_JEXEC') or die('Restricted access');
 				<?php foreach ($mails as $mail) { ?>
 					<tr>
 						<td class="center">
-							<?php echo JHTML::_('grid.id', $i++, $mail->id); ?>
+							<?php echo $this->html('table.checkbox', $i++, $mail->id); ?>
 						</td>
 						<td style="text-align:left;">
 							<?php echo $mail->recipient;?>
@@ -107,5 +109,5 @@ defined('_JEXEC') or die('Restricted access');
 		</table>
 	</div>
 
-	<?php echo $this->html('form.hidden', 'spools', 'spools'); ?>
+	<?php echo $this->html('form.action', 'spools', 'spools'); ?>
 </form>

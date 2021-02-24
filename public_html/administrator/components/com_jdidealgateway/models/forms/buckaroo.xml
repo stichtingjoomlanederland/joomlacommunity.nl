@@ -12,8 +12,8 @@
                default="1"
                class="btn-group btn-group-yesno"
                labelclass="config">
-            <option value="1">JYES</option>
             <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field name="secret_key"
@@ -39,7 +39,7 @@
                required="true"
                size="1"
                labelclass="config"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                default="sha512"
         >
             <option value="sha1">SHA-1</option>
@@ -64,7 +64,7 @@
                default=""
                multiple="true"
                size="9"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="ideal">COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL</option>
             <option value="bancontactmrcash">COM_JDIDEALGATWAY_PAYMENT_METHOD_BANCONTACT</option>
@@ -86,7 +86,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="verifiedStatus"
@@ -96,7 +96,7 @@
                required="false"
                size="1"
                default="C"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="cancelledStatus"
@@ -106,17 +106,17 @@
                required="false"
                size="1"
                default="X"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
-        <field name="failedStatus"
+        <field name="failureStatus"
                type="jdideal.status"
                label="COM_ROPAYMENTS_STATUS_FAILED_LABEL"
                description="COM_ROPAYMENTS_STATUS_FAILED_DESC"
                required="false"
                size="1"
                default="F"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="openStatus"
@@ -126,7 +126,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
@@ -138,7 +138,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="orderNumber"
@@ -148,7 +148,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
     </fieldset>
 </form>

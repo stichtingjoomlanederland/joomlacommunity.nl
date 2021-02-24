@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -24,6 +24,11 @@ class EasyDiscussImage extends EasyDiscuss
 		$images = array('image/jpeg', 'image/png', 'image/jpg', 'image/gif');
 
 		$info = getimagesize($filePath);
+
+		// For whatever reason that we cannot get the image info from getimagesize, we just treat this as non image
+		if ($info === false) {
+			return false;
+		}
 
 		if (in_array($info['mime'], $images)) {
 			return true;
@@ -159,7 +164,7 @@ class EasyDiscussImage extends EasyDiscuss
 	public static function containsXSS($path)
 	{
 		// Sanitize the content of the files
-		$contents = JFile::read($path, false, 256);
+		$contents = file_get_contents($path, false, null, 0, 256);
 		$tags = array('abbr','acronym','address','applet','area','audioscope','base','basefont','bdo','bgsound','big','blackface','blink','blockquote','body','bq','br','button','caption','center','cite','code','col','colgroup','comment','custom','dd','del','dfn','dir','div','dl','dt','em','embed','fieldset','fn','font','form','frame','frameset','h1','h2','h3','h4','h5','h6','head','hr','html','iframe','ilayer','img','input','ins','isindex','keygen','kbd','label','layer','legend','li','limittext','link','listing','map','marquee','menu','meta','multicol','nobr','noembed','noframes','noscript','nosmartquotes','object','ol','optgroup','option','param','plaintext','pre','rt','ruby','s','samp','script','select','server','shadow','sidebar','small','spacer','span','strike','strong','style','sub','sup','table','tbody','td','textarea','tfoot','th','thead','title','tr','tt','ul','var','wbr','xml','xmp','!DOCTYPE', '!--');
 
 		// If we can't read the file, just skip this altogether
@@ -176,96 +181,6 @@ class EasyDiscussImage extends EasyDiscuss
 
 		return false;
 	}
-
-	/**
-	 * This function is not using in anywhere of EasyDiscuss
-	 * commented out for future use?
-	 *
-	 * @param array File information
-	 * @param string An error message to be returned
-	 * @return boolean
-	 */
-
-	// public static function canUploadImage( $file, &$err )
-	// {
-	// 	//$params = JComponentHelper::getParams( 'com_media' );
-	// 	$params = DiscussHelper::getConfig();
-
-	// 	if(empty($file['name'])) {
-	// 		$err = 'PLEASE INPUT A FILE FOR UPLOAD';
-	// 		return false;
-	// 	}
-
-	// 	jimport('joomla.filesystem.file');
-	// 	if ($file['name'] !== JFile::makesafe($file['name'])) {
-	// 		$err = 'WARNFILENAME';
-	// 		return false;
-	// 	}
-
-	// 	$format = strtolower(JFile::getExt($file['name']));
-
-	// 	$allowable	= explode( ',', $params->get( 'upload_extensions' ));
-	// 	$ignored 	= explode(',', $params->get( 'ignore_extensions' ));
-	// 	if (!in_array($format, $allowable) && !in_array($format,$ignored))
-	// 	{
-	// 		$err = 'WARNFILETYPE';
-	// 		return false;
-	// 	}
-
-	// 	$maxSize = (int) $params->get( 'main_upload_maxsize', 0 );
-	// 	if ($maxSize > 0 && (int) $file['size'] > $maxSize)
-	// 	{
-	// 		$err = 'WARNFILETOOLARGE';
-	// 		return false;
-	// 	}
-
-	// 	$user = JFactory::getUser();
-	// 	$imginfo = null;
-	// 	if($params->get('restrict_uploads',1) ) {
-	// 		$images = explode( ',', $params->get( 'image_extensions' ));
-	// 		if(in_array($format, $images)) { // if its an image run it through getimagesize
-	// 			if(($imginfo = getimagesize($file['tmp_name'])) === FALSE) {
-	// 				$err = 'WARNINVALIDIMG';
-	// 				return false;
-	// 			}
-	// 		} else if(!in_array($format, $ignored)) {
-	// 			// if its not an image...and we're not ignoring it
-	// 			$allowed_mime = explode(',', $params->get('upload_mime'));
-	// 			$illegal_mime = explode(',', $params->get('upload_mime_illegal'));
-	// 			if(function_exists('finfo_open') && $params->get('check_mime',1)) {
-	// 				// We have fileinfo
-	// 				$finfo = finfo_open(FILEINFO_MIME);
-	// 				$type = finfo_file($finfo, $file['tmp_name']);
-	// 				if(strlen($type) && !in_array($type, $allowed_mime) && in_array($type, $illegal_mime)) {
-	// 					$err = 'WARNINVALIDMIME';
-	// 					return false;
-	// 				}
-	// 				finfo_close($finfo);
-	// 			} else if(function_exists('mime_content_type') && $params->get('check_mime',1)) {
-	// 				// we have mime magic
-	// 				$type = mime_content_type($file['tmp_name']);
-	// 				if(strlen($type) && !in_array($type, $allowed_mime) && in_array($type, $illegal_mime)) {
-	// 					$err = 'WARNINVALIDMIME';
-	// 					return false;
-	// 				}
-	// 			} else if(!$user->authorize( 'login', 'administrator' )) {
-	// 				$err = 'WARNNOTADMIN';
-	// 				return false;
-	// 			}
-	// 		}
-	// 	}
-
-	// 	$xss_check =  JFile::read($file['tmp_name'],false,256);
-	// 	$html_tags = array('abbr','acronym','address','applet','area','audioscope','base','basefont','bdo','bgsound','big','blackface','blink','blockquote','body','bq','br','button','caption','center','cite','code','col','colgroup','comment','custom','dd','del','dfn','dir','div','dl','dt','em','embed','fieldset','fn','font','form','frame','frameset','h1','h2','h3','h4','h5','h6','head','hr','html','iframe','ilayer','img','input','ins','isindex','keygen','kbd','label','layer','legend','li','limittext','link','listing','map','marquee','menu','meta','multicol','nobr','noembed','noframes','noscript','nosmartquotes','object','ol','optgroup','option','param','plaintext','pre','rt','ruby','s','samp','script','select','server','shadow','sidebar','small','spacer','span','strike','strong','style','sub','sup','table','tbody','td','textarea','tfoot','th','thead','title','tr','tt','ul','var','wbr','xml','xmp','!DOCTYPE', '!--');
-	// 	foreach($html_tags as $tag) {
-	// 		// A tag is '<tagname ', so we need to add < and a space or '<tagname>'
-	// 		if(stristr($xss_check, '<'.$tag.' ') || stristr($xss_check, '<'.$tag.'>')) {
-	// 			$err = 'WARNIEXSS';
-	// 			return false;
-	// 		}
-	// 	}
-	// 	return true;
-	// }
 
 	public static function parseSize($size)
 	{
@@ -334,7 +249,7 @@ class EasyDiscussImage extends EasyDiscuss
 		}
 		else
 		{
-			$config = DiscussHelper::getConfig();
+			$config = ED::config();
 			$size = $config->get('layout_avatarthumbwidth', 60);
 			// the image ratio always 1:1
 			$thumb  = array($size, $size);
@@ -345,7 +260,7 @@ class EasyDiscussImage extends EasyDiscuss
 
 	public static function getAvatarRelativePath($type = 'profile')
 	{
-		$config			= DiscussHelper::getConfig();
+		$config = ED::config();
 		$avatar_config_path = '';
 
 		switch($type)
@@ -399,5 +314,115 @@ class EasyDiscussImage extends EasyDiscuss
 
 		/* absolute URL is ready! */
 		return $scheme.'://'.$abs;
+	}
+
+	/**
+	 * Process the <img> to <amp-img>
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function processAMP($content)
+	{
+		$pattern = '#<img[^>]*>#i';
+		preg_match_all($pattern, $content, $matches);
+
+		if (!$matches) {
+			return [];
+		}
+
+		$smileys = ['emoticon-happy.png',
+					'emoticon-smile.png',
+					'emoticon-surprised.png',
+					'emoticon-tongue.png',
+					'emoticon-unhappy.png',
+					'emoticon-wink.png'];
+
+		foreach ($matches[0] as $image) {
+
+			preg_match('/src="([^"]+)"/', $image, $src);
+
+			$url = $src[1];
+			$responsive = 'layout="responsive"';
+			$isSmiley = false;
+
+			foreach ($smileys as $smiley) {
+				if (strrpos($url, $smiley) !== false) {
+					$isSmiley = true;
+
+					break;
+				}
+			}
+
+			// Do not set responsive for the smiley img
+			if ($isSmiley) {
+				$responsive = '';
+			}
+
+			$subDomain = JURI::root(true);
+
+			if (stristr($url, 'https:') === false && stristr($url, 'http:') === false) {
+
+				if (stristr($url, '//') === false) {
+					$url = ltrim($url, '/');
+
+					// If this is a subdomain
+					if ($subDomain) {
+						$subDomain = ltrim($subDomain, '/') . '/';
+
+						// Remove the subdomain from the url
+						if (stristr($url, $subDomain) !== false) {
+							$url = str_replace($subDomain, '', $url);
+						}
+					}
+
+					$url = rtrim(JURI::root(), '/') . '/' . ltrim($url);
+				} else {
+					$uri = JURI::getInstance();
+
+					$scheme = $uri->toString(array('scheme'));
+
+					$scheme = str_replace('://', ':', $scheme);
+
+					$url = $scheme . $url;
+				}
+			}
+
+			// we need to supress the warning here in case allow_url_fopen disabled on the site. #865
+			$imageData = @getimagesize($url);
+
+			// Set the default width and height if is false
+			if (!$imageData && !$isSmiley) {
+				$imageData = [];
+				$imageData[0] = 300;
+				$imageData[1] = 225;
+			}
+
+			// Set the width and height for the smiley
+			if ($isSmiley) {
+				$imageData = [];
+				$imageData[0] = 20;
+				$imageData[1] = 20;
+			}
+
+			$coverInfo = 'width="' . $imageData[0] . '" height="' . $imageData[1] . '"';
+
+			$ampImage = '<amp-img src="' . $url . '" ' . $coverInfo . $responsive . '></amp-img>';
+
+			ob_start();
+			echo '<!-- START -->';
+			echo $ampImage;
+			echo '<!-- END -->';
+			$output = ob_get_contents();
+			ob_end_clean();
+
+			//For legacy gallery, it always be wrap in <p>. We need to take it out.
+			// $output = str_replace('<!-- START -->', '<p>', $output);
+			// $output = str_replace('<!-- END -->', '<p>', $output);
+
+			$content = str_ireplace($image, $output, $content);
+		}
+
+		return $content;
 	}
 }

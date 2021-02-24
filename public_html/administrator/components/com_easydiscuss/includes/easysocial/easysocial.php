@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,15 +11,15 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussEasySocial extends EasyDiscuss
+class EasyDiscussEasySocial
 {
 	static $file = null;
 	private $exists	= false;
 
 	public function __construct()
 	{
-		parent::__construct();
-
+		$this->config = ED::config();
+		
 		$lang = JFactory::getLanguage();
 		$lang->load('com_easydiscuss' , JPATH_ROOT);
 
@@ -106,10 +106,17 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 * @access	public
 	 */
 	public function getToolbarDropdown()
-	{		
+	{
 		$theme = ED::themes();
 		$theme->set('esConfig', ES::config());
-		$output = $theme->output('site/toolbar/easysocial');
+
+		$namespace = 'site/toolbar/easysocial';
+
+		if ($theme->isMobile()) {
+			$namespace .= '.mobile';
+		}
+
+		$output = $theme->output($namespace);
 
 		return $output;
 	}
@@ -230,7 +237,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		if ($rule == 'new.comment') {
 			$params	= $points->getParams('new.comment', 'com_easydiscuss');
 
-			$length	= JString::strlen($post->comment);
+			$length	= EDJString::strlen($post->comment);
 			$state 	= false;
 
 			if (!$params) {
@@ -258,7 +265,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				$params	= $points->getParams('new.reply', 'com_easydiscuss');
 			}
 
-			$length	= JString::strlen($post->content);
+			$length	= EDJString::strlen($post->content);
 			$state 	= false;
 
 			if (!$params) {
@@ -290,7 +297,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function createDiscussionStream($post)
 	{
-		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_new_question')) {
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -329,7 +336,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function replyDiscussionStream($post)
 	{
-		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_reply_question')) {
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -386,7 +393,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function commentDiscussionStream($comment, $post, $question)
 	{
-		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_comment')) {
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -428,7 +435,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function likesStream($post , $question)
 	{
-		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_likes'))
+		if(!$this->exists() || !$this->config->get('integration_easysocial_stream'))
 		{
 			return;
 		}
@@ -458,12 +465,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function rankStream($rank)
 	{
-		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_ranks'))
+		if(!$this->exists() || !$this->config->get('integration_easysocial_stream'))
 		{
 			return;
 		}
@@ -493,12 +498,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function favouriteStream($post)
 	{
-		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_favourite')) {
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -525,7 +528,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 */
 	public function acceptedStream($post , $question)
 	{
-		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_accepted')) {
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -565,13 +568,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function voteStream($post)
 	{
-		if(!$this->exists() || !$this->config->get('integration_easysocial_activity_vote'))
-		{
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -595,10 +595,10 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 	private function getRecipients($action , $post)
 	{
-		$recipients 	= array();
+		$recipients = array();
 
 		if ($action == 'new.discussion') {
-			$rows = ED::mailer()->getSubscribers('site', 0, 0 , array() , array($post->user_id));
+			$rows = ED::mailer()->getSubscribers('site', 0, 0 , array('excludeInterval' => true) , array($post->user_id));
 
 			if (!$rows) {
 				return false;
@@ -664,12 +664,15 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPmHtml($targetId, $layout = 'list')
 	{
 		if (!$this->exists()) {
+			return;
+		}
+
+		// Respecting ES conversation settings.
+		if (!ES::user()->canStartConversation($targetId)) {
 			return;
 		}
 
@@ -692,8 +695,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getPopbox($userId)
 	{
@@ -714,8 +715,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	 *
 	 * @since   3.0
 	 * @access  public
-	 * @param   string
-	 * @return
 	 */
 	public function getUsernameField()
 	{
@@ -733,10 +732,8 @@ class EasyDiscussEasySocial extends EasyDiscuss
 	/**
 	 * Notify site subscribers whenever a new blog post is created
 	 *
-	 * @since	1.0
+	 * @since	5.0.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function notify($action, $post, $question = null, $comment = null, $actor = null)
 	{
@@ -746,6 +743,11 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		if ($post->isCluster()) {
 			return $this->notifyCluster($action, $post, $question, $comment, $actor);
+		}
+
+		// If notification integrations are disabled
+		if (!$this->config->get('integration_easysocial_notifications')) {
+			return;
 		}
 
 		// We don't want to notify via e-mail
@@ -770,10 +772,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		$isSiteMultilingualEnabled = ED::isSiteMultilingualEnabled();
 
 		if ($action == 'new.discussion') {
-
-			if (!$this->config->get('integration_easysocial_notify_create')) {
-				return;
-			}
 
 			if (!$recipients) {
 				return;
@@ -804,10 +802,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		if ($action == 'new.moderate.discussion') {
 
-			if (!$this->config->get('integration_easysocial_notify_moderate')) {
-				return;
-			}
-
 			if (!$recipients) {
 				return;
 			}
@@ -836,11 +830,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		if ($action == 'new.reply') {
-
-			if (!$this->config->get('integration_easysocial_notify_reply')) {
-				return;
-			}
-
 			if (!$recipients) {
 				return;
 			}
@@ -870,10 +859,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		if ($action == 'new.comment') {
 
-			if (!$this->config->get('integration_easysocial_notify_comment')) {
-				return;
-			}
-
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
 
@@ -899,17 +884,13 @@ class EasyDiscussEasySocial extends EasyDiscuss
 				$permalink = EDR::_($defaultPermalink, true, null, false);
 			}
 
-			$content = JString::substr($comment->comment, 0, 25) . '...';
+			$content = EDJString::substr($comment->comment, 0, 25) . '...';
 			$options = array('actor_id' => $comment->user_id, 'uid' => $comment->id, 'title' => JText::sprintf('COM_EASYDISCUSS_EASYSOCIAL_NOTIFICATION_COMMENT', $content), 'type' => 'discuss', 'url' => $permalink);
 
 			$rule = 'discuss.comment';
 		}
 
 		if ($action == 'accepted.answer') {
-
-			if (!$this->config->get('integration_easysocial_notify_accepted')) {
-				return;
-			}
 
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
@@ -937,10 +918,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		if ($action == 'accepted.answer.owner') {
 
-			if (!$this->config->get('integration_easysocial_notify_accepted')) {
-				return;
-			}
-
 			// The recipient should only be the post owner
 			$recipients = array($question->user_id);
 
@@ -966,10 +943,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		if ($action == 'new.likes') {
-
-			if (!$this->config->get('integration_easysocial_notify_likes')) {
-				return;
-			}
 
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
@@ -1014,10 +987,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 		if ($action == 'new.mentions') {
 
-			if (!$this->config->get('integration_easysocial_notify_mentions')) {
-				return;
-			}
-
 			if (!$recipients) {
 				return;
 			}
@@ -1059,10 +1028,6 @@ class EasyDiscussEasySocial extends EasyDiscuss
 		}
 
 		if ($action == 'new.voteup' || $action == 'new.votedown') {
-
-			if (!$this->config->get('integration_easysocial_notify_vote')) {
-				return;
-			}
 
 			// The recipient should only be the post owner
 			$recipients = array($post->user_id);
@@ -1195,7 +1160,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 
 	public function deleteDiscussStream($post, $cluster = false)
 	{
-		if (!$this->exists() || !$this->config->get('integration_easysocial_activity_new_question')) {
+		if (!$this->exists() || !$this->config->get('integration_easysocial_stream')) {
 			return;
 		}
 
@@ -1264,7 +1229,7 @@ class EasyDiscussEasySocial extends EasyDiscuss
 			return;
 		}
 
-		$returnUrl = base64_encode(JRequest::getURI());
+		$returnUrl = base64_encode(EDFactory::getURI());
 
 		// Initialize EasySocial's css files
 		$this->init();

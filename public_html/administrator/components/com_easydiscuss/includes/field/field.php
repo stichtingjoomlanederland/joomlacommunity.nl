@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -18,8 +18,6 @@ class EasyDiscussField extends EasyDiscuss
 
 	public function __construct($item)
 	{
-		parent::__construct();
-
 		$this->table = ED::table('CustomFields');
 
 		// For object that is being passed in
@@ -68,8 +66,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function setType($type)
 	{
@@ -81,8 +77,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function format($value)
 	{
@@ -96,20 +90,16 @@ class EasyDiscussField extends EasyDiscuss
 
 		if ($tmp === false) {
 			return $value;
-		} else {
-			// Implode the values if they are an array
-			if (is_array($tmp)) {
-				
-				$value = '';
-				$total = count($tmp);
-				
-				for ($i = 0; $i < $total; $i++) {
-					$value .= '<span>' . $tmp[$i] . '</span>';
+		}
 
-					if (($i + 1) < $total) {
-						$value .= ',';
-					}
-				}
+		// Implode the values if they are an array
+		if (is_array($tmp)) {
+			
+			$value = array();
+			$total = count($tmp);
+			
+			for ($i = 0; $i < $total; $i++) {
+				$value[] = $tmp[$i];
 			}
 		}
 
@@ -121,8 +111,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function bind($data)
 	{
@@ -136,8 +124,6 @@ class EasyDiscussField extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function bindOptions($options = array())
 	{
@@ -211,6 +197,13 @@ class EasyDiscussField extends EasyDiscuss
 			return false;
 		}
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_DELETED_CUSTOMFIELD', 'field', array(
+			'fieldTitle' => $this->table->title
+		));
+
 		// Delete rules associated with this field
 		$model = ED::model('CustomFields');
 		$model->deleteCustomFieldsValue($this->table->id, 'field');
@@ -248,6 +241,14 @@ class EasyDiscussField extends EasyDiscuss
 	{
 		$this->table->published = true;
 		$this->save();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_PUBLISHED_CUSTOMFIELD', 'field', array(
+			'link' => 'index.php?option=com_easydiscuss&view=customfields&layout=form&id=' . $this->table->id,
+			'fieldTitle' => $this->table->title
+		));		
 	}
 
 	/**
@@ -260,6 +261,14 @@ class EasyDiscussField extends EasyDiscuss
 	{
 		$this->table->published = false;
 		$this->save();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_UNPUBLISHED_CUSTOMFIELD', 'field', array(
+			'link' => 'index.php?option=com_easydiscuss&view=customfields&layout=form&id=' . $this->table->id,
+			'fieldTitle' => $this->table->title
+		));		
 	}
 
 	/**
@@ -405,5 +414,45 @@ class EasyDiscussField extends EasyDiscuss
 		$delta = $direction == 'up' ? -1 : 1;
 
 		return $this->table->move($delta);
+	}
+
+	/**
+	 * Makes the field required
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function required()
+	{
+		$this->table->required = true;
+		$this->save();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_REQUIRED_CUSTOMFIELD', 'field', array(
+			'link' => 'index.php?option=com_easydiscuss&view=customfields&layout=form&id=' . $this->table->id,
+			'fieldTitle' => $this->table->title
+		));		
+	}
+
+	/**
+	 * Makes the field required
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function optional()
+	{
+		$this->table->required = false;
+		$this->save();
+
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+
+		$actionlog->log('COM_ED_ACTIONLOGS_OPTIONAL_CUSTOMFIELD', 'field', array(
+			'link' => 'index.php?option=com_easydiscuss&view=customfields&layout=form&id=' . $this->table->id,
+			'fieldTitle' => $this->table->title
+		));		
 	}
 }

@@ -12,7 +12,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<label for="rsepro-new-category"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CATEGORY_NAME'); ?></label>
 		</div>
 		<div class="controls">
-			<input type="text" id="rsepro-new-category" name="category" placeholder="<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENTER_CATEGORY_NAME'); ?>" />
+			<input type="text" id="rsepro-new-category" class="form-control" name="category" placeholder="<?php echo JText::_('COM_RSEVENTSPRO_EVENT_ENTER_CATEGORY_NAME'); ?>" />
 		</div>
 	</div>
 	<div class="control-group">
@@ -20,7 +20,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 			<label for="category-parent"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_CHOOSE_PARENT'); ?></label>
 		</div>
 		<div class="controls">
-			<select id="category-parent" name="parent">
+			<select id="category-parent" name="parent" class="custom-select">
 				<?php echo JHtml::_('select.options', JHtml::_('category.categories','com_rseventspro')); ?>
 			</select>
 		</div>

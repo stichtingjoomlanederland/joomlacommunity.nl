@@ -26,16 +26,19 @@ class DiscussVideoMtv
 		return false;
 	}
 	
-	public function getEmbedHTML( $url )
+	public function getEmbedHTML($url, $isAmp = false)
 	{
 		$code	= $this->getCode( $url );
 
-		$config	= DiscussHelper::getConfig();
+		$config	= ED::config();
 		$width	= $config->get( 'bbcode_video_width' );
 		$height	= $config->get( 'bbcode_video_height' );
 
-		if( $code )
-		{
+		if ($code) {
+			if ($isAmp) {
+				return '<amp-iframe  src="http://media.mtvnservices.com/mgid:uma:video:mtv.com:' . $code . '" width="' . $width . '" height="' . $height . '" frameborder="0" layout="responsive" sandbox="allow-scripts allow-same-origin"></amp-iframe>';
+			}
+
 			return '<embed src="http://media.mtvnservices.com/mgid:uma:video:mtv.com:' . $code . '" width="' . $width . '" height="' . $height . '" type="application/x-shockwave-flash" flashVars="configParams=id%3D' . $code . '%26vid%3D' . $code . '%26uri%3Dmgid%3Auma%3Avideo%3Amtv.com%3A' . $code . '" allowFullScreen="true" allowScriptAccess="always" base="."></embed>';
 		}
 		return false;

@@ -50,7 +50,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 
 		//get the number of events from database
 		$limit		= $mainframe->getUserStateFromRequest('com_easydiscuss.replies.limit', 'limit', $mainframe->getCfg('list_limit') , 'int');
-		$limitstart	= JRequest::getVar('limitstart', 0, '', 'int');
+		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
 		$this->setState('limitstart', $limitstart);
@@ -72,7 +72,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 		// Get the WHERE and ORDER BY clauses for the query
 		$where		= $this->_buildQueryWhere();
 		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 
 		$query	= 'SELECT a.*, 0 as `cnt`, 0 as `pendingcnt` FROM `#__discuss_posts` AS a';
 
@@ -84,12 +84,12 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 	function _buildQueryWhere()
 	{
 		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
+		$db				= ED::db();
 
 		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.filter_state', 'filter_state', '', 'word' );
 
 		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.search', 'search', '', 'string' );
-		$search			= $db->getEscaped( trim(JString::strtolower( $search ) ) );
+		$search			= $db->getEscaped( trim(EDJString::strtolower( $search ) ) );
 
 		$where = array();
 
@@ -169,7 +169,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 	{
 		if( count( $blogs ) > 0 )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$blogs	= implode( ',' , $blogs );
 
@@ -192,7 +192,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 
 	function getTotalPosts()
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query = 'SELECT COUNT(id) AS `total` FROM ' . $db->nameQuote('#__discuss_posts');
 		$db->setQuery( $query );
@@ -202,7 +202,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 
 	function getPostTags( $postId )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT a.* FROM `#__discuss_tags` AS a';
 		$query	.= ' LEFT JOIN `#__discuss_posts_tags` AS b';
@@ -217,7 +217,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 
 	function getPostRepliesCount( $postId )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT COUNT(1) FROM `#__discuss_posts`';
 		$query	.= ' WHERE `parent_id` = ' . $db->Quote($postId);
@@ -234,7 +234,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 	{
 		if( count( $blogs ) > 0 )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$blogs	= implode( ',' , $blogs );
 
@@ -256,7 +256,7 @@ class EasyDiscussModelReplies extends EasyDiscussAdminModel
 	{
 		if( count( $blogs ) > 0)
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 			$blogs	= implode( ',' , $blogs );
 
 			$query	= 'SELECT `parent_id` FROM `#__discuss_posts`';

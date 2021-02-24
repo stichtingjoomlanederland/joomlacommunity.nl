@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -22,14 +22,18 @@ class EasyDiscussTwitter extends EasyDiscuss
 
 	public function __construct($key = '', $secret = '', $callback = '')
 	{
-		$config = ED::config();
+		parent::__construct();
+		
+		$this->app = JFactory::getApplication();
+		$this->input = ED::request();
+		$this->config = ED::config();
 
 		if (!$key) {
-			$key = $config->get('main_autopost_twitter_id');
+			$key = $this->config->get('main_autopost_twitter_id');
 		}
 
 		if (!$secret) {
-			$secret = $config->get('main_autopost_twitter_secret');
+			$secret = $this->config->get('main_autopost_twitter_secret');
 		}
 
 		if (!$callback) {
@@ -93,8 +97,7 @@ class EasyDiscussTwitter extends EasyDiscuss
 	 */
 	public function getVerifier()
 	{
-		$verifier = JRequest::getVar('oauth_verifier', '');
-		return $verifier;
+		return $this->input->get('oauth_verifier', '', 'default');
 	}
 
 	/**
@@ -119,6 +122,7 @@ class EasyDiscussTwitter extends EasyDiscuss
 
 		$obj->token = $accessToken['oauth_token'];
 		$obj->secret = $accessToken['oauth_token_secret'];
+		$obj->expires = '';
 
 		$registry = new JRegistry();
 		$registry->set('user_id', $accessToken['user_id']);
@@ -143,8 +147,7 @@ class EasyDiscussTwitter extends EasyDiscuss
 		// Pass all the token key and secret
 		$lib = new DiscussTwitterOAuth($oauth->key, $oauth->secret, $tokenAccess->key->key, $tokenAccess->key->secret);
 
-		$config	= ED::config();
-		$message = $config->get('main_autopost_twitter_message');
+		$message = $this->config->get('main_autopost_twitter_message');
 
 		$content = $this->processMessage($message, $post);
 
@@ -227,7 +230,7 @@ class EasyDiscussTwitter extends EasyDiscuss
 			$replace[] = $category->title;
 		}
 
-		$message = JString::str_ireplace($search, $replace, $message);
+		$message = EDJString::str_ireplace($search, $replace, $message);
 
 		// replace link
 		if (preg_match_all("/.*?(\\{url\\})/is", $message, $matches)) {
@@ -246,17 +249,17 @@ class EasyDiscussTwitter extends EasyDiscuss
 			}
 
 			// @rule: Detect the length of the link
-			$length	= JString::strlen($link);
+			$length	= EDJString::strlen($link);
 			$balance = 140 - $length;
 
 			$parts = explode('{url}', $message);
 
-			$message = JString::substr($parts[0], 0, 119);
+			$message = EDJString::substr($parts[0], 0, 119);
 			$message .= ' ' . $link;
 
 			return $message;
 		}
 
-		return JString::substr($message, 0, 140);
+		return EDJString::substr($message, 0, 140);
 	}
 }

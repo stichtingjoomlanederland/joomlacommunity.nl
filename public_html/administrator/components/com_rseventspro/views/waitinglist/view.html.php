@@ -47,8 +47,6 @@ class RseventsproViewWaitinglist extends JViewLegacy
 			JToolBarHelper::custom('waitinglist.approve','ok','ok',JText::_('COM_RSEVENTSPRO_WAITING_APPROVE'));
 			JToolBarHelper::deleteList('','waitinglist.delete');
 		}
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 	
 	protected function getEventName() {

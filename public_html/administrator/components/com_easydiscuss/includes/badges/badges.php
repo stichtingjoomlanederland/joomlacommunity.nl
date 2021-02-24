@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussBadges extends EasyDiscuss
 {
-	var $exists	= null;
+	public $exists = null;
 
 	public function assign($command, $userId)
 	{
@@ -73,7 +73,7 @@ class EasyDiscussBadges extends EasyDiscuss
 				$notification->store();
 				
 				//insert into JS stream.
-				if ($config->get('integration_jomsocial_activity_badges', 0)) {
+				if ($config->get('integration_jomsocial_stream', 0)) {
 					$badgeTable = ED::table('Badges');
 					$badgeTable->load($badge->id);
 					$badgeTable->uniqueId = $table->id;
@@ -93,6 +93,13 @@ class EasyDiscussBadges extends EasyDiscuss
 	 */
 	public function assignBadgesByCommand($command, $userId)
 	{
+		$config = ED::config();
+
+		// If badges is disabled, do not proceed.
+		if (!$config->get('main_badges')) {
+			return;
+		}
+
 		$user = ED::user($userId);
 
 		if (!$user->id) {
@@ -125,8 +132,8 @@ class EasyDiscussBadges extends EasyDiscuss
 		$pointsLib = ED::points();
 
 		// Get the compute points for all the rules above.
-		$overallAchieveCommand = $pointsModel->getTotalPointsHistory($userId, $achieveCommand);
-		$overallRemoveCommand  = $pointsModel->getTotalPointsHistory($userId, $removeCommand);
+		$overallAchieveCommand = $pointsModel->getTotalHistory($userId, $achieveCommand);
+		$overallRemoveCommand  = $pointsModel->getTotalHistory($userId, $removeCommand);
 
 		// Now we get the threshold for each badges
 		foreach ($badges as $badge) {
@@ -247,7 +254,7 @@ class EasyDiscussBadges extends EasyDiscuss
 	public function create($userId, $badgeId, $dateAchieved)
 	{
 		// Convert the date achieved to sql format.
-		$dateAchieved = ED::Date($dateAchieved)->toSql();
+		$dateAchieved = ED::date($dateAchieved)->toSql();
 
 		$table = ED::table('BadgesUsers');
 		$table->set('badge_id', $badgeId);
@@ -308,7 +315,7 @@ class EasyDiscussBadges extends EasyDiscuss
 	 */
 	public function getToolbarHtml()
 	{
-		if (!$this->my->id) {
+		if (!$this->my->id || !$this->config->get('main_badges')) {
 			return;
 		}
 

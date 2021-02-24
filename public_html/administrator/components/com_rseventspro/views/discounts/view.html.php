@@ -23,7 +23,5 @@ class RseventsproViewDiscounts extends JViewLegacy
 		JToolBarHelper::addNew('discount.add');
 		JToolBarHelper::editList('discount.edit');
 		JToolBarHelper::deleteList('','discounts.delete');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

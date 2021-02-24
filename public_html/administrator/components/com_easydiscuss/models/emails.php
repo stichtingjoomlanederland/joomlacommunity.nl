@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,9 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-require_once dirname( __FILE__ ) . '/model.php';
+require_once(__DIR__ . '/model.php');
 
 class EasyDiscussModelEmails extends EasyDiscussAdminModel
 {
@@ -30,12 +30,23 @@ class EasyDiscussModelEmails extends EasyDiscussAdminModel
 	}
 
 	/**
+	 * Generates the path to the overriden folder
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function getOverrideFolder($file)
+	{
+		$path = JPATH_ROOT . '/templates/' . $this->getCurrentTemplate() . '/html/com_easydiscuss/emails/' . ltrim($file, '/');
+
+		return $path;
+	}
+
+	/**
 	 * Retrieves a list of email templates
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getTemplates()
 	{
@@ -43,8 +54,8 @@ class EasyDiscussModelEmails extends EasyDiscussAdminModel
 		$folder = DISCUSS_ROOT . '/themes/wireframe/emails';
 
 		// Get a list of files
-		$rows = JFolder::files($folder, '.', false, true);
-		$files = array();
+		$rows = JFolder::files($folder, '.php', false, true);
+		$files = [];
 
 		// Get the current site template
 		$currentTemplate = $this->getCurrentTemplate();
@@ -70,8 +81,6 @@ class EasyDiscussModelEmails extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getTemplate($absolutePath, $contents = false)
 	{
@@ -88,6 +97,8 @@ class EasyDiscussModelEmails extends EasyDiscussAdminModel
 
 		// Determine if the email template file has already been overriden.
 		$overridePath = JPATH_ROOT . '/templates/' . $currentTemplate . '/html/com_easydiscuss/emails/' . $file->name;
+		
+		$file->relative = str_ireplace(JPATH_ROOT . '/components/com_easydiscuss/themes/wireframe/emails/', '', $absolutePath);
 
 		$file->override = JFile::exists($overridePath);
 		$file->overridePath = $overridePath;
@@ -95,9 +106,9 @@ class EasyDiscussModelEmails extends EasyDiscussAdminModel
 
 		if ($contents) {
 			if ($file->override) {
-				$file->contents = JFile::read($file->overridePath);
+				$file->contents = file_get_contents($file->overridePath);
 			} else {
-				$file->contents = JFile::read($file->path);
+				$file->contents = file_get_contents($file->path);
 			}
 		}
 
@@ -109,8 +120,6 @@ class EasyDiscussModelEmails extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getCurrentTemplate()
 	{

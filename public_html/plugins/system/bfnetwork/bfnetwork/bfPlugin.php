@@ -206,7 +206,7 @@ if (class_exists('JPlugin') && !class_exists('PlgSystemBfnetwork')) {
                     switch ($_SERVER['REQUEST_METHOD']) {
                         case 'GET':
                             // a blank form, before creating a new user
-                            if (0 == $data->id) {
+                            if (!$data || 0 == $data->id) {
                                 return;
                             }
 

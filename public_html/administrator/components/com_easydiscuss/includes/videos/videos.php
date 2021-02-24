@@ -70,7 +70,7 @@ class EasyDiscussVideos extends EasyDiscuss
 	 * @param	string
 	 * @return
 	 */
-	public function replace($content)
+	public function replace($content, $isAmp = false)
 	{
 		preg_match_all($this->code, $content, $matches);
 
@@ -102,12 +102,12 @@ class EasyDiscussVideos extends EasyDiscuss
 			}
 
 			// Last two parts will always be the domain name.
-			$url	= $url[ count( $url ) - 2 ] . '.' . $url[ count( $url ) - 1 ];
+			$url = $url[ count( $url ) - 2 ] . '.' . $url[ count( $url ) - 1 ];
 
 			if (!empty($url) && array_key_exists($url, $this->patterns)) {
 				$provider = $this->getProvider($url);
 
-				$html = $provider->getEmbedHTML($rawUrl);
+				$html = $provider->getEmbedHTML($rawUrl, $isAmp);
 
 				$content = str_ireplace($video, $html, $content);
 			}

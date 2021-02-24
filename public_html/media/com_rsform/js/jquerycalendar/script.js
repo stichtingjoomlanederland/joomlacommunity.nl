@@ -427,7 +427,8 @@ RSFormPro.jQueryCalendar = {
 					var selectedDate = ct.dateFormat(hiddenFormat);
 
 					if (operation && config.timepicker) {
-						if (RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].timepicker) {
+						// if the calendar only has the time picker we must let the timepicker option unchanged
+						if (RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].datepicker && RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].timepicker) {
 							RSFormPro.jQueryCalendar.calendars[formId][otherCalendarName].calendar.datetimepicker({timepicker: false});
 						}
 					}
@@ -667,7 +668,6 @@ RSFormPro.jQueryCalendar = {
 					if (index  < 0) {
 						RSFormPro.jQueryCalendar.shownCalendars.push(calendarId);
 					}
-
 				},
 
 				onClose: function() {

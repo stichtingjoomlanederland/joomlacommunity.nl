@@ -35,9 +35,6 @@ class EasyDiscussStorage
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	Method's name.
-	 * @param	mixed	Arguments
-	 * @return
 	 */
 	public function __call($method, $args)
 	{

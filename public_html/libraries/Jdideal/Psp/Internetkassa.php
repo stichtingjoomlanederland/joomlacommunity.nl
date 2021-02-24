@@ -4,7 +4,7 @@
  * @subpackage  Internetkassa
  *
  * @author      Roland Dalmulder <contact@rolandd.com>
- * @copyright   Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright   Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link        https://rolandd.com
  */
@@ -13,6 +13,7 @@ namespace Jdideal\Psp;
 
 use Jdideal\Gateway;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 
 defined('_JEXEC') or die;
 
@@ -244,10 +245,10 @@ class Internetkassa
 	public function getAvailablePaymentMethods()
 	{
 		return array(
-			'iDEAL'            => \JText::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL'),
-			'Mastercard'       => \JText::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD'),
-			'VISA'             => \JText::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_VISA'),
-			'American Express' => \JText::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_AMEX'),
+			'iDEAL'            => Text::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_IDEAL'),
+			'Mastercard'       => Text::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD'),
+			'VISA'             => Text::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_VISA'),
+			'American Express' => Text::_('COM_JDIDEALGATWAY_PAYMENT_METHOD_AMEX'),
 		);
 	}
 
@@ -441,7 +442,7 @@ class Internetkassa
 
 		if (!$logId)
 		{
-			throw new \RuntimeException(\JText::_('COM_ROPAYMENTS_NO_LOGID_FOUND'));
+			throw new \RuntimeException(Text::_('COM_ROPAYMENTS_NO_LOGID_FOUND'));
 		}
 
 		return $logId;
@@ -466,7 +467,7 @@ class Internetkassa
 
 		if (!array_key_exists('transaction_id', $this->data))
 		{
-			throw new \RuntimeException(\JText::_('COM_ROPAYMENTS_NO_TRANSACTIONID_FOUND'));
+			throw new \RuntimeException(Text::_('COM_ROPAYMENTS_NO_TRANSACTIONID_FOUND'));
 		}
 
 		// Get the transaction ID
@@ -555,15 +556,18 @@ class Internetkassa
 				case '0':
 				case '1':
 					$status['suggestedAction'] = 'CANCELLED';
-					$status['error_message'] = \JText::_('COM_ROPAYMENTS_PAYMENT_CANCELLED');
+					$status['error_message'] = Text::_('COM_ROPAYMENTS_PAYMENT_CANCELLED');
 					break;
 				case '2':
 					$status['suggestedAction'] = 'OPEN';
-					$status['error_message'] = \JText::_('COM_ROPAYMENTS_PAYMENT_NOT_AUTHORIZED');
+					$status['error_message'] = Text::_('COM_ROPAYMENTS_PAYMENT_NOT_AUTHORIZED');
 					break;
+                case '41':
+                    $status['suggestedAction'] = 'TRANSFER';
+                    break;
 				default:
 					$status['suggestedAction'] = 'FAILURE';
-					$status['error_message'] = \JText::_('COM_ROPAYMENTS_ABN_INTERNETKASSA_RESULT_' . $this->jinput->get('STATUS'));
+					$status['error_message'] = Text::_('COM_ROPAYMENTS_ABN_INTERNETKASSA_RESULT_' . $this->jinput->get('STATUS'));
 					break;
 			}
 		}
@@ -575,7 +579,7 @@ class Internetkassa
 			// Store the result
 			$status['isOK'] = false;
 			$status['suggestedAction'] = 'FAILURE';
-			$status['error_message'] = \JText::_('COM_ROPAYMENTS_DATA_NOT_VALIDATED');
+			$status['error_message'] = Text::_('COM_ROPAYMENTS_DATA_NOT_VALIDATED');
 			$status['card'] = '';
 		}
 

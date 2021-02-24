@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -19,7 +19,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function checkall()
+	public function checkall()
 	{
 		$theme = ED::themes();
 
@@ -34,7 +34,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function ordering($name, $index, $totalItems, $allowed = false)
+	public function ordering($name, $index, $totalItems, $allowed = false)
 	{
 		// Get the ordering key
 		$theme = ED::themes();
@@ -54,7 +54,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function publish($post, $index)
+	public function publish($post, $index)
 	{
 		$theme = ED::themes();
 
@@ -71,7 +71,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function featured($view, $obj, $property = 'default', $tasks = 'toggleFeatured', $allowed = true)
+	public function featured($view, $obj, $property = 'default', $tasks = 'toggleFeatured', $allowed = true)
 	{
 		$theme = ED::themes();
 
@@ -96,7 +96,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function checkbox($index, $value, $allowed = true, $name = 'cid')
+	public function checkbox($index, $value, $allowed = true, $name = 'cid')
 	{
 		$theme = ED::themes();
 
@@ -116,7 +116,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0.17
 	 * @access	public
 	 */
-	public static function limit($selected = 5, $name = 'limit', $step = 5, $min = 5, $max = 100, $showAll = true)
+	public function limit($selected = 5, $name = 'limit', $step = 5, $min = 5, $max = 100, $showAll = true)
 	{
 		$theme = ED::themes();
 
@@ -143,7 +143,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function notice($text, $icon = 'fa-info-circle', $class = 'alert-warning')
+	public function notice($text, $icon = 'fa-info-circle', $class = 'alert-warning')
 	{
 		$theme = ED::themes();
 		$theme->set('text', $text);
@@ -161,7 +161,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function filter($name, $selected, $items = array(), $initial = false)
+	public function filter($name, $selected, $items = array(), $initial = false)
 	{
 		$theme = ED::themes();
 
@@ -190,7 +190,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function search($name, $search = '', $tooltipMessage = null)
+	public function search($name, $search = '', $tooltipMessage = null)
 	{
 		if (!$tooltipMessage) {
 			$tooltipMessage = 'COM_EASYDISCUSS_SEARCH_TOOLTIP';
@@ -214,7 +214,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function state($view, $obj, $property = '', $controller = '', $allowed = true, $tasks = array())
+	public function state($view, $obj, $property = '', $controller = '', $allowed = true, $tasks = array())
 	{
 		// If the property is not provided, we assume that it uses the property of `state` by default.
 		if (!$property) {
@@ -255,7 +255,7 @@ class EasyDiscussThemesHelperTable
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function getViewStates($view)
+	public function getViewStates($view)
 	{
 		static $states = array();
 
@@ -272,12 +272,12 @@ class EasyDiscussThemesHelperTable
 		return $states[$view];
 	}
 
-	public static function getStatesConfig()
+	public function getStatesConfig()
 	{
 		$obj = array(
-					'spools' => array('0' => 'unpublished', '1' => 'published'),
-					'default' => array('0' => 'unpublished', "1" => "published")
-					);
+					'spools' => array('0' => 'unpublish', '1' => 'publish'),
+					'default' => array('0' => 'unpublish', "1" => "publish")
+		);
 
 		return $obj;
 	}

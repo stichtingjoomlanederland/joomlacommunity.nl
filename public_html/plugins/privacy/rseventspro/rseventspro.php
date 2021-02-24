@@ -171,7 +171,7 @@ class PlgPrivacyRseventspro extends PrivacyPlugin
 				$db->setQuery($query);
 				$db->execute();
 				
-				JFactory::getApplication()->triggerEvent('rsepro_beforeDeleteSubscription', array(array('id' => $id)));
+				JFactory::getApplication()->triggerEvent('onrsepro_beforeDeleteSubscription', array(array('id' => $id)));
 				
 				// Remove subscription
 				$query->clear()->delete($db->qn('#__rseventspro_users'))->where($db->qn('id').' = '.(int) $id);
@@ -337,7 +337,7 @@ class PlgPrivacyRseventspro extends PrivacyPlugin
 				$total = $total + $item['tax'];
 			}
 		} else {
-			JFactory::getApplication()->triggerEvent('rsepro_paymentForm', array(array('id' => $item['id'], 'total' => &$total, 'info' => &$info)));
+			JFactory::getApplication()->triggerEvent('onrsepro_paymentForm', array(array('id' => $item['id'], 'total' => &$total, 'info' => &$info)));
 			$info = str_replace(array('<em>','</em>'), '', $info);
 		}
 		

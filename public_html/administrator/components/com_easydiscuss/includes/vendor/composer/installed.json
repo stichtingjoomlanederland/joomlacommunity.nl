@@ -1,5 +1,54 @@
 [
     {
+        "name": "nahid/jsonq",
+        "version": "v5.2.4",
+        "version_normalized": "5.2.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/nahid/jsonq.git",
+            "reference": "8b38ceaa05c6d92355637e300dec15dcdab21474"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/nahid/jsonq/zipball/8b38ceaa05c6d92355637e300dec15dcdab21474",
+            "reference": "8b38ceaa05c6d92355637e300dec15dcdab21474",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.5.0"
+        },
+        "require-dev": {
+            "graham-campbell/testbench": "^3.1",
+            "phpunit/phpunit": "^4.8 || ^5.0",
+            "symfony/var-dumper": "^3.4"
+        },
+        "time": "2019-10-17T18:53:33+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Nahid\\JsonQ\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "CC0-1.0"
+        ],
+        "authors": [
+            {
+                "name": "Nahid Bin Azhar",
+                "email": "nahid.dns@gmail.com"
+            }
+        ],
+        "description": "JsonQ is a PHP based json data query library",
+        "homepage": "https://github.com/nahid/jsonq",
+        "keywords": [
+            "json",
+            "jsonq",
+            "query"
+        ]
+    },
+    {
         "name": "willdurand/email-reply-parser",
         "version": "2.9.0",
         "version_normalized": "2.9.0.0",

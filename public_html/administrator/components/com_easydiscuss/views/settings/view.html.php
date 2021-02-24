@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2020 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
 
 class EasyDiscussViewSettings extends EasyDiscussAdminView
 {
@@ -32,7 +30,7 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 		$namespace = 'settings/' . $layout . '/default';
 
 		if ($layout == 'default') {
-			return $this->app->redirect('index.php?option=com_easydiscuss&view=settings&layout=general');
+			return ED::redirect('index.php?option=com_easydiscuss&view=settings&layout=general');
 		}
 
 		// Set the title and the description of the page
@@ -42,12 +40,15 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 
 		// Get the tabs
 		$tabs = $this->getTabs($layout);
+		$goto = $this->input->get('goto', '', 'cmd');
 
+		$this->set('goto', $goto);
 		$this->set('tabs', $tabs);
 		$this->set('activeTab', $activeTab);
 		$this->set('config', $this->config);
 		$this->set('layout', $layout);
 		$this->set('namespace', $namespace);
+
 
 		return parent::display('settings/form');
 	}
@@ -58,9 +59,10 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 
 		$files = JFolder::files($path, '.php');
 		$tabs = array();
-		
+
 		// Get the current active tab
 		$active = $this->input->get('active', '', 'cmd');
+		$advanced = $this->input->get('advanced', 0, 'int');
 
 		if (!$files) {
 			return false;
@@ -92,11 +94,19 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 			$theme->set('defaultSAId', $defaultSAId);
 			$theme->set('joomlaVersion', $joomlaVersion);
 			$theme->set('joomlaGroups', $joomlaGroups);
+			$theme->set('advanced', $advanced);
 
 			if ($layout == 'email') {
 				$categories = $this->getCategories();
 				$theme->set('categories', $categories);
 			}
+
+			if ($layout == 'categories') {
+				$category = ED::category();
+				$theme->set('category', $category);
+			}
+
+			// dump($category->getAssignedGroups());
 
 			// Comments settings
 			if (method_exists($this, $layout)) {
@@ -110,7 +120,7 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 
 		// Sort items manually. Always place "General" as the first item
 		if (isset($tabs['general'])) {
-		
+
 			$general = $tabs['general'];
 
 			unset($tabs['general']);
@@ -142,5 +152,39 @@ class EasyDiscussViewSettings extends EasyDiscussAdminView
 		$categories	= $db->loadObjectList();
 
 		return $categories;
+	}
+
+	/**
+	 * Rebuilds the search database
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function rebuildSearch()
+	{
+		$this->setHeading("Rebuild Search Results for Settings");
+
+		$file = DISCUSS_ADMIN_ROOT . '/defaults/menus.json';
+		$contents = JFile::read($file);
+
+		$menus = json_decode($contents);
+		$settings = $menus[1];
+
+		$items = array();
+
+		$exclude = array('themes');
+
+		foreach ($settings->childs as $child) {
+
+			if (in_array($child->url->view, $exclude)) {
+				continue;
+			}
+
+			$items[] = $child->url->layout;
+		}
+
+		$this->set('items', $items);
+
+		return parent::display('settings/search/rebuild');
 	}
 }

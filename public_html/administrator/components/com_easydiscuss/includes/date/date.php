@@ -126,18 +126,23 @@ class EasyDiscussDate extends EasyDiscuss
 		$end = ED::date($time);
 		$time = $now->toUnix() - $end->toUnix();
 
-		$tokens = array (
-							31536000 => 'COM_EASYDISCUSS_X_YEAR',
-							2592000 => 'COM_EASYDISCUSS_X_MONTH',
-							604800 => 'COM_EASYDISCUSS_X_WEEK',
-							86400 => 'COM_EASYDISCUSS_X_DAY',
-							3600 => 'COM_EASYDISCUSS_X_HOUR',
-							60 => 'COM_EASYDISCUSS_X_MINUTE',
-							1 => 'COM_EASYDISCUSS_X_SECOND'
-						);
+		$tokens = [
+					31536000 => 'COM_EASYDISCUSS_X_YEAR',
+					2592000 => 'COM_EASYDISCUSS_X_MONTH',
+					604800 => 'COM_EASYDISCUSS_X_WEEK',
+					86400 => 'COM_EASYDISCUSS_X_DAY',
+					3600 => 'COM_EASYDISCUSS_X_HOUR',
+					60 => 'COM_EASYDISCUSS_X_MINUTE',
+					1 => 'COM_EASYDISCUSS_X_SECOND'
+		];
 
-		foreach ($tokens as $unit => $key) {
-			
+		// Prevent invalid time
+		if ($time <= 1) {
+			return JText::sprintf('COM_EASYDISCUSS_X_SECOND_AGO', 1);
+		}
+
+		foreach ($tokens as $unit => $key) {	
+
 			if ($time < $unit) {
 				continue;
 			}

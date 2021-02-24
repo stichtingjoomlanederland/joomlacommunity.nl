@@ -33,6 +33,6 @@ defined('_JEXEC') or die('Unauthorized Access');
         </div>
     </content>
     <buttons>
-        <button data-close-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+        <button data-close-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
     </buttons>
 </dialog>

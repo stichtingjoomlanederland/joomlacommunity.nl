@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="cell grid-x margin-top-1" id="acym__campaigns__edit_email__attachments">
+<div class="cell grid-x margin-top-1" id="acym__campaigns__edit_email__attachments">
 	<label class="cell"><?php echo acym_translation('ACYM_ATTACHMENTS'); ?></label>
     <?php if (!empty($data['mailInformation']->attachments)) { ?>
         <?php
@@ -21,7 +19,7 @@ defined('_JEXEC') or die('Restricted access');
         }
     }
 
-    $uploadfileType = acym_get('type.uploadFile');
+    $uploadfileType = $data['uploadFileType'];
     for ($i = 0 ; $i < 10 ; $i++) {
         $result = '<div '.($i >= 1 ? 'style="display:none"' : '').' class="cell grid-x grid-margin-x acym__campaigns__attach__elements" id="acym__campaigns__attach__'.$i.'">';
         $result .= $uploadfileType->display('attachments', $i);

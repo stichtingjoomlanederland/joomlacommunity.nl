@@ -39,5 +39,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</table>
 	</div>
 
-	<?php echo $this->html('form.hidden', 'maintenance'); ?>
+	<?php echo $this->html('form.action', 'maintenance'); ?>
 </form>

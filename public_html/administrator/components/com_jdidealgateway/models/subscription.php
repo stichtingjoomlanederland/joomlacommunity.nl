@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -12,6 +12,7 @@ use Jdideal\Gateway;
 use Jdideal\Recurring\Mollie;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Model\AdminModel;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
 
 defined('_JEXEC') or die;
 
@@ -45,9 +46,9 @@ class JdidealgatewayModelSubscription extends AdminModel
 	 *
 	 * @return  boolean  True if successful, false if an error occurs.
 	 *
+	 * @since   5.0.0
 	 * @throws  Exception
 	 *
-	 * @since   5.0.0
 	 */
 	public function delete(&$pks)
 	{
@@ -116,6 +117,36 @@ class JdidealgatewayModelSubscription extends AdminModel
 			Factory::getApplication()->enqueueMessage($exception->getMessage(), 'error');
 
 			return false;
+		}
+	}
+
+	/**
+	 * Sync the subscriptions.
+	 *
+	 * @return  void
+	 *
+	 * @since   6.3.0
+	 * @throws  Exception
+	 */
+	public function sync(): void
+	{
+		/** @var JdidealgatewayModelProfiles $profilesModel */
+		$profilesModel = BaseDatabaseModel::getInstance('Profiles', 'JdidealgatewayModel', ['ignore_request' => true]);
+		$profiles      = $profilesModel->getItems();
+
+		foreach ($profiles as $profile)
+		{
+			$jdideal = new Gateway($profile->alias);
+
+			if ($jdideal->get('recurring', false) === false)
+			{
+				continue;
+			}
+
+			$mollie = new Mollie;
+			$mollie->setProfileId($jdideal->getProfileId());
+			$mollie->setApiKey($jdideal->get('profile_key'));
+			$mollie->syncAllSubscriptions();
 		}
 	}
 }

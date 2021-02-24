@@ -1,0 +1,62 @@
+$fd-base-font-family: Helvetica, Arial, sans-serif !default;
+$fd-base-line-height: 1.5 !default; // Unable to use golden ratio 1.618033988  22/13 #163
+$fd-ui-border-color: #e1e1e1; // Divider, island
+
+$fd-ui-bg: #fff;
+
+$fd-base-spacing:           .6em; // 8px
+$fd-base-spacing--xs:     $fd-base-spacing / 4; //  2px // 0.1625em
+$fd-base-spacing--sm:    $fd-base-spacing / 2; //  4px
+$fd-base-spacing--lg:    $fd-base-spacing * 2; //  16px 
+$fd-base-spacing--xl:     $fd-base-spacing * 3; // 24px
+
+:root {
+	--si-font-color: #444; // (Primary)
+	--si-font-color--d: #888; // (Meta)
+	--si-font-color--l: #ccc;
+	--si-bg: #fff;
+
+	--si-border-color: #e1e1e1;
+
+	--si-btn-txt: #444;
+
+	--si-primary-color: #3E7AC0;
+	--si-success-color: #52B451;
+	--si-error-color: #E75F59;
+
+	--si-success-text: #52B451;
+	--si-success-bg: #E7FAE8;
+	--si-success-border: #E7FAE8;
+	
+	--si-alert-text: #E75F59;
+	--si-alert-bg: #FCEFEE;
+	--si-alert-border: #FCEFEE;
+
+	--si-btn-primary-txt: #fff;
+	--si-btn-primary-bg: #3E7AC0;
+	--si-btn-primary-border: #3E7AC0;
+	--si-btn-primary-bg-hover: #4B88D0;
+	--si-btn-primary-border-hover: #4B88D0;
+	
+	--si-btn-primary-bg-disabled: #9FBDE0;
+	--si-btn-primary-border-disabled: #9FBDE0;
+
+	--si-btn-danger-txt: #fff;
+	--si-btn-danger-bg: #c9302c;
+	--si-btn-danger-border: #c9302c;
+	--si-btn-danger-bg-hover: #ce4032;
+	--si-btn-danger-border-hover: #ce4032;
+	
+	--si-btn-danger-bg-disabled: #9FBDE0;
+	--si-btn-danger-border-disabled: #9FBDE0;
+	
+
+	--si-btn-outline-secondary-txt: #3E7AC0;
+	--si-btn-outline-secondary-bg: #3E7AC0;
+	--si-btn-outline-secondary-border: #e1e1e1;
+	--si-btn-outline-secondary-bg-hover: #ffffff;
+	--si-btn-outline-secondary-border-hover: #e1e1e1;
+
+	--si-table-accent-bg: #cecece;
+}
+

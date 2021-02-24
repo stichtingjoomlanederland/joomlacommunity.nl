@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="component" version="2.5" method="upgrade">
+    <name>com_joomlatools_installer</name>
+    <author>Joomlatools</author>
+    <creationDate>April 2016</creationDate>
+    <copyright>Copyright (C) 2016 Timble CVBA (http://www.timble.net)</copyright>
+    <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>support@joomlatools.com</authorEmail>
+    <authorUrl>www.joomlatools.com</authorUrl>
+    <version>1.0.0</version>
+    <description />
+
+    <scriptfile>script.php</scriptfile>
+
+    <administration>
+        <files>
+            <filename>joomlatools_installer.php</filename>
+        </files>
+    </administration>
+
+    <files>
+        <filename>joomlatools_installer.php</filename>
+        <folder>payload</folder>
+    </files>
+</extension>

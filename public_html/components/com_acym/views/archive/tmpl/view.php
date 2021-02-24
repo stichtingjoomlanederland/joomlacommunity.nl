@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div id="acyarchiveview">
+<div id="acyarchiveview">
 	<h1 class="contentheading"><?php echo $data['mail']->subject; ?></h1>
 
 	<div class="newsletter_body" style="min-width:80%" id="newsletter_preview_area"><?php echo $data['mail']->body; ?></div>
@@ -26,4 +24,3 @@ defined('_JEXEC') or die('Restricted access');
 		</fieldset>
     <?php } ?>
 </div>
-

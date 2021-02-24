@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ @package   akeebabackup
+  ~ @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+  ~ @license   GNU General Public License version 3, or later
+  -->
+
+<extension version="3.9.0" type="plugin" group="console" method="upgrade">
+	<name>PLG_CONSOLE_AKEEBABACKUP</name>
+	<version>7.5.0.1</version>
+	<creationDate>2020-12-14</creationDate>
+	<author>Nicholas K. Dionysopoulos</author>
+	<authorEmail>nicholas@dionysopoulos.me</authorEmail>
+	<authorUrl>https://www.akeeba.com</authorUrl>
+	<copyright>Copyright (c)2006-2020 Nicholas K. Dionysopoulos</copyright>
+	<license>GNU General Public License version 3, or later</license>
+	<description>PLG_CONSOLE_AKEEBABACKUP_XML_DESCRIPTION</description>
+	<namespace path="src">Joomla\Plugin\Console\AkeebaBackup</namespace>
+	<files>
+		<folder>services</folder>
+		<folder>src</folder>
+
+		<filename>.htaccess</filename>
+		<filename>web.config</filename>
+	</files>
+	<languages folder="language">
+		<language tag="en-GB">en-GB/en-GB.plg_console_akeebabackup.ini</language>
+		<language tag="en-GB">en-GB/en-GB.plg_console_akeebabackup.sys.ini</language>
+	</languages>
+
+	<scriptfile>script.php</scriptfile>
+</extension>

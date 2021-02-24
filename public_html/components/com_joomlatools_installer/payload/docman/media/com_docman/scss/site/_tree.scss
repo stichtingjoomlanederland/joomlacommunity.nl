@@ -1,0 +1,74 @@
+/* Tree
+   ========================================================================== */
+
+/**
+ * Reset colors that are coming from backend
+ * it would be best to create a separate class for the tree so that it can either act as
+ * - an inherit color tree or a
+ * - colored highlighted one (for in admin only)
+ */
+
+.k-tree {
+  .jqtree-element {
+    &:hover,
+    &:focus {
+      background: rgba(0,0,0,0.065);
+    }
+  }
+
+  .jqtree-selected {
+    & > .jqtree-element {
+      background: rgba(0,0,0,0.065);
+      color: inherit;
+    }
+
+    &:hover {
+      & > .jqtree-element {
+        background: rgba(0,0,0,0.1);
+      }
+    }
+  }
+}
+
+.k-tree {
+  li li {
+    .jqtree-whitespace + .jqtree_common:not(.jqtree-toggler) {
+      &:after {
+        border-left-color: inherit;
+        border-bottom-color: inherit;
+        opacity: 0.33;
+
+        @include rtl {
+          border-right-color: inherit;
+        }
+      }
+    }
+  }
+}
+
+.jqtree-toggler {
+  &:before {
+    opacity: 0.85;
+  }
+
+  &:hover,
+  &:focus {
+    &:before {
+      border-top-color: inherit;
+      opacity: 1;
+    }
+  }
+}
+
+.jqtree-selected {
+  & > .jqtree_common > .jqtree-toggler {
+    &:hover {
+      color: inherit;
+
+      &:before {
+        border-top-color: inherit;
+        opacity: 1;
+      }
+    }
+  }
+}

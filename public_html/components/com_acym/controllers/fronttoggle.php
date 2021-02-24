@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-include ACYM_CONTROLLER.'toggle.php';
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Classes\ListClass;
+use AcyMailing\Classes\UserClass;
+use AcyMailing\Controllers\ToggleController;
 
 class FronttoggleController extends ToggleController
 {
@@ -38,7 +40,7 @@ class FronttoggleController extends ToggleController
 
     protected function listGlobal($id, $table, $field, $newValue)
     {
-        $listClass = acym_get('class.list');
+        $listClass = new ListClass();
         $lists = $listClass->getManageableLists();
 
         if (!in_array($id, $lists)) exit;
@@ -49,7 +51,7 @@ class FronttoggleController extends ToggleController
     protected function userGlobal($id, $table, $field, $newValue)
     {
         $arrayVersion = [$id];
-        $userClass = acym_get('class.user');
+        $userClass = new UserClass();
         $userClass->onlyManageableUsers($arrayVersion);
 
         if (empty($arrayVersion)) exit;
@@ -57,4 +59,3 @@ class FronttoggleController extends ToggleController
         $this->doToggle($id, $table, $field, $newValue);
     }
 }
-

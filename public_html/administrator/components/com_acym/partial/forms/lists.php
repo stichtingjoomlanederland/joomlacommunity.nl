@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="acym__subscription__form__lists">
+<div class="acym__subscription__form__lists">
     <?php
     foreach ($form->lists_options['displayed'] as $listId) {
         if (!empty($form->lists_options['automatic_subscribe']) && in_array($listId, $form->lists_options['automatic_subscribe'])) continue;
@@ -31,4 +29,3 @@ defined('_JEXEC') or die('Restricted access');
 		}
 	</style>
 </div>
-

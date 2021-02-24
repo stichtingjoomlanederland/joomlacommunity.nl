@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields">
+		<field name="name" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_NAME" />
+		<field name="price" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_PRICE" />
+		<field name="seats" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_SEATS" />
+		<field name="user_seats" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_USER_SEATS" />
+		<field name="groups" type="groups" label="COM_RSEVENTSPRO_TICKET_GROUPS_INFO" multiple="multiple" />
+		<field name="from" type="rscalendar" label="COM_RSEVENTSPRO_TICKET_AVAILABLE_FROM" class="form-control" />
+		<field name="to" type="rscalendar" label="COM_RSEVENTSPRO_TICKET_AVAILABLE_UNTIL" class="form-control" />
+		<field name="description" type="textarea" rows="5" label="COM_RSEVENTSPRO_EVENT_TICKET_DESCRIPTION" class="form-control" />
+		<field name="attach" type="list" label="COM_RSEVENTSPRO_TICKET_PDF_ATTACH" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="layout" type="editor" filter="JComponentHelper::filterText" buttons="false" />
+		<field name="ticketinfo" type="list" label="COM_RSEVENTSPRO_CART_TICKET_INFO_OVERRIDE" default="0">
+			<option value="0">JNO</option>
+			<option value="1">JYES</option>
+		</field>
+		<field name="ticketinfolayout" type="editor" filter="JComponentHelper::filterText" buttons="false" />
+	</fieldset>
+</form>

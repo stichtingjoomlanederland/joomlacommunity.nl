@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 Stack Ideas Private Limited. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,31 +9,12 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once dirname( __FILE__ ) . '/model.php';
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 {
-	/**
-	 * Category total
-	 *
-	 * @var integer
-	 */
 	protected $_total = null;
-
-	/**
-	 * Pagination object
-	 *
-	 * @var object
-	 */
 	protected $_pagination = null;
-
-	/**
-	 * Category data array
-	 *
-	 * @var array
-	 */
 	protected $_data = null;
 
 
@@ -41,7 +22,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-		$limit		= $this->app->getUserStateFromRequest( 'com_easydiscuss.customs.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
+		$limit		= $this->app->getUserStateFromRequest( 'com_easydiscuss.fields.limit', 'limit', $this->app->getCfg('list_limit'), 'int');
 		$limitstart	= $this->input->get('limitstart', 0, 'int');
 
 		$this->setState('limit', $limit);
@@ -89,10 +70,9 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	 */
 	protected function _buildQuery()
 	{
-		// Get the WHERE and ORDER BY clauses for the query
-		$where		= $this->_buildQueryWhere();
-		$orderby	= $this->_buildQueryOrderBy();
-		$db			= DiscussHelper::getDBO();
+		$where = $this->_buildQueryWhere();
+		$orderby = $this->_buildQueryOrderBy();
+		$db = $this->db;
 
 		$query	= 'SELECT a.* FROM `#__discuss_customfields` AS a '
 				. $where . ' '
@@ -104,11 +84,11 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	protected function _buildQueryWhere()
 	{
 		$mainframe		= JFactory::getApplication();
-		$db				= DiscussHelper::getDBO();
+		$db				= ED::db();
 
-		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_state', 'filter_state', '', 'word' );
+		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.fields.filter_state', 'filter_state', '', 'word' );
 		$search = $mainframe->getUserStateFromRequest('com_easydiscuss.fields.search', 'search', '', 'string');
-		$search = $db->getEscaped(trim(JString::strtolower($search)));
+		$search = $db->getEscaped(trim(EDJString::strtolower($search)));
 
 		$where = array();
 
@@ -135,33 +115,33 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 
 	protected function _buildQueryOrderBy()
 	{
-		$mainframe			= JFactory::getApplication();
+		$mainframe = JFactory::getApplication();
 
-		$filter_order		= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_order', 		'filter_order', 	'a.ordering', 'cmd' );
-		$filter_order_Dir	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.customs.filter_order_Dir',	'filter_order_Dir',		'', 'word' );
+		$filter_order = $mainframe->getUserStateFromRequest('com_easydiscuss.fields.filter_order', 'filter_order', 'a.ordering', 'cmd');
+		$filter_order_Dir = $mainframe->getUserStateFromRequest('com_easydiscuss.fields.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
-		$orderby 			= ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
+		$orderby = ' ORDER BY '.$filter_order.' '.$filter_order_Dir;
 
 		return $orderby;
 	}
 
 	/**
-	 * Method to get categories item data
+	 * Method to get custom field items data
 	 *
 	 * @access public
 	 * @return array
 	 */
-	public function getData( $usePagination = true)
+	public function getData($usePagination = true)
 	{
 		// Lets load the content if it doesn't already exist
-		if (empty($this->_data))
-		{
+		if (empty($this->_data)) {
 			$query = $this->_buildQuery();
 
-			if($usePagination)
+			if ($usePagination) {
 				$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
-			else
+			} else {
 				$this->_data = $this->_getList($query);
+			}
 		}
 
 		return $this->_data;
@@ -177,7 +157,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	{
 		if( count( $customs ) > 0 )
 		{
-			$db		= DiscussHelper::getDBO();
+			$db		= ED::db();
 
 			$ids	= implode( ',' , $customs );
 
@@ -210,10 +190,9 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	 * @param	string
 	 * @return
 	 */
-	public function getFields($aclId = DISCUSS_CUSTOMFIELDS_ACL_INPUT, $operation = null, $post_id = null)
+	public function getFields($aclId = DISCUSS_CUSTOMFIELDS_ACL_INPUT, $operation = null, $post_id = null, $categoryId = null)
 	{
-		static $_cache = array();
-
+		static $_cache = [];
 		$idx = $aclId . '-' . $operation . '-' . $post_id;
 
 		if (isset($_cache[$idx])) {
@@ -234,15 +213,28 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			return false;
 		}
 
+		$category = ED::table('category');
+		$category->load($categoryId);
+
+		$params = $category->getParams();
+
+		$catFieldIds = $params->get('custom_fields', '');
+
+		// We should disable custom fields if category has no custom fields assigned.
+		if (!$catFieldIds) {
+			return false;
+		}
+
 		// Determine whether the current post have custom field, if given post_id
 		$noCustomFields = 0;
+
 		if ($post_id) {
 			$sql = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_customfields_value') . ' WHERE `post_id` = ' . $db->Quote($post_id);
 			$db->setQuery($sql);
 			$noCustomFields = $db->loadResult();
 		}
 
-		$query = array();
+		$query = [];
 		$query[] = 'SELECT a.*, ' . $db->Quote($aclId) . ' AS `acl_id`';
 		$query[] = 'FROM ' . $db->nameQuote('#__discuss_customfields') . ' AS a';
 		$query[] = 'WHERE a.`published` = ' . $db->Quote('1');
@@ -270,20 +262,29 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		$query[] = 'ORDER BY a.`ordering`';
 
 		$query = implode(' ', $query);
-
 		$db->setQuery($query);
 
 		$result = $db->loadObjectList();
 
 		if (!$result) {
-			$_cache[$idx] = array();
+			$_cache[$idx] = [];
 			return $result;
 		}
 
-		$fields = array();
+		$fields = [];
+
+		// We only show the custom field that associated with the category
+		$category = ED::category($categoryId);
+		$catCF = $category->getParam('custom_fields', false);
 
 		foreach ($result as $row) {
 			$field = ED::field($row);
+
+			// If there is selected custom fields for the category
+			// And the custom field is not associated with the category, skip it
+			if ($catCF && !in_array($field->id, $catCF)) {
+				continue;
+			}
 
 			$fields[] = $field;
 		}
@@ -300,7 +301,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	 * @param	string
 	 * @return
 	 */
-	public function getViewableFields($postId, $userId = null)
+	public function getViewableFields($postId, $categoryId, $userId = null)
 	{
 		$db = $this->db;
 		$user = JFactory::getUser($userId);
@@ -312,19 +313,40 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			return array();
 		}
 
-		$query = 'SELECT a.*,'
-				. ' b.' . $db->qn('field_id') . ', b.' . $db->qn('acl_id') . ', b.' . $db->qn('content_id') . ','
-				. ' b.' . $db->qn('content_type') . ', b.' . $db->qn('status') . ','
-				. ' c.' . $db->qn('field_id') . ', c.' . $db->qn('value') . ', c.' . $db->qn('post_id')
-				. ' FROM ' . $db->qn('#__discuss_customfields') . ' a'
-				. ' LEFT JOIN ' . $db->qn('#__discuss_customfields_rule') . ' b'
-				. ' ON a.' . $db->qn('id') . '=' . 'b.' . $db->qn('field_id')
-				. ' LEFT JOIN ' . $db->qn('#__discuss_customfields_value') . ' c'
-				. ' ON a.' . $db->qn('id') . '=' . 'c.' . $db->qn('field_id')
-				. ' AND c.' . $db->qn('post_id') . '=' . $db->Quote($postId)
-				. ' WHERE a.' . $db->qn('published') . '=' . $db->Quote('1')
-				. ' AND b.' . $db->qn('content_type') . '=' . $db->Quote('group')
-				. ' AND b.' . $db->qn('acl_id') . '=' . $db->Quote(DISCUSS_CUSTOMFIELDS_ACL_VIEW);
+		$post = ED::post($postId);
+		$section = $post->isQuestion() ? DISCUSS_CUSTOMFIELDS_SECTION_QUESTIONS : DISCUSS_CUSTOMFIELDS_SECTION_REPLIES;
+
+		$category = ED::table('category');
+		$category->load($categoryId);
+
+		$params = $category->getParams();
+
+		$catFieldIds = $params->get('custom_fields', '');
+
+		// We should disable custom fields if category has no custom fields assigned.
+		if (!$catFieldIds) {
+			return array();
+		}
+
+		$query = 'SELECT a.*,';
+		$query .= ' b.' . $db->qn('field_id') . ', b.' . $db->qn('acl_id') . ', b.' . $db->qn('content_id') . ',';
+		$query .= ' b.' . $db->qn('content_type') . ', b.' . $db->qn('status') . ',';
+		$query .= ' c.' . $db->qn('field_id') . ', c.' . $db->qn('value') . ', c.' . $db->qn('post_id');
+		$query .= ' FROM ' . $db->qn('#__discuss_customfields') . ' a';
+		$query .= ' LEFT JOIN ' . $db->qn('#__discuss_customfields_rule') . ' b';
+		$query .= ' ON a.' . $db->qn('id') . '=' . 'b.' . $db->qn('field_id');
+		$query .= ' LEFT JOIN ' . $db->qn('#__discuss_customfields_value') . ' c';
+		$query .= ' ON a.' . $db->qn('id') . '=' . 'c.' . $db->qn('field_id');
+		$query .= ' AND c.' . $db->qn('post_id') . '=' . $db->Quote($postId);
+		$query .= ' WHERE a.' . $db->qn('published') . '=' . $db->Quote('1');
+		$query .= ' AND a.' . $db->qn('section') . '=' . $db->Quote($section);
+
+		if ($catFieldIds) {
+			$query .= ' AND a.' . $db->qn('id') . ' IN (' . implode(',', $catFieldIds) . ')';
+		}
+
+		$query .= ' AND b.' . $db->qn('content_type') . '=' . $db->Quote('group');
+		$query .= ' AND b.' . $db->qn('acl_id') . '=' . $db->Quote(DISCUSS_CUSTOMFIELDS_ACL_VIEW);
 
 		// Prepare the group clause
 		$query .= ' AND b.' . $db->qn('content_id') . ' IN(';
@@ -336,8 +358,8 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			}
 		}
 		$query .= ')';
-		$query .= ' GROUP BY a.' . $db->qn('id');
 
+		$query .= ' GROUP BY a.' . $db->qn('id');
 		$query .= ' ORDER BY a.' . $db->qn('ordering');
 
 		// // Debug
@@ -495,10 +517,10 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 
 		if( ! isset( $loaded[ $sig ] ) )
 		{
-			$db = DiscussHelper::getDBO();
+			$db = ED::db();
 			$my = JFactory::getUser();
 
-			$myUserGroups = (array) DiscussHelper::getUserGroupId($my);
+			$myUserGroups = (array) ED::getUserGroupId($my);
 
 			if( empty($myUserGroups) )
 			{
@@ -547,7 +569,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 
 	public function checkMyFields( $postId, $aclId )
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 		$my = JFactory::getUser();
 
 		// GET MY VALUE
@@ -590,8 +612,8 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		if( ! isset( $loaded[$sig] ) )
 		{
 			$my = JFactory::getUser();
-			$db = DiscussHelper::getDBO();
-			$myUserGroups = (array) DiscussHelper::getUserGroupId($my);
+			$db = ED::db();
+			$myUserGroups = (array) ED::getUserGroupId($my);
 
 			if( empty($myUserGroups) )
 			{
@@ -848,7 +870,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			return false;
 		}
 
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 
 		$query = 'DELETE FROM ' . $db->nameQuote( '#__discuss_customfields_rule' )
 				. ' WHERE ' . $db->nameQuote( 'field_id' ) . '=' . $db->quote( $id );
@@ -868,8 +890,6 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function rebuildOrdering()
 	{

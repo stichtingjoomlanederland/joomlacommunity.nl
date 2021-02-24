@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -29,10 +29,11 @@ class Form
 	 * @param int    $size
 	 * @param bool   $multiple
 	 * @param bool   $simple
+	 * @param bool   $readonly
 	 *
 	 * @return string
 	 */
-	public static function selectList(&$options, $name, $value, $id, $size = 0, $multiple = false, $simple = false)
+	public static function selectList(&$options, $name, $value, $id, $size = 0, $multiple = false, $simple = false, $readonly = false)
 	{
 		if (empty($options))
 		{
@@ -135,6 +136,12 @@ class Form
 
 		if ( ! $multiple)
 		{
+			$attr = 'class="inputbox"';
+			if ($readonly)
+			{
+				$attr .= ' readonly="readonly"';
+			}
+
 			if (is_array(reset($options)) && isset(reset($options)['items']))
 			{
 				return JHtml::_(
@@ -142,13 +149,13 @@ class Form
 					[
 						'id'          => $id,
 						'group.id'    => 'id',
-						'list.attr'   => 'class="inputbox"',
+						'list.attr'   => $attr,
 						'list.select' => $value,
 					]
 				);
 			}
 
-			$html = JHtml::_('select.genericlist', $options, $name, 'class="inputbox"', 'value', 'text', $value, $id);
+			$html = JHtml::_('select.genericlist', $options, $name, $attr, 'value', 'text', $value, $id);
 
 			return self::handlePreparedStyles($html);
 		}
@@ -158,6 +165,10 @@ class Form
 		if ($simple)
 		{
 			$attr = 'style="width: ' . $size . 'px" multiple="multiple"';
+			if ($readonly)
+			{
+				$attr .= ' readonly="readonly"';
+			}
 
 			if (substr($name, -2) !== '[]')
 			{
@@ -356,12 +367,13 @@ class Form
 	 * @param string $id
 	 * @param int    $size
 	 * @param bool   $multiple
+	 * @param bool   $readonly
 	 *
 	 * @return string
 	 */
-	public static function selectListSimple(&$options, $name, $value, $id, $size = 0, $multiple = false)
+	public static function selectListSimple(&$options, $name, $value, $id, $size = 0, $multiple = false, $readonly = false)
 	{
-		return self::selectlist($options, $name, $value, $id, $size, $multiple, true);
+		return self::selectlist($options, $name, $value, $id, $size, $multiple, true, $readonly);
 	}
 
 	/**

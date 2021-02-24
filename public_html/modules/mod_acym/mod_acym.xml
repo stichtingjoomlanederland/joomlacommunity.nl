@@ -2,11 +2,11 @@
 <extension type="module" version="2.5" client="site" method="upgrade">
 	<name>AcyMailing subscription form</name>
 	<creationDate>August 2018</creationDate>
-	<version>6.14.1</version>
+	<version>7.1.2</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
-	<authorUrl>https://www.acyba.com</authorUrl>
-	<copyright>Copyright (C) 2009-2020 ACYBA SAS - All rights reserved.</copyright>
+	<authorUrl>https://www.acymailing.com</authorUrl>
+	<copyright>Copyright (C) 2009-2021 ACYBA SAS - All rights reserved.</copyright>
 	<license>GNU/GPLv3 https://www.gnu.org/licenses/gpl-3.0.html</license>
 	<description>Subscribe to / Unsubscribe from AcyMailing lists</description>
 	<files>
@@ -53,6 +53,13 @@
 					<option value="1">ACYM_YES</option>
 				</field>
 				<field name="unsubtext" type="text" size="50" default="" label="ACYM_UNSUBSCRIBE_TEXT" description="ACYM_UNSUBSCRIBE_TEXT_DESC" filter="SAFEHTML"/>
+				<field name="successmode" type="list" default="0" label="ACYM_SUCCESS_MODE" description="ACYM_SUCCESS_MODE_DESC">
+					<option value="replace">ACYM_SUCCESS_REPLACE</option>
+					<option value="replacetemp">ACYM_SUCCESS_REPLACE_TEMP</option>
+					<option value="toptemp">ACYM_SUCCESS_TOP_TEMP</option>
+					<option value="standard">ACYM_SUCCESS_STANDARD</option>
+				</field>
+				<field name="confirmation_message" type="text" size="50" default="" label="ACYM_CONFIRMATION_MESSAGE" description="ACYM_CONFIRMATION_MESSAGE_DESC"/>
 				<field name="unsubredirect" type="text" size="50" default="" label="ACYM_REDIRECT_LINK_UNSUB" description="ACYM_REDIRECT_LINK_UNSUB_DESC"/>
 				<field name="redirect" type="text" size="50" default="" label="ACYM_REDIRECT_LINK" description="ACYM_REDIRECT_LINK_DESC"/>
 
@@ -83,4 +90,3 @@
 		</fields>
 	</config>
 </extension>
-

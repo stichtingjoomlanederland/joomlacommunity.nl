@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.5
+ * @version         7.4.7
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -172,12 +172,12 @@ class RegularLabsManagerModelDefault extends JModelList
 		$items = [];
 
 		jimport('joomla.filesystem.file');
-		if ( ! JFile::exists(JPATH_COMPONENT . '/extensions.xml'))
+		if ( ! file_exists(JPATH_COMPONENT . '/extensions.xml'))
 		{
 			return $items;
 		}
 
-		$file = JFile::read(JPATH_COMPONENT . '/extensions.xml');
+		$file = file_get_contents(JPATH_COMPONENT . '/extensions.xml');
 
 		if ( ! $file)
 		{
@@ -333,28 +333,28 @@ class RegularLabsManagerModelDefault extends JModelList
 	{
 		if ($type == 'com')
 		{
-			if (JFile::exists(JPATH_ADMINISTRATOR . '/components/com_' . $element . '/' . $element . '.xml'))
+			if (file_exists(JPATH_ADMINISTRATOR . '/components/com_' . $element . '/' . $element . '.xml'))
 			{
 				$xml = JPATH_ADMINISTRATOR . '/components/com_' . $element . '/' . $element . '.xml';
 
 				return [$xml, 1];
 			}
 
-			if (JFile::exists(JPATH_SITE . '/components/com_' . $element . '/' . $element . '.xml'))
+			if (file_exists(JPATH_SITE . '/components/com_' . $element . '/' . $element . '.xml'))
 			{
 				$xml = JPATH_SITE . '/components/com_' . $element . '/' . $element . '.xml';
 
 				return [$xml, 0];
 			}
 
-			if (JFile::exists(JPATH_ADMINISTRATOR . '/components/com_' . $element . '/com_' . $element . '.xml'))
+			if (file_exists(JPATH_ADMINISTRATOR . '/components/com_' . $element . '/com_' . $element . '.xml'))
 			{
 				$xml = JPATH_ADMINISTRATOR . '/components/com_' . $element . '/com_' . $element . '.xml';
 
 				return [$xml, 1];
 			}
 
-			if (JFile::exists(JPATH_SITE . '/components/com_' . $element . '/com_' . $element . '.xml'))
+			if (file_exists(JPATH_SITE . '/components/com_' . $element . '/com_' . $element . '.xml'))
 			{
 				$xml = JPATH_SITE . '/components/com_' . $element . '/com_' . $element . '.xml';
 
@@ -366,28 +366,28 @@ class RegularLabsManagerModelDefault extends JModelList
 
 		if ($type == 'mod')
 		{
-			if (JFile::exists(JPATH_ADMINISTRATOR . '/modules/mod_' . $element . '/' . $element . '.xml'))
+			if (file_exists(JPATH_ADMINISTRATOR . '/modules/mod_' . $element . '/' . $element . '.xml'))
 			{
 				$xml = JPATH_ADMINISTRATOR . '/modules/mod_' . $element . '/' . $element . '.xml';
 
 				return [$xml, 1];
 			}
 
-			if (JFile::exists(JPATH_SITE . '/modules/mod_' . $element . '/' . $element . '.xml'))
+			if (file_exists(JPATH_SITE . '/modules/mod_' . $element . '/' . $element . '.xml'))
 			{
 				$xml = JPATH_SITE . '/modules/mod_' . $element . '/' . $element . '.xml';
 
 				return [$xml, 0];
 			}
 
-			if (JFile::exists(JPATH_ADMINISTRATOR . '/modules/mod_' . $element . '/mod_' . $element . '.xml'))
+			if (file_exists(JPATH_ADMINISTRATOR . '/modules/mod_' . $element . '/mod_' . $element . '.xml'))
 			{
 				$xml = JPATH_ADMINISTRATOR . '/modules/mod_' . $element . '/mod_' . $element . '.xml';
 
 				return [$xml, 1];
 			}
 
-			if (JFile::exists(JPATH_SITE . '/modules/mod_' . $element . '/mod_' . $element . '.xml'))
+			if (file_exists(JPATH_SITE . '/modules/mod_' . $element . '/mod_' . $element . '.xml'))
 			{
 				$xml = JPATH_SITE . '/modules/mod_' . $element . '/mod_' . $element . '.xml';
 
@@ -400,14 +400,14 @@ class RegularLabsManagerModelDefault extends JModelList
 		if (substr($type, 0, 4) == 'plg_')
 		{
 			$plg_type = substr($type, 4);
-			if (JFile::exists(JPATH_PLUGINS . '/' . $plg_type . '/' . $element . '/' . $element . '.xml'))
+			if (file_exists(JPATH_PLUGINS . '/' . $plg_type . '/' . $element . '/' . $element . '.xml'))
 			{
 				$xml = JPATH_PLUGINS . '/' . $plg_type . '/' . $element . '/' . $element . '.xml';
 
 				return [$xml, 1];
 			}
 
-			if (JFile::exists(JPATH_PLUGINS . '/' . $plg_type . '/' . $element . '.xml'))
+			if (file_exists(JPATH_PLUGINS . '/' . $plg_type . '/' . $element . '.xml'))
 			{
 				$xml = JPATH_PLUGINS . '/' . $plg_type . '/' . $element . '.xml';
 
@@ -437,7 +437,7 @@ class RegularLabsManagerModelDefault extends JModelList
 			case 'mod':
 				RL_Language::load('mod_' . $element . '.sys', '', true);
 
-				return 'option=com_modules&filter_client_id=' . $client_id
+				return 'option=com_modules&client_id=' . $client_id
 					. '&filter_module=mod_' . $element . '&filter_search=';
 
 			case 'plg':

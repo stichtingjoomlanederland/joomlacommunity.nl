@@ -39,7 +39,5 @@ class RseventsproViewCategories extends JViewLegacy
 		JToolbarHelper::deleteList('', 'categories.delete');
 		JToolbarHelper::custom('categories.rebuild', 'refresh.png', 'refresh_f2.png', 'JTOOLBAR_REBUILD', false);
 		JToolbarHelper::preferences('com_rseventspro');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

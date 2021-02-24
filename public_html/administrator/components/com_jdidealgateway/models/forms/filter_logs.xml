@@ -12,7 +12,7 @@
 				type="jdideal.origin"
 				onchange="this.form.submit();"
 		>
-			<option value=""></option>
+			<option value="">COM_ROPAYMENTS_SELECT_ORIGIN</option>
 		</field>
 
 		<field
@@ -20,34 +20,34 @@
 				type="jdideal.psp"
 				onchange="this.form.submit();"
 		>
-			<option value=""></option>
+			<option value="">COM_ROPAYMENTS_SELECT_PSP</option>
 		</field>
 
 		<field
 				name="card"
 				type="jdideal.card"
-				class="advancedSelect"
+				class="advancedSelect custom-select"
 				onchange="this.form.submit();"
 		>
-			<option value=""></option>
+			<option value="">COM_ROPAYMENTS_SELECT_CARD</option>
 		</field>
 
 		<field
 				name="currency"
 				type="jdideal.currency"
-				class="advancedSelect"
+				class="advancedSelect custom-select"
 				onchange="this.form.submit();"
 		>
-			<option value=""></option>
+			<option value="">COM_ROPAYMENTS_SELECT_CURRENCY</option>
 		</field>
 
 		<field
 				name="result"
 				type="jdideal.result"
-				class="advancedSelect"
+				class="advancedSelect custom-select"
 				onchange="this.form.submit();"
 		>
-			<option value=""></option>
+			<option value="">COM_ROPAYMENTS_SELECT_RESULT</option>
 		</field>
 
 	</fields>

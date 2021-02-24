@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -990,6 +990,27 @@ class DataModel extends Model implements TableInterface
 		$realFieldName = $this->getFieldAlias($fieldName);
 
 		return array_key_exists($realFieldName, $this->knownFields);
+	}
+
+	/**
+	 * Is this field known to the model and marked as nullable in the database?
+	 *
+	 * Automatically uses aliases when necessary.
+	 *
+	 * @param   string  $fieldName  Field name to check
+	 *
+	 * @return  bool  True if the field is nullable or doesn't exist
+	 */
+	public function isNullableField(string $fieldName): bool
+	{
+		if (!$this->hasField($fieldName))
+		{
+			return true;
+		}
+
+		$realFieldName = $this->getFieldAlias($fieldName);
+
+		return strtolower($this->knownFields[$realFieldName]->Null ?? 'YES') == 'yes';
 	}
 
 	/**
@@ -2886,7 +2907,7 @@ class DataModel extends Model implements TableInterface
 		if ($this->hasField('locked_on'))
 		{
 			$locked_on        = $this->getFieldAlias('locked_on');
-			$this->$locked_on = $db->getNullDate();
+			$this->$locked_on = $this->isNullableField('locked_on') ? null : $db->getNullDate();
 		}
 
 		if ($this->hasField('locked_by'))
@@ -2916,7 +2937,7 @@ class DataModel extends Model implements TableInterface
 			return false;
 		}
 
-		$nullDate = $this->getDbo()->getNullDate();
+		$nullDate = $this->isNullableField('locked_on') ? null : $this->getDbo()->getNullDate();
 
 		// Get the locked_by / locked_on
 		$locked_on = $nullDate;
@@ -2954,7 +2975,7 @@ class DataModel extends Model implements TableInterface
 			return false;
 		}
 
-		return $locked_on != $nullDate;
+		return !is_null($locked_on) && ($locked_on != $nullDate);
 	}
 
 	/**
@@ -3453,7 +3474,7 @@ class DataModel extends Model implements TableInterface
 					break;
 				}
 
-				if (is_array($value) && (count($value) > 1))
+				if (is_array($value) && ((is_array($value) || $value instanceof \Countable ? count($value) : 0) > 1))
 				{
 					// Get the operator and value from the $value array
 					if (isset($value['operator']) && isset($value['value']))

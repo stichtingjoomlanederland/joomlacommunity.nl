@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -100,14 +100,6 @@ class Transfer extends Model
 		$approximateSize = 2.5 * (float) $backup['size'];
 
 		$unit = ['b', 'KB', 'MB', 'GB', 'TB', 'PB'];
-
-		if (version_compare(PHP_VERSION, '5.6.0', 'lt'))
-		{
-			return [
-				'size'   => $approximateSize,
-				'string' => @round($approximateSize / 1024 ** ($i = floor(log($approximateSize, 1024))), 2) . ' ' . $unit[$i],
-			];
-		}
 
 		return [
 			'size'   => $approximateSize,
@@ -861,13 +853,13 @@ class Transfer extends Model
 			$results  = dns_get_record($hostname, DNS_A);
 
 			// If there are no IPv4 records let's try to get IPv6 records
-			if (count($results) == 0)
+			if ((is_array($results) || $results instanceof \Countable ? count($results) : 0) == 0)
 			{
 				$results = dns_get_record($hostname, DNS_AAAA);
 			}
 
 			// No DNS records. So, that's why fetching data failed!
-			if (count($results) == 0)
+			if ((is_array($results) || $results instanceof \Countable ? count($results) : 0) == 0)
 			{
 				// Delete the temporary file
 				$connector->delete($connector->getPath(basename($sourceFile)));

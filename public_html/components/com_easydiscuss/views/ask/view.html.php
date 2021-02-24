@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewAsk extends EasyDiscussView
 {
@@ -49,12 +47,12 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		// Check if user is allowed to post a discussion, we also need to check against the category acl
 		if ($this->my->guest && !$this->acl->allowed('add_question', 0)) {
-			return $this->app->redirect(ED::getLoginLink($currentUri));
+			return ED::redirect(ED::getLoginLink($currentUri));
 		}
 
 		// Ensure that logged in users can really post
 		if (!$this->my->guest && !$this->acl->allowed('add_question', '0') && !$category->canPost()) {
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false), JText::_('COM_EASYDISCUSS_NOT_ALLOWED_TO_POST_QUESTION'));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false), JText::_('COM_EASYDISCUSS_NOT_ALLOWED_TO_POST_QUESTION'));
 		}
 
 		// Set the page title.
@@ -90,7 +88,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 			$isModerator = ED::moderator()->isModerator($post->category_id);
 
 			if (!ED::isMine($post->user_id) && !ED::isSiteAdmin() && !$this->acl->allowed('edit_question') && !$isModerator) {
-				return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id='.$postid, false), JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
+				return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=post&id='.$post->id, false), JText::_('COM_EASYDISCUSS_SYSTEM_INSUFFICIENT_PERMISSIONS'));
 			}
 
 			$tagsModel = ED::model('PostsTags');
@@ -150,22 +148,21 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		// Generate the categories dropdown
 		// We know this dropdown need to check for 'select' category permission
 		// So, we add DISCUSS_CATEGORY_ACL_ACTION_SELECT
-		$categories = ED::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true, 'form-control', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, $categorySort);
+		$categories = ED::populateCategories('', '', 'select', 'category_id', $categoryId , true, $onlyPublished, $showPrivateCat , true, 'o-form-select', '',  DISCUSS_CATEGORY_ACL_ACTION_SELECT, $categorySort);
 
 		// If there are no categories, there is a possibility that the user doesn't have access
 		if (!$categories) {
-
 			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_TO_POST_QUESTION');
 
-			$redirect = EDR::_('view=forums', false);
+			$redirect = EDR::_('view=index', false);
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		$editor = '';
 
 		if ($this->config->get('layout_editor') != 'bbcode') {
-			$editor	= JFactory::getEditor($this->config->get('layout_editor'));
+			$editor	= EDCompat::getEditor($this->config->get('layout_editor'));
 		}
 
 		// Get list of moderators from the site.
@@ -174,11 +171,6 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		if ($this->config->get('main_assign_user')) {
 			$moderatorList = ED::moderator()->getSelectOptions($post->category_id);
 		}
-
-		// Get post types list
-		$postTypesModel = ED::model('PostTypes');
-		// $postTypes = $postTypesModel->getTypes($categoryId);
-		$postTypes = $postTypesModel->getPostTypes($categoryId);
 
 		// Get the composer library
 		$operation = $post->isNew() ? 'creating' : 'editing';
@@ -197,14 +189,6 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$tagsModel = ED::model('Tags');
 		$tags = $tagsModel->getTags();
 
-		// Get post priorities
-		$priorities = array();
-
-		if ($this->config->get('post_priority')) {
-			$prioritiesModel = ED::model('Priorities');
-			$priorities = $prioritiesModel->getPriorities();
-		}
-
 		// Get minimum requirement for title.
 		$minimumTitle = $this->config->get('antispam_minimum_title');
 
@@ -212,7 +196,7 @@ class EasyDiscussViewAsk extends EasyDiscussView
 		$captcha = ED::captcha();
 
 		// Prepare the cancel link
-		$cancel = EDR::_('view=forums');
+		$cancel = EDR::_('view=index');
 
 		if ($post->id) {
 			$cancel = $post->getPermalink();
@@ -228,14 +212,14 @@ class EasyDiscussViewAsk extends EasyDiscussView
 
 		$this->set('uid', $uid);
 		$this->set('defaultCategory', $defaultCategory);
+		$this->set('defaultCategoryId', $categoryId);
+		$this->set('operation', $operation);
 		$this->set('minimumTitle', $minimumTitle);
 		$this->set('cancel', $cancel);
 		$this->set('post', $post);
 		$this->set('categories', $categories);
-		$this->set('postTypes', $postTypes);
 		$this->set('captcha', $captcha);
 		$this->set('tags', $tags);
-		$this->set('priorities', $priorities);
 		$this->set('redirect', $redirect);
 		$this->set('composer', $composer);
 		$this->set('attachments', $attachments);

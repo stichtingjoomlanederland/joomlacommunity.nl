@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -554,6 +554,26 @@ class Installer
 
 						$condition = ($coltype == $currentType);
 					}
+				}
+
+				break;
+
+			// Check if a column is nullable
+			case 'nullable':
+				try
+				{
+					$tableColumns = $this->db->getTableColumns($tableNormal, true);
+				}
+				catch (Exception $e)
+				{
+					$tableColumns = [];
+				}
+
+				$condition = false;
+
+				if (array_key_exists($value, $tableColumns))
+				{
+					$condition = (is_string($tableColumns[$value]) ? 'YES' : strtolower($tableColumns[$value]->Null)) == 'yes';
 				}
 
 				break;

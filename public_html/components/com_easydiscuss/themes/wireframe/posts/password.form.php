@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,29 +11,29 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-    
-<div class="ed-pass-note">
-    <div class="ed-pass-note__title">
-        <?php echo JText::_('COM_EASYDISCUSS_PASSWORD_FORM_TITLE'); ?>        
-    </div>
-    <div class="ed-pass-note__desp">
-        <?php echo JText::_('COM_EASYDISCUSS_PASSWORD_FORM_TIPS'); ?>
-    </div>
-    <form action="<?php echo JRoute::_('index.php');?>" method="post">
-    <div class="o-grid o-grid--1of2">
-        <div class="o-grid__cell">
-            <div class="input-group t-lg-mb--lg">
-                <span id="sizing-addon1" class="input-group-addon"><i class="fa fa-lock"></i></span>
-                <input type="password" name="discusspassword" id="password-post" autocomplete="off" placeholder="<?php echo JText::_('COM_EASYDISCUSS_INSERT_PASSWORD'); ?>" class="form-control">
-                <span class="input-group-btn">
-                    <input type="submit" class="btn btn-default" value="<?php echo JText::_('COM_EASYDISCUSS_VIEW_POST_BUTTON'); ?>" />
-                </span>
-            </div>            
-        </div>
-    </div>
-    <?php echo $this->html('form.hidden', 'posts','index', 'setPassword'); ?>
-    <input type="hidden" name="id" value="<?php echo $post->id;?>" />
-    <input type="hidden" name="type" value="<?php echo $type;?>" />
-    <input type="hidden" name="return" value="<?php echo base64_encode('index.php?option=com_easydiscuss&view=post&id=' . $post->id); ?>" />
-    </form>
-</div> 
+<form action="<?php echo JRoute::_('index.php');?>" method="post">
+	<div class="o-card o-card--bg">
+		<div class="o-card__body">
+			<div class="l-stack l-stack--sm t-text--center">
+				<div class="o-title-01">
+					<i class="fas fa-lock t-mr--sm"></i> <?php echo JText::_('COM_EASYDISCUSS_PASSWORD_FORM_TITLE'); ?>
+				</div>
+				<div class="o-description">
+					<?php echo JText::_('COM_EASYDISCUSS_PASSWORD_FORM_TIPS'); ?>
+				</div>
+
+				<div class="l-center">
+					<div class="o-input-group">
+						<input type="password" name="discusspassword" class="o-form-control" autocomplete="new-password" placeholder="<?php echo JText::_('COM_EASYDISCUSS_INSERT_PASSWORD'); ?>" />
+						<button type="submit" class="o-btn o-btn--default-o" type="button"><?php echo JText::_('COM_EASYDISCUSS_VIEW_POST_BUTTON'); ?></button>
+					</div>
+				</div>
+			</div>
+
+			<?php echo $this->html('form.action', 'posts','index', 'setPassword'); ?>
+			<input type="hidden" name="id" value="<?php echo $post->id;?>" />
+			<input type="hidden" name="type" value="<?php echo $type;?>" />
+			<input type="hidden" name="return" value="<?php echo base64_encode('index.php?option=com_easydiscuss&view=post&id=' . $post->id); ?>" />
+		</div>
+	</div>
+</form>

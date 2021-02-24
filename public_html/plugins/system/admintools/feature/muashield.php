@@ -1,13 +1,13 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 use Joomla\CMS\Factory;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 {
@@ -86,9 +86,9 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 				// 1. Reset the User Agent string reported by the server
 				$_SERVER['HTTP_USER_AGENT'] = $neuterMUA;
 				// 2. Replace the saved User Agent in the session storage to something non-malicious
-				Factory::getSession()->set('session.client.browser', $neuterMUA);
+				$this->container->session->set('session.client.browser', $neuterMUA);
 				// 3. KILL THE SESSION (may not work, depends on the session handler)
-				Factory::getSession()->destroy();
+				$this->container->session->destroy();
 
 				// Immediately block the scumbag
 				$this->exceptionsHandler->blockRequest('muashield');
@@ -146,9 +146,9 @@ class AtsystemFeatureMuashield extends AtsystemFeatureAbstract
 				// 1. Reset the Forwarded header reported by the server
 				$_SERVER[$headerName] = $neuterMUA;
 				// 2. Replace the saved Forwarded header in the session storage to something non-malicious
-				Factory::getSession()->set('session.client.forwarded', $neuterMUA);
+				$this->container->session->set('session.client.forwarded', $neuterMUA);
 				// 3. KILL THE SESSION (may not work, depends on the session handler)
-				Factory::getSession()->destroy();
+				$this->container->session->destroy();
 
 				// Immediately block the scumbag
 				$this->exceptionsHandler->blockRequest('muashield');

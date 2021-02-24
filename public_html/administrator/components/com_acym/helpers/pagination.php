@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acympaginationHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Libraries\acymObject;
+
+class PaginationHelper extends acymObject
 {
     var $total;
     var $page;
@@ -11,7 +13,7 @@ class acympaginationHelper extends acymObject
     public function setStatus($total, $page, $nbPerPage)
     {
         $this->total = $total;
-        $this->page = $page;
+        $this->page = empty($page) ? 1 : $page;
         $this->nbPerPage = $nbPerPage;
     }
 
@@ -21,10 +23,11 @@ class acympaginationHelper extends acymObject
 
         $nbPages = ceil($this->total / $this->nbPerPage);
 
-        $class = $dynamics ? 'margin-bottom-1' : '';
+        $class = $dynamics ? ' margin-bottom-1' : '';
 
-        $pagination = '<div class="pagination text-center cell grid-x '.$class.'" role="navigation" aria-label="Pagination">
-                            <div class="small-auto medium-shrink pagination_container cell margin-auto grid-x acym_vcenter">';
+        $pagination = '<div class="pagination text-center cell grid-x'.$class.'" role="navigation" aria-label="Pagination">
+                        <div class="cell shrink margin-auto grid-x grid-margin-x align-center">
+                            <div class="small-auto medium-shrink pagination_container cell grid-x acym_vcenter align-center">';
 
         if (!$dynamics) {
             $pagination .= '<div class="cell shrink pagination-turbo-left pagination_one_pagination ';
@@ -60,7 +63,7 @@ class acympaginationHelper extends acymObject
                                 </div>';
         }
 
-        $pagination .= '</div></div>';
+        $pagination .= '</div>';
 
         if (!$dynamics) {
             $nbPagesOptions = [
@@ -73,7 +76,7 @@ class acympaginationHelper extends acymObject
                 '100' => '100',
                 '200' => '200',
             ];
-            $pagination .= '<div class="cell grid-x align-center acym_vcenter margin-top-1">';
+            $pagination .= '<div class="cell shrink grid-x acym_vcenter">';
 
             $paginationNumberEntries = '<div class="acym__select__pagination">'.acym_select(
                     $nbPagesOptions,
@@ -82,9 +85,12 @@ class acympaginationHelper extends acymObject
                     ['class' => 'acym__select__pagination__dropdown']
                 ).'</div>';
 
-            $pagination .= '<p class="cell shrink">'.acym_translation_sprintf('ACYM_DISPLAY_NUMBER_ENTRIES', $paginationNumberEntries).'</p>';
+            $pagination .= '<p class="cell shrink">'.acym_translationSprintf('ACYM_DISPLAY_NUMBER_ENTRIES', $paginationNumberEntries).'</p>';
             $pagination .= '</div>';
         }
+
+        $pagination .= '</div>';
+        $pagination .= '</div>';
 
         return $pagination;
     }
@@ -112,7 +118,7 @@ class acympaginationHelper extends acymObject
 
         if ($this->page != 1) {
             $pagination .= '<span class="acym__front__pagination__element" onclick="acym_changePageFront(1)"><</span>';
-            $pagination .= '<span class="acym__front__pagination__element" onclick="acym_changePageFront($previousPage)">'.$previousPage.'</span>';
+            $pagination .= '<span class="acym__front__pagination__element" onclick="acym_changePageFront('.$previousPage.')">'.$previousPage.'</span>';
         }
         $pagination .= '<b>'.$this->page.'</b>';
         if ($this->page != $nbPages) {
@@ -141,4 +147,3 @@ class acympaginationHelper extends acymObject
         return $currentConfig;
     }
 }
-

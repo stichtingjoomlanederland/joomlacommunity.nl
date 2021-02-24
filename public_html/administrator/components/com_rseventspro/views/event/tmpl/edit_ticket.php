@@ -5,104 +5,54 @@
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
 defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
-<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_NEWTICKET'); ?></legend>
 
-<div class="row-fluid">
-	<div class="span6">
-		<div class="row-fluid">
-			<div class="control-group">
-				<div class="control-label">
-					<label for="ticket_name"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKET_NAME'); ?></label>
-				</div>
-				<div class="controls">
-					<input type="text" value="" class="span10" name="ticket_name" id="ticket_name" />
-				</div>
-			</div>
+<fieldset class="options-form">
+	<legend><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TAB_NEWTICKET'); ?></legend>
+	
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->dependencies->renderField('ticket_name'); ?>
 		</div>
-		<div class="row-fluid">
-			<div class="span3">
-				<div class="control-group">
-					<div class="control-label">
-						<label for="ticket_seats"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKET_SEATS'); ?></label>
-					</div>
-					<div class="controls">
-						<input type="text" value="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED'); ?>" onfocus="if (this.value=='<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED',true); ?>') this.value=''" onblur="if (this.value=='') this.value='<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED',true); ?>'" onkeyup="this.value=this.value.replace(/[^0-9]/g, '');" class="span10" name="ticket_seats" id="ticket_seats" />
-					</div>
-				</div>
-			</div>
-			<div class="span9">
-				<div class="control-group">
-					<div class="control-label">
-						<label for="ticket_user_seats"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKET_USER_SEATS'); ?></label>
-					</div>
-					<div class="controls">
-						<input type="text"  value="<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED'); ?>" onfocus="if (this.value=='<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED',true); ?>') this.value=''" onblur="if (this.value=='') this.value='<?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_UNLIMITED',true); ?>'" onkeyup="this.value=this.value.replace(/[^0-9]/g, '');" class="span10" name="ticket_user_seats" id="ticket_user_seats" />
-					</div>
-				</div>
-			</div>
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->dependencies->renderField('ticket_price'); ?>
+		</div>
+	</div>
+
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->dependencies->renderField('ticket_seats'); ?>
+		</div>
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->dependencies->renderField('ticket_user_seats'); ?>
 		</div>
 	</div>
 	
-	<div class="span6">
-		<div class="control-group">
-			<div class="control-label">
-				<label for="ticket_price"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKET_PRICE'); ?></label>
-			</div>
-			<div class="controls">
-				<input type="text" value="" class="span10" name="ticket_price" id="ticket_price" onkeyup="this.value=this.value.replace(/[^0-9\.\,]/g, '');" />
-			</div>
-		</div>
-		<div class="control-group">
-			<div class="control-label">
-				<label for="ticket_groups"><?php echo JText::_('COM_RSEVENTSPRO_TICKET_GROUPS_INFO'); ?></label>
-			</div>
-			<div class="controls">
-				<select class="rsepro-chosen" name="ticket_groups[]" id="ticket_groups" multiple="multiple">
-					<?php echo JHtml::_('select.options', $this->eventClass->groups()); ?>
-				</select>
-			</div>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(12); ?>">
+			<?php echo $this->dependencies->renderField('ticket_groups'); ?>
 		</div>
 	</div>
-</div>
 
-<div class="row-fluid">
-	<div class="span6">
-		<div class="control-group">
-			<div class="control-label">
-				<label for="ticket_from"><?php echo JText::_('COM_RSEVENTSPRO_TICKET_AVAILABLE_FROM'); ?></label>
-			</div>
-			<div class="controls">
-				<?php echo JHTML::_('rseventspro.rscalendar', 'ticket_from'); ?>
-			</div>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->dependencies->renderField('ticket_from'); ?>
+		</div>
+		
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->dependencies->renderField('ticket_to'); ?>
 		</div>
 	</div>
-	
-	<div class="span6">
-		<div class="control-group">
-			<div class="control-label">
-				<label for="ticket_from"><?php echo JText::_('COM_RSEVENTSPRO_TICKET_AVAILABLE_UNTIL'); ?></label>
-			</div>
-			<div class="controls">
-				<?php echo JHTML::_('rseventspro.rscalendar', 'ticket_to'); ?>
-			</div>
-		</div>
-	</div>
-</div>
 
-<div class="row-fluid">
-	<div class="control-group">
-		<div class="control-label">
-			<label for="ticket_description"><?php echo JText::_('COM_RSEVENTSPRO_EVENT_TICKET_DESCRIPTION'); ?></label>
-		</div>
-		<div class="controls">
-			<textarea class="span10" name="ticket_description" id="ticket_description" rows="5"></textarea>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(12); ?>">
+			<?php echo $this->dependencies->renderField('ticket_description'); ?>
 		</div>
 	</div>
-</div>
 
-<div class="form-actions">
-	<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-add-ticket-loader', 'style' => 'display: none;'), true); ?> 
-	<button class="btn rsepro-add-ticket" type="button"><span class="fa fa-plus"></span> <?php echo JText::_('COM_RSEVENTSPRO_ADD_TICKET'); ?></button>
-	<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>
-	<button class="btn btn-danger rsepro-event-cancel" type="button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
-</div>
+	<div class="form-actions">
+		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-add-ticket-loader', 'style' => 'display: none;'), true); ?> 
+		<button class="btn btn-success rsepro-add-ticket" type="button"><span class="fa fa-plus"></span> <?php echo JText::_('COM_RSEVENTSPRO_ADD_TICKET'); ?></button>
+		<button class="btn btn-success rsepro-event-update" type="button"><?php echo JText::_('COM_RSEVENTSPRO_UPDATE_EVENT'); ?></button>
+		<button class="btn btn-danger rsepro-event-cancel" type="button"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CANCEL_BTN'); ?></button>
+	</div>
+</fieldset>

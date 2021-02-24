@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if (empty($data['allForms'])) { ?>
+<?php if (empty($data['allForms'])) { ?>
 	<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
 <?php } else { ?>
 	<div class="cell grid-x margin-top-1">
@@ -15,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
             ?>
 		</div>
 		<div class="grid-x cell">
-			<div class="auto cell">
+			<div class="auto cell acym_vcenter">
                 <?php
                 $options = [
                     '' => ['ACYM_ALL', $data['formsNumberPerStatus']['all']],
@@ -28,13 +26,13 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell acym_listing_sort-by auto">
                 <?php echo acym_sortBy(
                     [
-                        'id' => strtolower(acym_translation('ACYM_ID')),
+                        'id' => acym_strtolower(acym_translation('ACYM_ID')),
                         'name' => acym_translation('ACYM_NAME'),
                         'active' => acym_translation('ACYM_ACTIVE'),
                         'type' => acym_translation('ACYM_TYPE'),
                     ],
                     'forms',
-                    '',
+                    $data['ordering'],
                     'asc'
                 ); ?>
 			</div>
@@ -114,4 +112,3 @@ defined('_JEXEC') or die('Restricted access');
         <?php echo $data['pagination']->display('form'); ?>
 	</div>
 <?php } ?>
-

@@ -1015,10 +1015,10 @@ class com_rsformInstallerScript
 				<p>It seems you are still using legacy layouts - they have been removed from RSForm! Pro since they are no longer usable today as they do not provide responsive features.<br>If you still want to keep using them, please install the <a href="https://www.rsjoomla.com/support/documentation/rsform-pro/plugins-and-modules/plugin-legacy-layouts.html" target="_blank">Legacy Layouts Plugin</a>.</p>
 			</div>
 		<?php } ?>
-		<h2>Changelog v2.3.16</h2>
+		<h2>Changelog v2.3.20</h2>
 		<ul class="version-history">
-			<li><span class="version-new">New</span> 'Show Descriptions' option in the 'Submissions - Directory' menu item.</li>
-			<li><span class="version-upgraded">Upg</span> Placeholders are now shown when editing a submission through the Directory.</li>
+			<li><span class="version-upgraded">Upg</span> {global:confirmed} placeholder now available in the Submissions View detail page.</li>
+			<li><span class="version-upgraded">Upg</span> Importing CSV submissions will automatically pre-select the best matching header.</li>
 		</ul>
 		<a class="btn btn-large btn-primary" href="index.php?option=com_rsform">Start using RSForm! Pro</a>
 		<a class="btn" href="https://www.rsjoomla.com/support/documentation/rsform-pro.html" target="_blank">Read the RSForm! Pro User Guide</a>

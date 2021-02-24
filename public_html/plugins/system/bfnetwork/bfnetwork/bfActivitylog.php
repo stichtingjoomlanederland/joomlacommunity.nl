@@ -143,12 +143,7 @@ class bfActivitylog
     {
         try {
             if (null === $when) {
-                $d = JFactory::getDate();
-                if (method_exists($d, 'format')) {
-                    $when = JFactory::getDate()->format('Y-m-d H:i:s', true);
-                } else {
-                    $when = JFactory::getDate()->toformat('Y-m-d H:i:s', true);
-                }
+                $when = date('Y-m-d H:i:s');
             }
 
             if (null == $ip) {

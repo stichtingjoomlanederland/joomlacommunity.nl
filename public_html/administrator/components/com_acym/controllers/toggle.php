@@ -1,6 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Controllers;
+
+use AcyMailing\Libraries\acymController;
 
 class ToggleController extends acymController
 {
@@ -23,11 +25,22 @@ class ToggleController extends acymController
     protected function defineToggles()
     {
         $this->toggleableColumns['automation'] = ['active' => 'id'];
-        $this->toggleableColumns['field'] = ['active' => 'id', 'required' => 'id', 'backend_edition' => 'id', 'backend_listing' => 'id', 'frontend_edition' => 'id', 'frontend_listing' => 'id'];
+        $this->toggleableColumns['field'] = [
+            'active' => 'id',
+            'required' => 'id',
+            'backend_edition' => 'id',
+            'backend_listing' => 'id',
+            'frontend_edition' => 'id',
+            'frontend_listing' => 'id',
+        ];
         $this->toggleableColumns['list'] = ['active' => 'id', 'visible' => 'id'];
         $this->toggleableColumns['rule'] = ['active' => 'id'];
         $this->toggleableColumns['user'] = ['active' => 'id', 'confirmed' => 'id'];
         $this->toggleableColumns['form'] = ['active' => 'id'];
+        $this->toggleableColumns['segment'] = ['active' => 'id'];
+        $this->toggleableColumns['campaign'] = ['visible' => 'id'];
+        $this->toggleableColumns['followup'] = ['active' => 'id'];
+        $this->toggleableColumns['mail_override'] = ['active' => 'id'];
 
         $this->icons['automation']['active'][1] = 'acymicon-check-circle acym__color__green';
         $this->icons['automation']['active'][0] = 'acymicon-times-circle acym__color__red';
@@ -55,6 +68,14 @@ class ToggleController extends acymController
         $this->icons['user']['confirmed'][0] = 'acymicon-times-circle acym__color__red';
         $this->icons['form']['active'][1] = 'acymicon-check-circle acym__color__green';
         $this->icons['form']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['segment']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['segment']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['campaign']['visible'][1] = 'acymicon-eye';
+        $this->icons['campaign']['visible'][0] = 'acymicon-eye-slash acym__color__dark-gray';
+        $this->icons['followup']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['followup']['active'][0] = 'acymicon-times-circle acym__color__red';
+        $this->icons['mail_override']['active'][1] = 'acymicon-check-circle acym__color__green';
+        $this->icons['mail_override']['active'][0] = 'acymicon-times-circle acym__color__red';
 
         $this->tooltips['user']['active'][1] = 'ACYM_ACTIVATED';
         $this->tooltips['user']['active'][0] = 'ACYM_DEACTIVATED';
@@ -64,6 +85,8 @@ class ToggleController extends acymController
         $this->tooltips['list']['active'][0] = 'ACYM_DEACTIVATED';
         $this->tooltips['list']['visible'][1] = 'ACYM_VISIBLE';
         $this->tooltips['list']['visible'][0] = 'ACYM_INVISIBLE';
+        $this->tooltips['campaign']['visible'][0] = 'ACYM_INVISIBLE';
+        $this->tooltips['campaign']['visible'][1] = 'ACYM_VISIBLE';
 
         $this->deletableRows[] = 'mail';
         $this->deletableRows[] = 'queue';
@@ -132,26 +155,10 @@ class ToggleController extends acymController
             exit;
         }
 
-        $elementClass = acym_get('class.'.$table);
+        $namespaceClass = 'AcyMailing\\Classes\\'.ucfirst($table).'Class';
+        $elementClass = new $namespaceClass;
         $elementClass->$method($id);
 
-        exit;
-    }
-
-    public function getIntroJSConfig()
-    {
-        echo $this->config->get('introjs', '[]');
-        exit;
-    }
-
-    public function toggleIntroJS()
-    {
-        $toggleElement = acym_getVar('string', 'where');
-        $intro = json_decode($this->config->get('introjs', '[]'), true);
-        $intro[$toggleElement] = 1;
-        $newConfig = new stdClass();
-        $newConfig->introjs = json_encode($intro);
-        $this->config->save($newConfig);
         exit;
     }
 
@@ -168,7 +175,7 @@ class ToggleController extends acymController
             exit;
         }
 
-        $newConfig = new stdClass();
+        $newConfig = new \stdClass();
         $newConfig->remindme = json_decode($this->config->get('remindme', '[]'));
         if (!in_array($newValue, $newConfig->remindme)) array_push($newConfig->remindme, $newValue);
         $newConfig->remindme = json_encode($newConfig->remindme);
@@ -183,4 +190,3 @@ class ToggleController extends acymController
         exit;
     }
 }
-

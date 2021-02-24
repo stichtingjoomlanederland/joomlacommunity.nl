@@ -12,37 +12,22 @@ JText::script('COM_RSEVENTSPRO_CONSENT_INFO'); ?>
 
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting'); ?>" method="post" name="adminForm" id="adminForm" class="form-horizontal" autocomplete="off">
 
-	<div class="alert alert-info">
-		<?php echo JText::_('COM_RSEVENTSPRO_WAITING_LIST_INFO'); ?>
-	</div>
-	<div class="control-group">
-		<div class="control-label">
-			<label for="name"><?php echo JText::_('COM_RSEVENTSPRO_WAITING_NAME'); ?></label>
-		</div>
-		<div class="controls">
-			<input type="text" name="name" id="name" value="<?php echo JFactory::getUser()->get('name'); ?>" size="40" class="input-large" />
-		</div>
-	</div>
+	<div class="alert alert-info"><?php echo JText::_('COM_RSEVENTSPRO_WAITING_LIST_INFO'); ?></div>
 	
-	<div class="control-group">
-		<div class="control-label">
-			<label for="email"><?php echo JText::_('COM_RSEVENTSPRO_WAITING_EMAIL'); ?></label>
+	<div class="form-horizontal rsepro-horizontal">
+		<?php echo RSEventsproAdapterGrid::renderField('<label for="name">'.JText::_('COM_RSEVENTSPRO_WAITING_NAME').'</label>','<input type="text" name="name" id="name" value="'.JFactory::getUser()->get('name').'" size="40" class="form-control" />'); ?>
+		<?php echo RSEventsproAdapterGrid::renderField('<label for="name">'.JText::_('COM_RSEVENTSPRO_WAITING_EMAIL').'</label>','<input type="text" name="email" id="email" value="'.JFactory::getUser()->get('email').'" size="40" class="form-control" />'); ?>
+		<?php if ($this->config->consent) { ?>
+		<div class="control-group">
+			<div class="controls">
+				<label class="checkbox inline">
+					<input type="checkbox" name="consent" id="consent" value="1" /> <?php echo JText::_('COM_RSEVENTSPRO_CONSENT'); ?>
+				</label>
+			</div>
 		</div>
-		<div class="controls">
-			<input type="text" name="email" id="email" value="<?php echo JFactory::getUser()->get('email'); ?>" size="40" class="input-large" />
-		</div>
+		<?php } ?>
 	</div>
-	
-	<?php if (rseventsproHelper::getConfig('consent','int','1')) { ?>
-	<div class="control-group">
-		<div class="controls">
-			<label class="checkbox inline">
-				<input type="checkbox" name="consent" id="consent" value="1" /> <?php echo JText::_('COM_RSEVENTSPRO_CONSENT'); ?>
-			</label>
-		</div>
-	</div>
-	<?php } ?>
-	
+
 	<div class="control-group">
 		<div class="controls">
 			<button type="submit" class="button btn btn-primary" onclick="return rsepro_validate_waitinglist();"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SAVE'); ?></button> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_OR'); ?> 

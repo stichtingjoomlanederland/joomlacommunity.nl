@@ -2,10 +2,13 @@
 
 namespace Mollie\Api;
 
+use Composer\CaBundle\CaBundle;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\RequestOptions as GuzzleRequestOptions;
 use Mollie\Api\Endpoints\ChargebackEndpoint;
 use Mollie\Api\Endpoints\CustomerEndpoint;
 use Mollie\Api\Endpoints\CustomerPaymentsEndpoint;
@@ -17,8 +20,8 @@ use Mollie\Api\Endpoints\OrderEndpoint;
 use Mollie\Api\Endpoints\OrderLineEndpoint;
 use Mollie\Api\Endpoints\OrderPaymentEndpoint;
 use Mollie\Api\Endpoints\OrderRefundEndpoint;
-use Mollie\Api\Endpoints\PaymentCaptureEndpoint;
 use Mollie\Api\Endpoints\OrganizationEndpoint;
+use Mollie\Api\Endpoints\PaymentCaptureEndpoint;
 use Mollie\Api\Endpoints\PaymentChargebackEndpoint;
 use Mollie\Api\Endpoints\PaymentEndpoint;
 use Mollie\Api\Endpoints\PaymentRefundEndpoint;
@@ -26,12 +29,14 @@ use Mollie\Api\Endpoints\PermissionEndpoint;
 use Mollie\Api\Endpoints\ProfileEndpoint;
 use Mollie\Api\Endpoints\ProfileMethodEndpoint;
 use Mollie\Api\Endpoints\RefundEndpoint;
+use Mollie\Api\Endpoints\SettlementPaymentEndpoint;
 use Mollie\Api\Endpoints\SettlementsEndpoint;
 use Mollie\Api\Endpoints\ShipmentEndpoint;
 use Mollie\Api\Endpoints\SubscriptionEndpoint;
 use Mollie\Api\Endpoints\WalletEndpoint;
 use Mollie\Api\Exceptions\ApiException;
 use Mollie\Api\Exceptions\IncompatiblePlatform;
+use Mollie\Api\Guzzle\RetryMiddlewareFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -40,7 +45,7 @@ class MollieApiClient
     /**
      * Version of our client.
      */
-    const CLIENT_VERSION = "2.16.0";
+    const CLIENT_VERSION = "2.27.2";
 
     /**
      * Endpoint of the remote API.
@@ -69,6 +74,11 @@ class MollieApiClient
      * Default response timeout (in seconds).
      */
     const TIMEOUT = 10;
+
+    /**
+     * Default connect timeout (in seconds).
+     */
+    const CONNECT_TIMEOUT = 2;
 
     /**
      * @var ClientInterface
@@ -114,9 +124,18 @@ class MollieApiClient
     public $customerPayments;
 
     /**
+     * RESTful Settlement resource.
+     *
      * @var SettlementsEndpoint
      */
     public $settlements;
+
+    /**
+     * RESTful Settlement payment resource.
+     *
+     * @var \Mollie\Api\Endpoints\SettlementPaymentEndpoint
+     */
+    public $settlementPayments;
 
     /**
      * RESTful Subscription resource.
@@ -258,6 +277,7 @@ class MollieApiClient
      * @var array
      */
     protected $versionStrings = [];
+
     /**
      * @var int
      */
@@ -270,12 +290,20 @@ class MollieApiClient
      */
     public function __construct(ClientInterface $httpClient = null)
     {
-        $this->httpClient = $httpClient ?
-            $httpClient :
-            new Client([
-                \GuzzleHttp\RequestOptions::VERIFY => \Composer\CaBundle\CaBundle::getBundledCaBundlePath(),
-                \GuzzleHttp\RequestOptions::TIMEOUT => self::TIMEOUT,
+        $this->httpClient = $httpClient;
+
+        if (! $this->httpClient) {
+            $retryMiddlewareFactory = new RetryMiddlewareFactory;
+            $handlerStack = HandlerStack::create();
+            $handlerStack->push($retryMiddlewareFactory->retry());
+
+            $this->httpClient = new Client([
+                GuzzleRequestOptions::VERIFY => CaBundle::getBundledCaBundlePath(),
+                GuzzleRequestOptions::TIMEOUT => self::TIMEOUT,
+                GuzzleRequestOptions::CONNECT_TIMEOUT => self::CONNECT_TIMEOUT,
+                'handler' => $handlerStack,
             ]);
+        }
 
         $compatibilityChecker = new CompatibilityChecker();
         $compatibilityChecker->checkCompatibility();
@@ -284,7 +312,12 @@ class MollieApiClient
 
         $this->addVersionString("Mollie/" . self::CLIENT_VERSION);
         $this->addVersionString("PHP/" . phpversion());
-        $this->addVersionString("Guzzle/" . ClientInterface::VERSION);
+
+        if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) { // Guzzle 7
+            $this->addVersionString("Guzzle/" . ClientInterface::MAJOR_VERSION);
+        } elseif (defined('\GuzzleHttp\ClientInterface::VERSION')) { // Before Guzzle 7
+            $this->addVersionString("Guzzle/" . ClientInterface::VERSION);
+        }
     }
 
     public function initializeEndpoints()
@@ -294,6 +327,7 @@ class MollieApiClient
         $this->profileMethods = new ProfileMethodEndpoint($this);
         $this->customers = new CustomerEndpoint($this);
         $this->settlements = new SettlementsEndpoint($this);
+        $this->settlementPayments = new SettlementPaymentEndpoint($this);
         $this->subscriptions = new SubscriptionEndpoint($this);
         $this->customerPayments = new CustomerPaymentsEndpoint($this);
         $this->mandates = new MandateEndpoint($this);
@@ -323,6 +357,7 @@ class MollieApiClient
     public function setApiEndpoint($url)
     {
         $this->apiEndpoint = rtrim(trim($url), '/');
+
         return $this;
     }
 
@@ -344,12 +379,13 @@ class MollieApiClient
     {
         $apiKey = trim($apiKey);
 
-        if (!preg_match('/^(live|test)_\w{30,}$/', $apiKey)) {
+        if (! preg_match('/^(live|test)_\w{30,}$/', $apiKey)) {
             throw new ApiException("Invalid API key: '{$apiKey}'. An API key must start with 'test_' or 'live_' and must be at least 30 characters long.");
         }
 
         $this->apiKey = $apiKey;
         $this->oauthAccess = false;
+
         return $this;
     }
 
@@ -363,12 +399,13 @@ class MollieApiClient
     {
         $accessToken = trim($accessToken);
 
-        if (!preg_match('/^access_\w+$/', $accessToken)) {
+        if (! preg_match('/^access_\w+$/', $accessToken)) {
             throw new ApiException("Invalid OAuth access token: '{$accessToken}'. An access token must start with 'access_'.");
         }
 
         $this->apiKey = $accessToken;
         $this->oauthAccess = true;
+
         return $this;
     }
 
@@ -390,6 +427,7 @@ class MollieApiClient
     public function addVersionString($versionString)
     {
         $this->versionStrings[] = str_replace([" ", "\t", "\n", "\r"], '-', $versionString);
+
         return $this;
     }
 
@@ -455,11 +493,11 @@ class MollieApiClient
         try {
             $response = $this->httpClient->send($request, ['http_errors' => false]);
         } catch (GuzzleException $e) {
-            throw ApiException::createFromGuzzleException($e);
+            throw ApiException::createFromGuzzleException($e, $request);
         }
 
-        if (!$response) {
-            throw new ApiException("Did not receive API response.");
+        if (! $response) {
+            throw new ApiException("Did not receive API response.", 0, null, $request);
         }
 
         return $this->parseResponseBody($response);
@@ -469,7 +507,7 @@ class MollieApiClient
      * Parse the PSR-7 Response body
      *
      * @param ResponseInterface $response
-     * @return \stdClass|null   
+     * @return \stdClass|null
      * @throws ApiException
      */
     private function parseResponseBody(ResponseInterface $response)
@@ -490,7 +528,7 @@ class MollieApiClient
         }
 
         if ($response->getStatusCode() >= 400) {
-            throw ApiException::createFromResponse($response);
+            throw ApiException::createFromResponse($response, null);
         }
 
         return $object;

@@ -38,7 +38,7 @@ jQuery(document).ready(function ($) {
 								for (var field in item.changes) {
 									var change = item.changes[field];
 									if (change.old) {
-										html += '<div class="btn-group"><span class="btn btn-small disabled">' + field + '</span><span class="btn btn-small btn-danger">' + change.old + '</span><span class="btn btn-small btn-success">' + change.new + '</span></div>';
+										html += '<div class="btn-group btn-group-vertical"><span class="btn btn-small btn-danger">' + change.old + '</span><span class="btn btn-small btn-success">' + change.new + '</span></div>';
 									}
 								}
 

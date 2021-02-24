@@ -63,4 +63,71 @@ class EasyDiscussAdsense extends EasyDiscuss
 
 		return $adsenseObj;
 	}
+
+	/**
+	 * Generates the AMP html codes for adsense
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	public function ampHtml(EasyDiscussPost $post)
+	{
+		$result = new stdClass();
+		$result->header = '';
+		$result->beforereplies = '';
+		$result->footer = '';
+
+		// Standard code
+		$code = $this->config->get('integration_google_adsense_code');
+		$data = [];
+
+		if ($code) {
+			if (preg_match('/google_ad_client\s*=\s*"([^"]+)"\s*;/', $code, $m)) {
+				$data['client'] = $m[1];
+			}
+			if (preg_match('/google_ad_slot\s*=\s*"([^"]+)"\s*;/', $code, $m)) {
+				$data['slot'] = $m[1];
+			}
+		}
+
+		// Responsive code
+		$responsiveCode = $this->config->get('integration_google_adsense_responsive_code');
+
+		if (!$code || $responsiveCode && $this->config->get('integration_google_adsense_responsive')) {
+			$code = $responsiveCode;
+
+			// We need to process the code to meet the AMP requirement
+			preg_match_all('~ad-(?P<name>\w+)="(?P<val>[^"]*)"~', $code, $m);
+			$data = array_combine($m['name'], $m['val']);
+		}
+
+		// Ensure that adsense is enabled
+		if (!$this->config->get('integration_google_adsense_enable')) {
+			return $result;
+		}
+
+		if ($this->config->get('integration_google_adsense_display_access') == 'members' && !$this->my->id0) {
+			return $result;
+		}
+
+		if ($this->config->get('integration_google_adsense_display_access') == 'guests' && $this->my->id) {
+			return $result;
+		}
+
+		$defaultDisplay = $this->config->get('integration_google_adsense_display', array());
+
+		if ($defaultDisplay) {
+			$defaultDisplay = explode(',', $defaultDisplay);
+		}
+
+		if ($code) {
+			$html = '<amp-ad layout="responsive" width=300 height=100 type="adsense" data-ad-client="' . $data['client'] . '" data-ad-slot="' . $data['slot'] . '"></amp-ad>';
+
+			foreach ($defaultDisplay as $location) {
+				$result->$location = $html;
+			}
+		}
+
+		return $result;
+	}
 }

@@ -13,7 +13,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.html.pagination');
 
-class EasyDiscussPagination extends EasyDiscuss
+class EasyDiscussPagination
 {
 	public $pagination = null;
 	public $total = null;
@@ -23,11 +23,12 @@ class EasyDiscussPagination extends EasyDiscuss
 
 	public function __construct($opts = array())
 	{
+		$this->input = ED::request();
+
 		$total = '';
 		$limitstart = '';
 		$limit = '';
 		$prefix = '';
-
 
 		if (isset($opts[0])) {
 			$this->total = $opts[0];
@@ -131,6 +132,8 @@ class EasyDiscussPagination extends EasyDiscuss
 		}
 
 		$queries = '';
+		$currentStart = $this->input->get('limitstart', 0, 'int');
+
 		if (!empty($filtering)) {
 			
 			if (isset($filtering['category_id']) && $filtering['category_id']) {
@@ -150,8 +153,8 @@ class EasyDiscussPagination extends EasyDiscuss
 				$queries .= '&sort=' .$filtering['sort'];
 			}
 
-			if (isset($filtering['status'])) {
-				$queries .= '&status=' .$filtering['status'];
+			if (isset($filtering['label'])) {
+				$queries .= '&label=' .$filtering['label'];
 			}
 
 			if (isset($filtering['query'])) {
@@ -208,7 +211,7 @@ class EasyDiscussPagination extends EasyDiscuss
 		ob_start();
 		?>
 		<div class="o-pagination-wrap text-center t-lg-mt--xl">
-			<ul class="o-pagination">
+			<ul class="o-pagination" data-ed-pagination-list>
 				<li class="disabled"><span><?php echo JText::_('COM_EASYDISCUSS_PAGINATION_PAGE');?> :</span></li>
 
 				<?php if( $data->start->link ){ ?>
@@ -223,7 +226,7 @@ class EasyDiscussPagination extends EasyDiscuss
 				<?php 	if( $page->link ) { ?>
 				<li><a href="<?php echo $page->link ?>" rel="nofollow"><?php echo $page->text;?></a></li>
 				<?php 	} else { ?>
-				<li class="active"><span><?php echo $page->text;?></span></li>
+				<li class="active" data-limitstart="<?php echo $currentStart; ?>"><span><?php echo $page->text;?></span></li>
 				<?php 	} ?>
 				<?php } ?>
 

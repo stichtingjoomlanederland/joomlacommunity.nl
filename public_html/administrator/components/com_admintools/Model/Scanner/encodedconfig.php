@@ -1,12 +1,12 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 $encodedConfig =
 	'ad556d73e23610fe2b1d9399d88418027999a473934983efc23409395e2e' .

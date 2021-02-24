@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields">
+		<field name="speakers" type="sql" label="COM_RSEVENTSPRO_EVENT_SPEAKERS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_speakers" sql_where="published=1" key_field="id" value_field="name" />
+		<field name="sponsors" type="sql" label="COM_RSEVENTSPRO_EVENT_SPONSORS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_sponsors" sql_where="published=1" key_field="id" value_field="name" />
+		<field name="groups" type="groups" label="COM_RSEVENTSPRO_EVENT_GROUPS" multiple="multiple" />
+		<field name="categories" type="category" extension="com_rseventspro" multiple="multiple" published="1" />
+		<field name="tags" type="rstags" multiple="multiple" />
+		<field name="statuses" type="list" multiple="multiple" label="COM_RSEVENTSPRO_RSMAIL_AUTOSUBSCRIBE">
+			<option value="0">COM_RSEVENTSPRO_RULE_STATUS_INCOMPLETE</option>
+			<option value="1">COM_RSEVENTSPRO_RULE_STATUS_COMPLETE</option>
+			<option value="2">COM_RSEVENTSPRO_RULE_STATUS_DENIED</option>
+		</field>
+		<field name="apply_changes" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_APPLY_CHANGES" />
+		<field name="repeat_date" type="rscalendar" label="COM_RSEVENTSPRO_REAPEAT_ALSO_ON" class="form-control" allday="true" time="false" onchange="RSEventsPro.Event.addRecurringDate()" />
+		<field name="repeat_days" type="list" label="COM_RSEVENTSPRO_REAPEAT_ON" default="" multiple="multiple">
+			<option value="1">COM_RSEVENTSPRO_MONDAY</option>
+			<option value="2">COM_RSEVENTSPRO_TUESDAY</option>
+			<option value="3">COM_RSEVENTSPRO_WEDNESDAY</option>
+			<option value="4">COM_RSEVENTSPRO_THURSDAY</option>
+			<option value="5">COM_RSEVENTSPRO_FRIDAY</option>
+			<option value="6">COM_RSEVENTSPRO_SATURDAY</option>
+			<option value="0">COM_RSEVENTSPRO_SUNDAY</option>
+		</field>
+		<field name="exclude_date" type="rscalendar" label="COM_RSEVENTSPRO_REAPEAT_EXCLUDE_DATES" class="form-control" allday="true" time="false" onchange="RSEventsPro.Event.addExcludeDate()" />
+		
+		<field name="ticket_name" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_NAME" />
+		<field name="ticket_price" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_PRICE" />
+		<field name="ticket_seats" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_SEATS" />
+		<field name="ticket_user_seats" type="text" label="COM_RSEVENTSPRO_EVENT_TICKET_USER_SEATS" />
+		<field name="ticket_groups" type="groups" label="COM_RSEVENTSPRO_TICKET_GROUPS_INFO" multiple="multiple" />
+		<field name="ticket_from" type="rscalendar" label="COM_RSEVENTSPRO_TICKET_AVAILABLE_FROM" class="form-control" />
+		<field name="ticket_to" type="rscalendar" label="COM_RSEVENTSPRO_TICKET_AVAILABLE_UNTIL" class="form-control" />
+		<field name="ticket_description" type="textarea" label="COM_RSEVENTSPRO_EVENT_TICKET_DESCRIPTION" class="form-control" rows="5" />
+		
+		<field name="coupon_name" type="text" label="COM_RSEVENTSPRO_COUPON_NAME" />
+		<field name="coupon_code" type="textarea" label="COM_RSEVENTSPRO_COUPON_CODE" />
+		<field name="coupon_times" type="text" default="3" />
+		<field name="coupon_start" type="rscalendar" label="COM_RSEVENTSPRO_COUPON_AVAILABLE_FROM" class="form-control" />
+		<field name="coupon_end" type="rscalendar" label="COM_RSEVENTSPRO_COUPON_AVAILABLE_UNTIL" class="form-control" />
+		<field name="coupon_usage" type="text" label="COM_RSEVENTSPRO_MAX_USAGE" />
+		<field name="coupon_discount" type="text" label="COM_RSEVENTSPRO_APPLY_DISCOUNT" />
+		<field name="coupon_type" type="list">
+			<option value="0">COM_RSEVENTSPRO_DISCOUNT_TYPE_FIXED</option>
+			<option value="1">COM_RSEVENTSPRO_DISCOUNT_TYPE_PERCENT</option>
+		</field>
+		<field name="coupon_action" type="list">
+			<option value="0">COM_RSEVENTSPRO_SINGLE_PRICE</option>
+			<option value="1">COM_RSEVENTSPRO_TOTAL_PRICE</option>
+		</field>
+		<field name="coupon_groups" type="groups" label="COM_RSEVENTSPRO_INSTANT_DISCOUNT" multiple="multiple" />
+	</fieldset>
+</form>

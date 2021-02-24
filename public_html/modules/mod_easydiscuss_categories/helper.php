@@ -1,146 +1,103 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
-class modEasydiscussCategoriesHelper
+class EasyDiscussModCategoriesHelper
 {
-	public static function getData($params)
+	public function getData($params)
 	{
-		$db = ED::db();
+		// For flat design, we'll allow the subcategories.
+		$showSubCategories = false;
 
-		$hideEmptyPost = $params->get('hideemptypost', '0');
-		$displayType = $params->get('layouttype', 'flat');
-
-		$order = $params->get('order', 'default');
-		$sort = $params->get('sort', 'asc');
-		$count = (int) trim($params->get('count', 0));
-
-		$options = array();
-		$options['ordering'] = $order;
-		$options['sorting'] = $sort;
-
-		$excludeChild = $params->get('exclude_child_categories', false);
-
-		if ($excludeChild) {
-			$options['showSubCategories'] = false;
-		} else {
-			$options['showSubCategories'] = true;
+		if ($params->get('layouttype') == 'flat' && !$params->get('exclude_child_categories', false)) {
+			$showSubCategories = true;
 		}
 
-		$options['showPostCount'] = true;
-		$options['limit'] = $count;
+		$model = ED::model('categories');
+		$categories = $model->getCategoryTree([], [
+			'showSubCategories' => $showSubCategories,
+			'showPostCount' => true,
+			'limit' => $params->get('count', 5),
+			'ordering' => $params->get('order', 'default'),
+			'sorting' => $params->get('sort', 'asc')
+		]);
 
-		// retrieve certain category to show
-		$inclusionCatId = $params->get('category', array(), 'array');
-		$options['categoryIds'] = $inclusionCatId;
-
-		$categories = array();
-
-		if ($displayType == 'tree') {
-			// if this is a tree, we will limit the count manually
-			$options['limit'] = 0;
-		} else {
-			// if this is a flat layout, we do not 'sort based on the parent'
-			$options['sortParentChild'] = false;
-		}
-
-		$catsModel = ED::model('categories');
-		$categories = $catsModel->getCategoryTree(array(), $options);
-
-		$model = ED::model('category');
-
-		// we need to manually do some grouping here.
-		$parents = array();
-
-		if ($categories) {
-			// get parents
-			foreach ($categories as $category) {
-				if ($params->get('hideemptypost', false) && $category->postCount <= 0) {
+		if ($params->get('hideemptypost', false)) {
+			foreach ($categories as $key => $category) {
+				if (!$category->postCount) {
+					unset($categories[$key]);
 					continue;
 				}
-
-				// Get the total subcategories based on permission
-				$totalSubcategories = 0;
-				$model->getTotalViewableChilds($category->id, $totalSubcategories);
-				$category->totalSubcategories = $totalSubcategories;
-
-				if ($displayType == 'tree') {
-					if (!$category->parent_id && !$category->depth) {
-						$parents[$category->id] = $category;
-					}
-				} else {
-					$parents[] = $category;
-				}
-			}
-
-			if ($displayType == 'tree') {
-				// now assign childs into parents
-				foreach ($parents as $parent) {
-
-					$parentid = $parent->id;
-					$lft = $parent->lft;
-					$rgt = $parent->rgt;
-
-					$childs = array();
-
-					foreach ($categories as $category) {
-						if ($category->lft > $lft && $category->lft < $rgt) {
-
-							if ($params->get('hideemptypost', false) && $category->postCount <= 0) {
-								continue;
-							}
-
-							$childs[] = $category;
-						}
-					}
-
-					$parent->childs = $childs;
-				}
 			}
 		}
 
-		if ($displayType == 'tree' && $count) {
-			$parents = array_slice($parents, 0, $count);
-		}
-
-		return $parents;
+		return $categories;
 	}
 
-	public static function printTree($child, $level, $params)
+	public function getCategoryItem($category, $params)
 	{
-		$wrapperStart = '<ul class="ed-tree__list">';
-		$wrapperEnd = '</ul>';
+		ob_start();
+			require(JModuleHelper::getLayoutPath('mod_easydiscuss_categories', 'tree_item'));
+			$output = ob_get_contents();
+		ob_end_clean();
 
-		$addWrapper = false;
-		$tree = '';
+		return $output;
+	}
 
-		foreach ($child as $item) {
-			if ($item->parent_id == $level) {
+	public function getNestedCategories($categoryId, $params, $activeCategory)
+	{
+		if ($params->get('exclude_child_categories', 0)) {
+			return ;
+		}
 
-				$addWrapper = true;
+		$model = ED::model('categories');
+		$categories = $model->getChildCategories($categoryId);
+		
+		foreach ($categories as $key => &$category) {
+			$category = ED::category($category);
 
-				$output = '';
-				$category = $item;
-
-				ob_start();
-					require(JModuleHelper::getLayoutPath('mod_easydiscuss_categories', 'tree_item'));
-					$output = ob_get_contents();
-				ob_end_clean();
-
-				$tree = $tree . '<li class="ed-tree__item">' . $output . self::printTree($child, $item->id, $params) . "</li>";
+			if ($params->get('hideemptypost', false)) {
+				if (!$category->getTotalPosts()) {
+					unset($categories[$key]);
+					continue;
+				}
 			}
 		}
 
-		$tree = $addWrapper ? $wrapperStart . $tree . $wrapperEnd : $tree;
-		return $tree;
+		if (!$categories) {
+			return;
+		}
+
+		ob_start();?>
+		<div class="ed-filter-menu ed-filter-menu--nested t-d--none" data-category-nested>
+			<div class="ed-filter-menu__item ed-filter-menu__item-back" data-category-back>
+				<a href="javascript:void(0);" class="ed-filter-menu__link">
+					<i class="fa fa-angle-left"></i>&nbsp; <?php echo JText::_('COM_ED_BACK'); ?>
+				</a>
+			</div>
+
+			<?php foreach ($categories as $item) { ?>
+				<div class="ed-filter-menu__item t-mb--sm <?php echo $activeCategory->id == $item->id ? 'active' : '';?>" data-category-filter="<?php echo $item->id;?>">
+					<?php echo $this->getCategoryItem($item, $params); ?>
+
+					<?php echo $this->getNestedCategories($item->id, $params, $activeCategory); ?>
+				</div>
+				
+			<?php } ?>
+		</div>
+		<?php
+		$output = ob_get_contents();
+		ob_end_clean();
+
+		return $output;
 	}
 }

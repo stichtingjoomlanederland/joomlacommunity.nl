@@ -31,17 +31,17 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		});
 
 	// Apply fancybox
-	var attachmentPreview = $('[data-ed-attachment-preview]');
-
-	attachmentPreview.fancybox({
-		type: 'image',
-		wrapCSS: 'fancy--ed-image',
-
-		helpers: {
-			overlay: null
-		}
+	$('[data-ed-fancybox]').fancybox({
+		baseClass: 'fancy--ed-image',
+		infobar: false,
+		animationEffect: false,
+		transitionEffect: false,
+		buttons: [
+			'download',
+			'close',
+		],
+		hash: false
 	});
-
 });
 
 

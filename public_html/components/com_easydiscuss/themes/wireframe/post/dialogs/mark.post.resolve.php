@@ -12,38 +12,38 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <dialog>
-    <width>400</width>
-    <height>120</height>
-    <selectors type="json">
-    {
-        "{closeButton}" : "[data-close-button]",
-        "{form}" : "[data-form-response]",
-        "{submitButton}" : "[data-submit-button]"
-    }
-    </selectors>
-    <bindings type="javascript">
-    {
-        "{closeButton} click": function() {
-            this.parent.close();
-        },
-        "{submitButton} click": function() {
-            this.form().submit();
-        }
-    }
-    </bindings>
-    <title><?php echo JText::_('COM_EASYDISCUSS_POST_RESOLVED_TITLE'); ?></title>
-    <content>
-        <p class="mb-10">
-            <?php echo JText::_('COM_EASYDISCUSS_POST_RESOLVED_DESC'); ?>
-        </p>
+	<width>400</width>
+	<height>120</height>
+	<selectors type="json">
+	{
+		"{closeButton}" : "[data-close-button]",
+		"{form}" : "[data-form-response]",
+		"{submitButton}" : "[data-submit-button]"
+	}
+	</selectors>
+	<bindings type="javascript">
+	{
+		"{closeButton} click": function() {
+			this.parent.close();
+		},
+		"{submitButton} click": function() {
+			this.form().submit();
+		}
+	}
+	</bindings>
+	<title><?php echo JText::_('COM_EASYDISCUSS_POST_RESOLVED_TITLE'); ?></title>
+	<content>
+		<p class="mb-10">
+			<?php echo JText::_('COM_EASYDISCUSS_POST_RESOLVED_DESC'); ?>
+		</p>
 
-        <form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
-            <input type="hidden" id="id" name="id" value="<?php echo $id; ?>">
-            <?php echo $this->html('form.hidden', 'posts', 'posts', 'resolve');?>
-        </form>
-    </content>
-    <buttons>
-        <button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_NO'); ?></button>
-        <button data-submit-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_YES_MARK_POST_RESOLVED'); ?></button>
-    </buttons>
+		<form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
+			<input type="hidden" id="id" name="id" value="<?php echo $id; ?>">
+			<?php echo $this->html('form.action', 'posts', 'posts', 'resolve');?>
+		</form>
+	</content>
+	<buttons>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_YES_MARK_POST_RESOLVED'); ?></button>
+	</buttons>
 </dialog>

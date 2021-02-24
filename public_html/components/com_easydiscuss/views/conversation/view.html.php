@@ -48,14 +48,14 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		// Check if the user has permission to use private message
 		if (!$this->acl->allowed('allow_privatemessage')) {
 			ED::setMessage('COM_EASYDISCUSS_NOT_ALLOWED_POST_PRIVATE_MESSAGE', 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
 
 		// If configured to use EasySocial conversations, redirect them to the correct page.
 		$easysocial = ED::easysocial();
 
         if ($easysocial->exists() && $this->config->get('integration_easysocial_messaging')) {
-        	$this->app->redirect($easysocial->getConversationsRoute(false));
+        	ED::redirect($easysocial->getConversationsRoute(false));
         	return;
         }
 
@@ -64,11 +64,14 @@ class EasyDiscussViewConversation extends EasyDiscussView
 
 		// Get the conversation type
 		$type = $this->input->get('type', '', 'word');
+		$filter = 'archive';
 
 		$options = array();
 
 		if ($type == 'archives') {
 			$options['archives'] = true;
+
+			$filter = 'unarchive';
 		}
 
 		// Retrieve a list of conversations
@@ -103,7 +106,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		$countInbox = $model->getCount($this->my->id);
 		$countArchives = $model->getCount($this->my->id, array('archives' => true));
 
-		$this->set('type', $type);
+		$this->set('type', $filter);
 		$this->set('activeConversation', $activeConversation);
 		$this->set('lists', $lists);
 		$this->set('pagination', $pagination);
@@ -128,7 +131,7 @@ class EasyDiscussViewConversation extends EasyDiscussView
 		// Do not allow not logged in users to view anything in conversation.
 		if (!$this->my->id) {
 			$returnURL = base64_encode(JRequest::getURI());
-			$this->app->redirect(ED::getLoginLink($returnURL));
+			ED::redirect(ED::getLoginLink($returnURL));
 			return $this->app->close();
 		}
 
@@ -138,16 +141,16 @@ class EasyDiscussViewConversation extends EasyDiscussView
 
 		// The conversation id needs to be valid.
 		if (!$state) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_CONVERSATION_INVALID'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
+			ED::setMessage(JText::_('COM_EASYDISCUSS_CONVERSATION_INVALID'), 'error');
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
 		
 		// Check if the current logged in user has access to this conversation.
 		$model = ED::model('Conversation');
 
 		if (!$model->hasAccess($conversation->id, $this->my->id)) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
-			return $this->app->redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
+			return ED::redirect(EDR::_('index.php?option=com_easydiscuss&view=index', false));
 		}
 		
 		$result	= $model->getParticipants($conversation->id, $this->my->id);
@@ -207,8 +210,8 @@ class EasyDiscussViewConversation extends EasyDiscussView
 	{
 		// Do not allow non logged in users to view anything in conversation.
 		if (!$this->my->id) {
-			ED::setMessageQueue(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
-			return $this->app->redirect(EDR::_( 'index.php?option=com_easydiscuss&view=index', false));
+			ED::setMessage(JText::_('COM_EASYDISCUSS_NOT_ALLOWED'), 'error');
+			return ED::redirect(EDR::_( 'index.php?option=com_easydiscuss&view=index', false));
 			return $this->app->close();
 		}
 

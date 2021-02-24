@@ -145,7 +145,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `completed` tinyint(1) NOT NULL DEFAULT '0',
   `approved` tinyint(1) NOT NULL DEFAULT '0',
   `ticket_pdf` tinyint(1) NOT NULL DEFAULT '0',
-  `ticket_pdf_layout` text NOT NULL,
+  `ticket_pdf_layout` text NULL,
   `properties` varchar(255) NOT NULL DEFAULT '',
   `gallery_tags` text NOT NULL,
   `sync` tinyint(1) NOT NULL DEFAULT '0',
@@ -230,6 +230,8 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_groups` (
   `can_add_speaker` tinyint(2) NOT NULL DEFAULT '0',
   `can_select_sponsors` tinyint(2) NOT NULL DEFAULT '1',
   `can_add_sponsor` tinyint(2) NOT NULL DEFAULT '0',
+  `can_confirm_tickets` tinyint(2) NOT NULL DEFAULT '0',
+  `limit_events` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
 
@@ -422,12 +424,12 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_users` (
   `gateway` varchar(255) NOT NULL DEFAULT '',
   `ip` varchar(20) NOT NULL DEFAULT '',
   `URL` varchar(255) NOT NULL DEFAULT '',
-  `params` text NOT NULL,
+  `params` text NULL,
   `discount` float NOT NULL DEFAULT '0',
   `early_fee` float NOT NULL DEFAULT '0',
   `late_fee` float NOT NULL DEFAULT '0',
   `tax` float NOT NULL DEFAULT '0',
-  `log` text NOT NULL,
+  `log` text NULL,
   `lang` varchar(10) NOT NULL DEFAULT '',
   `coupon` varchar(255) NOT NULL DEFAULT '',
   `ideal` varchar(100) NOT NULL DEFAULT '',
@@ -661,6 +663,7 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_s
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_lang', 'auto');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_theme', 'light');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_size', 'NORMAL');
+INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_map_direction', '1');
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

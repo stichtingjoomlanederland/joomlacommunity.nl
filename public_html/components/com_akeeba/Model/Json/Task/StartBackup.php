@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -50,6 +50,11 @@ class StartBackup extends AbstractTask
 		$backupid    = $filter->clean($defConfig['backupid'], 'cmd');
 		$backupid    = empty($backupid) ? null : $backupid; // Otherwise the Engine doesn't set a backup ID
 		$overrides   = $filter->clean($defConfig['overrides'], 'array');
+
+		if (empty($description))
+		{
+			$description = $this->container->factory->model('Backup')->getDefaultDescription() . ' (JSON API)';
+		}
 
 		$this->container->platform->setSessionVar('profile', $profile);
 		define('AKEEBA_PROFILE', $profile);

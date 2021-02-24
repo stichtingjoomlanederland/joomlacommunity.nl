@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -10,21 +10,21 @@ use Joomla\CMS\Language\Text;
 /** @var    $this   Akeeba\AdminTools\Admin\View\UnblockIP\Html */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 ?>
 <form action="index.php" name="adminForm" id="adminForm" method="post" class="akeeba-form--horizontal">
 	<p class="akeeba-block--info">
 		<?php echo Text::_('COM_ADMINTOOLS_LBL_UNBLOCKIP_INFO') ?>
 	</p>
-	<div class="akeeba-container--50-50">
-		<div>
-			<div class="akeeba-form-group">
-				<label><?php echo Text::_('COM_ADMINTOOLS_LBL_UNBLOCKIP_CHOOSE_IP') ?></label>
-				<input type="text" value="" name="ip" />
-			</div>
+	<div>
+		<div class="akeeba-form-group">
+			<label><?php echo Text::_('COM_ADMINTOOLS_LBL_UNBLOCKIP_CHOOSE_IP') ?></label>
+			<input type="text" value="" name="ip" />
+		</div>
 
-			<div class="akeeba-form-group">
+		<div class="akeeba-form-group--pull-right">
+			<div>
 				<input type="submit" class="akeeba-btn--primary--big"
 					   value="<?php echo Text::_('COM_ADMINTOOLS_LBL_UNBLOCKIP_IP'); ?>" />
 			</div>

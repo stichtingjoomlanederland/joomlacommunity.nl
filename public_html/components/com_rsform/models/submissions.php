@@ -335,7 +335,8 @@ class RsformModelSubmissions extends JModelLegacy
 			'{detailspdf}'		=> '<a href="' . $pdfLink . '">',
 			'{detailspdf_link}'	=> $pdfLink,
 			'{/details}'		=> '</a>',
-			'{/detailspdf}'		=> '</a>'
+			'{/detailspdf}'		=> '</a>',
+			'{global:confirmed}' => $submission->confirmed ? JText::_('RSFP_YES') : JText::_('RSFP_NO')
 		);
 
 		$replace = array_merge($replace, array_keys($replacements));

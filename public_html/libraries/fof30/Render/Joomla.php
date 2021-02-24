@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   FOF
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 2, or later
  */
 
@@ -310,7 +310,7 @@ class Joomla extends RenderBase implements RenderInterface
 					{
 						$class = $link['active'] ? 'active' : '';
 
-						$href = $link['link'] ? $link['link'] : '#';
+						$href = $link['link'] ?: '#';
 
 						echo "<a href=\"$href\" class=\"nav-link $class\">{$link['name']}</a>";
 					}

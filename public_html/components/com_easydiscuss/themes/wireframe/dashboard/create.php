@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Restricted access');
 ?>
-<h2 class="ed-page-title"><?php echo JText::_('COM_EASYDISCUSS_NEW_HOLIDAY'); ?></h2>
+<h2 class="o-title"><?php echo JText::_('COM_EASYDISCUSS_NEW_HOLIDAY'); ?></h2>
 <form autocomplete="off" action="<?php echo JRoute::_('index.php');?>" method="post" enctype="multipart/form-data" data-ed-holiday-form>
 <div class="ed-dashboard-form">
     <div class="ed-dashboard-form__hd">
@@ -72,6 +72,6 @@ defined('_JEXEC') or die('Restricted access');
                 <a href="javascript:void(0);" class="btn btn-primary pull-right" data-ed-submit-button><?php echo JText::_('COM_EASYDISCUSS_HOLIDAY_CREATE_BUTTON'); ?></a>
             </div>
         </div>
-        <?php echo $this->html('form.hidden', 'holiday', 'dashboard', 'save'); ?>
+        <?php echo $this->html('form.action', 'holiday', 'dashboard', 'save'); ?>
 </div>
 </form>

@@ -21,6 +21,30 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			return;
 		}
 
+		selected = [];
+
+		$('[data-ed-table]').find('input[name=cid\\[\\]]:checked').each(function(i, el) {
+			selected.push($(el).val());
+		});
+
+		if (action == 'updateAuthor') {
+			window.selectUser = function(authorId) {
+				EasyDiscuss.ajax('admin/controllers/posts/updateAuthor', {
+					"cid": selected, 
+					"authorId": authorId
+				}).done(function(redirectURL) {
+					EasyDiscuss.dialog().close();
+					window.location = redirectURL;
+				});
+			}
+
+			EasyDiscuss.dialog({
+				content: EasyDiscuss.ajax("admin/views/posts/showAuthorDialog", {"cid": selected})
+			});
+
+			return;
+		}
+
 		if (action == 'movePosts') {
 
 			var newCategory 	= $('#new_category' ).val();
@@ -85,6 +109,7 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		EasyDiscuss.ajax('admin/views/posts/pagination', {
 			"type" : "questions",
 			"search": "<?php echo $search; ?>",
+			"label": "<?php echo $label; ?>",
 			"state": "<?php echo $filter; ?>",
 			"category": "<?php echo $categoryId; ?>",
 			'limitstart': "<?php echo $limitstart; ?>"

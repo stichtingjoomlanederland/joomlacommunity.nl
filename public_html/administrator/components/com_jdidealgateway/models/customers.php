@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -25,21 +25,22 @@ class JdidealgatewayModelCustomers extends ListModel
 	 *
 	 * @param   array  $config  An optional associative array of configuration settings.
 	 *
+	 * @since   4.0
 	 * @throws  Exception
 	 *
-	 * @since   4.0
 	 */
-	public function __construct($config = array())
+	public function __construct($config = [])
 	{
 		if (empty($config['filter_fields']))
 		{
-			$config['filter_fields'] = array(
-				'id', 'customers.id',
-				'name', 'customers.name',
-				'email', 'customers.email',
-				'customerId', 'customers.customerId',
-				'created', 'customers.created',
-			);
+			$config['filter_fields'] = [
+				'customers.name',
+				'customers.email',
+				'customers.customerId',
+				'customers.created',
+
+				'psp',
+			];
 		}
 
 		parent::__construct($config);
@@ -59,7 +60,6 @@ class JdidealgatewayModelCustomers extends ListModel
 	 */
 	protected function populateState($ordering = null, $direction = null)
 	{
-		// List state information.
 		parent::populateState('customers.name', 'asc');
 	}
 
@@ -68,32 +68,27 @@ class JdidealgatewayModelCustomers extends ListModel
 	 *
 	 * @return  JDatabaseQuery
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   4.0
+	 * @throws  Exception
 	 */
 	protected function getListQuery()
 	{
-		$db = $this->getDbo();
-
-		// Create a new query object.
+		$db    = $this->getDbo();
 		$query = parent::getListQuery();
 
-		// Select the required fields from the table.
 		$query->select(
 			$db->quoteName(
-				array(
+				[
 					'id',
 					'name',
 					'email',
 					'customerId',
 					'created'
-				)
+				]
 			)
 		)
 			->from($db->quoteName('#__jdidealgateway_customers', 'customers'));
 
-		// Filter by search field
 		$search = $this->getState('filter.search');
 
 		if ($search)
@@ -114,6 +109,13 @@ class JdidealgatewayModelCustomers extends ListModel
 			}
 
 			$query->where('(' . implode(' OR ', $searchArray) . ')');
+		}
+
+		$psp = $this->getState('filter.psp', '');
+
+		if ($psp)
+		{
+			$query->where($db->quoteName('customers.profileId') . ' = ' . (int) $psp);
 		}
 
 		// Add the list ordering clause.

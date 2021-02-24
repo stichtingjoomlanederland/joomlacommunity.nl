@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-jimport('joomla.application.component.controller');
-
 class EasyDiscussControllerAutoposting extends EasyDiscussController
 {
 	public function __construct()
@@ -20,6 +18,29 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 		parent::__construct();
 
 		$this->registerTask('apply', 'save');
+	}
+
+	/**
+	 * Cleans up the posted data
+	 *
+	 * @since	5.0.0
+	 * @access	public
+	 */
+	private function cleanup(&$post)
+	{
+		// Unset unecessary data.
+		unset($post['controller']);
+		unset($post['active']);
+		unset($post['child']);
+		unset($post['layout']);
+		unset($post['task']);
+		unset($post['option']);
+		unset($post['c']);
+		unset($post['step']);
+
+		// Unset the token
+		$token = ED::getToken();
+		unset($post['token']);
 	}
 
 	/**
@@ -36,14 +57,10 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 		$model = ED::model('Settings');
 		
 		// Get posted data from request
-		$post = JRequest::get('post');
+		$post = $this->input->post->getArray();
 
 		// Unset unecessary data.
-		unset($post['task']);
-		unset($post['option']);
-		unset($post['layout']);
-		unset($post['controller']);
-		unset($post['step']);
+		$this->cleanup($post);
 
 		// Ensure that the page id is set
 		if (!isset($post['main_autopost_' . $type . '_page_id'])) {
@@ -68,11 +85,18 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 		// Try to save the settings
 		$model->save($options);
 
-		ED::setMessage(COM_EASYDISCUSS_CONFIGURATION_SAVED, 'success');
+		$actionlog = ED::actionlog();
+		$actionlogOauthType = strtoupper($type);
+
+		$actionlog->log('COM_ED_ACTIONLOGS_AUTOPOSTING_UPDATED_' . $actionlogOauthType, 'autoposting', array(
+			'link' => 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $type
+		));
+
+		ED::setMessage('COM_EASYDISCUSS_CONFIGURATION_SAVED', 'success');
 
 		$redirect = JRoute::_('index.php?option=com_easydiscuss&view=autoposting&layout=' . $type, false);
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -90,14 +114,14 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			$client = ED::oauth()->getClient('LinkedIn');
 			$url = $client->getAuthorizeURL();
 
-			return $this->app->redirect($url); 
+			return ED::redirect($url); 
 		}
 
 		if ($type == 'github') {
 			$client = ED::oauth()->getClient('Github');
 			$url = $client->getAuthorizationURL();
 
-			return $this->app->redirect($url); 
+			return ED::redirect($url); 
 		}
 
 		// Get the oauth client
@@ -138,8 +162,8 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 		// Get the correct redirection url to the appropriate oauth client's url.
 		$destination = $client->getAuthorizationUrl($request);
 
-		$this->app->redirect($destination);
-		
+		ED::redirect($destination);
+
 		return $this->app->close();
 	}
 
@@ -170,16 +194,23 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			$redirect = base64_decode($returnUri);
 		}
 
-		if (!$client->revokeApp()) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_ERROR_REVOKING_APP'), DISCUSS_QUEUE_ERROR);
-			$this->setRedirect($redirect);
-			return;
+		// Revoke the access on Facebook
+		$client->revokeApp();
+
+		// Delete the table regardless
+		$state = $table->delete();
+
+		if ($state) {
+			$actionlog = ED::actionlog();
+			$actionlogOauthType = strtoupper($type);
+
+			$actionlog->log('COM_ED_ACTIONLOGS_AUTOPOSTING_REVOKED_' . $actionlogOauthType, 'autoposting', array(
+				'link' => 'index.php?option=com_easydiscuss&view=autoposting&layout=' . $type
+			));			
 		}
 
-		$table->delete();
-
-		ED::setMessage(JText::_('COM_EASYDISCUSS_APP_REVOKED_SUCCESS'), DISCUSS_QUEUE_SUCCESS);
-		return $this->app->redirect($redirect);
+		ED::setMessage('COM_EASYDISCUSS_APP_REVOKED_SUCCESS');
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -205,8 +236,8 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 		if ($denied) {
 			$table->delete();
 
-			ED::setMessage(JText::sprintf('Operation was denied by %1$s', $type), 'error');
-			return $this->app->redirect($redirect);
+			ED::setMessage(JText::sprintf('Operation was denied by %1$s', $type), ED_MSG_ERROR);
+			return ED::redirect($redirect);
 		}
 
 		// Get the client
@@ -221,7 +252,7 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			// Delete the record since this request already failed.
 			$table->delete();
 
-			JError::raiseError(500 , JText::_('COM_EASYDISCUSS_AUTOPOST_INVALID_VERIFIER_CODE'));
+			throw ED::exception('COM_EASYDISCUSS_AUTOPOST_INVALID_VERIFIER_CODE', ED_MSG_ERROR);
 		}
 
 		// Get the request tokens
@@ -234,7 +265,7 @@ class EasyDiscussControllerAutoposting extends EasyDiscussController
 			$table->delete();
 			ED::setMessage(JText::_('COM_EASYDISCUSS_AUTOPOST_ERROR_RETRIEVE_ACCESS'), DISCUSS_QUEUE_ERROR);
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		$registry = new JRegistry();

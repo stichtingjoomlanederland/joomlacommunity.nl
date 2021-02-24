@@ -3,7 +3,7 @@
  * Akeeba Engine
  *
  * @package   akeebaengine
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -31,14 +31,7 @@ class OpenSSL extends AbstractAdapter implements AdapterInterface
 
 	public function __construct()
 	{
-		// PHP 5.3 - Neither constant is defined and the field is boolean. But 1 is also acceptable in lieu of true ;)
-		$this->openSSLOptions = 1;
-
-		// PHP 5.4 - Do it THE RIGHT WAY(tm)
-		if (version_compare(PHP_VERSION, '5.4.0', 'ge'))
-		{
-			$this->openSSLOptions = OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING;
-		}
+		$this->openSSLOptions = OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING;
 	}
 
 	public function setEncryptionMode($mode = 'cbc', $strength = 128)

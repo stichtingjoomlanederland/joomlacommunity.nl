@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.7.20564
+ * @version         20.12.24168
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -52,8 +52,9 @@ class RLAssignmentsTemplates extends RLAssignment
 			->from('#__template_styles as s')
 			->where('s.client_id = 0')
 			->where('s.template = ' . $this->db->quote($template->template))
-			->where('s.params = ' . $this->db->quote($params));
-		$this->db->setQuery($query, 0, 1);
+			->where('s.params = ' . $this->db->quote($params))
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$template->id = $this->db->loadResult('id');
 
 		if ($template->id)
@@ -64,8 +65,9 @@ class RLAssignmentsTemplates extends RLAssignment
 		// No template style id is found, so just grab the first result based on the template name
 		$query->clear('where')
 			->where('s.client_id = 0')
-			->where('s.template = ' . $this->db->quote($template->template));
-		$this->db->setQuery($query, 0, 1);
+			->where('s.template = ' . $this->db->quote($template->template))
+			->setLimit(1);
+		$this->db->setQuery($query);
 		$template->id = $this->db->loadResult('id');
 
 		return $template;

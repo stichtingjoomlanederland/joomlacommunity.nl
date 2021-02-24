@@ -4,7 +4,16 @@
 * @copyright (C) 2020 www.rsjoomla.com
 * @license GPL, http://www.gnu.org/copyleft/gpl.html
 */
-defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
+defined( '_JEXEC' ) or die( 'Restricted access' ); 
+JText::script('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
+
+<script type="text/javascript">
+	var rseproMask 		= '<?php echo $this->escape($this->mask); ?>';
+	var rseproCurrency  = '<?php echo $this->escape($this->currency); ?>';
+	var rseproDecimals	= '<?php echo $this->escape($this->decimals); ?>';
+	var rseproDecimal 	= '<?php echo $this->escape($this->decimal); ?>';
+	var rseproThousands	= '<?php echo $this->escape($this->thousands); ?>';
+</script>
 
 <?php if ($this->params->get('show_page_heading', 1)) { ?>
 <?php $title = $this->params->get('page_heading', ''); ?>
@@ -13,7 +22,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <?php if ($this->config->timezone) { ?>
 <div class="rs_rss">
-	<a rel="rs_timezone" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo ' href="#timezoneModal" data-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?> class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
+	<a rel="rs_timezone" <?php if (rseventsproHelper::getConfig('modaltype','int') == 1) echo ' href="#timezoneModal" data-toggle="modal" data-bs-toggle="modal"'; else echo ' href="javascript:void(0)"'; ?> class="<?php echo rseventsproHelper::tooltipClass(); ?> rsepro-timezone" title="<?php echo rseventsproHelper::tooltipText(JText::_('COM_RSEVENTSPRO_CHANGE_TIMEZONE')); ?>">
 		<i class="fa fa-clock-o"></i>
 	</a>
 </div>
@@ -21,88 +30,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 
 <?php if ($this->params->get('search',1)) { ?>
 <form method="post" action="<?php echo $this->escape(JRoute::_(JURI::getInstance(),false)); ?>" name="adminForm" id="adminForm">
-	<div class="rsepro-filter-container">
-		<div class="navbar" id="rsepro-navbar">
-			<div class="navbar-inner">
-				<a data-target=".rsepro-navbar-responsive-collapse" data-toggle="collapse" class="btn btn-navbar">
-					<i class="icon-bar"></i>
-					<i class="icon-bar"></i>
-					<i class="icon-bar"></i>
-				</a>
-				<div class="nav-collapse collapse rsepro-navbar-responsive-collapse">
-					<ul class="nav">
-						<li id="rsepro-filter-from" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_from; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_from); ?></span> <i class="caret"></i></a>
-							<ul class="dropdown-menu">
-								<?php foreach ($this->get('filteroptions') as $option) { ?>
-								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
-								<?php } ?>
-							</ul>
-						</li>
-						<li id="rsepro-filter-condition" class="dropdown">
-							<a data-toggle="dropdown" class="dropdown-toggle" href="#" rel="<?php echo $this->config->filter_condition; ?>"><span><?php echo rseventsproHelper::getFilterText($this->config->filter_condition); ?></span> <i class="caret"></i></a>
-							<ul class="dropdown-menu">
-								<?php foreach ($this->get('filterconditions') as $option) { ?>
-								<li><a href="javascript:void(0);" rel="<?php echo $option->value; ?>"><?php echo $option->text; ?></a></li>
-								<?php } ?>
-							</ul>
-						</li>
-						<li id="rsepro-search" class="navbar-search center">
-							<input type="text" id="rsepro-filter" name="rsepro-filter" value="" size="35" />
-						</li>
-						<li class="divider-vertical"></li>
-						<li class="center">
-							<div class="btn-group">
-								<button id="rsepro-filter-btn" type="button" class="btn btn-primary"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_ADD_FILTER'); ?></button>
-								<button id="rsepro-clear-btn" type="button" class="btn"><?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_CLEAR_FILTER'); ?></button>
-							</div>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-		
-		<ul class="rsepro-filter-filters inline unstyled">
-			<li class="rsepro-filter-operator" <?php echo count($this->columns) > 1 ? '' : 'style="display:none"'; ?>>
-				<div class="btn-group">
-					<a data-toggle="dropdown" class="btn btn-small dropdown-toggle" href="#"><span><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator)); ?></span> <i class="caret"></i></a>
-					<ul class="dropdown-menu">
-						<li><a href="javascript:void(0)" rel="AND"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_AND')); ?></a></li>
-						<li><a href="javascript:void(0)" rel="OR"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_OR')); ?></a></li>
-					</ul>
-				</div>
-				<input type="hidden" name="filter_operator" value="<?php echo $this->operator; ?>" />
-			</li>
-			
-			<?php if (!empty($this->columns)) { ?>
-			<?php for ($i=0; $i < count($this->columns); $i++) { ?>
-				<?php $hash = sha1(@$this->columns[$i].@$this->operators[$i].@$this->values[$i]); ?>
-				<li id="<?php echo $hash; ?>">
-					<div class="btn-group">
-						<span class="btn btn-small"><?php echo rseventsproHelper::translate($this->columns[$i]); ?></span>
-						<span class="btn btn-small"><?php echo rseventsproHelper::translate($this->operators[$i]); ?></span>
-						<span class="btn btn-small"><?php echo $this->escape($this->values[$i]); ?></span>
-						<input type="hidden" name="filter_from[]" value="<?php echo $this->escape($this->columns[$i]); ?>">
-						<input type="hidden" name="filter_condition[]" value="<?php echo $this->escape($this->operators[$i]); ?>">
-						<input type="hidden" name="search[]" value="<?php echo $this->escape($this->values[$i]); ?>">
-						<a href="javascript:void(0)" class="btn btn-small rsepro-close">
-							<i class="icon-delete"></i>
-						</a>
-					</div>
-				</li>
-				
-				<li class="rsepro-filter-conditions" <?php echo $i == (count($this->columns) - 1) ? 'style="display: none;"' : ''; ?>>
-					<a class="btn btn-small"><?php echo ucfirst(JText::_('COM_RSEVENTSPRO_GLOBAL_'.$this->operator));?></a>
-				</li>
-				
-			<?php } ?>
-			<?php } ?>
-		</ul>
-		
-		<input type="hidden" name="filter_from[]" value="">
-		<input type="hidden" name="filter_condition[]" value="">
-		<input type="hidden" name="search[]" value="">
-	</div>
+	<?php echo JLayoutHelper::render('rseventspro.filter_'.(rseventsproHelper::isJ4() ? 'j4' : 'j3'), array('view' => $this)); ?>
 </form>
 <?php } else { ?>
 <?php if (!empty($this->columns)) { ?>
@@ -112,36 +40,11 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <?php } ?>
 
 <?php if ($this->params->get('enable_radius', 0)) { ?>
-
-<div class="control-group">
-	<div class="control-label">
-		<label for="rsepro-location"><?php echo JText::_('COM_RSEVENTSPRO_MAP_LOCATION'); ?></label>
-	</div>
-	<div class="controls">
-		<input id="rsepro-location" class="input-xxlarge" type="text" name="location" value="<?php echo $this->escape($this->location); ?>" autocomplete="off" placeholder="<?php echo JText::_('COM_RSEVENTSPRO_MAP_LOCATION'); ?>" />
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="control-label">
-		<label for="rsepro-radius"><?php echo JText::_('COM_RSEVENTSPRO_MAP_RADIUS'); ?></label>
-	</div>
-	<div class="controls">
-		<input id="rsepro-radius" class="input-mini" type="text" name="radius" value="<?php echo $this->escape($this->radius); ?>" placeholder="<?php echo JText::_('COM_RSEVENTSPRO_MAP_RADIUS'); ?>" />
-		<select id="rsepro-unit" class="input-mini" name="unit">
-			<option value="km"><?php echo JText::_('COM_RSEVENTSPRO_MAP_KM'); ?></option>
-			<option value="miles"><?php echo JText::_('COM_RSEVENTSPRO_MAP_MILES'); ?></option>
-		</select>
-	</div>
-</div>
-
-<div class="control-group">
-	<div class="controls">
-		<button class="btn btn-primary" type="button" id="rsepro-radius-search">
-			<i class="fa fa-search"></i> <?php echo JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH'); ?>
-		</button>
-		<?php echo JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-loader', 'style' => 'display: none;'), true); ?> 
-	</div>
+<div class="form-horizontal rsepro-horizontal">
+	<?php echo RSEventsproAdapterGrid::renderField('<label for="rsepro-location">'.JText::_('COM_RSEVENTSPRO_MAP_LOCATION').'</label>', '<input id="rsepro-location" class="form-control" type="text" name="location" value="'.$this->escape($this->location).'" autocomplete="off" placeholder="'.JText::_('COM_RSEVENTSPRO_MAP_LOCATION').'" />'); ?>
+	<?php $input = RSEventsproAdapterGrid::inputGroup('<input id="rsepro-radius" class="form-control" type="text" name="radius" value="'.$this->escape($this->radius).'" placeholder="'.JText::_('COM_RSEVENTSPRO_MAP_RADIUS').'" />', null, '<select id="rsepro-unit" class="input-mini custom-select" name="unit"><option value="km">'.JText::_('COM_RSEVENTSPRO_MAP_KM').'</option><option value="miles">'.JText::_('COM_RSEVENTSPRO_MAP_MILES').'</option></select>'); ?>
+	<?php echo RSEventsproAdapterGrid::renderField('<label for="rsepro-radius">'.JText::_('COM_RSEVENTSPRO_MAP_RADIUS').'</label>', $input); ?>
+	<?php echo RSEventsproAdapterGrid::renderField('', '<button class="btn btn-primary" type="button" id="rsepro-radius-search"> <i class="fa fa-search"></i> '.JText::_('COM_RSEVENTSPRO_GLOBAL_SEARCH').'</button> '.JHtml::image('com_rseventspro/loader.gif', '', array('id' => 'rsepro-loader', 'style' => 'display: none;'), true)); ?>
 </div>
 <?php } ?>
 
@@ -154,7 +57,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 <?php } ?>
 <?php } else { ?>
 <div class="alert alert-danger">
-	<a class="close" data-dismiss="alert" href="#">&times;</a>
+	<a class="close" data-dismiss="alert" data-bs-dismiss="alert" href="#">&times;</a>
 	<?php echo JText::_('COM_RSEVENTSPRO_EVENTS_MAP_OFF'); ?>
 </div>
 <?php } ?>

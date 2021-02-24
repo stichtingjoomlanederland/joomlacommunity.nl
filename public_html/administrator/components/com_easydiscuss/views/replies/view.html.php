@@ -26,7 +26,7 @@ class EasyDiscussViewReplies extends EasyDiscussAdminView
 		$filter_state	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.filter_state',		'filter_state', 	'*',	'word' );
 		$search			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.search',			'search', 			'',		'string' );
 
-		$search			= trim(JString::strtolower( $search ) );
+		$search			= trim(EDJString::strtolower( $search ) );
 		$order			= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.filter_order',		'filter_order',		'a.id',		'cmd' );
 		$orderDirection	= $mainframe->getUserStateFromRequest( 'com_easydiscuss.replies.filter_order_Dir',	'filter_order_Dir',	'',			'word' );
 

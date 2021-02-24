@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset addfieldpath="/administrator/components/com_rseventspro/models/fields">
+		<field name="name" type="text" label="COM_RSEVENTSPRO_COUPON_NAME" />
+		<field name="code" type="textarea" rows="3" label="COM_RSEVENTSPRO_COUPON_CODE" />
+		<field name="times" type="text" default="3" />
+		<field name="from" type="rscalendar" label="COM_RSEVENTSPRO_COUPON_AVAILABLE_FROM" class="form-control" />
+		<field name="to" type="rscalendar" label="COM_RSEVENTSPRO_COUPON_AVAILABLE_UNTIL" class="form-control" />
+		<field name="usage" type="text" label="COM_RSEVENTSPRO_MAX_USAGE" />
+		<field name="discount" type="text" label="COM_RSEVENTSPRO_APPLY_DISCOUNT" />
+		<field name="type" type="list">
+			<option value="0">COM_RSEVENTSPRO_DISCOUNT_TYPE_FIXED</option>
+			<option value="1">COM_RSEVENTSPRO_DISCOUNT_TYPE_PERCENT</option>
+		</field>
+		<field name="action" type="list">
+			<option value="0">COM_RSEVENTSPRO_SINGLE_PRICE</option>
+			<option value="1">COM_RSEVENTSPRO_TOTAL_PRICE</option>
+		</field>
+		<field name="groups" type="groups" label="COM_RSEVENTSPRO_INSTANT_DISCOUNT" multiple="multiple" />
+	</fieldset>
+</form>

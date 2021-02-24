@@ -23,7 +23,9 @@ class RseventsproViewUsers extends JViewLegacy
 		JToolBarHelper::editList('user.edit');
 		JToolBarHelper::deleteList('','users.delete');
 		
-		JHtml::_('rseventspro.chosen','select');
+		$layout = new JLayoutFile('joomla.toolbar.standard');
+		$dhtml = $layout->render(array('id' => 'toolbar-reset', 'listCheck' => true, 'text' => JText::_('COM_RSEVENTSPRO_EVENTS_CREATED_RESET'), 'task' => 'users.reset', 'doTask' => 'if (document.adminForm.boxchecked.value == 0) { alert(Joomla.JText._(\'JLIB_HTML_PLEASE_MAKE_A_SELECTION_FROM_THE_LIST\')); } else { if (confirm(\''.JText::_('COM_RSEVENTSPRO_EVENTS_CREATED_RESET_MESSAGE', true).'\')) { Joomla.submitbutton(\'users.reset\'); } }', 'htmlAttributes' => '', 'btnClass' => 'btn', 'class' => 'icon-refresh', 'message' => JText::_('COM_RSEVENTSPRO_EVENTS_CREATED_RESET_MESSAGE')));
+		JToolbar::getInstance('toolbar')->appendButton('Custom', $dhtml, 'reset');
 	}
 	
 	public function hasProfile($id) {

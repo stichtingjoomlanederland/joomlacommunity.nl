@@ -3,14 +3,15 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
-use Joomla\CMS\Factory;
-
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Component\Router\RouterBase;
+use Joomla\CMS\Factory;
 
 /**
  * Routing class.
@@ -18,7 +19,7 @@ defined('_JEXEC') or die;
  * @package  JDiDEAL
  * @since    4.3.1
  */
-class JdidealgatewayRouter extends JComponentRouterBase
+class JdidealgatewayRouter extends RouterBase
 {
 	/**
 	 * Build the route for the com_jdidealgateway component.
@@ -44,7 +45,9 @@ class JdidealgatewayRouter extends JComponentRouterBase
 		if (!isset($query['view']))
 		{
 			// Get the view from the Itemid.
-			$link = Factory::getApplication()->getMenu()->getItem($query['Itemid'])->link;
+			$link = Factory::getApplication()->getMenu()->getItem(
+				$query['Itemid']
+			)->link;
 
 			$matches = array();
 			preg_match("/view=([a-z,A-z,0-9]*)/", $link, $matches);
@@ -69,17 +72,20 @@ class JdidealgatewayRouter extends JComponentRouterBase
 		switch ($view)
 		{
 			case 'pay':
-				switch ($query['task'])
+				if (isset($query['task']))
 				{
-					case 'pay.result':
-						$segments[] = 'result';
-						break;
-					case 'pay.sendmoney':
-						$segments[] = 'send';
-						break;
-				}
+					switch ($query['task'])
+					{
+						case 'pay.result':
+							$segments[] = 'result';
+							break;
+						case 'pay.sendmoney':
+							$segments[] = 'send';
+							break;
+					}
 
-				unset($query['task']);
+					unset($query['task']);
+				}
 
 				$profileId = $query['profile_id'] ?? null;
 				unset($query['profile_id']);
@@ -89,7 +95,9 @@ class JdidealgatewayRouter extends JComponentRouterBase
 					break;
 				}
 
-				$query['Itemid'] = $this->getItemid($view, $language, null, $profileId);
+				$query['Itemid'] = $this->getItemid(
+					$view, $language, null, $profileId
+				);
 
 				// If no menu item is found, re-set the original view
 				if (!$query['Itemid'])
@@ -102,7 +110,7 @@ class JdidealgatewayRouter extends JComponentRouterBase
 					'email',
 					'remark',
 					'number',
-					'silent'
+					'silent',
 				];
 
 				// Collect the values
@@ -140,6 +148,94 @@ class JdidealgatewayRouter extends JComponentRouterBase
 	}
 
 	/**
+	 * Find the item ID for a given view.
+	 *
+	 * @param   string  $view       The name of the view to find the item ID for
+	 * @param   string  $language   The language to use for finding menu items
+	 * @param   null    $id         The id of an item
+	 * @param   null    $profileId  The profile ID linked to a menu item
+	 *
+	 * @return  mixed  The item ID or null if not found.
+	 *
+	 * @since   4.3.1
+	 */
+	private function getItemid(string $view, string $language, $id = null,
+		$profileId = null
+	) {
+		$items = $this->menu->getItems(
+			[
+				'component',
+				'language',
+			],
+			[
+				'com_jdidealgateway',
+				$language,
+			]
+		);
+
+		if ($language !== '*')
+		{
+			$items = array_merge(
+				$items, $this->menu->getItems(
+				[
+					'component',
+					'language',
+				],
+				[
+					'com_jdidealgateway',
+					'*',
+				]
+			)
+			);
+		}
+
+		$itemId = null;
+
+		if ($id)
+		{
+			foreach ($items as $item)
+			{
+				if (isset($item->query['view'], $item->query['id'])
+					&& $item->query['view'] === $view
+					&& (int) $item->query['id'] === (int) $id)
+				{
+					$itemId = $item->id;
+					break;
+				}
+			}
+		}
+
+		if ($profileId)
+		{
+			foreach ($items as $item)
+			{
+				if (isset($item->query['view'], $item->query['profile_id'])
+					&& $item->query['view'] === $view
+					&& (int) $item->query['profile_id'] === (int) $profileId)
+				{
+					$itemId = $item->id;
+					break;
+				}
+			}
+		}
+
+		if (!$itemId)
+		{
+			foreach ($items as $item)
+			{
+				if (isset($item->query['view'])
+					&& $item->query['view'] === $view)
+				{
+					$itemId = $query['Itemid'] = $item->id;
+					break;
+				}
+			}
+		}
+
+		return $itemId;
+	}
+
+	/**
 	 * Parse the segments of a URL.
 	 *
 	 * @param   array  $segments  The segments of the URL to parse.
@@ -150,7 +246,7 @@ class JdidealgatewayRouter extends JComponentRouterBase
 	 */
 	public function parse(&$segments)
 	{
-		$vars = array();
+		$vars = [];
 
 		// Get the view
 		$menu = $this->menu->getActive();
@@ -195,69 +291,5 @@ class JdidealgatewayRouter extends JComponentRouterBase
 		}
 
 		return $vars;
-	}
-
-	/**
-	 * Find the item ID for a given view.
-	 *
-	 * @param   string  $view      The name of the view to find the item ID for
-	 * @param   string  $language  The language to use for finding menu items
-	 * @param   int     $id        The id of an item
-	 *
-	 * @return  mixed  The item ID or null if not found.
-	 *
-	 * @since   4.3.1
-	 */
-	private function getItemid($view, $language, $id = null, $profileId = null)
-	{
-		// Get all relevant menu items for the given language.
-		$items = $this->menu->getItems(['component', 'language'], ['com_jdidealgateway', $language]);
-
-		// Get the items not assigned to a language
-		if ($language !== '*')
-		{
-			$items = array_merge($items, $this->menu->getItems(['component', 'language'], ['com_jdidealgateway', '*']));
-		}
-
-		// ItemId
-		$itemId = null;
-
-		if ($id)
-		{
-			foreach ($items as $item)
-			{
-				if (isset($item->query['view'], $item->query['id']) && $item->query['view'] === $view && (int) $item->query['id'] === (int) $id)
-				{
-					$itemId = $item->id;
-					break;
-				}
-			}
-		}
-
-		if ($profileId)
-		{
-			foreach ($items as $item)
-			{
-				if (isset($item->query['view'], $item->query['profile_id']) && $item->query['view'] === $view && (int) $item->query['profile_id'] === (int) $profileId)
-				{
-					$itemId = $item->id;
-					break;
-				}
-			}
-		}
-
-		if (!$itemId)
-		{
-			foreach ($items as $item)
-			{
-				if (isset($item->query['view']) && $item->query['view'] === $view)
-				{
-					$itemId = $query['Itemid'] = $item->id;
-					break;
-				}
-			}
-		}
-
-		return $itemId;
 	}
 }

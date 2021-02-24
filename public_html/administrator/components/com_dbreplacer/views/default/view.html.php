@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.7PRO
+ * @version         6.3.8PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -51,12 +51,12 @@ class DBReplacerViewDefault extends JView
 		$this->config = RL_Parameters::getInstance()->getComponentParams('com_dbreplacer');
 
 		RL_Document::style('regularlabs/style.min.css');
-		RL_Document::style('dbreplacer/style.min.css', '6.3.7.p');
+		RL_Document::style('dbreplacer/style.min.css', '6.3.8.p');
 
 		// Set document title
-		JFactory::getDocument()->setTitle(JText::_('DB_REPLACER'));
+		JFactory::getDocument()->setTitle(JText::_('DBREPLACER'));
 		// Set ToolBar title
-		JToolbarHelper::title(JText::_('DB_REPLACER'), 'dbreplacer icon-reglab');
+		JToolbarHelper::title(JText::_('DBREPLACER'), 'dbreplacer icon-reglab');
 		// Set toolbar items for the page
 
 		if (JFactory::getUser()->authorise('core.admin', 'com_dbreplacer'))

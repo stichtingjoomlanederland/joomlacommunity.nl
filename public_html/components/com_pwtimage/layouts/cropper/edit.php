@@ -8,13 +8,13 @@
  * @link       https://extensions.perfectwebteam.com
  */
 
+defined('_JEXEC') or die;
+
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Object\CMSObject;
 use Joomla\CMS\Session\Session;
-
-defined('_JEXEC') or die;
 
 /**
  * @param   int     $modalId               The unique ID for the modal
@@ -31,6 +31,7 @@ defined('_JEXEC') or die;
  * @param   bool    $showSavePathSelect    Set if the select option of the save path needs to be shown
  * @param   bool    $toCanvas              Set if the image is shown directly on the canvas for editing
  * @param   bool    $showRotationTools     Set if the rotation tools needs to be shown
+ * @param   bool    $showAspectRatioTools  Set if the aspect ratio tools needs to be shown
  * @param   bool    $showFlippingTools     Set if the flipping tools needs to be shown
  * @param   bool    $showImageInfo         Set if the image info must be hidden
  * @param   bool    $showZoomTools         Set if the zoom tools needs to be shown
@@ -47,11 +48,15 @@ defined('_JEXEC') or die;
 extract($displayData, EXTR_OVERWRITE);
 
 // Loop through the list of settings
-$settings = ['showSavePath', 'showSavePathSelect', 'showRotationTools', 'showFlippingTools', 'showImageInfo'];
+$settings = ['showSavePath', 'showSavePathSelect', 'showAspectRatioTools', 'showFlippingTools', 'showImageInfo'];
+
+if (!is_array($showRotationTools))
+{
+	$settings[] = 'showRotationTools';
+}
 
 foreach ($settings as $setting)
 {
-
 	if ($$setting === false || $$setting === '0')
 	{
 		$$setting = 0;
@@ -125,7 +130,11 @@ if (!is_array($ratio))
 }
 
 // Make it accessible to all the code
-Factory::getDocument()->addScriptOptions('PWTImageConfig', ['sessionToken' => Session::getFormToken()]);
+Factory::getDocument()->addScriptOptions('PWTImageConfig', [
+        'sessionToken' => Session::getFormToken(),
+        'modalId' => $modalId
+    ]
+);
 
 Factory::getDocument()->addScriptDeclaration(<<<JS
 	var choicesDestination,
@@ -153,12 +162,14 @@ Factory::getDocument()->addScriptDeclaration(<<<JS
 		}
 		
 		if ({$canEdit}) {
-		    if ({$countWidthOptions}) {
-                choicesWidth = new Choices('[width-choices]', {
-                    searchEnabled: false,
-                    shouldSort: true,
-                    removeItemButton: true
-                });
+			if ({$showAspectRatioTools}) {
+			    if ({$countWidthOptions}) {
+	                choicesWidth = new Choices('[width-choices]', {
+	                    searchEnabled: false,
+	                    shouldSort: true,
+	                    removeItemButton: true
+	                });
+				}
 			}
 		}
 	});
@@ -273,7 +284,8 @@ JS
                         <div class="pwt-toolbar">
 
                             <!-- Rotate and flip tools -->
-							<?php if ($showRotationTools)
+							<?php if ((!empty($showRotationTools) && (is_array($showRotationTools) && count($showRotationTools) > 0))
+                                || $showRotationTools === 1)
 								:
 								?>
                                 <!-- Rotate left -->
@@ -290,39 +302,58 @@ JS
                                             <span
                                                     class="visually-hidden"><?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT'); ?></span>
                                         </div>
-                                        <div class="pwt-button-group__button">
-                                            <button
-                                                    type="button"
-                                                    onclick="pwtImage.imageToolbar(this);"
-                                                    class="pwt-button"
-                                                    data-method="rotate"
-                                                    data-option="-90"
-                                            >
-												<?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT_90'); ?>
-                                            </button>
-                                        </div>
-                                        <div class="pwt-button-group__button">
-                                            <button
-                                                    type="button"
-                                                    onclick="pwtImage.imageToolbar(this);"
-                                                    class="pwt-button"
-                                                    data-method="rotate"
-                                                    data-option="-45"
-                                            >
-												<?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT_45'); ?>
-                                            </button>
-                                        </div>
-                                        <div class="pwt-button-group__button">
-                                            <button
-                                                    type="button"
-                                                    onclick="pwtImage.imageToolbar(this);"
-                                                    class="pwt-button"
-                                                    data-method="rotate"
-                                                    data-option="-30"
-                                            >
-												<?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT_30'); ?>
-                                            </button>
-                                        </div>
+										<?php
+										if ((is_array($showRotationTools) && in_array('90', $showRotationTools))
+                                            || $showRotationTools === 1):
+											?>
+                                            <div class="pwt-button-group__button">
+                                                <button
+                                                        type="button"
+                                                        onclick="pwtImage.imageToolbar(this);"
+                                                        class="pwt-button"
+                                                        data-method="rotate"
+                                                        data-option="-90"
+                                                >
+													<?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT_90'); ?>
+                                                </button>
+                                            </div>
+										<?php
+										endif;
+
+										if ((is_array($showRotationTools) && in_array('45', $showRotationTools))
+											|| $showRotationTools === 1):
+											?>
+                                            <div class="pwt-button-group__button">
+                                                <button
+                                                        type="button"
+                                                        onclick="pwtImage.imageToolbar(this);"
+                                                        class="pwt-button"
+                                                        data-method="rotate"
+                                                        data-option="-45"
+                                                >
+													<?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT_45'); ?>
+                                                </button>
+                                            </div>
+										<?php
+										endif;
+
+										if ((is_array($showRotationTools) && in_array('30', $showRotationTools))
+											|| $showRotationTools === 1):
+											?>
+                                            <div class="pwt-button-group__button">
+                                                <button
+                                                        type="button"
+                                                        onclick="pwtImage.imageToolbar(this);"
+                                                        class="pwt-button"
+                                                        data-method="rotate"
+                                                        data-option="-30"
+                                                >
+													<?php echo Text::_('COM_PWTIMAGE_ROTATE_LEFT_30'); ?>
+                                                </button>
+                                            </div>
+										<?php
+										endif;
+										?>
                                     </div>
                                 </div><!-- .pwt-toolbar__item -->
 
@@ -340,45 +371,67 @@ JS
                                             <span
                                                     class="visually-hidden"><?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT'); ?></span>
                                         </div>
-                                        <div class="pwt-button-group__button">
-                                            <button
-                                                    type="button"
-                                                    onclick="pwtImage.imageToolbar(this);"
-                                                    class="pwt-button"
-                                                    data-method="rotate"
-                                                    data-option="90"
-                                            >
-												<?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT_90'); ?>
-                                            </button>
-                                        </div>
-                                        <div class="pwt-button-group__button">
-                                            <button
-                                                    type="button"
-                                                    onclick="pwtImage.imageToolbar(this);"
-                                                    class="pwt-button"
-                                                    data-method="rotate"
-                                                    data-option="45"
-                                            >
-												<?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT_45'); ?>
-                                            </button>
-                                        </div>
-                                        <div class="pwt-button-group__button">
-                                            <button
-                                                    type="button"
-                                                    onclick="pwtImage.imageToolbar(this);"
-                                                    class="pwt-button"
-                                                    data-method="rotate"
-                                                    data-option="30"
-                                            >
-												<?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT_30'); ?>
-                                            </button>
-                                        </div>
+										<?php
+										if ((is_array($showRotationTools) && in_array('90', $showRotationTools))
+											|| $showRotationTools === 1):
+											?>
+                                            <div class="pwt-button-group__button">
+                                                <button
+                                                        type="button"
+                                                        onclick="pwtImage.imageToolbar(this);"
+                                                        class="pwt-button"
+                                                        data-method="rotate"
+                                                        data-option="90"
+                                                >
+													<?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT_90'); ?>
+                                                </button>
+                                            </div>
+										<?php
+										endif;
+
+										if ((is_array($showRotationTools) && in_array('45', $showRotationTools))
+											|| $showRotationTools === 1):
+											?>
+                                            <div class="pwt-button-group__button">
+                                                <button
+                                                        type="button"
+                                                        onclick="pwtImage.imageToolbar(this);"
+                                                        class="pwt-button"
+                                                        data-method="rotate"
+                                                        data-option="45"
+                                                >
+													<?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT_45'); ?>
+                                                </button>
+                                            </div>
+										<?php
+										endif;
+
+										if ((is_array($showRotationTools) && in_array('30', $showRotationTools))
+											|| $showRotationTools === 1):
+											?>
+                                            <div class="pwt-button-group__button">
+                                                <button
+                                                        type="button"
+                                                        onclick="pwtImage.imageToolbar(this);"
+                                                        class="pwt-button"
+                                                        data-method="rotate"
+                                                        data-option="30"
+                                                >
+													<?php echo Text::_('COM_PWTIMAGE_ROTATE_RIGHT_30'); ?>
+                                                </button>
+                                            </div>
+										<?php
+										endif;
+										?>
                                     </div>
                                 </div><!-- .pwt-toolbar__item -->
 							<?php endif; ?>
 
                             <!-- Ratio tools -->
-							<?php if ($ratio || $freeRatio)
+							<?php if ($showAspectRatioTools)
+								:
+								?>
+								<?php if ($ratio || $freeRatio)
 								:
 								?>
                                 <div class="pwt-toolbar__item">
@@ -438,6 +491,7 @@ JS
 										<?php endif; ?>
                                     </div>
                                 </div><!-- .pwt-toolbar__item -->
+							<?php endif; ?>
 							<?php endif; ?>
 
 							<?php if ($showFlippingTools)
@@ -589,9 +643,9 @@ JS
 
             </div><!-- .pwt-grid__main -->
 
-            <?php if ($showImageInfo === 1): ?>
-            <!-- Grid sub -->
-            <div class="pwt-grid__sub">
+			<?php if ($showImageInfo === 1): ?>
+                <!-- Grid sub -->
+                <div class="pwt-grid__sub">
 
                     <!-- Heading -->
 					<?php if ($wysiwyg || $useOriginal || $keepOriginal || ($canEdit && $showTools && $countWidthOptions > 1))
@@ -622,70 +676,71 @@ JS
                             </tbody>
                         </table>
                     </div>
-				<?php if ($wysiwyg)
-					:
-					?>
-                    <div class="pwt-form-group pwt-image-modify">
-                        <label for="alt"><?php echo Text::_('COM_PWTIMAGE_ALT_TEXT'); ?></label>
-                        <input class="pwt-form-control js-pwt-image-alt" id="alt" type="text" name="alt" value=""/>
-                    </div>
-                    <div class="pwt-form-group pwt-image-modify">
-                        <label for="caption"><?php echo Text::_('COM_PWTIMAGE_CAPTION_TEXT'); ?></label>
-                        <input class="pwt-form-control js-pwt-image-caption" id="caption" type="text" name="caption"
-                               value=""/>
-                    </div>
-				<?php endif; ?>
-
-				<?php if ($useOriginal)
-					:
-					?>
-                    <div class="pwt-form-group">
-                        <input type="checkbox" value="1" name="pwt-image-useOriginal" id="useOriginal"
-                               class="pull-left js-pwt-image-useOriginal"
-                               onclick="pwtImage.useOriginal('<?php echo $modalId; ?>', this);"/>
-                        <label for="useOriginal">&nbsp;<?php echo Text::_('COM_PWTIMAGE_USE_ORIGINAL_SIZE'); ?></label>
-                    </div>
-				<?php endif; ?>
-
-				<?php if ($keepOriginal)
-					:
-					?>
-                    <div class="pwt-form-group pwt-image-modify">
-                        <input type="checkbox" value="1" name="pwt-image-keepOriginal" id="keepOriginal"
-                               class="pull-left js-pwt-image-keepOriginal"
-                               onclick="pwtImage.keepOriginal('<?php echo $modalId; ?>', this);"/>
-                        <label
-                                for="keepOriginal">&nbsp;<?php echo Text::_('COM_PWTIMAGE_KEEP_ORIGINAL_SIZE'); ?></label>
-                    </div>
-				<?php endif; ?>
-
-				<?php if ($canEdit && $showTools)
-					:
-					?>
-					<?php
-					$class = $countWidthOptions > 1 ? '' : 'is-hidden';
-					?>
-                    <div class="pwt-form-group pwt-image-modify">
-                        <div class="<?php echo $class; ?>">
-                            <label
-                                    for="<?php echo $modalId; ?>_widthOptions"><?php echo Text::_('COM_PWTIMAGE_SELECT_WIDTH'); ?></label>
-							<?php
-							echo HTMLHelper::_(
-								'select.genericlist',
-								$widthOptions,
-								'pwt-image-width',
-								'class="advancedSelect js-pwt-image-width" multiple="true" ' . ($countWidthOptions >= 1 ? 'width-choices' : ''),
-								'value',
-								'text',
-								reset($width),
-								$modalId . '_widthOptions'
-							);
-							?>
+					<?php if ($wysiwyg)
+						:
+						?>
+                        <div class="pwt-form-group pwt-image-modify">
+                            <label for="alt"><?php echo Text::_('COM_PWTIMAGE_ALT_TEXT'); ?></label>
+                            <input class="pwt-form-control js-pwt-image-alt" id="alt" type="text" name="alt" value=""/>
                         </div>
-                    </div>
-				<?php endif; ?>
-            </div>
-            <?php endif; ?>
+                        <div class="pwt-form-group pwt-image-modify">
+                            <label for="caption"><?php echo Text::_('COM_PWTIMAGE_CAPTION_TEXT'); ?></label>
+                            <input class="pwt-form-control js-pwt-image-caption" id="caption" type="text" name="caption"
+                                   value=""/>
+                        </div>
+					<?php endif; ?>
+
+					<?php if ($useOriginal)
+						:
+						?>
+                        <div class="pwt-form-group">
+                            <input type="checkbox" value="1" name="pwt-image-useOriginal" id="useOriginal"
+                                   class="pull-left js-pwt-image-useOriginal"
+                                   onclick="pwtImage.useOriginal('<?php echo $modalId; ?>', this);"/>
+                            <label
+                                    for="useOriginal">&nbsp;<?php echo Text::_('COM_PWTIMAGE_USE_ORIGINAL_SIZE'); ?></label>
+                        </div>
+					<?php endif; ?>
+
+					<?php if ($keepOriginal)
+						:
+						?>
+                        <div class="pwt-form-group pwt-image-modify">
+                            <input type="checkbox" value="1" name="pwt-image-keepOriginal" id="keepOriginal"
+                                   class="pull-left js-pwt-image-keepOriginal"
+                                   onclick="pwtImage.keepOriginal('<?php echo $modalId; ?>', this);"/>
+                            <label
+                                    for="keepOriginal">&nbsp;<?php echo Text::_('COM_PWTIMAGE_KEEP_ORIGINAL_SIZE'); ?></label>
+                        </div>
+					<?php endif; ?>
+
+					<?php if ($canEdit && $showTools)
+						:
+						?>
+						<?php
+						$class = $countWidthOptions > 1 ? '' : 'is-hidden';
+						?>
+                        <div class="pwt-form-group pwt-image-modify">
+                            <div class="<?php echo $class; ?>">
+                                <label
+                                        for="<?php echo $modalId; ?>_widthOptions"><?php echo Text::_('COM_PWTIMAGE_SELECT_WIDTH'); ?></label>
+								<?php
+								echo HTMLHelper::_(
+									'select.genericlist',
+									$widthOptions,
+									'pwt-image-width',
+									'class="advancedSelect js-pwt-image-width" multiple="true" ' . ($countWidthOptions >= 1 ? 'width-choices' : ''),
+									'value',
+									'text',
+									reset($width),
+									$modalId . '_widthOptions'
+								);
+								?>
+                            </div>
+                        </div>
+					<?php endif; ?>
+                </div>
+			<?php endif; ?>
         </div>
 
     </div>
@@ -693,17 +748,17 @@ JS
 </div><!-- .pwt-content -->
 
 <script>
-    jQuery('#<?php echo $modalId; ?>_selectFolder').off('change').on('change', function () {
-        var sourcePath = jQuery('#<?php echo $modalId; ?> .js-sourcePath'),
-            path = sourcePath.text();
-        if (jQuery('#<?php echo $modalId; ?>_destinationFolder').val() === 'select') {
-            if (jQuery('#<?php echo $modalId; ?>_selectedFolder').val() === '/') {
-                sourcePath.text(path.substring(0, (path.length - 1)));
-            }
-        } else {
-            if (path.substring(path.length - 1) !== '/') {
-                sourcePath.text(path + '/');
-            }
-        }
-    });
+	jQuery('#<?php echo $modalId; ?>_selectFolder').off('change').on('change', function () {
+		var sourcePath = jQuery('#<?php echo $modalId; ?> .js-sourcePath'),
+			path = sourcePath.text();
+		if (jQuery('#<?php echo $modalId; ?>_destinationFolder').val() === 'select') {
+			if (jQuery('#<?php echo $modalId; ?>_selectedFolder').val() === '/') {
+				sourcePath.text(path.substring(0, (path.length - 1)));
+			}
+		} else {
+			if (path.substring(path.length - 1) !== '/') {
+				sourcePath.text(path + '/');
+			}
+		}
+	});
 </script>

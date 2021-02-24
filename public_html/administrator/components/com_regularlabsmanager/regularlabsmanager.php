@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.5
+ * @version         7.4.7
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -17,6 +17,7 @@ use Joomla\CMS\Installer\Installer as JInstaller;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\MVC\Controller\BaseController as JController;
 use Joomla\CMS\Plugin\PluginHelper as JPluginHelper;
+use RegularLabs\Library\Document as RL_Document;
 use RegularLabs\Library\Language as RL_Language;
 
 // Access check.
@@ -43,6 +44,11 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 RL_Language::load('plg_system_regularlabs', JPATH_ADMINISTRATOR);
 RL_Language::load('com_modules', JPATH_ADMINISTRATOR);
+
+if (!RL_Document::isJoomlaVersion(3, 'COM_REGULARLABSMANAGER'))
+{
+	return;
+}
 
 $helper->uninstallNoNumberExtensionManager();
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -11,7 +11,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\User\User;
 use Joomla\CMS\User\UserHelper;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 {
@@ -65,8 +65,7 @@ class AtsystemFeatureNofesalogin extends AtsystemFeatureAbstract
 
 		// Since Joomla! 2.5.5 you have to close the session before throwing an error, otherwise the user isn't
 		// logged out.
-		$session = Factory::getSession();
-		$session->close();
+		$this->container->session->close();
 
 		// Throw error
 		throw new Exception(Text::_('JGLOBAL_AUTH_ACCESS_DENIED'), 403);

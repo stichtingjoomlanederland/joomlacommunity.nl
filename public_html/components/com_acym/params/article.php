@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 class JFormFieldArticle extends JFormField
 {
@@ -61,4 +59,3 @@ class JFormFieldArticle extends JFormField
         return str_replace($this->id, $this->id.'_id', parent::getLabel());
     }
 }
-

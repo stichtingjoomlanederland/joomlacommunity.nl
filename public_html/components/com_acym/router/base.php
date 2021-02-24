@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 if (class_exists('JComponentRouterBase')) {
     abstract class AcymRouterBase extends JComponentRouterBase
@@ -19,4 +17,3 @@ if (class_exists('JComponentRouterBase')) {
         }
     }
 }
-

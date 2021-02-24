@@ -125,14 +125,28 @@ class WFMicrodataPlugin extends WFEditorPlugin
     }
 
     private static function extractKey($value)
-    {
-        $key = parse_url($value, PHP_URL_PATH);
-
-        if (!$key) {
-            return $value;
+    {        
+        if (is_array($value) && array_key_exists('@value', $value)) {
+            $value = $value['@value'];
         }
 
-        return trim($key, "/");
+        // key is in url format, eg: 'https://schema.org/value'
+        if (strpos($value, '://') !== false) {
+            $key = parse_url($value, PHP_URL_PATH);
+
+            if (!$key) {
+                return $value;
+            }
+
+            return trim($key, "/");
+        }
+
+        // key is in format 'schema:value'
+        if (substr($value, 0, 7) === 'schema:') {
+            return substr($value, 7);
+        }
+
+        return $value;
     }
 
     private static function buildListFromJson($nodes)
@@ -171,8 +185,6 @@ class WFMicrodataPlugin extends WFEditorPlugin
 
         do {
             foreach ($nodes as $node) {
-                $id = self::extractKey($node['@id']);
-
                 if ($node['@type'] != 'rdfs:Class') {
                     $count--;
                     continue;
@@ -182,6 +194,8 @@ class WFMicrodataPlugin extends WFEditorPlugin
                     $count--;
                     continue;
                 }
+
+                $id = self::extractKey($node['@id']);
 
                 if (self::findClassPositionByType($id, $data)) {
                     $count--;
@@ -228,7 +242,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
             }
         } while ($count > 0);
 
-        foreach ($nodes as $node) {
+        foreach ($nodes as $node) {            
             if ($node['@type'] != 'rdf:Property') {
                 continue;
             }
@@ -247,7 +261,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
             );
 
             foreach (['domainIncludes', 'rangeIncludes'] as $prop) {
-                $key = 'https://schema.org/' . $prop;
+                $key = 'schema:' . $prop;
 
                 if (!isset($node[$key])) {
                     continue;
@@ -374,9 +388,9 @@ class WFMicrodataPlugin extends WFEditorPlugin
             return array('error' => JText::_('Unable to load schema - Invalid response from ' . $url));
         }
 
-        if ($data = gzdecode($response->body)) {
+        /*if ($data = gzdecode($response->body)) {
             return $data;
-        }
+        }*/
 
         return $response->body;
     }
@@ -403,7 +417,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
 
             if (empty(self::$_schema) || !$ttl || (JFile::exists($cache) && filemtime($cache) >= strtotime($ttl . ' days ago'))) {
                 if (pathinfo($url, PATHINFO_EXTENSION) === 'jsonld') {
-                    $jsonld = @file_get_contents($url);
+                    $jsonld = $this->getData($url);
 
                     if (!is_string($jsonld)) {
                         return self::$_schema;
@@ -418,8 +432,7 @@ class WFMicrodataPlugin extends WFEditorPlugin
                     $data = self::buildListFromJson($json);
 
                 } else {
-                    //$html = $this->getData($url);
-                    $html = @file_get_contents($url);
+                    $html = $this->getData($url);
 
                     // result should be string, otherwise an error
                     if (!is_string($html)) {

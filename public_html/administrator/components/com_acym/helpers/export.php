@@ -1,8 +1,11 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymexportHelper extends acymObject
+namespace AcyMailing\Helpers;
+
+use AcyMailing\Classes\MailClass;
+use AcyMailing\Libraries\acymObject;
+
+class ExportHelper extends acymObject
 {
     var $eol = "\r\n";
     var $before = '"';
@@ -156,6 +159,7 @@ class acymexportHelper extends acymObject
             acym_translation('ACYM_OPEN_RATE'),
             acym_translation('ACYM_CLICK_RATE'),
             acym_translation('ACYM_BOUNCE_RATE'),
+            acym_translation('ACYM_UNSUBSCRIBE_RATE'),
         ];
 
         $csvLines[] = $this->before.implode($separator, $globalDonutsTitle).$this->after;
@@ -178,6 +182,8 @@ class acymexportHelper extends acymObject
     public function exportStatsFullCSV($query, $columns, $type = 'global')
     {
         $mailsStats = acym_loadObjectList($query);
+        $mailClass = new MailClass();
+        $mailsStats = $mailClass->decode($mailsStats);
         $nbExport = $this->getExportLimit();
         acym_displayErrors();
 
@@ -193,8 +199,10 @@ class acymexportHelper extends acymObject
             if ($i > $nbExport) break;
             $oneLine = [];
             foreach ($columns as $key => $trad) {
-                $key = explode('.', $key);
-                $oneLine[] = in_array($key[1], $valueNeedNumber) && empty($mailStat->{$key[1]}) ? 0 : $mailStat->{$key[1]};
+                $key = strpos($key, '.') !== false ? explode('.', $key) : $key;
+                if (is_array($key)) $key = $key[1];
+                $line = in_array($key, $valueNeedNumber) && empty($mailStat->{$key}) ? 0 : $mailStat->{$key};
+                $oneLine[] = htmlspecialchars($line, ENT_QUOTES, 'UTF-8');
             }
             $csvLines[] = $this->before.implode($separator, $oneLine).$this->after;
             $i++;
@@ -219,7 +227,7 @@ class acymexportHelper extends acymObject
     {
         $nbExport = $this->getExportLimit();
         acym_displayErrors();
-        $encodingClass = acym_get('helper.encoding');
+        $encodingClass = new EncodingHelper();
         $excelSecure = $this->config->get('export_excelsecurity', 0);
 
         if (!in_array($separator, [',', ';'])) $separator = ',';
@@ -237,10 +245,10 @@ class acymexportHelper extends acymObject
             if (!empty($folder[1]) && !file_exists($folder[1])) acym_createDir($folder[1]);
 
             $fp = fopen($exportFile, 'w');
-            if (false === $fp) return acym_translation_sprintf('ACYM_FAIL_SAVE_FILE', $exportFile);
+            if (false === $fp) return acym_translationSprintf('ACYM_FAIL_SAVE_FILE', $exportFile);
 
             $error = fwrite($fp, $firstLine);
-            if (false === $error) return acym_translation_sprintf('ACYM_UNWRITABLE_FILE', $exportFile);
+            if (false === $error) return acym_translationSprintf('ACYM_UNWRITABLE_FILE', $exportFile);
         }
 
         $start = 0;
@@ -255,7 +263,7 @@ class acymexportHelper extends acymObject
                     echo $errorLine;
                 } else {
                     $error = fwrite($fp, $errorLine);
-                    if (false === $error) return acym_translation_sprintf('ACYM_UNWRITABLE_FILE', $exportFile);
+                    if (false === $error) return acym_translationSprintf('ACYM_UNWRITABLE_FILE', $exportFile);
                 }
             }
 
@@ -302,7 +310,7 @@ class acymexportHelper extends acymObject
                     echo $oneLine;
                 } else {
                     $error = fwrite($fp, $oneLine);
-                    if (false === $error) return acym_translation_sprintf('ACYM_UNWRITABLE_FILE', $exportFile);
+                    if (false === $error) return acym_translationSprintf('ACYM_UNWRITABLE_FILE', $exportFile);
                 }
             }
 
@@ -326,4 +334,3 @@ class acymexportHelper extends acymObject
         }
     }
 }
-

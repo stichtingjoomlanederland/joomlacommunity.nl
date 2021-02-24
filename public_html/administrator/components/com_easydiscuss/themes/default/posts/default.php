@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -31,11 +31,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--auto-size app-filter-bar__cell--divider-left">
 			<div class="app-filter-bar__filter-wrap">
-				<?php echo $postStatusFilter; ?>
+				<?php echo $postLabelFilter; ?>
 			</div>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -57,35 +57,34 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<th style="text-align:left;">
 						<?php echo JHTML::_('grid.sort', 'Title', 'a.title', $orderDirection, $order); ?>
 					</th>
-					<th width="15%" class="text-center">
-						<?php echo JText::_('COM_EASYDISCUSS_CATEGORY'); ?>
-					</th>
 
 					<?php if (!$browse) { ?>
-					<th width="5%" class="text-center">
+					<th width="8%" class="center">
+						<?php echo JText::_('COM_ED_TABLE_COLUMN_INFO'); ?>
+					</th>
+					
+					<th width="8%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_FEATURED'); ?>
 					</th>
-					<th width="5%" class="text-center">
+
+					<th width="8%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_PUBLISHED'); ?>
 					</th>
-					<th width="1%" class="text-center">
-						<?php echo JText::_('COM_EASYDISCUSS_REPLIES'); ?>
-					</th>
-					<th width="1%" class="text-center">
-						<?php echo JText::_('COM_EASYDISCUSS_HITS');?>
-					</th>
-					<th width="1%" class="text-center">
+
+					<th width="8%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_POSTS_VOTES'); ?>
 					</th>
-					<th width="20%" class="text-center">
+
+					<th width="15%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_USER'); ?>
 					</th>
-					<th width="10%" class="text-center">
+
+					<th width="10%" class="center">
 						<?php echo JHTML::_('grid.sort', JText::_('COM_EASYDISCUSS_DATE'), 'a.created', $orderDirection, $order); ?>
 					</th>
 					<?php } ?>
 
-					<th width="1%" class="text-center">
+					<th width="1%" class="center">
 						<?php echo JText::_('COM_EASYDISCUSS_COLUMN_ID');?>
 					</th>
 				</tr>
@@ -102,40 +101,36 @@ defined('_JEXEC') or die('Unauthorized Access');
 					</td>
 					<?php } ?>
 
-					<td style="text-align:left;">
+					<td >
 						<?php if ($browse) { ?>
 							<a href="javascript:void(0);" onclick="parent.<?php echo $browseFunction; ?>('<?php echo $post->id;?>','<?php echo addslashes($this->escape($post->getTitle()));?>');"><?php echo $post->getTitle();?></a>
 						<?php } else { ?>
-							<a href="<?php echo $post->editLink; ?>"><?php echo $post->title; ?></a>
+							<a href="<?php echo $post->editLink; ?>" target="_blank"><?php echo $post->title; ?></a>
 						<?php } ?>
 
-						<?php if ($this->config->get('main_password_protection') && $post->password) { ?>
-							<i class="fa fa-key text-muted ml-5" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_THIS_POST_PASSWORD_PROTECTED' , true);?>"></i>
-						<?php } ?>
-
-						<div style="font-size: 11px;">
-							<span style="padding-right: 5px;border-right: 1px solid #d7d7d7;">
-								<?php echo JText::_('COM_ED_ALIAS');?>: <?php echo $post->alias;?>
-							</span>
-
-							<span style="padding-left: 6px;">
-								<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip;?>
-							</span>
-
-							<?php if ($post->isLocked()) { ?>
-								&middot; <i class="icon-lock text-muted"></i><?php echo JText::_('COM_EASYDISCUSS_LOCKED'); ?>
-							<?php } ?>
-
+						<div class="t-mt--sm">
+							<ol class="g-list-inline g-list-inline--delimited small">
+								<li>
+									<?php echo JText::_('COM_EASYDISCUSS_CATEGORY'); ?>: <a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=categories&layout=form&id=' . $post->category->id); ?>"><?php echo $this->escape($post->category->title);?></a>
+								</li>
+								<li data-breadcrumb="|">
+									<?php echo JText::_('COM_EASYDISCUSS_IP_ADDRESS');?>: <?php echo $post->ip ? $post->ip : '&mdash;';?>
+								</li>
+							</ol>
 						</div>
 					</td>
 
-					<td class="center">
-						<a href="<?php echo JRoute::_('index.php?option=com_easydiscuss&view=categories&layout=form&id=' . $post->category->id); ?>">
-							<?php echo $this->escape($post->category->title);?>
-						</a>
-					</td>
-
 					<?php if (!$browse) { ?>
+						<td width="5%" class="center small">
+							<?php if ($this->config->get('main_password_protection') && $post->password) { ?>
+							<span class="ed-state-protected t-mr--sm" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_THIS_POST_PASSWORD_PROTECTED');?>"></span>
+							<?php } ?>
+							
+							<?php if ($post->isLocked()) { ?>
+							<span class="ed-state-locked" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_ED_POST_INFO_LOCKED');?>"></span>
+							<?php } ?>
+						</td>
+
 						<td class="center">
 							<?php echo $this->html('table.featured', 'posts', $post, 'featured'); ?>
 						</td>
@@ -144,23 +139,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</td>
 
 						<td class="center">
-							<?php echo $post->cnt; ?>
-						</td>
-
-						<td class="center">
-							<?php echo $post->hits; ?>
-						</td>
-
-						<td class="center">
-							<?php echo $post->sum_totalvote; ?>
+							<?php echo $post->sum_totalvote;?>
 						</td>
 
 						<td class="center">
 							<?php if ($post->user_id && $post->user_id != '0') {?>
 								<a href="index.php?option=com_easydiscuss&view=users&layout=form&task=edit&id=<?php echo $post->user_id;?>"><?php echo $post->getOwner()->getName(); ?></a>
 							<?php } else { ?>
-								<?php echo $post->poster_name; ?>
-								&lt;<a href="mailto:<?php echo $post->poster_email;?>" target="_blank"><?php echo $post->poster_email; ?></a>&gt;
+								<?php echo $post->poster_name; ?> (Guest)
 							<?php } ?>
 						</td>
 
@@ -215,5 +201,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<input type="hidden" name="filter_order" value="<?php echo $order; ?>" />
 	<input type="hidden" name="filter_order_Dir" value="<?php echo $orderDirection; ?>" />
 
-	<?php echo $this->html('form.hidden', 'posts', 'posts'); ?>
+	<?php echo $this->html('form.action', 'posts', 'posts'); ?>
 </form>

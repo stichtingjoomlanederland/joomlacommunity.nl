@@ -15,7 +15,7 @@ function rse_add_form(id,value) {
 </script>
 
 <form action="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=forms&tmpl=component&id='.JFactory::getApplication()->input->getInt('id')); ?>" method="post" name="adminForm" id="adminForm">
-	<table class="category table table-striped">
+	<table class="table table-striped">
 		<thead>
 			<tr>
 				<th width="5">#</th>

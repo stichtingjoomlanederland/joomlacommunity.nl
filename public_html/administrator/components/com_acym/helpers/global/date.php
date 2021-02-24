@@ -1,6 +1,4 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
 function acym_replaceDateTags($value)
 {
@@ -22,9 +20,9 @@ function acym_replaceDateTags($value)
 
 function acym_dateField($name, $value = '', $class = '', $attributes = '', $relativeDefault = '-')
 {
-    $result = '<div class="date_rs_selection_popup">';
+    $result = '<div class="grid-x margin-y date_rs_selection_popup">';
 
-    $result .= '<div class="grid-x">';
+    $result .= '<div class="cell grid-x">';
     $result .= acym_switchFilter(
         [
             'relative' => acym_translation('ACYM_RELATIVE_DATE'),
@@ -36,11 +34,11 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
     );
     $result .= '</div>';
 
-    $result .= '<div class="date_rs_selection_choice date_rs_selection_relative grid-x grid-margin-x">
-                    <div class="cell small-2">
+    $result .= '<div class="cell date_rs_selection_choice date_rs_selection_relative grid-x grid-margin-x align-center">
+                    <div class="cell medium-4">
                         <input type="number" class="relativenumber" value="0">
                     </div>
-                    <div class="cell small-5">';
+                    <div class="cell medium-4">';
     $result .= acym_select(
         [
             '60' => acym_translation('ACYM_MINUTES'),
@@ -53,7 +51,7 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
     );
 
     $result .= '</div>
-                <div class="cell small-5">';
+                <div class="cell medium-4">';
 
     $result .= acym_select(
         [
@@ -67,12 +65,11 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
     $result .= '</div>
             </div>';
 
-    $result .= '<div class="date_rs_selection_choice date_rs_selection_specific grid-x" style="display: none;">
-                    <div class="cell auto"></div>
+    $result .= '<div class="cell date_rs_selection_choice date_rs_selection_specific grid-x align-center acym_vcenter" style="display: none;">
+                    <span class="cell shrink margin-right-1">'.acym_translation('ACYM_CHOOSE_DATE').'</span>
                     <div class="cell shrink">
                         <input type="text" name="specific_'.acym_escape($name).'" class="acy_date_picker" readonly>
                     </div>
-                    <div class="cell auto"></div>
                 </div>
                 <div class="cell grid-x grid-margin-x">
                     <div class="cell auto"></div>
@@ -83,7 +80,7 @@ function acym_dateField($name, $value = '', $class = '', $attributes = '', $rela
 
     $result .= '</div>';
 
-    $id = preg_replace('#[^a-z0-9_]#i', '', $name);
+    $id = 'acym_'.preg_replace('#[^a-z0-9_]#i', '', $name);
     if (is_numeric($value)) {
         $months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -148,13 +145,13 @@ function acym_replaceDate($mydate, $display = false)
         $dateArray = explode($oneOperator, $mydate);
         if ($oneOperator == '+') {
             if ($display) {
-                $mydate = acym_translation_sprintf('ACYM_AFTER_DATE', acym_secondsToTime(intval($dateArray[1])));
+                $mydate = acym_translationSprintf('ACYM_AFTER_DATE', acym_secondsToTime(intval($dateArray[1])));
             } else {
                 $mydate = intval($dateArray[0]) + intval($dateArray[1]);
             }
         } elseif ($oneOperator == '-') {
             if ($display) {
-                $mydate = acym_translation_sprintf('ACYM_BEFORE_DATE', acym_secondsToTime(intval($dateArray[1])));
+                $mydate = acym_translationSprintf('ACYM_BEFORE_DATE', acym_secondsToTime(intval($dateArray[1])));
             } else {
                 $mydate = intval($dateArray[0]) - intval($dateArray[1]);
             }
@@ -206,13 +203,29 @@ function acym_displayDateFormat($format, $name = 'date', $default = '', $attribu
     unset($formatToDisplay[0]);
     foreach ($formatToDisplay as $one) {
         if ($one == 'd') {
-            $return .= '<div class="medium-3 cell">'.acym_select($days, $name, empty($default) ? '' : $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
+            $return .= '<div class="medium-3 margin-left-0 cell">'.acym_select(
+                    $days,
+                    $name,
+                    empty($default) ? '' : $defaultDate[$i],
+                    $attributes,
+                    'value',
+                    'text',
+                    $name.'-'.$one
+                ).'</div>';
         }
         if ($one == 'm') {
             $return .= '<div class="medium-5 cell">'.acym_select($month, $name, empty($default) ? '' : $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
         }
         if ($one == 'y') {
-            $return .= '<div class="medium-4 cell">'.acym_select($year, $name, empty($default) ? '' : $defaultDate[$i], $attributes, 'value', 'text', $name.'-'.$one).'</div>';
+            $return .= '<div class="medium-4 margin-right-0 cell">'.acym_select(
+                    $year,
+                    $name,
+                    empty($default) ? '' : $defaultDate[$i],
+                    $attributes,
+                    'value',
+                    'text',
+                    $name.'-'.$one
+                ).'</div>';
         }
         $i++;
     }
@@ -237,3 +250,79 @@ function acym_getTime($date)
     return acym_getTimeFromCMSDate($date);
 }
 
+function acym_date($time = 'now', $format = null, $useTz = true, $translate = true)
+{
+    if ($time == 'now') {
+        $time = time();
+    }
+
+    if (is_numeric($time)) {
+        $time = acym_dateTimeCMS((int)$time);
+    }
+
+    if (!$format || (strpos($format, 'ACYM_DATE_FORMAT') !== false && acym_translation($format) == $format)) {
+        $format = 'ACYM_DATE_FORMAT_LC1';
+    }
+    if (strpos($format, 'ACYM_DATE') !== false) $format = acym_translation($format);
+
+    if ($useTz === false) {
+        $date = new DateTime($time);
+
+        if ($translate) {
+            return acym_translateDate($date->format($format));
+        } else {
+            return $date->format($format);
+        }
+    } else {
+        $cmsOffset = acym_getCMSConfig('offset');
+
+        $timezone = new DateTimeZone($cmsOffset);
+
+        if (!is_numeric($cmsOffset)) {
+            $cmsOffset = $timezone->getOffset(new DateTime);
+        }
+
+        if ($translate) {
+            return acym_translateDate(date($format, strtotime($time) + $cmsOffset));
+        } else {
+            return date($format, strtotime($time) + $cmsOffset);
+        }
+    }
+}
+
+function acym_translateDate($date)
+{
+    $map = [
+        'January' => 'ACYM_JANUARY',
+        'February' => 'ACYM_FEBRUARY',
+        'March' => 'ACYM_MARCH',
+        'April' => 'ACYM_APRIL',
+        'May' => 'ACYM_MAY',
+        'June' => 'ACYM_JUNE',
+        'July' => 'ACYM_JULY',
+        'August' => 'ACYM_AUGUST',
+        'September' => 'ACYM_SEPTEMBER',
+        'October' => 'ACYM_OCTOBER',
+        'November' => 'ACYM_NOVEMBER',
+        'December' => 'ACYM_DECEMBER',
+        'Monday' => 'ACYM_MONDAY',
+        'Tuesday' => 'ACYM_TUESDAY',
+        'Wednesday' => 'ACYM_WEDNESDAY',
+        'Thursday' => 'ACYM_THURSDAY',
+        'Friday' => 'ACYM_FRIDAY',
+        'Saturday' => 'ACYM_SATURDAY',
+        'Sunday' => 'ACYM_SUNDAY',
+    ];
+
+    foreach ($map as $english => $translationKey) {
+        $translation = acym_translation($translationKey);
+        if ($translation == $translationKey) {
+            continue;
+        }
+
+        $date = preg_replace('#'.preg_quote($english).'( |,|$)#i', $translation.'$1', $date);
+        $date = preg_replace('#'.preg_quote(substr($english, 0, 3)).'( |,|$)#i', mb_substr($translation, 0, 3).'$1', $date);
+    }
+
+    return $date;
+}

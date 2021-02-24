@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,7 +13,7 @@ use Joomla\CMS\Language\Text;
 
 /** @var $this Html */
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 $js = FEFHtml::jsOrderingBackend($this->order);
 $this->getContainer()->template->addJSInline($js);
@@ -123,7 +123,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 		</tr>
 		</tfoot>
 		<tbody>
-		<?php if (!count($this->items)): ?>
+		<?php if (!(is_array($this->items) || $this->items instanceof \Countable ? count($this->items) : 0)): ?>
 			<tr>
 				<td colspan="9">
 					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_NOITEMS') ?>
@@ -135,12 +135,12 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 			$i = 0;
 			foreach ($this->items as $row):
 				$edit = 'index.php?option=com_admintools&view=WAFBlacklistedRequests&task=edit&id=' . $row->id;
-				$verb = $row->verb ? $row->verb : Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
-				$option = $row->option ? $row->option : Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
-				$view = $row->view ? $row->view : Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
-				$task = $row->task ? $row->task : Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
-				$query = $row->query ? $row->query : Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
-				$query_c = $row->query_content ? $row->query_content : Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
+				$verb = $row->verb ?: Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
+				$option = $row->option ?: Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
+				$view = $row->view ?: Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
+				$task = $row->task ?: Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
+				$query = $row->query ?: Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
+				$query_c = $row->query_content ?: Text::_('COM_ADMINTOOLS_LBL_WAFBLACKLISTEDREQUEST_ALL');
 
 				switch ($row->application)
 				{

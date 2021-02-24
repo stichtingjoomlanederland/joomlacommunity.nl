@@ -11,8 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ADMIN_ROOT . '/views/views.php');
-
 class EasyDiscussViewReports extends EasyDiscussAdminView
 {
 	public function display($tpl = null)
@@ -20,17 +18,13 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 		$this->checkAccess('discuss.manage.reports');
 
 		$this->setHeading('COM_EASYDISCUSS_REPORTS_TITLE', 'COM_EASYDISCUSS_REPORTS_DESC');
-		JToolbarHelper::publishList();
-		JToolbarHelper::unpublishList();
+		
+		JToolbarHelper::deleteList(JText::_('COM_ED_CONFIRM_DELETE_REPORTS'));
 
-		$filter_state = $this->getUserState('com_easydiscuss.reports.filter_state', 'filter_state', '*', 'word');
-
-		// Ordering
 		$order = $this->getUserState('com_easydiscuss.reports.filter_order', 'filter_order', 'a.id', 'cmd');
 		$orderDirection = $this->getUserState('com_easydiscuss.reports.filter_order_Dir', 'filter_order_Dir', '', 'word');
 
 		$model = ED::model('Reports');
-
 		$reports = $model->getReports();
 		$pagination = $model->getPagination();
 
@@ -39,38 +33,18 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 
 				$report =& $reports[$i];
 
-				$user = JFactory::getUser($report->reporter);
-
-				$report->user = $user;
-
-				$editLink	= JRoute::_('index.php?option=com_easydiscuss&controller=reports&task=edit&id='.$report->id);
-				$published 	= JHTML::_('grid.published', $report, $i );
-
+				$report->post = ED::post($report->id);
+				$report->user = JFactory::getUser($report->reporter);
 				$report->date = $report->lastreport;
-
-				$actions	= array();
-				$actions[]	= JHTML::_('select.option',  '', '- '. JText::_( 'COM_EASYDISCUSS_SELECT_ACTION' ) .' -' );
-				$actions[]	= JHTML::_('select.option',  'D', JText::_( 'COM_EASYDISCUSS_DELETE_POST' ) );
-				$actions[]	= JHTML::_('select.option',  'C', JText::_( 'COM_EASYDISCUSS_REMOVE_REPORT' ) );
-				$actions[]	= JHTML::_('select.option',  'P', JText::_( 'COM_EASYDISCUSS_REPORT_PUBLISHED' ) );
-				$actions[]	= JHTML::_('select.option',  'U', JText::_( 'COM_EASYDISCUSS_REPORT_UNPUBLISHED' ) );
 
 				if ($report->user_id != 0) {
 					$actions[] = JHTML::_('select.option',  'E', JText::_( 'COM_EASYDISCUSS_EMAIL_AUTHOR' ) );
-				}
-
-				$report->actions = JHTML::_('select.genericlist',   $actions, 'report-action-' . $report->id, ' style="width:250px;margin: 0;" data-action-type data-id="' . $report->id . '"', 'value', 'text', '*' );
-				$report->viewLink = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $report->id;
-
-				if ($report->parent_id != 0) {
-					$report->viewLink = JURI::root() . 'index.php?option=com_easydiscuss&view=post&id=' . $report->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPORT_REPLY_PERMALINK') . '-' . $report->id;
 				}
 			}
 		}
 
 		$this->set('reports', $reports);
 		$this->set('pagination', $pagination);
-		$this->set('filter_state', $filter_state);
 		$this->set('order', $order);
 		$this->set('orderDirection', $orderDirection);
 
@@ -104,62 +78,8 @@ class EasyDiscussViewReports extends EasyDiscussAdminView
 			}
 		}
 
-		$theme = ED::themes();
-		$theme->set('reasons', $result);
+		$this->set('reasons', $result);
 
-		echo $theme->output('admin/reports/reasons');
-
-		exit;
-	}
-
-	/**
-	 * Redirect the post or reply to the frontend
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function redirectPost()
-	{
-		$id = $this->input->get('id', 0, 'int');
-		$post = ED::post($id);	
-
-		// If this report someone reported from the question then we can just redirect to that question page without go through any process
-		if ($post->isQuestion()) {
-			$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
-			$redirection = EDR::getRoutedURL($url, false, true);
-			return $this->app->redirect($redirection);
-		}
-
-		// Load front end language file.
-		JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
-		$config = ED::config();
-
-		$hasEnabledReplyPagination = $config->get('layout_replies_pagination');
-		$replyPaginationLimit = $config->get('layout_replies_list_limit');
-
-		$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
-
-		// Redirect to the reply directly if the site doesn't enable to show reply pagination
-		if (!$hasEnabledReplyPagination) {
-			$redirection = EDR::getRoutedURL($url, false, true);
-			return $this->app->redirect($redirection);
-		}
-
-		// Retrieve a list of reply use to determine that where is this reply position on the page
-		$results = $post->getReplyPosition();
-
-		// Process this if the reply located at the first page
-		if ($results < $replyPaginationLimit) {
-			$redirection = EDR::getRoutedURL($url, false, true);
-			return $this->app->redirect($redirection);
-		}
-
-		$replyPositionNum = (int) ($results / $replyPaginationLimit);
-		$limitstart = $replyPositionNum * $replyPaginationLimit;
-	
-		$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->parent_id . '&limitstart=' . $limitstart . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
-		$redirection = EDR::getRoutedURL($url, false, true);
-
-		return $this->app->redirect($redirection);
+		parent::display('reports/reasons');
 	}
 }

@@ -187,7 +187,7 @@ class RseventsproTableSubscription extends JTable
 			$db->execute();
 		}
 		
-		JFactory::getApplication()->triggerEvent('rsepro_beforeDeleteSubscription', array(array('id' => $pk)));
+		JFactory::getApplication()->triggerEvent('onrsepro_beforeDeleteSubscription', array(array('id' => $pk)));
 		
 		return parent::delete($pk, $children);
 	}

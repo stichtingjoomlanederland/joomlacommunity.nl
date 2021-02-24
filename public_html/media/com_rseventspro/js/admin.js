@@ -352,12 +352,10 @@ function rsepro_select_all(id, fid) {
 
 function rsepro_backup(step) {
 	var progress		= jQuery('#rsepro-backup');
-	var progress_bar	= progress.find('.bar');
-	var progress_label	= progress.find('.progress-label');
+	var progress_bar	= progress.find('div');
 	var button			= jQuery('#rsepro-backup-btn');
 	
-	progress.addClass('progress-striped active');
-	progress_bar.removeClass('bar-success');
+	progress_bar.removeClass('bar-success').removeClass('bg-success');
 	
 	if (step == 0) {
 		progress_bar.css('width', 0);
@@ -372,22 +370,21 @@ function rsepro_backup(step) {
 		data: 'task=backup&step=' + step
 	}).done(function( response ) {
 		progress_bar.css('width', response.percentage + '%'); 
-		progress_label.html(response.percentage + '% ');
+		progress_bar.html(response.percentage + '% ');
 		
 		if (response.percentage < 100) {
 			rsepro_backup(response.nextstep);
 		} else {
-			progress.removeClass('progress-striped active');
-			progress_bar.addClass('bar-success');
+			progress_bar.addClass('bar-success').addClass('bg-success');
 			button.prop('disabled', false);
 			
 			var tr  = jQuery('<tr>');
 			var td1 = jQuery('<td>');
-			var td2 = jQuery('<td>');
-			var td3 = jQuery('<td>', {class: 'center', align: 'center'});
+			var td2 = jQuery('<td>', {class: 'center text-center'});
+			var td3 = jQuery('<td>', {class: 'center text-center'});
 			var a   = jQuery('<a>', { href: response.download }).html(response.name);
-			var b1	= jQuery('<button>', {class: 'btn', type: 'button'}).html(Joomla.JText._('COM_RSEVENTSPRO_BACKUP_OVERWRITE_RESTORE'));
-			var b2	= jQuery('<button>', {class: 'btn', type: 'button'}).html(Joomla.JText._('COM_RSEVENTSPRO_BACKUP_RESTORE'));
+			var b1	= jQuery('<button>', {class: 'btn btn-secondary', type: 'button'}).html(Joomla.JText._('COM_RSEVENTSPRO_BACKUP_OVERWRITE_RESTORE'));
+			var b2	= jQuery('<button>', {class: 'btn btn-secondary', type: 'button'}).html(Joomla.JText._('COM_RSEVENTSPRO_BACKUP_RESTORE'));
 			var b3	= jQuery('<button>', {class: 'btn btn-danger', type: 'button'}).html(Joomla.JText._('COM_RSEVENTSPRO_GLOBAL_DELETE_BTN'));
 			
 			b1.on('click', function() {
@@ -435,9 +432,6 @@ function rsepro_backup_delete(file, what) {
 }
 
 function rsepro_backup_restore(file, overwrite) {
-	jQuery('#backuprestore > li > a[href="#restore"]').click();
-	jQuery('#backuprestore dt.restore').click();
-	
 	if (overwrite) {
 		jQuery('#rsepro-overwrite').prop('checked', true);
 		jQuery('#rsepro-overwrite').parents('label').addClass('disabled');
@@ -450,12 +444,10 @@ function rsepro_backup_restore(file, overwrite) {
 
 function rsepro_restore(hash, step, offset, count) {
 	var progress		= jQuery('#rsepro-backup');
-	var progress_bar	= progress.find('.bar');
-	var progress_label	= progress.find('.progress-label');
+	var progress_bar	= progress.find('div');
 	var button 			= jQuery('#rsepro-restore-btn');
 	
-	progress.addClass('progress-striped active');
-	progress_bar.removeClass('bar-success');
+	progress_bar.removeClass('bar-success').removeClass('bg-success');
 	
 	if (step == 0) {
 		progress_bar.css('width', 0);
@@ -476,14 +468,13 @@ function rsepro_restore(hash, step, offset, count) {
 		data: 'task=restore&hash='+ hash +'&step=' + step + '&offset=' + offset + '&count=' + count
 	}).done(function( response ) {
 		progress_bar.css('width', response.percentage + '%'); 
-		progress_label.html(response.percentage + '% ');
+		progress_bar.html(response.percentage + '% ');
 		
 		if (response.percentage < 100) {
 			rsepro_restore(hash, response.step, response.offset, response.count);
 		} else {
 			button.prop('disabled', false);
-			progress.removeClass('progress-striped active');
-			progress_bar.addClass('bar-success');
+			progress_bar.addClass('bar-success').addClass('bg-success');
 			
 			if (rsepro_restore_overwrite) {
 				jQuery('#rsepro-overwrite').prop('disabled', false);
@@ -503,14 +494,6 @@ function rsepro_generate_string() {
 	}
 	
 	jQuery('#jform_code').val(string);
-}
-
-function rsepro_discount_assignment() {
-	if (jQuery('#jform_apply_to').val() == '1') {
-		jQuery('#events').css('display','none');
-	} else {
-		jQuery('#events').css('display','');
-	}
 }
 
 function rsepro_confirm_ticket(id, code, object) {

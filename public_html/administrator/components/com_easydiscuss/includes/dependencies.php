@@ -32,6 +32,22 @@ if (!function_exists('dump')) {
 	}
 }
 
+if (!function_exists('vd')) {
+
+	function vd()
+	{
+		$args = func_get_args();
+
+		echo '<pre>';
+
+		foreach ($args as $arg) {
+			var_dump($arg);
+		}
+		echo '</pre>';
+		exit;
+	}
+}
+
 class EasyDiscuss
 {
 	public $config = null;
@@ -53,8 +69,6 @@ class EasyDiscuss
 			$this->app = JFactory::getApplication();
 			$this->input = ED::request();
 			$this->my = JFactory::getUser();
-			$this->acl = ED::acl();
-			$this->isSiteAdmin = ED::isSiteAdmin();
 
 			// 1. Detect if this is an api call
 			if ($this->doc->getType() == 'json') {
@@ -78,6 +92,23 @@ class EasyDiscuss
 				}
 			}
 
+		}
+	}
+
+	public function __get($key)
+	{
+		// On demand request to the ACL library
+		if ($key == 'acl') {
+
+			if (!isset($this->acl) || !$this->acl) {
+				$this->acl = ED::acl();
+			}
+
+			return $this->acl;
+		}
+
+		if (isset($this->$key)) {
+			return $this->$key;
 		}
 	}
 

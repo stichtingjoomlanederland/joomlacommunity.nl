@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2019 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -72,24 +72,34 @@ class EasyDiscussConversation extends EasyDiscuss
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function archive($userId = null)
 	{
-		$userId = JFactory::getUser($userId)->id;
-
-		// // Try to archive / unarchive the conversation.
-		// $state = $task == 'archive' ?  : DISCUSS_CONVERSATION_PUBLISHED;
-		// $model->archive($id, $this->my->id, $state);
+		if (!$userId) {
+			$userId = $this->my->id;
+		}
 
 		$model = ED::model('Conversation');
 
-		$state = $model->archive($this->table->id, $userId, DISCUSS_CONVERSATION_ARCHIVED);
-
-		return $state;
+		return $model->archive($this->table->id, $userId);
 	}
 
+	/**
+	 * Unarchives a conversation
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function unArchive($userId = null)
+	{
+		if (!$userId) {
+			$userId = $this->my->id;
+		}
+
+		$model = ED::model('Conversation');
+
+		return $model->unArchive($this->table->id, $userId);
+	}
 
 	/**
 	 * Determines if the current viewer can view this conversation
@@ -217,7 +227,7 @@ class EasyDiscussConversation extends EasyDiscuss
 			$contents = ED::parser()->bbcode($contents);
 
 			if ($intro) {
-				$contents = JString::substr(strip_tags($contents), 0, 35) . JText::_('COM_EASYDISCUSS_ELLIPSES');
+				$contents = EDJString::substr(strip_tags($contents), 0, 35) . JText::_('COM_EASYDISCUSS_ELLIPSES');
 			}
 
 			$messages[$key] = $contents;

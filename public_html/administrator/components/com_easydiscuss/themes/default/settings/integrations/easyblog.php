@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -14,20 +14,19 @@ defined('_JEXEC') or die('Unauthorized Access');
 <div class="row">
 	<div class="col-md-6">
 		<div class="panel">
-			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYBLOG_INTEGRATIONS'); ?>
+			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_EASYBLOG_INTEGRATIONS','','/docs/easydiscuss/administrators/integrations/integrations#easyblog'); ?>
 
 			<div class="panel-body">
-				<div>
-					<img width="64" align="left" src="<?php echo JURI::root();?>administrator/components/com_easydiscuss/themes/default/images/integrations/easyblog.png" style="margin-left: 20px;margin-right:25px; float: left;">
+				<div class="panel-info">
+					<img width="64" align="left" src="<?php echo JURI::root();?>administrator/components/com_easydiscuss/themes/default/images/integrations/easyblog.png" style="margin-right:25px; float: left;">
 					
-					<div class="small" style="overflow:hidden;">
+					<div style="overflow:hidden;">
 						<?php echo JText::_('COM_EASYDISCUSS_EASYBLOG_INFO');?><br /><br />
-						<a target="_blank" class="btn btn-primary btn-sm t-lg-mb--lg" href="https://stackideas.com/easyblog"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_EASYBLOG'); ?> &rarr;</a>
+						<a target="_blank" class="o-btn o-btn--default-o" href="https://stackideas.com/easyblog"><?php echo JText::_('COM_EASYDISCUSS_LEARN_MORE_ABOUT_EASYBLOG'); ?></a>
 					</div>
 				</div>
-				<div class="form-horizontal">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'integrations_easyblog_toolbar', 'COM_ED_SETTINGS_INTEGRATIONS_EASYBLOG_TOOLBAR'); ?>
-					<?php echo $this->html('settings.toggle', 'integrations_easyblog_profile', 'COM_EASYDISCUSS_EASYBLOG_DISPLAY_BLOGS_IN_PROFILE'); ?>
 				</div>
 			</div>
 		</div>

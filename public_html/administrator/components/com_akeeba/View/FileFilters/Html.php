@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -41,7 +41,7 @@ class Html extends BaseView
 	 */
 	public function onBeforeMain()
 	{
-		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js', true);
+		$this->container->template->addJS('media://com_akeeba/js/FileFilters.min.js', true, false, $this->container->mediaVersion);
 
 		/** @var FileFilters $model */
 		$model = $this->getModel();

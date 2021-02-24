@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -64,7 +64,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		});
 		</script>
 		<form action="<?php echo JRoute::_('index.php');?>" method="post" data-form-response>
-			<div class="t-lg-mt--xl t-lg-mb--xl">
+			<div class="t-mt--md t-mb--md">
 				<?php echo JText::_('COM_EASYDISCUSS_WRITING_TO');?>
 				<a href="<?php echo $recipient->getLink();?>"><?php echo $recipient->getName();?></a>
 			</div>
@@ -74,11 +74,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 
 			<input type="hidden" name="recipient" value="<?php echo $recipient->id;?>" data-ed-recipient />
-			<?php echo $this->html('form.hidden', 'conversation', 'conversation', 'save'); ?>
+			<?php echo $this->html('form.action', 'conversation', 'conversation', 'save'); ?>
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
-		<button data-submit-button type="button" class="btn btn-primary btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_SEND_MESSAGE'); ?></button>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--primary"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_SEND_MESSAGE'); ?></button>
 	</buttons>
 </dialog>

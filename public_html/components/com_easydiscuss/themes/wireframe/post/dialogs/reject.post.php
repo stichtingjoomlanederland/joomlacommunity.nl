@@ -12,8 +12,8 @@
 defined('_JEXEC') or die('Restricted access');
 ?>
 <dialog>
-	<width>400</width>
-	<height>120</height>
+	<width>500</width>
+	<height>250</height>
 	<selectors type="json">
 	{
 		"{closeButton}" : "[data-close-button]",
@@ -38,12 +38,16 @@ defined('_JEXEC') or die('Restricted access');
 		</p>
 
 		<form data-form-response method="post" action="<?php echo JRoute::_('index.php');?>">
+			<div class="o-form-group">
+				<?php echo $this->html('form.textarea', 'message', '', 5, 'data-reason placeholder="' . JText::_('COM_ED_REJECT_REPLY_PLACEHOLDER') . '"'); ?>
+			</div>
+		
 			<input type="hidden" id="postId" name="postId" value="<?php echo $id; ?>">
-			<?php echo $this->html('form.hidden', 'posts', 'posts', 'rejectPendingPost');?>
+			<?php echo $this->html('form.action', 'posts', 'post', 'rejectPendingPost');?>
 		</form>
 	</content>
 	<buttons>
-		<button data-close-button type="button" class="btn btn-default btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
-		<button data-submit-button type="button" class="btn btn-danger btn-sm"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_REJECT_REPLY'); ?></button>
+		<button data-close-button type="button" class="ed-dialog-footer-content__btn"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CANCEL'); ?></button>
+		<button data-submit-button type="button" class="ed-dialog-footer-content__btn t-text--danger"><?php echo JText::_('COM_EASYDISCUSS_BUTTON_REJECT_REPLY'); ?></button>
 	</buttons>
 </dialog>

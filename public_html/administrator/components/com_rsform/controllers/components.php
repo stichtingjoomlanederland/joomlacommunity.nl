@@ -362,6 +362,7 @@ class RsformControllerComponents extends RsformController
 		$model->componentsChangeStatus();
 		$componentId = $model->getComponentId();
 
+		$ajax = JFactory::getApplication()->input->getInt('ajax');
 		if (is_array($componentId))
 		{
 			$formId = JFactory::getApplication()->input->getInt('formId');
@@ -373,8 +374,8 @@ class RsformControllerComponents extends RsformController
 
 			$this->setRedirect('index.php?option=com_rsform&view=forms&layout=edit&formId='.$formId, JText::sprintf($msg, count($componentId)));
 		}
-		// Ajax request
-		else
+		// Legacy ajax request
+		elseif (!$ajax)
 		{
 			JFactory::getApplication()->input->set('view', 'formajax');
 			JFactory::getApplication()->input->set('layout', 'component_published');
@@ -390,11 +391,20 @@ class RsformControllerComponents extends RsformController
 		$model = $this->getModel('formajax');
 		$model->componentsChangeRequired();
 
-		JFactory::getApplication()->input->set('view', 'formajax');
-		JFactory::getApplication()->input->set('layout', 'component_required');
-		JFactory::getApplication()->input->set('format', 'raw');
+		$ajax = JFactory::getApplication()->input->getInt('ajax');
 
-		parent::display();
+		if (!$ajax)
+		{
+			JFactory::getApplication()->input->set('view', 'formajax');
+			JFactory::getApplication()->input->set('layout', 'component_required');
+			JFactory::getApplication()->input->set('format', 'raw');
+
+			parent::display();
+		}
+		else
+		{
+			JFactory::getApplication()->close();
+		}
 	}
 
 	public function remove()

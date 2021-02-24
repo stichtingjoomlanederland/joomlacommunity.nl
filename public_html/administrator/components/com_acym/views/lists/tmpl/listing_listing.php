@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><?php if (empty($data['lists'])) { ?>
+<?php if (empty($data['lists'])) { ?>
 	<h1 class="cell acym__listing__empty__search__title text-center"><?php echo acym_translation('ACYM_NO_RESULTS_FOUND'); ?></h1>
 <?php } else { ?>
 	<div class="cell grid-x margin-top-1">
@@ -15,7 +13,7 @@ defined('_JEXEC') or die('Restricted access');
             ?>
 		</div>
 		<div class="cell grid-x">
-			<div class="auto cell">
+			<div class="auto cell acym_vcenter">
                 <?php
                 $options = [
                     '' => ['ACYM_ALL', $data['listNumberPerStatus']['all']],
@@ -30,13 +28,14 @@ defined('_JEXEC') or die('Restricted access');
 			<div class="cell acym_listing_sort-by auto">
                 <?php echo acym_sortBy(
                     [
-                        'id' => strtolower(acym_translation('ACYM_ID')),
+                        'id' => acym_strtolower(acym_translation('ACYM_ID')),
                         'name' => acym_translation('ACYM_NAME'),
                         'creation_date' => acym_translation('ACYM_DATE_CREATED'),
                         'active' => acym_translation('ACYM_ACTIVE'),
                         'visible' => acym_translation('ACYM_VISIBLE'),
                     ],
-                    'lists'
+                    'lists',
+                    $data['ordering']
                 ); ?>
 			</div>
 		</div>
@@ -55,11 +54,21 @@ defined('_JEXEC') or die('Restricted access');
 				</div>
                 <?php if ($this->config->get('require_confirmation', 1) == 1) { ?>
 					<div class="acym__listing__header__title cell hide-for-small-only medium-2 large-2 text-center">
-                        <?php echo acym_isAdmin() ? acym_translation('ACYM_NOT_CONFIRMED') : acym_tooltip('<i class="acymicon-hourglass-2"></i>', acym_translation('ACYM_NOT_CONFIRMED')); ?>
+                        <?php echo acym_isAdmin()
+                            ? acym_translation('ACYM_NOT_CONFIRMED')
+                            : acym_tooltip(
+                                '<i class="acymicon-hourglass-2"></i>',
+                                acym_translation('ACYM_NOT_CONFIRMED')
+                            ); ?>
 					</div>
                 <?php } ?>
 				<div class="acym__listing__header__title cell hide-for-small-only medium-2 large-2 text-center">
-                    <?php echo acym_isAdmin() ? acym_translation('ACYM_UNSUBSCRIBED') : acym_tooltip('<i class="acymicon-user-minus"></i>', acym_translation('ACYM_UNSUBSCRIBED')); ?>
+                    <?php echo acym_isAdmin()
+                        ? acym_translation('ACYM_UNSUBSCRIBED')
+                        : acym_tooltip(
+                            '<i class="acymicon-user-minus"></i>',
+                            acym_translation('ACYM_UNSUBSCRIBED')
+                        ); ?>
 				</div>
 				<div class="acym__listing__header__title cell hide-for-small-only medium-2 large-2 text-center">
                     <?php echo acym_isAdmin() ? acym_translation('ACYM_INACTIVE') : acym_tooltip('<i class="acymicon-remove"></i>', acym_translation('ACYM_INACTIVE')); ?>
@@ -88,7 +97,9 @@ defined('_JEXEC') or die('Restricted access');
 						</a>
 					</div>
 					<div class="small-1 medium-2 large-2 text-center small-up-1 cell">
-                        <?php echo $list->sendable_users; ?>
+                        <?php echo $list->sendable_users;
+                        $textEvolSub = ' <span class="acym__listing__evol-green">(+'.$list->newSub.')</span>';
+                        if (!empty($list->newSub)) echo acym_tooltip($textEvolSub, acym_translation('ACYM_EVOL_SUB')); ?>
 					</div>
                     <?php if ($this->config->get('require_confirmation', 1) == 1) { ?>
 						<div class="small-1 medium-2 large-2 text-center small-up-1 cell">
@@ -96,7 +107,9 @@ defined('_JEXEC') or die('Restricted access');
 						</div>
                     <?php } ?>
 					<div class="small-1 medium-2 large-2 text-center small-up-1 cell">
-                        <?php echo $list->unsubscribed_users; ?>
+                        <?php echo $list->unsubscribed_users;
+                        $textEvolUnsub = ' <span class="acym__listing__evol-red">(+'.$list->newUnsub.')</span>';
+                        if (!empty($list->newUnsub)) echo acym_tooltip($textEvolUnsub, acym_translation('ACYM_EVOL_UNSUB')); ?>
 					</div>
 					<div class="small-1 medium-2 large-2 text-center small-up-1 cell">
                         <?php echo $list->inactive_users; ?>
@@ -140,4 +153,3 @@ defined('_JEXEC') or die('Restricted access');
 	</div>
     <?php echo $data['pagination']->display('lists'); ?>
 <?php } ?>
-

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -20,8 +20,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function validate($data = array())
 	{
@@ -53,8 +51,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function load($id)
 	{
@@ -69,8 +65,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function reload($previousCaptchaId = null)
 	{
@@ -97,8 +91,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function getImageSource()
 	{
@@ -112,8 +104,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function html()
 	{
@@ -135,8 +125,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function clearExpired()
 	{
@@ -150,8 +138,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function generateHash()
 	{
@@ -168,8 +154,6 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return	
 	 */
 	public function drawImage($width = 100, $height = 20)
 	{
@@ -192,83 +176,10 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 
 		return $image;
 	}
-	
-	/**
-	 * Performs validation of captcha
-	 *
-	 * @since	4.0
-	 * @access	public
-	 * @param	string
-	 * @return	
-	 */
-	public static function validateCaptcha($data)
-	{
-		require_once(DISCUSS_CLASSES . '/recaptcha.php');
-		require_once(DISCUSS_CLASSES . '/captcha.php');
-
-		$config 	= DiscussHelper::getConfig();
-
-		if ($config->get('antispam_easydiscuss_captcha')) {
-
-			// If captcha is not enforced, we should allow this to bypass
-			if (!DiscussHelper::getHelper('Captcha')->showCaptcha()) {
-				return true;
-			}
-
-			$discussCaptcha	= new stdClass();
-			$discussCaptcha->captchaResponse	= JRequest::getVar('captcha-response');;
-			$discussCaptcha->captchaId			= JRequest::getInt('captcha-id');
-
-			$state = DiscussHelper::getHelper( 'Captcha' )->verify( $discussCaptcha );
-
-			return $state;
-		}
-
-		if ( !DiscussRecaptcha::isRequired()) {
-			return true;
-		}
-
-		$obj = DiscussRecaptcha::recaptcha_check_answer( $config->get( 'antispam_recaptcha_private' ) , $_SERVER['REMOTE_ADDR'] , $data['recaptcha_challenge_field'] , $data['recaptcha_response_field'] );
-
-		if ($obj->is_valid) {
-			return true;
-		}
-
-		return false;
-	}
-
-	// /**
-	//  * Reload the captcha image.
-	//  * @param	Ejax	$ejax	Ejax object
-	//  * @return	string	The javascript action to reload the image.
-	//  **/
-	// public function reload( $ajax , $captchaId )
-	// {
-	// 	$config		= DiscussHelper::getConfig();
-
-	// 	// If no captcha is enabled, ignore it.
-	// 	if( !$config->get('antispam_easydiscuss_captcha_registered') || !$config->get( 'antispam_easydiscuss_captcha' ) )
-	// 	{
-	// 		return true;
-	// 	}
-
-	// 	// @task: If recaptcha is not enabled, we assume that the built in captcha is used.
-	// 	// Generate a new captcha 
-	// 	if( isset( $captchaId ) )
-	// 	{
-	// 		$ref	= DiscussHelper::getTable( 'Captcha' );
-	// 		$ref->load( $captchaId );
-	// 		$ref->delete();
-	// 	}
-
-	// 	require_once DISCUSS_CLASSES . DIRECTORY_SEPARATOR . 'captcha.php';
-	// 	$ajax->script( DiscussCaptchaClasses::getReloadScript( $ajax , $captchaId ) );
-	// 	return true;
-	// }
 
 	public function showCaptcha()
 	{
-		$config = ED::getConfig();
+		$config = ED::config();
 		$my = JFactory::getUser();
 		$runCaptcha = false;
 
@@ -292,23 +203,13 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 		return $runCaptcha;
 	}
 
-
-	// public function getError( $ajax , $post )
-	// {
-	// 	$ajax->script( DiscussCaptcha::getReloadScript( $ajax, $post ) );
-	// 	// $ajax->script( 'eblog.comment.displayInlineMsg( "error" , "'.JText::_('COM_EASYBLOG_CAPTCHA_INVALID_RESPONSE').'");' );
-	// 	// $ajax->script( 'eblog.spinner.hide();' );
-	// 	// $ajax->script( "eblog.loader.doneLoading();" );
-	// 	return $ajax->send();
-	// }
-
 	public function getReloadScript( $ajax , $captchaId )
 	{
 		JTable::addIncludePath( DISCUSS_TABLES );
 
 		if( isset( $captchaId ) )
 		{
-			$ref	= DiscussHelper::getTable( 'Captcha' );
+			$ref = ED::table('Captcha');
 			$ref->load( $captchaId );
 			$ref->delete();
 		}
@@ -316,5 +217,4 @@ class EasyDiscussCaptchaDefault extends EasyDiscussCaptchaAbstract
 		//return 'eblog.captcha.reload();';
 		return;
 	}
-
 }

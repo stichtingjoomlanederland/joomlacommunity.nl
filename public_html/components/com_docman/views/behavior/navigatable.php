@@ -28,16 +28,19 @@ class ComDocmanViewBehaviorNavigatable extends KViewBehaviorAbstract
                  *
                  * If search is enabled no such redirect is necessary, we just hide the top-level categories
                  */
-                if ($params->show_document_search || $request->query->has('filter')) {
+                if ($params->show_document_search || $request->query->has('filter'))
+                {
                     // Search is visible, so content pane is not empty. We hide categories then
                     $params->set('show_subcategories', false);
                 }
-                else {
-                    $model = $this->getObject('com://site/docman.model.categories');
-                    $first = $model->setState($data['state'])->limit(1)->fetch();
+                else
+                {
+                    // Exclude subcategories of an unpublished parent category
+                    $result = $this->getModel()->getHierachicalCategories(null, 1);
+                    $first  = $this->getModel()->create((array) array_pop($result));
 
                     // Ensure there is a category
-                    if (!$first->isNew())
+                    if ($first->id)
                     {
                         $category_link = $this->getTemplate()->createHelper('com://admin/docman.template.helper.route')
                             ->category(array('entity' => $first, 'view' => 'tree'), true, false);

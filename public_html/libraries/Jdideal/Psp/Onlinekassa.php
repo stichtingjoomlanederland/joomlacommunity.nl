@@ -4,7 +4,7 @@
  * @subpackage  Omnikassa
  *
  * @author      Roland Dalmulder <contact@rolandd.com>
- * @copyright   Copyright (C) 2017 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright   Copyright (C) 2017 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license     GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link        https://rolandd.com
  */
@@ -20,6 +20,7 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\Log\Log;
 use Joomla\CMS\Uri\Uri;
 use Joomla\Input\Input;
+use Joomla\Registry\Registry;
 use nl\rabobank\gict\payments_savings\omnikassa_sdk\connector\TokenProvider;
 use nl\rabobank\gict\payments_savings\omnikassa_sdk\endpoint\Endpoint;
 use nl\rabobank\gict\payments_savings\omnikassa_sdk\model\Environment;
@@ -698,8 +699,8 @@ class Onlinekassa
 			);
 		}
 
-		// Get the order to check the status for
-		$http = HttpFactory::getHttp(null, ['curl', 'stream']);
+		$options = new Registry;
+		$http    = HttpFactory::getHttp($options, ['curl', 'stream']);
 
 		$headers                  = [];
 		$headers['Authorization'] = 'Bearer ' . $data['authentication'];

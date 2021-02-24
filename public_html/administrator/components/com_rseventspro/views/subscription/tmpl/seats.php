@@ -8,7 +8,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 JHtml::_('behavior.keepalive'); ?>
 
 <script type="text/javascript">
-jQuery(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
 	jQuery('#rsepro_wrapper').css('height', jQuery(window).height() - 100);
 });
 </script>
@@ -16,7 +16,7 @@ jQuery(document).ready(function() {
 <div id="rsepro_wrapper">
 	<?php $left = 10; $top = 10; ?>
 	<?php foreach ($this->tickets as $ticket) { ?>
-	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px;' : rseventsproHelper::parseStyle($ticket->position); ?>
+	<?php $style = empty($ticket->position) ? 'top: '.$top.'px; left: '.$left.'px; width: 90px;' : rseventsproHelper::parseStyle($ticket->position); ?>
 	<?php $price = $ticket->price ? rseventsproHelper::currency($ticket->price) : JText::_('COM_RSEVENTSPRO_GLOBAL_FREE'); ?>
 	<?php $selected = rseventsproHelper::getSelectedSeats($ticket->id,$this->id); ?>
 	<?php $disabled = rseventsproHelper::getSelectedSeats($ticket->id); ?>
@@ -46,7 +46,7 @@ jQuery(document).ready(function() {
 			<?php } ?>
 		</div>
 	</div>
-	<?php $left += 270; ?>
+	<?php $left += 200; ?>
 	<?php } ?>
 	<div class="rsepro_legend">
 		<div class="rsepro_ticket_seat rsepro_user_selected">&nbsp;</div> &nbsp; <?php echo JText::_('COM_RSEVENTSPRO_USER_SELECTED_SEATS'); ?>

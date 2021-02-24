@@ -1,8 +1,8 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
@@ -32,7 +32,7 @@ class EasyDiscussClosure
 		$contents = $this->query($body);
 
 		if (preg_match('/^Error\(\d\d?\):/', $contents)) {
-			return JError::raiseError(500, $contents);
+			throw ED::exception($contents, ED_MSG_ERROR);
 		}
 
 		return $contents;

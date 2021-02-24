@@ -32,9 +32,19 @@ class JFormFieldRSCalendar extends JFormField
 			require_once JPATH_SITE.'/components/com_rseventspro/helpers/html.php';
 		}
 		
+		require_once JPATH_SITE.'/components/com_rseventspro/helpers/adapter/adapter.php';
+		
 		// Load jQuery
 		rseventsproHelper::loadjQuery();
+		
+		$allday = (string) $this->element['allday'];
+		$allday = $allday === 'true' ? true : false;
+		$time = (string) $this->element['time'];
+		$time = empty($time) || $time === 'true' ? true : false;
+		$onchange = (string) $this->element['onchange'];
+		$onchange = empty($onchange) ? null : $onchange;
+		$attribs['class'] = (string) $this->element['class'];
 
-		return JHtml::_('rseventspro.rscalendar', $this->name, $this->value);
+		return JHtml::_('rseventspro.rscalendar', $this->name, $this->value, $allday, $time, $onchange, $attribs);
 	}
 }

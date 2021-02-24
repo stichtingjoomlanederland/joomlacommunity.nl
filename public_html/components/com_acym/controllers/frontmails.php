@@ -1,13 +1,25 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
-include ACYM_CONTROLLER.'mails.php';
+
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Controllers\MailsController;
 
 class FrontmailsController extends MailsController
 {
     public function __construct()
     {
-        $this->authorizedFrontTasks = ['autoSave', 'setNewIconShare', 'edit', 'setNewThumbnail', 'getTemplateAjax', 'apply', 'saveAjax', 'save', 'sendTest'];
+        $this->authorizedFrontTasks = [
+            'autoSave',
+            'setNewIconShare',
+            'edit',
+            'setNewThumbnail',
+            'getTemplateAjax',
+            'apply',
+            'saveAjax',
+            'save',
+            'sendTest',
+            'getMailByIdAjax',
+        ];
         $this->loadScripts = [
             'edit' => ['editor-wysid'],
         ];
@@ -27,4 +39,3 @@ class FrontmailsController extends MailsController
         parent::setNewIconShare();
     }
 }
-

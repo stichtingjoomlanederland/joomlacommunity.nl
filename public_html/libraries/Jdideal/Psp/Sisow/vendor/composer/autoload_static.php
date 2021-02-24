@@ -4,7 +4,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit807ec4a039e3ac89594054b747163946
+class ComposerStaticInit2b7591b0d43cedfbd7af532a4b942fa1
 {
     public static $prefixLengthsPsr4 = array (
         'S' => 
@@ -20,11 +20,28 @@ class ComposerStaticInit807ec4a039e3ac89594054b747163946
         ),
     );
 
+    public static $classMap = array (
+        'Sisow\\Exceptions\\SisowException' => __DIR__ . '/..' . '/sisow/php-client/src/Exceptions/SisowException.php',
+        'Sisow\\Helpers\\XmlHelper' => __DIR__ . '/..' . '/sisow/php-client/src/Helpers/XmlHelper.php',
+        'Sisow\\Requests\\AbstractRequest' => __DIR__ . '/..' . '/sisow/php-client/src/Requests/AbstractRequest.php',
+        'Sisow\\Requests\\Directory' => __DIR__ . '/..' . '/sisow/php-client/src/Requests/Directory.php',
+        'Sisow\\Requests\\Invoices' => __DIR__ . '/..' . '/sisow/php-client/src/Requests/Invoices.php',
+        'Sisow\\Requests\\Merchants' => __DIR__ . '/..' . '/sisow/php-client/src/Requests/Merchants.php',
+        'Sisow\\Requests\\Ping' => __DIR__ . '/..' . '/sisow/php-client/src/Requests/Ping.php',
+        'Sisow\\Requests\\Transactions' => __DIR__ . '/..' . '/sisow/php-client/src/Requests/Transactions.php',
+        'Sisow\\Responses\\Invoice' => __DIR__ . '/..' . '/sisow/php-client/src/Responses/Invoice.php',
+        'Sisow\\Responses\\Issuer' => __DIR__ . '/..' . '/sisow/php-client/src/Responses/Issuer.php',
+        'Sisow\\Responses\\Merchant' => __DIR__ . '/..' . '/sisow/php-client/src/Responses/Merchant.php',
+        'Sisow\\Responses\\Transaction' => __DIR__ . '/..' . '/sisow/php-client/src/Responses/Transaction.php',
+        'Sisow\\SisowClient' => __DIR__ . '/..' . '/sisow/php-client/src/SisowClient.php',
+    );
+
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit807ec4a039e3ac89594054b747163946::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit807ec4a039e3ac89594054b747163946::$prefixDirsPsr4;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit2b7591b0d43cedfbd7af532a4b942fa1::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit2b7591b0d43cedfbd7af532a4b942fa1::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit2b7591b0d43cedfbd7af532a4b942fa1::$classMap;
 
         }, null, ClassLoader::class);
     }

@@ -10,9 +10,7 @@
  */
 require_once WF_EDITOR_LIBRARIES . '/classes/manager.php';
 
-JLoader::registerNamespace('Michelf', __DIR__ . '/vendor/php-markdown/Michelf', false, false, 'psr4');
-
-use Michelf\Markdown;
+JLoader::registerNamespace('Michelf', WF_EDITOR_PLUGINS . '/textpattern/vendor/php-markdown/Michelf', false, false, 'psr4');
 
 final class WFTemplateManagerPlugin extends WFMediaManager
 {
@@ -56,7 +54,6 @@ final class WFTemplateManagerPlugin extends WFMediaManager
 
         $document->addScriptDeclaration('TemplateManager.settings=' . json_encode($this->getSettings()) . ';');
     }
-
 
     public function onUpload($file, $relative = '')
     {
@@ -213,7 +210,7 @@ final class WFTemplateManagerPlugin extends WFMediaManager
 
         // process markdown
         if (strtolower($ext) === 'md') {
-            $content = Markdown::defaultTransform($content);
+            $content = \Michelf\Markdown::defaultTransform($content);
         }
 
         // Replace variables
@@ -238,7 +235,16 @@ final class WFTemplateManagerPlugin extends WFMediaManager
     public function getTemplateList()
     {
         $list = array();
-        $items = $this->getFileBrowser()->getItems('', 0);
+
+        $browser = $this->getFileBrowser();
+        $filesystem = $browser->getFileSystem();
+
+        // skip for external filesystems
+        if (!$filesystem->get('local')) {
+            return $list;
+        }
+
+        $items = $browser->getItems('', 0);
 
         foreach ($items['files'] as $item) {
             if ($item['name'] === "index.html") {

@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -33,19 +33,21 @@ class JdidealgatewayModelSubscriptions extends ListModel
 	{
 		if (empty($config['filter_fields']))
 		{
-			$config['filter_fields'] = array(
-				'id', 'subscriptions.id',
-				'status', 'subscriptions.status',
-				'currency', 'subscriptions.currency',
-				'subscriptionId', 'subscriptions.subscriptionId',
-				'amount', 'subscriptions.amount',
-				'times', 'subscriptions.times',
-				'interval', 'subscriptions.interval',
-				'description', 'subscriptions.description',
-				'created', 'subscriptions.created',
-				'cancelled', 'subscriptions.cancelled',
-				'name', 'customers.name',
-			);
+			$config['filter_fields'] = [
+				'customers.name',
+				'subscriptions.status',
+				'subscriptions.currency',
+				'subscriptions.amount',
+				'subscriptions.times',
+				'subscriptions.interval',
+				'subscriptions.description',
+				'subscriptions.subscriptionId',
+				'subscriptions.start',
+				'subscriptions.cancelled',
+				'subscriptions.created',
+
+				'psp'
+			];
 		}
 
 		parent::__construct($config);
@@ -107,7 +109,7 @@ class JdidealgatewayModelSubscriptions extends ListModel
 			->from($db->quoteName('#__jdidealgateway_subscriptions', 'subscriptions'))
 			->leftJoin(
 				$db->quoteName('#__jdidealgateway_customers', 'customers')
-				. ' ON ' . $db->quoteName('customers.id') . ' = ' . $db->quoteName('subscriptions.customerId')
+				. ' ON ' . $db->quoteName('customers.customerId') . ' = ' . $db->quoteName('subscriptions.customerId')
 			);
 
 		// Filter by search field
@@ -135,6 +137,13 @@ class JdidealgatewayModelSubscriptions extends ListModel
 			}
 
 			$query->where('(' . implode(' OR ', $searchArray) . ')');
+		}
+
+		$psp = $this->getState('filter.psp', '');
+
+		if ($psp)
+		{
+			$query->where($db->quoteName('subscriptions.profileId') . ' = ' . (int) $psp);
 		}
 
 		// Add the list ordering clause.

@@ -34,7 +34,9 @@ class EasyDiscussModelMaintenance extends EasyDiscussAdminModel
 	{
 		parent::__construct();
 
-		$limit = ($this->app->getCfg('list_limit') == 0) ? 5 : $this->app->getCfg('list_limit');
+		// Limit to 1000 items per page	
+		$limit = 1000;
+
 		$limitstart = $this->input->get('limitstart', 0, 'int');
 
 		// In case limit has been changed, adjust it
@@ -114,8 +116,7 @@ class EasyDiscussModelMaintenance extends EasyDiscussAdminModel
 
 		$limit = (int) $this->getState('limit');
 
-		if ($limit > 0)
-		{
+		if ($limit > 0) {
 			$this->setState('limit', $limit);
 
 			$limitstart = $this->app->getUserStateFromRequest('limitstart', 0);

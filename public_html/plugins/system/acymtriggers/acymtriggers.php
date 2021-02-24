@@ -1,6 +1,12 @@
 <?php
+
+use AcyMailing\Classes\AutomationClass;
+use AcyMailing\Classes\FormClass;
+use AcyMailing\Classes\ListClass;
+use AcyMailing\Classes\UserClass;
+use AcyMailing\Helpers\RegacyHelper;
+
 defined('_JEXEC') or die('Restricted access');
-?><?php
 
 class plgSystemAcymtriggers extends JPlugin
 {
@@ -10,7 +16,10 @@ class plgSystemAcymtriggers extends JPlugin
     public function initAcy()
     {
         if (function_exists('acym_get')) return true;
-        $helperFile = rtrim(JPATH_ADMINISTRATOR, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php';
+        $helperFile = rtrim(
+                JPATH_ADMINISTRATOR,
+                DIRECTORY_SEPARATOR
+            ).DIRECTORY_SEPARATOR.'components'.DIRECTORY_SEPARATOR.'com_acym'.DIRECTORY_SEPARATOR.'helpers'.DIRECTORY_SEPARATOR.'helper.php';
         if (!file_exists($helperFile) || !include_once $helperFile) return false;
 
         return true;
@@ -29,7 +38,7 @@ class plgSystemAcymtriggers extends JPlugin
         if (is_object($user)) $user = get_object_vars($user);
         if ($success === false || empty($user['email']) || !$this->initAcy()) return true;
 
-        $userClass = acym_get('class.user');
+        $userClass = new UserClass();
         if (!method_exists($userClass, 'synchSaveCmsUser')) return true;
         $userClass->synchSaveCmsUser($user, $isnew, $this->oldUser);
 
@@ -41,19 +50,31 @@ class plgSystemAcymtriggers extends JPlugin
         if (is_object($user)) $user = get_object_vars($user);
         if ($success === false || empty($user['email']) || !$this->initAcy()) return true;
 
-        $listClass = acym_get('class.list');
+        $listClass = new ListClass();
         $listClass->synchDeleteCmsList($user['id']);
 
-        $userClass = acym_get('class.user');
+        $userClass = new UserClass();
         if (!method_exists($userClass, 'synchDeleteCmsUser')) return true;
         $userClass->synchDeleteCmsUser($user['email']);
 
         return true;
     }
 
+    public function plgVmOnUpdateOrderPayment($orderData)
+    {
+        $this->handleVirtuemartOrderCreateUpdate($orderData);
+    }
+
     public function plgVmOnUserOrder($orderData)
     {
-        if (empty($orderData->virtuemart_user_id) || !$this->initAcy()) return;
+        $this->handleVirtuemartOrderCreateUpdate($orderData);
+    }
+
+    private function handleVirtuemartOrderCreateUpdate($orderData)
+    {
+        static $alreadyTriggerVirtuemart = false;
+        if (empty($orderData->virtuemart_user_id) || !$this->initAcy() || $alreadyTriggerVirtuemart) return;
+        $alreadyTriggerVirtuemart = true;
 
         $userID = acym_loadResult(
             'SELECT `user`.`id` 
@@ -63,7 +84,7 @@ class plgSystemAcymtriggers extends JPlugin
         );
         if (empty($userID)) return;
 
-        $automationClass = acym_get('class.automation');
+        $automationClass = new AutomationClass();
         $automationClass->trigger('vmorder', ['userId' => $userID]);
     }
 
@@ -81,22 +102,25 @@ class plgSystemAcymtriggers extends JPlugin
 
     public function onBeforeCompileHead()
     {
-        if (!$this->initAcy()) return;
-        $isPreview = acym_getVar('bool', 'acym_preview', false);
-        if ($isPreview) return;
+        if (!empty($_REQUEST['tmpl']) && in_array($_REQUEST['tmpl'], ['component', 'raw'])) return;
+        if (!empty($_REQUEST['acym_preview'])) return;
 
         $app = JFactory::getApplication();
         if ($app->getName() != 'site') return;
 
-        $formClass = acym_get('class.form');
-        $forms = $formClass->getAllFormsToDisplay();
-        if (empty($forms)) return;
+        if (!$this->initAcy()) return;
 
         $menu = acym_getMenu();
         if (empty($menu)) return;
 
+        $formClass = new FormClass();
+        $forms = $formClass->getAllFormsToDisplay();
+        if (empty($forms)) return;
+
         foreach ($forms as $form) {
-            if (!empty($form->pages) && (in_array($menu->id, $form->pages) || in_array('all', $form->pages))) $this->formToDisplay[] = $formClass->renderForm($form);
+            if (!empty($form->pages) && (in_array($menu->id, $form->pages) || in_array('all', $form->pages))) {
+                $this->formToDisplay[] = $formClass->renderForm($form);
+            }
         }
 
         if (!empty($this->formToDisplay)) acym_initModule();
@@ -115,29 +139,52 @@ class plgSystemAcymtriggers extends JPlugin
 
     public function onAfterRender()
     {
+        $this->displayForms();
+        $this->applyRegacy();
+    }
+
+    private function applyRegacy()
+    {
+        $db = JFactory::getDBO();
+        $db->setQuery('SELECT `value` FROM #__acym_configuration WHERE `name` LIKE "%regacy" OR `name` LIKE "%\_sub"');
+        $regacyOptions = $db->loadColumn();
+
+        $regacyNeeded = false;
+        foreach ($regacyOptions as $oneOption) {
+            if (!empty($oneOption)) {
+                $regacyNeeded = true;
+                break;
+            }
+        }
+        if (!$regacyNeeded) return;
+
+        if (empty($_REQUEST['option'])) return;
+        $option = $_REQUEST['option'];
+
         if (!$this->initAcy()) return;
 
-        $this->displayForms();
 
         $config = acym_config();
-        if (!$config->get('regacy', 0)) return;
+        if ($config->get('regacy', 0)) {
+            $components = [
+                'com_users' => [
+                    'view' => ['registration', 'profile', 'user'],
+                    'edittasks' => ['profile', 'user'],
+                    'email' => ['jform[email2]', 'jform[email1]'],
+                    'password' => ['jform[password2]', 'jform[password1]'],
+                    'checkLayout' => ['profile' => 'edit'],
+                    'lengthafter' => 200,
+                    'containerClass' => 'control-group',
+                    'labelClass' => 'control-label',
+                    'valueClass' => 'controls',
+                    'baseOption' => 'regacy',
+                ],
+            ];
+        } else {
+            $components = [];
+        }
 
-        $option = acym_getVar('cmd', 'option');
-        if (empty($option)) return;
-
-        $components = [
-            'com_users' => [
-                'view' => ['registration', 'profile', 'user'],
-                'edittasks' => ['profile', 'user'],
-                'email' => ['jform[email2]', 'jform[email1]'],
-                'password' => ['jform[password2]', 'jform[password1]'],
-                'checkLayout' => ['profile' => 'edit'],
-                'lengthafter' => 200,
-                'containerClass' => 'control-group',
-                'labelClass' => 'control-label',
-                'valueClass' => 'controls',
-            ],
-        ];
+        acym_trigger('onRegacyAddComponent', [&$components]);
         if (!isset($components[$option])) return;
 
 
@@ -155,7 +202,7 @@ class plgSystemAcymtriggers extends JPlugin
         if (!$isvalid) return;
 
 
-        $regacyHelper = acym_get('helper.regacy');
+        $regacyHelper = new RegacyHelper();
         if (!$regacyHelper->prepareLists($components[$option])) return;
 
         $this->includeRegacyLists($components[$option], $regacyHelper->label, $regacyHelper->lists);
@@ -238,5 +285,46 @@ class plgSystemAcymtriggers extends JPlugin
             $session->set('com_media.return_url', 'index.php?option=com_media&view=images&tmpl=component');
         }
     }
-}
 
+    function onAfterUserCreate(&$element)
+    {
+        if (!$this->initAcy()) return true;
+
+        $formData = acym_getVar('array', 'data', []);
+        $listData = acym_getVar('array', 'hikashop_visible_lists_checked', []);
+
+        acym_trigger('onAfterHikashopUserCreate', [$formData, $listData, $element]);
+    }
+
+    public function onAfterInitialise()
+    {
+        if (!empty($_REQUEST['tmpl']) && in_array($_REQUEST['tmpl'], ['component', 'raw'])) return;
+
+        $db = JFactory::getDBO();
+        $db->setQuery('SELECT `value` FROM #__acym_configuration WHERE `name` = "level"');
+        $level = $db->loadResult();
+
+        if ($level == 'Starter') return;
+
+        $db->setQuery('SELECT `value` FROM #__acym_configuration WHERE `name` = "cron_frequency"');
+        $cronFrequency = $db->loadResult();
+        $db->setQuery('SELECT `value` FROM #__acym_configuration WHERE `name` = "queue_batch_auto"');
+        $cronBatches = $db->loadResult();
+
+        $db->setQuery('SELECT `value` FROM #__acym_configuration WHERE `name` = "cron_next"');
+        $cronNext = $db->loadResult();
+        $db->setQuery('SELECT `value` FROM #__acym_configuration WHERE `name` = "queue_type"');
+        $queueType = $db->loadResult();
+
+        if (empty($cronNext) || $cronNext > time() || $queueType == 'manual') return;
+
+        if (intval($cronFrequency) >= 900 && intval($cronBatches) < 2) return;
+
+        $ctrl = empty($_REQUEST['ctrl']) ? '' : filter_var($_REQUEST['ctrl'], FILTER_SANITIZE_STRING);
+
+        if ($ctrl === 'cron') return;
+
+        $this->initAcy();
+        acym_asyncCurlCall([acym_frontendLink('cron')]);
+    }
+}

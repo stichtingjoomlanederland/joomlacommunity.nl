@@ -235,7 +235,7 @@ class EasyDiscussModelAssigned extends EasyDiscussAdminModel
 	 */
 	public function getTotalUnresolved($userId = null)
 	{
-		$db = DiscussHelper::getDBO();
+		$db = ED::db();
 		$userId	= JFactory::getUser($userId)->id;
 
 		$query = array();

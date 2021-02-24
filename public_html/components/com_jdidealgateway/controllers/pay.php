@@ -3,14 +3,14 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
 
-use Joomla\CMS\MVC\Controller\BaseController;
-
 defined('_JEXEC') or die;
+
+use Joomla\CMS\MVC\Controller\BaseController;
 
 /**
  * Payment page controller.
@@ -30,19 +30,15 @@ class JdidealgatewayControllerPay extends BaseController
 	 */
 	public function sendmoney(): void
 	{
-		// Create the view
 		/** @var JdidealgatewayViewPay $view */
 		$view = $this->getView('pay', 'html');
 
-		// Add the export model
 		/** @var JdidealgatewayModelPay $payModel */
 		$payModel = $this->getModel('pay', 'JdidealgatewayModel');
 		$view->setModel($payModel, true);
 
-		// Set the layout
 		$view->setLayout('ideal');
 
-		// Display it all
 		$view->display();
 	}
 
@@ -56,19 +52,24 @@ class JdidealgatewayControllerPay extends BaseController
 	 */
 	public function result(): void
 	{
-		// Create the view
 		/** @var JdidealgatewayViewPay $view */
 		$view = $this->getView('pay', 'html');
 
-		// Add the export model
 		/** @var JdidealgatewayModelPay $payModel */
 		$payModel = $this->getModel('pay', 'JdidealgatewayModel');
-		$view->setModel($payModel, true);
 
-		// Set the layout
+		$trans  = $this->input->getString('transactionId');
+		$column = 'trans';
+
+		if (empty($trans))
+		{
+			$trans  = $this->input->getString('pid');
+			$column = 'pid';
+		}
+
+		$view->set('result', $payModel->getResult($trans, $column));
 		$view->setLayout('result');
 
-		// Display it all
 		$view->display();
 	}
 }

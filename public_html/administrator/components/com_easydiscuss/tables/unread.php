@@ -41,7 +41,7 @@ class DiscussUnread extends EasyDiscussTable
 			return parent::load( $key );
 		}
 
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= ' SELECT '.$db->nameQuote( 'id' ).' FROM '.$db->nameQuote( '#__discuss_unread' );
 		$query	.= ' WHERE '.$db->nameQuote( 'user_id' ). ' = '.$db->quote( $userId );
 		$query	.= ' AND '.$db->nameQuote( 'post_id' ). ' = '.$db->quote( $postId );

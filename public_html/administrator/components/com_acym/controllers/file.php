@@ -1,6 +1,9 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
+
+namespace AcyMailing\Controllers;
+
+use AcyMailing\Libraries\acymController;
+use AcyMailing\Types\FileTreeType;
 
 class FileController extends acymController
 {
@@ -50,9 +53,9 @@ class FileController extends acymController
             'imageExtensions' => $imageExtensions,
             'allowedExtensions' => $allowedExtensions,
             'folders' => $folders,
+            'fileTreeType' => new FileTreeType(),
         ];
 
         parent::display($data);
     }
 }
-

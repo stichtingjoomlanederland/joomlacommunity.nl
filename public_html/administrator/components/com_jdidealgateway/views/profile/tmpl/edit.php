@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -18,9 +18,26 @@ use Joomla\CMS\Uri\Uri;
 
 /** @var JdidealgatewayViewProfile $this */
 
-HTMLHelper::_('behavior.formvalidation');
+HTMLHelper::_('behavior.formvalidator');
 HTMLHelper::_('behavior.keepalive');
-HTMLHelper::_('formbehavior.chosen');
+
+if (JVERSION < 4)
+{
+	HTMLHelper::_('formbehavior.chosen');
+}
+else
+{
+	Factory::getApplication()->getDocument()->getWebAssetManager()
+		->usePreset('choicesjs')
+		->useScript('webcomponent.field-fancy-select');
+
+	foreach ($this->form->getFieldset('emails') as $field) {
+		if ($field->getAttribute('type') === 'radio')
+		{
+			$this->form->setFieldAttribute($field->getAttribute('name'), 'layout', 'joomla.form.field.radio.switcher');
+		}
+	}
+}
 ?>
 <form action="<?php echo Route::_('index.php?option=com_jdidealgateway&layout=edit&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" enctype="multipart/form-data" id="adminForm" class="form-validate">
 	<?php
@@ -36,6 +53,7 @@ HTMLHelper::_('formbehavior.chosen');
 		Factory::getApplication()->enqueueMessage(Text::_('COM_ROPAYMENTS_NO_FEEDBACK'), 'warning');
 	}
 	?>
+	<?php if (JVERSION < 4) : ?>
 	<div class="form-inline form-inline-header">
 		<?php
 		echo $this->form->renderField('psp');
@@ -43,6 +61,19 @@ HTMLHelper::_('formbehavior.chosen');
 		echo $this->form->renderField('alias');
 		?>
 	</div>
+	<?php else: ?>
+	<div class="form-inline form-inline-header row title-alias form-vertical mb-3">
+		<div class="span12 col-12 col-md-4">
+			<?php echo $this->form->renderField('psp'); ?>
+		</div>
+		<div class="span12 col-12 col-md-4">
+			<?php echo $this->form->renderField('name'); ?>
+		</div>
+		<div class="span12 col-12 col-md-4">
+			<?php echo $this->form->renderField('alias'); ?>
+		</div>
+	</div>
+	<?php endif; ?>
 	<hr />
 	<div class="form-horizontal">
 		<?php echo HTMLHelper::_('bootstrap.startTabSet', 'pspTab', ['active' => 'settings']); ?>

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -12,7 +12,7 @@ use Joomla\CMS\Router\Route;
 /** @var  Html $this For type hinting in the IDE */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 ?>
 <?php echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/warnings'); ?>
@@ -78,10 +78,6 @@ defined('_JEXEC') or die;
 					<p>
 						Admin Tools version <?php echo ADMINTOOLS_VERSION; ?> &bull;
 						<a href="#" id="btnAdminToolsChangelog" class="akeeba-btn--primary--small">CHANGELOG</a>
-						<a href="index.php?option=com_admintools&view=ControlPanel&task=reloadUpdateInformation"
-						   class="akeeba-btn--dark--small">
-							<?php echo Text::_('COM_ADMINTOOLS_MSG_CONTROLPANEL_RELOADUPDATE'); ?>
-						</a>
 					</p>
 
 					<p>Copyright &copy; 2010&ndash;<?php echo date('Y'); ?> Nicholas K. Dionysopoulos / <a
@@ -95,7 +91,7 @@ defined('_JEXEC') or die;
 				</div>
 
 				<div id="akeeba-changelog" tabindex="-1" role="dialog" aria-hidden="true" style="display:none;">
-					<div class="akeeba-renderer-fof">
+					<div class="akeeba-renderer-fef">
 						<div class="akeeba-panel--info">
 							<header class="akeeba-block-header">
 								<h3>

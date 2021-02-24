@@ -10,7 +10,7 @@
 		<field
 				name="status"
 				type="jdideal.paystatus"
-				class="advancedSelect"
+				class="advancedSelect custom-select"
 				onchange="this.form.submit();"
 		>
 			<option value="">COM_ROPAYMENTS_SHOW_ALL</option>

@@ -1,12 +1,13 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class operatorinType extends acymObject
+namespace AcyMailing\Types;
+
+use AcyMailing\Libraries\acymObject;
+
+class OperatorinType extends acymObject
 {
-    var $values = [];
-    var $class = 'acym__select';
-    var $extra = '';
+    public $values = [];
+    public $attributes = [];
 
     public function __construct()
     {
@@ -18,7 +19,10 @@ class operatorinType extends acymObject
 
     public function display($name, $valueSelected = '')
     {
-        return acym_select($this->values, $name, $valueSelected, $this->extra.' class="'.$this->class.'"');
+        $operatorType = new OperatorType();
+        $operatorType->values = $this->values;
+        $operatorType->attributes = $this->attributes;
+
+        return $operatorType->display($name, $valueSelected);
     }
 }
-

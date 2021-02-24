@@ -1,11 +1,19 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymlistClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Helpers\MailerHelper;
+use AcyMailing\Helpers\PaginationHelper;
+use AcyMailing\Libraries\acymClass;
+
+class ListClass extends acymClass
 {
     var $table = 'list';
     var $pkey = 'id';
+
+    const LIST_TYPE_STANDARD = 'standard';
+    const LIST_TYPE_FRONT = 'front';
+    const LIST_TYPE_FOLLOWUP = 'followup';
 
     public function getMatchingElements($settings = [])
     {
@@ -49,7 +57,7 @@ class acymlistClass extends acymClass
             $filters[] = 'list.cms_user_id = '.intval($settings['creator_id']).' OR '.$groupCondition.'';
         }
 
-        $filters[] = 'front_management IS NULL';
+        $filters[] = 'list.type = '.acym_escapeDB(self::LIST_TYPE_STANDARD);
 
         if (!empty($filters)) {
             $queryStatus .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -87,7 +95,7 @@ class acymlistClass extends acymClass
         }
 
         if (empty($settings['elementsPerPage']) || $settings['elementsPerPage'] < 1) {
-            $pagination = acym_get('helper.pagination');
+            $pagination = new PaginationHelper();
             $settings['elementsPerPage'] = $pagination->getListLimit();
         }
 
@@ -102,12 +110,15 @@ class acymlistClass extends acymClass
             $results['elements'][$i]->unconfirmed_users = 0;
             $results['elements'][$i]->unsubscribed_users = 0;
             $results['elements'][$i]->inactive_users = 0;
+            $results['elements'][$i]->newSub = 0;
+            $results['elements'][$i]->newUnsub = 0;
         }
 
-        if (empty($listsId)) {
-            $countUserByList = [];
-        } else {
+        $countUserByList = [];
+        $countEvolByList = [];
+        if (!empty($listsId)) {
             $countUserByList = $this->getSubscribersCountPerStatusByListId($listsId);
+            $countEvolByList = $this->getSubscribersEvolutionByList($listsId);
         }
 
         foreach ($results['elements'] as $i => $list) {
@@ -120,6 +131,8 @@ class acymlistClass extends acymClass
                     $results['elements'][$i]->inactive_users = $userList->inactive_users;
                 }
             }
+            if (isset($countEvolByList[$list->id]->newSub)) $results['elements'][$i]->newSub = $countEvolByList[$list->id]->newSub;
+            if (isset($countEvolByList[$list->id]->newUnsub)) $results['elements'][$i]->newUnsub = $countEvolByList[$list->id]->newUnsub;
         }
 
         $results['total'] = acym_loadResult($queryCount);
@@ -138,6 +151,15 @@ class acymlistClass extends acymClass
         ];
 
         return $results;
+    }
+
+    public function getOneById($id)
+    {
+        $list = parent::getOneById($id);
+
+        $list->translation = empty($list->translation) ? [] : json_decode($list->translation, true);
+
+        return $list;
     }
 
     private function setSelectedList(&$elements, $join)
@@ -202,6 +224,7 @@ class acymlistClass extends acymClass
             acym_arrayToInteger($settings['already']);
             $filters[] = 'list.id NOT IN('.implode(',', $settings['already']).')';
         }
+        $filters[] = 'list.type = '.acym_escapeDB(self::LIST_TYPE_STANDARD);
 
         if (!empty($filters)) {
             $query .= ' WHERE ('.implode(') AND (', $filters).')';
@@ -332,9 +355,7 @@ class acymlistClass extends acymClass
             $query .= ' AND user.confirmed = 1';
         }
 
-        $nbSubscribers = acym_loadResult($query);
-
-        return $nbSubscribers;
+        return acym_loadResult($query);
     }
 
     public function getSubscribersIdsById($listId, $returnUnsubscribed = false)
@@ -348,7 +369,7 @@ class acymlistClass extends acymClass
         return acym_loadResultArray($query);
     }
 
-    public function getSubscribersForList($listId, $offset = 0, $perCalls = 100, $status = '')
+    public function getSubscribersForList($listId, $offset = 0, $perCalls = 100, $status = '', $orderBy = '', $orderBySort = '')
     {
         if (empty($listId)) return [];
 
@@ -358,6 +379,10 @@ class acymlistClass extends acymClass
         $requestSub = 'SELECT user.email, user.name, user.id, user.confirmed, user_list.status, user_list.subscription_date FROM #__acym_user AS user';
         $requestSub .= ' LEFT JOIN #__acym_user_has_list AS user_list ON user.id = user_list.user_id';
         $requestSub .= ' WHERE user.active = 1 AND user_list.list_id = '.intval($listId).$statusCond;
+        if (!empty($orderBy)) {
+            if (empty($orderBySort)) $orderBySort = 'desc';
+            $requestSub .= ' ORDER BY '.acym_secureDBColumn($orderBy).' '.acym_secureDBColumn($orderBySort);
+        }
 
         return acym_loadObjectList(
             $requestSub,
@@ -385,7 +410,7 @@ class acymlistClass extends acymClass
 
     public function synchDeleteCmsList($userId)
     {
-        $query = 'SELECT * FROM #__acym_list WHERE front_management = 1 AND cms_user_id = '.intval($userId);
+        $query = 'SELECT * FROM #__acym_list WHERE type = "'.self::LIST_TYPE_FRONT.'" AND cms_user_id = '.intval($userId);
         $listFrontManagement = acym_loadObject($query);
         if (!empty($listFrontManagement)) $this->delete([$listFrontManagement->id]);
     }
@@ -403,6 +428,8 @@ class acymlistClass extends acymClass
             $list->creation_date = acym_date('now', 'Y-m-d H:i:s', false);
         }
 
+        if (!empty($list->translation) && is_array($list->translation)) $list->translation = json_encode($list->translation);
+
         foreach ($list as $oneAttribute => $value) {
             if (empty($value)) continue;
 
@@ -411,10 +438,12 @@ class acymlistClass extends acymClass
 
         if (empty($list->description)) $list->description = '';
 
+        if (!isset($list->access)) $list->access = '';
+
         $listID = parent::save($list);
 
         if (!empty($listID) && isset($tags)) {
-            $tagClass = acym_get('class.tag');
+            $tagClass = new TagClass();
             $tagClass->setTags('list', $listID, $tags);
         }
 
@@ -432,7 +461,7 @@ class acymlistClass extends acymClass
 
             $endQuery = ' AND (cms_user_id = '.intval($creatorId).' OR '.$groupCondition.')';
         }
-        $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list WHERE front_management IS NULL'.$endQuery, 'id');
+        $lists = acym_loadObjectList('SELECT id, name FROM #__acym_list WHERE type = '.acym_escapeDB(self::LIST_TYPE_STANDARD).$endQuery, 'id');
 
         $listsToReturn = [];
 
@@ -443,9 +472,19 @@ class acymlistClass extends acymClass
         return $listsToReturn;
     }
 
-    public function getAllForSelect($emptyFirst = true)
+    public function getAllForSelect($emptyFirst = true, $userFrontID = 0, $needTranslation = false)
     {
-        $lists = acym_loadObjectList('SELECT * FROM #__acym_list WHERE front_management IS NULL', 'id');
+        $groupCondition = '';
+        if (!empty($userFrontID)) {
+            $userGroups = acym_getGroupsByUser($userFrontID);
+            $groupCondition = ' AND (access LIKE "%,'.implode(',%" OR access LIKE "%,', $userGroups).',%")';
+        }
+
+        $lists = acym_loadObjectList('SELECT * FROM #__acym_list WHERE type = '.acym_escapeDB(self::LIST_TYPE_STANDARD).$groupCondition, 'id');
+
+        if (acym_isMultilingual() && $needTranslation) {
+            $lists = $this->getTranslatedNameDescription($lists);
+        }
 
         $return = [];
 
@@ -458,9 +497,33 @@ class acymlistClass extends acymClass
         return $return;
     }
 
-    public function getAllWIthoutManagement()
+    public function getAllWithoutManagement($needTranslation = false)
     {
-        return acym_loadObjectList('SELECT * FROM #__acym_list WHERE front_management IS NULL', 'id');
+        $lists = acym_loadObjectList('SELECT * FROM #__acym_list WHERE type = '.acym_escapeDB(self::LIST_TYPE_STANDARD), 'id');
+
+        if (acym_isMultilingual() && $needTranslation) {
+            $lists = $this->getTranslatedNameDescription($lists);
+        }
+
+        return $lists;
+    }
+
+    public function getTranslatedNameDescription($lists)
+    {
+        foreach ($lists as $id => $list) {
+            if (empty($list->translation)) continue;
+
+            $list->translation = json_decode($list->translation, true);
+            if (!empty($list->translation[acym_getLanguageTag()]) && !empty($list->translation[acym_getLanguageTag()]['name'])) {
+                $lists[$id]->name = $list->translation[acym_getLanguageTag()]['name'];
+            }
+
+            if (!empty($list->translation[acym_getLanguageTag()]) && !empty($list->translation[acym_getLanguageTag()]['description'])) {
+                $lists[$id]->description = $list->translation[acym_getLanguageTag()]['description'];
+            }
+        }
+
+        return $lists;
     }
 
     public function setVisible($elements, $status)
@@ -496,7 +559,7 @@ class acymlistClass extends acymClass
         }
 
         $alreadySent = [];
-        $mailerHelper = acym_get('helper.mailer');
+        $mailerHelper = new MailerHelper();
         $mailerHelper->report = $this->config->get('welcome_message', 1);
         foreach ($messages as $oneMessage) {
             $mailid = $oneMessage->welcome_id;
@@ -530,7 +593,7 @@ class acymlistClass extends acymClass
         }
 
         $alreadySent = [];
-        $mailerHelper = acym_get('helper.mailer');
+        $mailerHelper = new MailerHelper();
         $mailerHelper->report = $this->config->get('unsub_message', 1);
         foreach ($messages as $oneMessage) {
             if (!empty($oneMessage->unsubscribe_id)) {
@@ -551,7 +614,7 @@ class acymlistClass extends acymClass
     {
         $listId = acym_loadResult('SELECT `id` FROM #__acym_list LIMIT 1');
         if (empty($listId)) {
-            $defaultList = new stdClass();
+            $defaultList = new \stdClass();
             $defaultList->name = 'Newsletters';
             $defaultList->color = '#3366ff';
             $defaultList->description = '';
@@ -612,6 +675,8 @@ class acymlistClass extends acymClass
                 $listsUserStats[$oneResult->list_id] = $this->initList($oneResult->list_id);
             }
 
+            $oneResult->score = (string)$oneResult->score;
+
             if (in_array($oneResult->score, ['0', '1'])) {
                 $listsUserStats[$oneResult->list_id]->inactive_users += $oneResult->users;
             }
@@ -642,9 +707,63 @@ class acymlistClass extends acymClass
         return $listsUserStats;
     }
 
+    public function getSubscribersEvolutionByList($listIds)
+    {
+        $condList = '';
+        if (!empty($listIds)) {
+            if (!is_array($listIds)) $listIds = [$listIds];
+            acym_arrayToInteger($listIds);
+            $condList = ' AND list_id IN ('.implode(',', $listIds).')';
+        }
+        $queryEvolSub = 'SELECT list_id,  COUNT(*) AS newSub FROM #__acym_user_has_list';
+        $queryEvolSub .= ' WHERE DATE(subscription_date) > DATE_SUB(NOW(), INTERVAL 1 MONTH) '.$condList;
+        $queryEvolSub .= ' GROUP BY list_id';
+        $evolSubscibers = acym_loadObjectList($queryEvolSub, 'list_id');
+
+        $queryEvolUnsub = 'SELECT list_id,  COUNT(*) AS newUnsub FROM #__acym_user_has_list';
+        $queryEvolUnsub .= ' WHERE DATE(unsubscribe_date) > DATE_SUB(NOW(), INTERVAL 1 MONTH) '.$condList;
+        $queryEvolUnsub .= ' GROUP BY list_id';
+        $newUnsubscribers = acym_loadObjectList($queryEvolUnsub, 'list_id');
+
+        foreach ($newUnsubscribers as $listId => $oneUnsub) {
+            if (empty($evolSubscibers[$listId])) $evolSubscibers[$listId] = new \stdClass();
+            $evolSubscibers[$listId]->newUnsub = $oneUnsub->newUnsub;
+        }
+
+        return $evolSubscibers;
+    }
+
+    public function getYearSubEvolutionPerList($listId)
+    {
+        $listId = intval($listId);
+        $month = date('n') + 1;
+        $year = date('Y') - 1;
+        $initDate = $year.'-'.$month.'-01';
+        if ($month == 13) {
+            $initDate = date('Y').'-01-01';
+        }
+
+        $queryEvolSub = 'SELECT MONTH(subscription_date) as monthSub, DATE_FORMAT(subscription_date,"%Y_%m") AS unit, COUNT(user_id) AS nbUser';
+        $queryEvolSub .= ' FROM `#__acym_user_has_list`';
+        $queryEvolSub .= ' WHERE subscription_date >= "'.$initDate.'" AND list_id = '.$listId;
+        $queryEvolSub .= ' GROUP BY unit';
+        $evolSubscibers = acym_loadObjectList($queryEvolSub, 'unit');
+
+        $queryEvolUnsub = 'SELECT MONTH(unsubscribe_date) as monthUnsub, DATE_FORMAT(unsubscribe_date,"%Y_%m") AS unit, COUNT(user_id) AS nbUser';
+        $queryEvolUnsub .= ' FROM `#__acym_user_has_list`';
+        $queryEvolUnsub .= ' WHERE unsubscribe_date >= "'.$initDate.'" AND list_id = '.$listId;
+        $queryEvolUnsub .= ' GROUP BY unit';
+        $evolUnsubscibers = acym_loadObjectList($queryEvolUnsub, 'unit');
+
+        return [
+            'subscribers' => $evolSubscibers,
+            'unsubscribers' => $evolUnsubscibers,
+        ];
+    }
+
     private function initList($listId)
     {
-        $list = new stdClass();
+        $list = new \stdClass();
         $list->list_id = $listId;
         $list->sendable_users = 0;
         $list->unconfirmed_users = 0;
@@ -675,23 +794,24 @@ class acymlistClass extends acymClass
         $idCurrentUser = acym_currentUserId();
         if (empty($idCurrentUser)) return 0;
 
-        $frontListId = acym_loadResult('SELECT id FROM #__acym_list WHERE front_management = 1 AND cms_user_id = '.intval($idCurrentUser));
+        $frontListId = acym_loadResult('SELECT id FROM #__acym_list WHERE type = '.acym_escapeDB(self::LIST_TYPE_FRONT).' AND cms_user_id = '.intval($idCurrentUser));
 
         if (!empty($frontListId)) return $frontListId;
 
-        $frontList = new stdClass();
+        $frontList = new \stdClass();
         $frontList->name = 'frontlist_'.$idCurrentUser;
         $frontList->active = 1;
         $frontList->visible = 0;
         $frontList->cms_user_id = $idCurrentUser;
-        $frontList->front_management = 1;
+        $frontList->type = self::LIST_TYPE_FRONT;
 
         return $this->save($frontList);
     }
 
     public function setWelcomeUnsubEmail($listIds, $mailId, $type)
     {
-        if (!in_array($type, ['welcome', 'unsubscribe']) || empty($mailId)) return false;
+        $mailClass = new MailClass();
+        if (!in_array($type, [$mailClass::TYPE_WELCOME, $mailClass::TYPE_UNSUBSCRIBE]) || empty($mailId)) return false;
 
         $column = acym_escape($type).'_id';
         $columnsList = acym_getColumns('list');
@@ -743,5 +863,40 @@ class acymlistClass extends acymClass
 
         return empty($return) ? [] : $return;
     }
-}
 
+    public function getAll($key = null, $needTranslation = false)
+    {
+        if (empty($key)) $key = $this->pkey;
+
+        $lists = acym_loadObjectList('SELECT * FROM #__acym_'.acym_secureDBColumn($this->table), $key);
+
+        if (acym_isMultilingual() && $needTranslation) {
+            $listClass = new ListClass();
+            $lists = $listClass->getTranslatedNameDescription($lists);
+        }
+
+        return $lists;
+    }
+
+    public function getUsersForSummaryModal($id, $offset, $limit, $search)
+    {
+        $whereQuery = ' AND user_list.status = 1 AND user.active = 1';
+
+        if (!empty($search)) {
+            $search = acym_escapeDB('%'.$search.'%');
+            $whereQuery .= ' AND (user.email LIKE '.$search.' OR user.name LIKE '.$search.' OR user.id LIKE '.$search.') ';
+        }
+
+        if ($this->config->get('require_confirmation', '1') === '1') {
+            $whereQuery .= ' AND user.confirmed = 1';
+        }
+
+        $query = 'SELECT user.email, user.name, user.id
+                  FROM #__acym_user as user 
+                  JOIN #__acym_user_has_list as user_list ON user.id = user_list.user_id 
+                  WHERE user_list.list_id = '.intval($id).$whereQuery.' LIMIT '.intval($offset).', '.intval($limit);
+
+
+        return acym_loadObjectList($query, 'id');
+    }
+}

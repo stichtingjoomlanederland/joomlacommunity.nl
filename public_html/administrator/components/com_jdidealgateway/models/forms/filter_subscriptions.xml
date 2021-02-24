@@ -6,6 +6,15 @@
 				type="text"
 				hint="JSEARCH_FILTER"
 		/>
+
+		<field
+				name="psp"
+				type="jdideal.psp"
+				onchange="this.form.submit();"
+				class="advancedSelect"
+		>
+			<option value="">COM_ROPAYMENTS_SELECT_PSP</option>
+		</field>
 	</fields>
 	<fields name="list">
 		<field

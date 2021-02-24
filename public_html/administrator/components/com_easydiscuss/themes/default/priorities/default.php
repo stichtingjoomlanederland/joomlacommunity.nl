@@ -1,15 +1,15 @@
 <?php
 /**
-* @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
-* @license      GNU/GPL, see LICENSE.php
+* @package		EasyDiscuss
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
+* @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <form action="index.php" method="post" name="adminForm" id="adminForm" data-ed-form>
 	<div class="app-filter-bar">
@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Restricted access');
 			<?php echo $this->html('table.search', 'search', $search); ?>
 		</div>
 
-		<div class="app-filter-bar__cell app-filter-bar__cell--divider-left"></div>
+		<div class="app-filter-bar__cell app-filter-bar__cell--empty"></div>
 
 		<div class="app-filter-bar__cell app-filter-bar__cell--last t-text--center">
 			<div class="app-filter-bar__filter-wrap app-filter-bar__filter-wrap--limit">
@@ -61,15 +61,15 @@ defined('_JEXEC') or die('Restricted access');
 						<a href="<?php echo 'index.php?option=com_easydiscuss&view=priorities&layout=form&id=' . $priority->id; ?>"><?php echo $priority->title; ?></a>
 					</td>
 
-					<td class="text-center">
-						<span style="width: 100px;display: inline-block;border: 1px dashed #ccc;padding:4px 10px;background: <?php echo $priority->color;?>;">&nbsp;</span>
+					<td class="center">
+						<?php echo $this->html('string.bubble', $priority->color); ?>
 					</td>
 
-					<td class="text-center">	
+					<td class="center">	
 						<?php echo $priority->created;?>
 					</td>
 
-					<td class="text-center">
+					<td class="center">
 						<?php echo $priority->id;?>
 					</td>
 				</tr>
@@ -95,5 +95,5 @@ defined('_JEXEC') or die('Restricted access');
 		</table>
 	</div>
 
-	<?php echo $this->html('form.hidden', 'priorities', 'priorities'); ?>
+	<?php echo $this->html('form.action', 'priorities', 'priorities'); ?>
 </form>

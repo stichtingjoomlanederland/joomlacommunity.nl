@@ -156,4 +156,20 @@ class RseventsproModelUser extends JModelAdmin
 		
 		return false;
 	}
+	
+	public function reset($pks) {
+		$db		= JFactory::getDbo();
+		$query	= $db->getQuery(true);
+		
+		if ($pks) {
+			$query->clear()
+				->delete($db->qn('#__rseventspro_taxonomy'))
+				->where($db->qn('type').' = '.$db->q('userCount'))
+				->where($db->qn('id').' IN ('.implode('', $pks).')');
+			$db->setQuery($query);
+			$db->execute();
+		}
+		
+		return true;
+	}
 }

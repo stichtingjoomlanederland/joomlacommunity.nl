@@ -1081,7 +1081,18 @@ class RseventsproModelEvents extends JModelLegacy
 	 * @since	1.6
 	 */
 	public function getTabs() {
-		$tabs = new RSTabs('batch');
+		$tabs = new RSEventsproAdapterTabs('batch');
 		return $tabs;
+	}
+	
+	public function getBatchForm() {
+		$form = JForm::getInstance('report', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/batch.xml', array('control' => 'batch'));
+		
+		if (rseventsproHelper::isJ4()) {
+			$form->setFieldAttribute('categories','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('tags','layout','joomla.form.field.list-fancy-select');
+		}
+		
+		return $form;
 	}
 }

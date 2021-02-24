@@ -1,9 +1,4 @@
-function showDescription( id )
-{
-    EasyDiscuss.$( '.rule-description' ).hide();
-    EasyDiscuss.$( '#rule-' + id ).show();
-}
-EasyDiscuss(function($){
+ed.require(['edq'], function($) {
     $.Joomla( 'submitbutton' , function(action){
         $.Joomla( 'submitform' , [action] );
     });

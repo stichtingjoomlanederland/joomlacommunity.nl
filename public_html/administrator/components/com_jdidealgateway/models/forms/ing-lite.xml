@@ -12,8 +12,8 @@
 			   default="1"
 			   class="btn-group btn-group-yesno"
 			   labelclass="config">
-			<option value="1">JYES</option>
 			<option value="0">JNO</option>
+			<option value="1">JYES</option>
 		</field>
 
 		<field name="hashkey"
@@ -74,7 +74,7 @@
 			   description="COM_ROPAYMENTS_WAIT_TIME_DESC"
 			   required="true"
 			   size="1"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   labelclass="config" />
 
 		<field name="status-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_STATUS" />
@@ -86,7 +86,7 @@
 			   required="false"
 			   size="1"
 			   default="P"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   labelclass="config" />
 
 		<field name="verifiedStatus"
@@ -96,7 +96,7 @@
 			   required="false"
 			   size="1"
 			   default="C"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   labelclass="config" />
 
 		<field name="cancelledStatus"
@@ -106,7 +106,7 @@
 			   required="false"
 			   size="1"
 			   default="X"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   labelclass="config" />
 
 		<field name="openStatus"
@@ -116,7 +116,7 @@
 			   required="false"
 			   size="1"
 			   default="P"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   labelclass="config" />
 		<field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS" />
 
@@ -127,7 +127,7 @@
 			   required="false"
 			   size="1"
 			   default="order_number"
-			   class="advancedSelect"
+			   class="advancedSelect custom-select"
 			   labelclass="config" />
 	</fieldset>
 </form>

@@ -38,12 +38,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<div class="t-lg-mt--xl"><?php echo JText::sprintf('COM_ED_GDPR_DOWNLOAD_DESC2', $email);?></div>
 
 		<form action="<?php echo JRoute::_('index.php');?>" method="post" data-gdpr-request-form>
-			<?php echo $this->html('form.hidden', 'profile', 'profile', 'download');?>
+			<?php echo $this->html('form.action', 'profile', 'profile', 'download');?>
 		</form>
 	</content>
 	<buttons>
-		<button type="button" class="btn btn-default btn-sm" data-close-button><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
-		<button type="button" class="btn btn-primary btn-sm" data-submit-button><?php echo JText::_('COM_ED_GDPR_REQUEST_DATA_BUTTON');?></button>
+		<button type="button" class="ed-dialog-footer-content__btn" data-close-button><?php echo JText::_('COM_EASYDISCUSS_BUTTON_CLOSE'); ?></button>
+		<button type="button" class="ed-dialog-footer-content__btn t-text--primary" data-submit-button><?php echo JText::_('COM_ED_GDPR_REQUEST_DATA_BUTTON');?></button>
 	</buttons>
 
 </dialog>

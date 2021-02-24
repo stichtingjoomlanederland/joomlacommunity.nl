@@ -1,7 +1,9 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class languageViewLanguage extends acymView
+namespace AcyMailing\Views;
+
+use AcyMailing\Libraries\acymView;
+
+class LanguageViewLanguage extends acymView
 {
 }

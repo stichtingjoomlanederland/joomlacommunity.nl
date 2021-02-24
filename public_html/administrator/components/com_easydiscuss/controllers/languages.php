@@ -1,7 +1,7 @@
 <?php
 /**
 * @package      EasyDiscuss
-* @copyright    Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright    Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license      GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -28,9 +28,12 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
         $model = ED::model('Languages');
         $model->purge();
 
-        ED::setMessage('COM_EASYDISCUSS_LANGUAGE_PURGED_SUCCESSFULLY', 'success');
+        // log the current action into database.
+        $actionlog = ED::actionlog();
+        $actionlog->log('COM_ED_ACTIONLOGS_LANGUAGES_PURGED', 'languages');
 
-        $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
+        ED::setMessage('COM_EASYDISCUSS_LANGUAGE_PURGED_SUCCESSFULLY', 'success');
+        ED::redirect('index.php?option=com_easydiscuss&view=languages');
     }
 
     /**
@@ -45,13 +48,18 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
         $result = $model->discover();
 
         if (!$result) {
-            ED::setMessage($model->getError(), 'error');
+            ED::setMessage($model->getError(), ED_MSG_ERROR);
         } else {
+
+            // log the current action into database.
+            $actionlog = ED::actionlog();
+            $actionlog->log('COM_ED_ACTIONLOGS_LANGUAGES_DISCOVERED', 'languages');
+
             ED::setMessage('COM_EASYDISCUSS_LANGUAGE_DISCOVERED_SUCCESSFULLY', 'success');
         }
         
 
-        return $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
+        return ED::redirect('index.php?option=com_easydiscuss&view=languages');
     }
 
     /**
@@ -75,14 +83,19 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
             $state = $table->install();
 
             if (!$state) {
-                ED::setMessage($table->getError(), 'error');
-                return $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
+                ED::setMessage($table->getError(), ED_MSG_ERROR);
+                return ED::redirect('index.php?option=com_easydiscuss&view=languages');
             }
+
+            // log the current action into database.
+            $actionlog = ED::actionlog();
+            $actionlog->log('COM_ED_ACTIONLOGS_LANGUAGES_INSTALLED', 'languages', array(
+                'locale' => $table->locale
+            ));            
         }
 
         ED::setMessage('COM_EASYDISCUSS_LANGUAGE_INSTALLED_SUCCESSFULLY', 'success');
-
-        $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
+        ED::redirect('index.php?option=com_easydiscuss&view=languages');
     }
 
     /**
@@ -99,6 +112,9 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
         // Get the language id
         $ids = $this->input->get('cid', array(), 'array');
 
+        // log the current action into database.
+        $actionlog = ED::actionlog();
+
         foreach ($ids as $id) {
             $id = (int) $id;
 
@@ -112,10 +128,13 @@ class EasyDiscussControllerLanguages extends EasyDiscussController
 
             $table->uninstall();
             $table->delete();
+
+            $actionlog->log('COM_ED_ACTIONLOGS_LANGUAGES_UNINSTALLED', 'languages', array(
+                'locale' => $table->locale
+            ));             
         }
 
         ED::setMessage(JText::_('COM_ED_LANGUAGE_UNINSTALLED_SUCCESSFULLY'), 'success');
-
-        $this->app->redirect('index.php?option=com_easydiscuss&view=languages');
-    }    
+        ED::redirect('index.php?option=com_easydiscuss&view=languages');
+    }
 }

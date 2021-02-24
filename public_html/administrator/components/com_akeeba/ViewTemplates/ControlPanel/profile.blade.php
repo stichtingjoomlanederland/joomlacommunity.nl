@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   akeebabackup
- * @copyright Copyright (c)2006-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2006-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -18,9 +18,7 @@ defined('_JEXEC') || die();
  * to set up a custom return URL
  */
 ?>
-@if (version_compare(JVERSION, '3.999.999', 'lt'))
-	@jhtml('formbehavior.chosen')
-@endif
+@jhtml('formbehavior.chosen')
 
 <div class="akeeba-panel">
 	<form action="index.php" method="post" name="switchActiveProfileForm" id="switchActiveProfileForm" class="akeeba-form--inline">
@@ -38,11 +36,7 @@ defined('_JEXEC') || die();
 			</label>
 
 			{{-- Joomla 3.x: Chosen does not work with attached event handlers, only with inline event scripts (e.g. onchange) --}}
-			@if (version_compare(JVERSION, '3.999.999', 'lt'))
-				@jhtml('select.genericlist', $this->profileList, 'profileid', ['list.select' => $this->profileId, 'id' => 'comAkeebaControlPanelProfileSwitch', 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.switchActiveProfileForm.submit();']])
-			@else
-				@jhtml('select.genericlist', $this->profileList, 'profileid', ['list.select' => $this->profileId, 'id' => 'comAkeebaControlPanelProfileSwitch', 'list.attr' => ['class' => 'advancedSelect']])
-			@endif
+			@jhtml('select.genericlist', $this->profileList, 'profileid', ['list.select' => $this->profileId, 'id' => 'comAkeebaControlPanelProfileSwitch', 'list.attr' => ['class' => 'advancedSelect', 'onchange' => 'document.forms.switchActiveProfileForm.submit();']])
 		</div>
 
 		<div class="akeeba-form-group--actions">

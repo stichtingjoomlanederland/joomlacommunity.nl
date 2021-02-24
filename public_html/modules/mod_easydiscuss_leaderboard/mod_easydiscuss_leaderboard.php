@@ -21,6 +21,7 @@ if (!JFile::exists($file)) {
 require_once($file);
 
 ED::init();
+$lib = ED::modules($module);
 
 JFactory::getLanguage()->load('mod_easydiscuss_leaderboard', JPATH_ROOT);
 

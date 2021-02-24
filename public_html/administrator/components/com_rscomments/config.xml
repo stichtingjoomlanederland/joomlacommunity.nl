@@ -43,6 +43,10 @@
 			<option value="0">JNO</option>
 			<option	value="1">JYES</option>
 		</field>
+		<field name="prepare" type="radio" class="btn-group btn-group-yesno" default="0" size="1" label="COM_RSCOMMENTS_ENABLE_CONTENT_PREPARE" description="COM_RSCOMMENTS_ENABLE_CONTENT_PREPARE_DESC">
+			<option value="0">JNO</option>
+			<option	value="1">JYES</option>
+		</field>
 	</fieldset>
 	
 	<fieldset name="comments_form_layout_conf" label="COM_RSCOMMENTS_CONF_COMMENT_FORM_LAYOUT" addfieldpath="/administrator/components/com_rscomments/models/fields">

@@ -11,124 +11,134 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div id="ed" class="ed-mod m-post-info <?php echo $params->get('moduleclass_sfx');?>">
-<div class="ed-mod__section">
-	<div class="m-post-info__content
-			<?php echo $post->isSeen(ED::user()->id) ? ' is-read' : '';?>
-			<?php echo $post->isFeatured() ? ' is-featured' : '';?>
-			<?php echo $post->isLocked() ? ' is-locked' : '';?>
-			<?php echo $post->isProtected() ? ' is-protected' : '';?>
-			<?php echo $post->isPrivate() ? ' is-private' : '';?>">
-			<?php if ($params->get('showpoststate', 1) && ($post->isFeatured() || $post->isLocked() || $post->isProtected() || $post->isPrivate())) { ?>
-				<div class="m-post-info__status">
-					<i class="fa fa-star ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_FEATURED_DESC');?>"></i>
+<div id="ed" class="ed-mod ed-mod--welcome <?php echo $lib->getModuleWrapperClass();?>">
+	<div class="ed-mod-card">
+		<div class="ed-mod-card__body">
+			<div class="o-card t-bg--100 <?php echo $post->getWrapperClass();?>">
+				<?php if ($params->get('showauthor', 1)) { ?>
+					<div class="o-card__body l-stack">
+						<div class="o-media o-media--top">
+							<div class="o-media__image t-text--truncate">
+								<?php if ($post->isAnonymous()) { ?>
+									<?php echo $lib->html('user.anonymous', $post->getOwner(), ['rank' => true, 'status' => true, 'size' => 'md']); ?>
+								<?php } else { ?>
+									<?php echo $lib->html('user.avatar', $post->getOwner(), ['rank' => true, 'status' => true, 'size' => 'md']); ?>
+								<?php } ?>
+							</div>
+						</div>
+						<div class="l-spaces--sm">
+							<?php if ($post->isAnonymous()) { ?>
+								<?php echo $lib->html('user.username', $post->getOwner(), ['posterName' => $post->getOwner()->getName(), 'isAnonymous' => true, 'canViewAnonymousUsername' => $post->canAccessAnonymousPost()]); ?>
+							<?php } else { ?>
+								<?php echo $lib->html('user.username', $post->getOwner(), []);?>
+							<?php } ?>
 
-					<i class="fa fa-lock ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_LOCKED_DESC');?>"></i>
-
-					<i class="fa fa-key ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PROTECTED_DESC');?>"></i>
-
-					<i class="fa fa-eye ed-post-item__status-icon" data-ed-provide="tooltip" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_PRIVATE_DESC');?>"></i>
-				</div>
-			<?php } ?>
-		<div class="ed-list--vertical has-dividers--bottom-space">
-			<div class="ed-list__item">
-				<div class="o-flag">
-					<div class="o-avatar-status<?php echo ($post->getOwner()->isOnline()) ? ' is-online': ' is-offline'; ?>">
-						<div class="o-flag__image">
-							<?php echo ED::themes()->html('user.avatar', $post->getOwner(), array('rank' => true, 'status' => true, 'size' => 'md')); ?>
+							<?php if (!$post->isAnonymous()) { ?>
+							<div class="o-meta l-spaces--sm">
+								<?php echo ED::ranks()->getRank($post->getOwner()->id); ?>
+							</div>
+							<?php } ?>
 						</div>
 					</div>
-					<div class="o-flag__body">
-						<?php echo ED::themes()->html('user.username', $post->getOwner()); ?>
-							<div class="t-fs--sm">( <?php echo ED::ranks()->getRank($post->getOwner()->id); ?> )</div>
+
+					<hr>
+				<?php } ?>
+
+				<div class="o-card__body l-stack">
+					<div class="o-title-01"><?php echo JText::_('MOD_POST_INFO_POSTED'); ?>:</div>
+					<div class="o-body">
+						<?php echo $post->created; ?>
+							
+						<?php if ($params->get('showcategory', 1)) { ?>
+							<div class="t-d--flex">
+								<?php echo JText::_('MOD_POST_INFO_IN'); ?>
+								&nbsp;
+								<?php echo $lib->html('category.title', $post->getCategory(), []);?>
+							</div>
+						<?php } ?>
 					</div>
+					
 				</div>
-			</div>
 
-			<div class="ed-list__item">
-				<?php echo JText::_('MOD_POST_INFO_POSTED'); ?> <b><?php echo $post->created; ?></b>
-				<?php echo JText::_('MOD_POST_INFO_IN'); ?> <b><?php echo $post->getCategory()->getTitle(); ?></b>
-			</div>
+				<?php if ($params->get('showpoststate', 1) && ($post->isStillNew() || $post->hasLabel() || $post->getPostTypeObject())) { ?>
+					<hr>
+					<div class="o-card__body l-stack">
+						<div class="o-title-01"><?php echo JText::_('COM_ED_FILTERS_POST_LABELS'); ?>:</div>
+						<div class="o-body ed-post-status-bar l-stack">
+							<div class="l-cluster">
+								<div class="">
+									<?php if ($params->get('showpoststate', 1) && $post->isFeatured()) { ?>
+										<?php echo $lib->html('post.featured'); ?>
+									<?php } ?>
 
+									<?php if ($params->get('showpoststatus', 1)) { ?>
+										<?php echo $lib->html('post.resolved'); ?>
 
-			<?php if ($params->get('showpoststatus') && ($post->hasStatus() || $post->isStillNew())) { ?>
-			<div class="ed-list__item">
+										<?php echo $lib->html('post.locked'); ?>
+									<?php } ?>
 
-				<?php if ($post->isStillNew()) { ?>
-					<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_NEW');?></span>
-				<?php } ?>
+									<?php echo $lib->html('post.priority', $post);?>
+									
+									<?php if ($post->isStillNew()) { ?>
+										<?php echo $lib->html('post.new'); ?>
+									<?php } ?>
+								</div>
+							</div>
 
-				<!-- post status here: accepted, onhold, working rejected -->
-				<?php if ($post->isPostRejected()) { ?>
-					<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_REJECT');?></span>
-				<?php } ?>
-				<?php if ($post->isPostOnhold()) { ?>
-					<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_ON_HOLD');?></span>
-				<?php } ?>
-				<?php if ($post->isPostAccepted()) { ?>
-					<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_ACCEPTED');?></span>
-				<?php } ?>
-				<?php if ($post->isPostWorkingOn()) { ?>
-					<span class="o-label o-label--info-o"><?php echo JText::_('COM_EASYDISCUSS_POST_STATUS_WORKING_ON');?></span>
-				<?php } ?>
-			</div>
-			<?php } ?>
+							<div class="l-spaces--sm">
+								<div class="o-label-group t-text--truncate">
+									<?php if ($post->hasLabel()) { ?>
+										<?php echo $lib->html('post.label', $post->getCurrentLabel()); ?>
+									<?php } ?>
 
-			<?php if ($params->get('showposttype') && $post->getPostType()) { ?>
-			<div class="ed-list__item">
-				<!-- post type here -->
-				<span class="o-label o-label--clean-o <?php echo $post->getTypeSuffix(); ?>"><?php echo $post->getPostType(); ?></span>
-			</div>
-			<?php } ?>
-
-			<?php if ($post->getTags() && $params->get('showtags')) { ?>
-			<div class="ed-list__item">
-				<div>
-					<b><?php echo JText::_('MOD_POST_INFO_TAGS'); ?></b>
-				</div>
-				<ul class="o-nav">
-				<?php foreach ($post->getTags() as $tag) { ?>
-					<li class="t-lg-mr--md">
-						<span class="o-label o-label--default-o">#<?php echo ED::string()->escape($tag->title); ?></span>
-					</li>
-				<?php } ?>
-				</ul>
-			</div>
-			<?php } ?>
-			<?php if ($post->getAttachments() && $params->get('showattachment')) { ?>
-			<div class="ed-list__item">
-				<div>
-					<b><?php echo JText::_('MOD_POST_INFO_ATTACHMENTS'); ?></b>
-				</div>
-				<ul class="o-nav o-nav  o-nav--stacked">
-					<?php foreach ($post->getAttachments() as $attachment) { ?>
-						<li><?php echo $attachment->html(); ?></li>
-					<?php } ?>
-				</ul>
-			</div>
-			<?php } ?>
-			<?php if ($post->getParticipants() && $params->get('showparticipants')) { ?>
-			<div class="ed-list__item">
-				<div>
-					<b><?php echo JText::_('MOD_POST_INFO_PARTICIPANTS'); ?></b>
-				</div>
-				<div class="o-avatar-list">
-				<?php foreach ($post->getParticipants() as $participant) { ?>
-					<div class="o-avatar-list__item">
-						<?php echo ED::themes()->html('user.avatar', $participant, array('rank' => true, 'status' => true, 'size' => 'md')); ?>
+									<?php if ($post->getPostTypeObject() && $params->get('showposttype')) { ?>
+										<?php echo $lib->html('post.type', $post); ?>
+									<?php } ?>
+								</div>
+							</div>
+						</div>
 					</div>
 				<?php } ?>
-				</div>
-			</div>
-			<?php } ?>
-			<?php if ($params->get('showreplycount')) { ?>
-			<div class="ed-list__item">
-				<i class="fa fa-comment"></i> <?php echo JText::sprintf('MOD_POST_INFO_REPLIES', $post->getTotalReplies()); ?>
-			</div>
-			<?php } ?>
 
+				<?php if ($post->getTags() && $params->get('showtags', 1)) { ?>
+				<div class="o-card__body l-stack">
+					<div class="o-title-01"><?php echo JText::_('COM_EASYDISCUSS_TAGS'); ?>:</div>
+					<div class="o-meta l-cluster">
+						<?php echo $lib->html('post.tags', $post);?>
+					</div>
+				</div>
+				<?php } ?>
+
+
+				<?php if ($post->getAttachments() && $params->get('showattachment')) { ?>
+				<div class="o-card__body l-stack">
+					<div class="o-title-01"><?php echo JText::_('MOD_POST_INFO_ATTACHMENTS'); ?>:</div>
+					<div class="">
+						<?php echo $lib->html('post.attachments', $post);?>
+					</div>
+				</div>
+				<?php } ?>
+
+				<?php if ($post->getParticipants() && $params->get('showparticipants')) { ?>
+				<div class="o-card__body l-stack">
+					<div class="o-title-01"><?php echo JText::_('MOD_POST_INFO_PARTICIPANTS'); ?>:</div>
+					<div class="">
+						<?php foreach ($post->getParticipants() as $participant) { ?>
+							<?php echo $lib->html('user.avatar', $participant, ['status' => true, 'size' => 'md']); ?>
+						<?php } ?>
+					</div>
+				</div>
+				<?php } ?>
+
+				<?php if ($params->get('showreplycount')) { ?>
+				<div class="o-card__body l-stack">
+					<div class="o-title-01"><?php echo JText::_('COM_EASYDISCUSS_USER_REPLIES'); ?>:</div>
+					<div class="">
+						<?php echo $lib->html('post.replies', $post); ?>
+					</div>
+				</div>
+				<?php } ?>
+			</div>
 		</div>
 	</div>
 </div>
-</div>
-

@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -34,6 +34,7 @@ class DiscussCategory extends EasyDiscussTable
 	public $params = null;
 	public $container = null;
 	public $language = null;
+	public $global_acl = null;
 
 	public $checked_out = null;
 
@@ -47,8 +48,6 @@ class DiscussCategory extends EasyDiscussTable
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function load($key = null, $permalink = false)
 	{
@@ -82,7 +81,7 @@ class DiscussCategory extends EasyDiscussTable
 				// Try replacing ':' to '-' since Joomla replaces it
 				if ( !$id ) {
 					$query	= 'SELECT `id` FROM ' . $this->_tbl . ' '
-							. 'WHERE `alias` =' . $db->Quote(JString::str_ireplace(':' , '-' , $key));
+							. 'WHERE `alias` =' . $db->Quote(EDJString::str_ireplace(':' , '-' , $key));
 					$db->setQuery($query);
 
 					$id = $db->loadResult();
@@ -119,12 +118,12 @@ class DiscussCategory extends EasyDiscussTable
 	{
 		//$ids = implode(',', $ids);
 
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$excludeCats	= array();
 
 		// get all private categories id
-		$excludeCats	= DiscussHelper::getPrivateCategories();
+		$excludeCats = ED::getPrivateCategories();
 
 		//getUnresolvedCount
 		$getUnresolvedCountSQL = $this->buildCountQuery( $ids, $excludeFeatured, $excludeCats, 'unresolvedcount');
@@ -174,8 +173,8 @@ class DiscussCategory extends EasyDiscussTable
 
 	private function buildCountQuery($ids, $excludeFeatured, $excludeCats, $type )
 	{
-		$db		= DiscussHelper::getDBO();
-		$config	= DiscussHelper::getConfig();
+		$db		= ED::db();
+		$config	= ED::config();
 
 		$mainQuery  	= '';
 		$queryExclude	= '';
@@ -289,7 +288,7 @@ class DiscussCategory extends EasyDiscussTable
 				foreach( $ids as $category )
 				{
 
-					$excludeCats	= DiscussHelper::getPrivateCategories();
+					$excludeCats	= ED::getPrivateCategories();
 					$catModel		= ED::model('Categories');
 					$childs			= $catModel->getChildIds( $category );
 					$childs[]		= $category;
@@ -410,7 +409,7 @@ class DiscussCategory extends EasyDiscussTable
 
 	public function updateLeft( $left, $limit = 0 )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'UPDATE ' . $db->nameQuote( $this->_tbl ) . ' '
 				. 'SET ' . $db->nameQuote( 'lft' ) . '=' . $db->nameQuote( 'lft' ) . ' + 2 '
 				. 'WHERE ' . $db->nameQuote( 'lft' ) . '>=' . $db->Quote( $left );
@@ -424,7 +423,7 @@ class DiscussCategory extends EasyDiscussTable
 
 	public function updateRight( $right, $limit = 0 )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 		$query	= 'UPDATE ' . $db->nameQuote( $this->_tbl ) . ' '
 				. 'SET ' . $db->nameQuote( 'rgt' ) . '=' . $db->nameQuote( 'rgt' ) . ' + 2 '
 				. 'WHERE ' . $db->nameQuote( 'rgt' ) . '>=' . $db->Quote( $right );
@@ -438,7 +437,7 @@ class DiscussCategory extends EasyDiscussTable
 
 	public function getLeft( $parent = DISCUSS_CATEGORY_PARENT )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		if( $parent != DISCUSS_CATEGORY_PARENT )
 		{

@@ -12,6 +12,6 @@ defined('JPATH_PLATFORM') or die;
 <div class="uk-form-row uk-margin-small-bottom uk-grid uk-grid-small">
   <label for="popup_src" class="uk-form-label uk-width-1-5 hastip" title="<?php echo JText::_('WF_LABEL_URL_DESC'); ?>"><?php echo JText::_('WF_LABEL_URL'); ?></label>
   <div class="uk-form-controls uk-width-4-5">
-    <input id="popup_src" type="text" value="" class="uk-input-multiple-disabled" />
+    <input id="popup_src" type="text" value="" class="uk-input-multiple-disabled browser files" />
   </div>
 </div>

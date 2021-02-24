@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -13,7 +13,7 @@ use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 ?>
 <div class="akeeba-form-group">
@@ -38,7 +38,7 @@ defined('_JEXEC') or die;
 	</label>
 
 	<?php echo HTMLHelper::_('access.usergroup', 'leakedpwd_groups[]', $this->wafconfig['leakedpwd_groups'], [
-		'multiple' => true, 'size' => 5,
+		'multiple' => true, 'size' => 5, 'class' => 'advancedSelect'
 	], false) ?>
 
 </div>
@@ -319,7 +319,7 @@ elseif ($userParams->get('useractivation') == 0)
 	</label>
 
 	<?php echo HTMLHelper::_('access.usergroup', 'disableobsoleteadmins_groups[]', $this->wafconfig['disableobsoleteadmins_groups'], [
-		'multiple' => true, 'size' => 5,
+		'multiple' => true, 'size' => 5, 'class' => 'advancedSelect'
 	], true) ?>
 </div>
 

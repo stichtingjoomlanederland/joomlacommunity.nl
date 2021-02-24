@@ -1,11 +1,11 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use FOF30\Container\Container;
@@ -47,8 +47,7 @@ class AtsystemUtilExceptionshandler
 	 */
 	public function logAndAutoban($reason, $extraLogInformation = '', $extraLogTableInformation = '')
 	{
-		$ret = $this->logBreaches($reason, $extraLogInformation, $extraLogTableInformation);
-
+		$ret     = $this->logBreaches($reason, $extraLogInformation, $extraLogTableInformation);
 		$autoban = $this->cparams->getValue('tsrenable', 0);
 
 		if ($autoban)
@@ -73,9 +72,6 @@ class AtsystemUtilExceptionshandler
 	 */
 	public function blockRequest($reason = 'other', $message = '', $extraLogInformation = '', $extraLogTableInformation = '')
 	{
-		// Rescue URL check
-		AtsystemUtilRescueurl::processRescueURL($this);
-
 		if (empty($message))
 		{
 			$customMessage = $this->cparams->getValue('custom403msg', '');
@@ -138,7 +134,7 @@ class AtsystemUtilExceptionshandler
 
 				if (!$this->container->platform->isCli())
 				{
-					Factory::getSession()->close();
+					$this->container->session->close();
 				}
 
 				$this->container->platform->redirect(Uri::base());
@@ -552,9 +548,9 @@ class AtsystemUtilExceptionshandler
 		if ($this->cparams->getValue('email_throttle', 1))
 		{
 			// Ok I found out the best template, HOWEVER, should I really send out an email? Let's do some checks vs frequency limits
-			$emails       = $best->email_num ? $best->email_num : 5;
-			$numfreq      = $best->email_numfreq ? $best->email_numfreq : 1;
-			$frequency    = $best->email_freq ? $best->email_freq : 'hour';
+			$emails       = $best->email_num ?: 5;
+			$numfreq      = $best->email_numfreq ?: 1;
+			$frequency    = $best->email_freq ?: 'hour';
 			$mindatestamp = 0;
 
 			switch ($frequency)
@@ -761,6 +757,26 @@ HTML;
 		}
 
 		return $ret;
+	}
+
+	/**
+	 * Checks if the Rescue URL is being accessed.
+	 *
+	 * This only applies when IP autoban is enabled and this is an administrator access.
+	 *
+	 * @return  void
+	 */
+	public function checkRescueURL()
+	{
+		$autoban = $this->cparams->getValue('tsrenable', 0);
+
+		if (!$autoban)
+		{
+			return;
+		}
+
+		// If IP auto-ban is enabled we need to check for a Rescue URL
+		AtsystemUtilRescueurl::processRescueURL($this);
 	}
 
 	/**

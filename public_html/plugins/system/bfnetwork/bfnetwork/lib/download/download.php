@@ -37,6 +37,8 @@
  *
  *  You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @note This file has been modified by mySites.gurut and no longer reflects the original work of its author.
  */
 class AcuDownload
 {
@@ -144,9 +146,9 @@ class AcuDownload
         $frag        = $this->getParam('frag', -1);
         $totalSize   = $this->getParam('totalSize', -1);
         $doneSize    = $this->getParam('doneSize', -1);
-        $maxExecTime = $this->getParam('maxExecTime', 5);
+        $maxExecTime = $this->getParam('maxExecTime', 15);
         $runTimeBias = $this->getParam('runTimeBias', 75);
-        $minExecTime = $this->getParam('minExecTime', 1);
+        $minExecTime = $this->getParam('minExecTime', 5);
 
         $localFilename = 'myjoomla-upgradefile.zip';
 

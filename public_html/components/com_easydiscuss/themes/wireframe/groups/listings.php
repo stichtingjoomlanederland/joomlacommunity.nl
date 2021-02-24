@@ -61,5 +61,3 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php echo $pagination->getPagesLinks();?>
 	</div>
 <?php } ?>
-
-<?php echo $this->html('forums.stats'); ?>

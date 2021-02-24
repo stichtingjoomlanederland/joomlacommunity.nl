@@ -21,7 +21,7 @@ class JElementPosts extends JElement
 	function fetchElement($name, $value, &$node, $control_name)
 	{
 		$mainframe	= JFactory::getApplication();
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 		$doc 		= JFactory::getDocument();
 
 		$query  = 'SELECT `id`, `title` FROM `#__discuss_posts`';

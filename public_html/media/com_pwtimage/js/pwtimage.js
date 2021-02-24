@@ -1,27 +1,29 @@
-function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
+function _typeof2(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof2 = function _typeof2(obj) { return typeof obj; }; } else { _typeof2 = function _typeof2(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof2(obj); }
 
 /*!
- * Cropper.js v1.5.4
+ * Cropper.js v1.5.9
  * https://fengyuanchen.github.io/cropperjs
  *
  * Copyright 2015-present Chen Fengyuan
  * Released under the MIT license
  *
- * Date: 2019-07-20T02:37:47.411Z
+ * Date: 2020-09-10T13:16:26.743Z
  */
 (function (global, factory) {
-  (typeof exports === "undefined" ? "undefined" : _typeof2(exports)) === 'object' && typeof module !== 'undefined' ? module.exports = factory() : typeof define === 'function' && define.amd ? define(factory) : (global = global || self, global.Cropper = factory());
+  (typeof exports === "undefined" ? "undefined" : _typeof2(exports)) === 'object' && typeof module !== 'undefined' ? module.exports = factory() : typeof define === 'function' && define.amd ? define(factory) : (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.Cropper = factory());
 })(this, function () {
   'use strict';
 
   function _typeof(obj) {
-    if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
+    "@babel/helpers - typeof";
+
+    if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
       _typeof = function _typeof(obj) {
-        return _typeof2(obj);
+        return typeof obj;
       };
     } else {
       _typeof = function _typeof(obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
+        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
       };
     }
 
@@ -50,31 +52,93 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
     return Constructor;
   }
 
+  function _defineProperty(obj, key, value) {
+    if (key in obj) {
+      Object.defineProperty(obj, key, {
+        value: value,
+        enumerable: true,
+        configurable: true,
+        writable: true
+      });
+    } else {
+      obj[key] = value;
+    }
+
+    return obj;
+  }
+
+  function ownKeys(object, enumerableOnly) {
+    var keys = Object.keys(object);
+
+    if (Object.getOwnPropertySymbols) {
+      var symbols = Object.getOwnPropertySymbols(object);
+      if (enumerableOnly) symbols = symbols.filter(function (sym) {
+        return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+      });
+      keys.push.apply(keys, symbols);
+    }
+
+    return keys;
+  }
+
+  function _objectSpread2(target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i] != null ? arguments[i] : {};
+
+      if (i % 2) {
+        ownKeys(Object(source), true).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        });
+      } else if (Object.getOwnPropertyDescriptors) {
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+      } else {
+        ownKeys(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+    }
+
+    return target;
+  }
+
   function _toConsumableArray(arr) {
-    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread();
+    return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread();
   }
 
   function _arrayWithoutHoles(arr) {
-    if (Array.isArray(arr)) {
-      for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) {
-        arr2[i] = arr[i];
-      }
-
-      return arr2;
-    }
+    if (Array.isArray(arr)) return _arrayLikeToArray(arr);
   }
 
   function _iterableToArray(iter) {
-    if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter);
+    if (typeof Symbol !== "undefined" && Symbol.iterator in Object(iter)) return Array.from(iter);
+  }
+
+  function _unsupportedIterableToArray(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _arrayLikeToArray(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(o);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen);
+  }
+
+  function _arrayLikeToArray(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+
+    for (var i = 0, arr2 = new Array(len); i < len; i++) {
+      arr2[i] = arr[i];
+    }
+
+    return arr2;
   }
 
   function _nonIterableSpread() {
-    throw new TypeError("Invalid attempt to spread non-iterable instance");
+    throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
-  var IS_BROWSER = typeof window !== 'undefined';
+  var IS_BROWSER = typeof window !== 'undefined' && typeof window.document !== 'undefined';
   var WINDOW = IS_BROWSER ? window : {};
-  var IS_TOUCH_DEVICE = IS_BROWSER ? 'ontouchstart' in WINDOW.document.documentElement : false;
+  var IS_TOUCH_DEVICE = IS_BROWSER && WINDOW.document.documentElement ? 'ontouchstart' in WINDOW.document.documentElement : false;
   var HAS_POINTER_EVENT = IS_BROWSER ? 'PointerEvent' in WINDOW : false;
   var NAMESPACE = 'cropper'; // Actions
 
@@ -194,8 +258,8 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
     minCanvasHeight: 0,
     minCropBoxWidth: 0,
     minCropBoxHeight: 0,
-    minContainerWidth: 200,
-    minContainerHeight: 100,
+    minContainerWidth: MIN_CONTAINER_WIDTH,
+    minContainerHeight: MIN_CONTAINER_HEIGHT,
     // Shortcuts of events
     ready: null,
     cropstart: null,
@@ -345,7 +409,7 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
   var REGEXP_DECIMALS = /\.\d*(?:0|9){12}\d*$/;
   /**
    * Normalize decimal number.
-   * Check out {@link http://0.30000000000000004.com/}
+   * Check out {@link https://0.30000000000000004.com/}
    * @param {number} value - The value to normalize.
    * @param {number} [times=100000000000] - The times for normalizing.
    * @returns {number} Returns the normalized number.
@@ -765,8 +829,9 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
 
 
   function getMaxZoomRatio(pointers) {
-    var pointers2 = assign({}, pointers);
-    var ratios = [];
+    var pointers2 = _objectSpread2({}, pointers);
+
+    var maxRatio = 0;
     forEach(pointers, function (pointer, pointerId) {
       delete pointers2[pointerId];
       forEach(pointers2, function (pointer2) {
@@ -777,13 +842,13 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
         var z1 = Math.sqrt(x1 * x1 + y1 * y1);
         var z2 = Math.sqrt(x2 * x2 + y2 * y2);
         var ratio = (z2 - z1) / z1;
-        ratios.push(ratio);
+
+        if (Math.abs(ratio) > Math.abs(maxRatio)) {
+          maxRatio = ratio;
+        }
       });
     });
-    ratios.sort(function (a, b) {
-      return Math.abs(a) < Math.abs(b);
-    });
-    return ratios[0];
+    return maxRatio;
   }
   /**
    * Get a pointer from an event object.
@@ -800,7 +865,7 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
       endX: pageX,
       endY: pageY
     };
-    return endOnly ? end : assign({
+    return endOnly ? end : _objectSpread2({
       startX: pageX,
       startY: pageY
     }, end);
@@ -1172,8 +1237,6 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
       case 8:
         rotate = -90;
         break;
-
-      default:
     }
 
     return {
@@ -1199,11 +1262,13 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
           options = this.options,
           container = this.container,
           cropper = this.cropper;
+      var minWidth = Number(options.minContainerWidth);
+      var minHeight = Number(options.minContainerHeight);
       addClass(cropper, CLASS_HIDDEN);
       removeClass(element, CLASS_HIDDEN);
       var containerData = {
-        width: Math.max(container.offsetWidth, Number(options.minContainerWidth) || 200),
-        height: Math.max(container.offsetHeight, Number(options.minContainerHeight) || 100)
+        width: Math.max(container.offsetWidth, minWidth >= 0 ? minWidth : MIN_CONTAINER_WIDTH),
+        height: Math.max(container.offsetHeight, minHeight >= 0 ? minHeight : MIN_CONTAINER_HEIGHT)
       };
       this.containerData = containerData;
       setStyle(cropper, {
@@ -1244,14 +1309,15 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
         width: canvasWidth,
         height: canvasHeight
       };
-      canvasData.left = (containerData.width - canvasWidth) / 2;
-      canvasData.top = (containerData.height - canvasHeight) / 2;
-      canvasData.oldLeft = canvasData.left;
-      canvasData.oldTop = canvasData.top;
       this.canvasData = canvasData;
       this.limited = viewMode === 1 || viewMode === 2;
       this.limitCanvas(true, true);
-      this.initialImageData = assign({}, imageData);
+      canvasData.width = Math.min(Math.max(canvasData.width, canvasData.minWidth), canvasData.maxWidth);
+      canvasData.height = Math.min(Math.max(canvasData.height, canvasData.minHeight), canvasData.maxHeight);
+      canvasData.left = (containerData.width - canvasData.width) / 2;
+      canvasData.top = (containerData.height - canvasData.height) / 2;
+      canvasData.oldLeft = canvasData.left;
+      canvasData.oldTop = canvasData.top;
       this.initialCanvasData = assign({}, canvasData);
     },
     limitCanvas: function limitCanvas(sizeLimited, positionLimited) {
@@ -1775,16 +1841,13 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
   };
   var handlers = {
     resize: function resize() {
-      var options = this.options,
-          container = this.container,
-          containerData = this.containerData;
-      var minContainerWidth = Number(options.minContainerWidth) || MIN_CONTAINER_WIDTH;
-      var minContainerHeight = Number(options.minContainerHeight) || MIN_CONTAINER_HEIGHT;
-
-      if (this.disabled || containerData.width <= minContainerWidth || containerData.height <= minContainerHeight) {
+      if (this.disabled) {
         return;
       }
 
+      var options = this.options,
+          container = this.container,
+          containerData = this.containerData;
       var ratio = container.offsetWidth / containerData.width; // Resize when width changed or height changed
 
       if (ratio !== 1 || container.offsetHeight !== containerData.height) {
@@ -1850,10 +1913,10 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
       var buttons = event.buttons,
           button = event.button;
 
-      if (this.disabled // No primary button (Usually the left button)
-      // Note that touch events have no `buttons` or `button` property
-      || isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0 // Open context menu
-      || event.ctrlKey) {
+      if (this.disabled // Handle mouse event and pointer event and ignore touch event
+      || (event.type === 'mousedown' || event.type === 'pointerdown' && event.pointerType === 'mouse') && ( // No primary button (Usually the left button)
+      isNumber(buttons) && buttons !== 1 || isNumber(button) && button !== 0 // Open context menu
+      || event.ctrlKey)) {
         return;
       }
 
@@ -2031,8 +2094,6 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
             }
 
             break;
-
-          default:
         }
       };
 
@@ -2397,8 +2458,6 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
           }
 
           break;
-
-        default:
       }
 
       if (renderable) {
@@ -3178,9 +3237,7 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
   };
   var AnotherCropper = WINDOW.Cropper;
 
-  var Cropper =
-  /*#__PURE__*/
-  function () {
+  var Cropper = /*#__PURE__*/function () {
     /**
      * Create a new Cropper.
      * @param {Element} element - The target element for cropping.
@@ -3229,7 +3286,7 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
 
           if (!url) {
             return;
-          } // e.g.: "http://example.com/img/picture.jpg"
+          } // e.g.: "https://example.com/img/picture.jpg"
 
 
           url = element.src;
@@ -3356,12 +3413,10 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
       value: function clone() {
         var element = this.element,
             url = this.url;
-        var crossOrigin;
-        var crossOriginUrl;
+        var crossOrigin = element.crossOrigin;
+        var crossOriginUrl = url;
 
         if (this.options.checkCrossOrigin && isCrossOriginURL(url)) {
-          crossOrigin = element.crossOrigin;
-
           if (!crossOrigin) {
             crossOrigin = 'anonymous';
           } // Bust cache when there is not a "crossOrigin" property (#519)
@@ -3405,6 +3460,7 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
             naturalHeight: naturalHeight,
             aspectRatio: naturalWidth / naturalHeight
           });
+          _this2.initialImageData = assign({}, _this2.imageData);
           _this2.sizing = false;
           _this2.sized = true;
 
@@ -3592,2321 +3648,6 @@ function _typeof2(obj) { if (typeof Symbol === "function" && typeof Symbol.itera
 
   assign(Cropper.prototype, render, preview, events, handlers, change, methods);
   return Cropper;
-});
-/**!
- * Sortable
- * @author	RubaXa   <trash@rubaxa.org>
- * @author	owenm    <owen23355@gmail.com>
- * @license MIT
- */
-
-
-(function sortableModule(factory) {
-  "use strict";
-
-  if (typeof define === "function" && define.amd) {
-    define(factory);
-  } else if (typeof module != "undefined" && typeof module.exports != "undefined") {
-    module.exports = factory();
-  } else {
-    /* jshint sub:true */
-    window["Sortable"] = factory();
-  }
-})(function sortableFactory() {
-  "use strict";
-
-  if (typeof window === "undefined" || !window.document) {
-    return function sortableError() {
-      throw new Error("Sortable.js requires a window with a document");
-    };
-  }
-
-  var dragEl,
-      parentEl,
-      ghostEl,
-      cloneEl,
-      rootEl,
-      nextEl,
-      lastDownEl,
-      scrollEl,
-      scrollParentEl,
-      scrollCustomFn,
-      oldIndex,
-      newIndex,
-      oldDraggableIndex,
-      newDraggableIndex,
-      activeGroup,
-      putSortable,
-      autoScrolls = [],
-      scrolling = false,
-      awaitingDragStarted = false,
-      ignoreNextClick = false,
-      sortables = [],
-      pointerElemChangedInterval,
-      lastPointerElemX,
-      lastPointerElemY,
-      tapEvt,
-      touchEvt,
-      moved,
-      lastTarget,
-      lastDirection,
-      pastFirstInvertThresh = false,
-      isCircumstantialInvert = false,
-      lastMode,
-      // 'swap' or 'insert'
-  targetMoveDistance,
-      // For positioning ghost absolutely
-  ghostRelativeParent,
-      ghostRelativeParentInitialScroll = [],
-      // (left, top)
-  realDragElRect,
-      // dragEl rect after current animation
-
-  /** @const */
-  R_SPACE = /\s+/g,
-      expando = 'Sortable' + new Date().getTime(),
-      win = window,
-      document = win.document,
-      parseInt = win.parseInt,
-      setTimeout = win.setTimeout,
-      $ = win.jQuery || win.Zepto,
-      Polymer = win.Polymer,
-      captureMode = {
-    capture: false,
-    passive: false
-  },
-      IE11OrLess = !!navigator.userAgent.match(/(?:Trident.*rv[ :]?11\.|msie|iemobile)/i),
-      Edge = !!navigator.userAgent.match(/Edge/i),
-      FireFox = !!navigator.userAgent.match(/firefox/i),
-      Safari = !!(navigator.userAgent.match(/safari/i) && !navigator.userAgent.match(/chrome/i) && !navigator.userAgent.match(/android/i)),
-      IOS = !!navigator.userAgent.match(/iP(ad|od|hone)/i),
-      PositionGhostAbsolutely = IOS,
-      CSSFloatProperty = Edge || IE11OrLess ? 'cssFloat' : 'float',
-      // This will not pass for IE9, because IE9 DnD only works on anchors
-  supportDraggable = 'draggable' in document.createElement('div'),
-      supportCssPointerEvents = function () {
-    // false when <= IE11
-    if (IE11OrLess) {
-      return false;
-    }
-
-    var el = document.createElement('x');
-    el.style.cssText = 'pointer-events:auto';
-    return el.style.pointerEvents === 'auto';
-  }(),
-      _silent = false,
-      _alignedSilent = false,
-      abs = Math.abs,
-      min = Math.min,
-      max = Math.max,
-      savedInputChecked = [],
-      _detectDirection = function _detectDirection(el, options) {
-    var elCSS = _css(el),
-        elWidth = parseInt(elCSS.width) - parseInt(elCSS.paddingLeft) - parseInt(elCSS.paddingRight) - parseInt(elCSS.borderLeftWidth) - parseInt(elCSS.borderRightWidth),
-        child1 = _getChild(el, 0, options),
-        child2 = _getChild(el, 1, options),
-        firstChildCSS = child1 && _css(child1),
-        secondChildCSS = child2 && _css(child2),
-        firstChildWidth = firstChildCSS && parseInt(firstChildCSS.marginLeft) + parseInt(firstChildCSS.marginRight) + _getRect(child1).width,
-        secondChildWidth = secondChildCSS && parseInt(secondChildCSS.marginLeft) + parseInt(secondChildCSS.marginRight) + _getRect(child2).width;
-
-    if (elCSS.display === 'flex') {
-      return elCSS.flexDirection === 'column' || elCSS.flexDirection === 'column-reverse' ? 'vertical' : 'horizontal';
-    }
-
-    if (elCSS.display === 'grid') {
-      return elCSS.gridTemplateColumns.split(' ').length <= 1 ? 'vertical' : 'horizontal';
-    }
-
-    if (child1 && firstChildCSS["float"] !== 'none') {
-      var touchingSideChild2 = firstChildCSS["float"] === 'left' ? 'left' : 'right';
-      return child2 && (secondChildCSS.clear === 'both' || secondChildCSS.clear === touchingSideChild2) ? 'vertical' : 'horizontal';
-    }
-
-    return child1 && (firstChildCSS.display === 'block' || firstChildCSS.display === 'flex' || firstChildCSS.display === 'table' || firstChildCSS.display === 'grid' || firstChildWidth >= elWidth && elCSS[CSSFloatProperty] === 'none' || child2 && elCSS[CSSFloatProperty] === 'none' && firstChildWidth + secondChildWidth > elWidth) ? 'vertical' : 'horizontal';
-  },
-
-  /**
-   * Detects first nearest empty sortable to X and Y position using emptyInsertThreshold.
-   * @param  {Number} x      X position
-   * @param  {Number} y      Y position
-   * @return {HTMLElement}   Element of the first found nearest Sortable
-   */
-  _detectNearestEmptySortable = function _detectNearestEmptySortable(x, y) {
-    for (var i = 0; i < sortables.length; i++) {
-      if (_lastChild(sortables[i])) continue;
-
-      var rect = _getRect(sortables[i]),
-          threshold = sortables[i][expando].options.emptyInsertThreshold,
-          insideHorizontally = x >= rect.left - threshold && x <= rect.right + threshold,
-          insideVertically = y >= rect.top - threshold && y <= rect.bottom + threshold;
-
-      if (threshold && insideHorizontally && insideVertically) {
-        return sortables[i];
-      }
-    }
-  },
-      _isClientInRowColumn = function _isClientInRowColumn(x, y, el, axis, options) {
-    var targetRect = _getRect(el),
-        targetS1Opp = axis === 'vertical' ? targetRect.left : targetRect.top,
-        targetS2Opp = axis === 'vertical' ? targetRect.right : targetRect.bottom,
-        mouseOnOppAxis = axis === 'vertical' ? x : y;
-
-    return targetS1Opp < mouseOnOppAxis && mouseOnOppAxis < targetS2Opp;
-  },
-      _isElInRowColumn = function _isElInRowColumn(el1, el2, axis) {
-    var el1Rect = el1 === dragEl && realDragElRect || _getRect(el1),
-        el2Rect = el2 === dragEl && realDragElRect || _getRect(el2),
-        el1S1Opp = axis === 'vertical' ? el1Rect.left : el1Rect.top,
-        el1S2Opp = axis === 'vertical' ? el1Rect.right : el1Rect.bottom,
-        el1OppLength = axis === 'vertical' ? el1Rect.width : el1Rect.height,
-        el2S1Opp = axis === 'vertical' ? el2Rect.left : el2Rect.top,
-        el2S2Opp = axis === 'vertical' ? el2Rect.right : el2Rect.bottom,
-        el2OppLength = axis === 'vertical' ? el2Rect.width : el2Rect.height;
-
-    return el1S1Opp === el2S1Opp || el1S2Opp === el2S2Opp || el1S1Opp + el1OppLength / 2 === el2S1Opp + el2OppLength / 2;
-  },
-      _getParentAutoScrollElement = function _getParentAutoScrollElement(el, includeSelf) {
-    // skip to window
-    if (!el || !el.getBoundingClientRect) return _getWindowScrollingElement();
-    var elem = el;
-    var gotSelf = false;
-
-    do {
-      // we don't need to get elem css if it isn't even overflowing in the first place (performance)
-      if (elem.clientWidth < elem.scrollWidth || elem.clientHeight < elem.scrollHeight) {
-        var elemCSS = _css(elem);
-
-        if (elem.clientWidth < elem.scrollWidth && (elemCSS.overflowX == 'auto' || elemCSS.overflowX == 'scroll') || elem.clientHeight < elem.scrollHeight && (elemCSS.overflowY == 'auto' || elemCSS.overflowY == 'scroll')) {
-          if (!elem || !elem.getBoundingClientRect || elem === document.body) return _getWindowScrollingElement();
-          if (gotSelf || includeSelf) return elem;
-          gotSelf = true;
-        }
-      }
-      /* jshint boss:true */
-
-    } while (elem = elem.parentNode);
-
-    return _getWindowScrollingElement();
-  },
-      _getWindowScrollingElement = function _getWindowScrollingElement() {
-    if (IE11OrLess) {
-      return document.documentElement;
-    } else {
-      return document.scrollingElement;
-    }
-  },
-      _scrollBy = function _scrollBy(el, x, y) {
-    el.scrollLeft += x;
-    el.scrollTop += y;
-  },
-      _autoScroll = _throttle(function (
-  /**Event*/
-  evt,
-  /**Object*/
-  options,
-  /**HTMLElement*/
-  rootEl,
-  /**Boolean*/
-  isFallback) {
-    // Bug: https://bugzilla.mozilla.org/show_bug.cgi?id=505521
-    if (options.scroll) {
-      var _this = rootEl ? rootEl[expando] : window,
-          sens = options.scrollSensitivity,
-          speed = options.scrollSpeed,
-          x = evt.clientX,
-          y = evt.clientY,
-          winScroller = _getWindowScrollingElement(),
-          scrollThisInstance = false; // Detect scrollEl
-
-
-      if (scrollParentEl !== rootEl) {
-        _clearAutoScrolls();
-
-        scrollEl = options.scroll;
-        scrollCustomFn = options.scrollFn;
-
-        if (scrollEl === true) {
-          scrollEl = _getParentAutoScrollElement(rootEl, true);
-          scrollParentEl = scrollEl;
-        }
-      }
-
-      var layersOut = 0;
-      var currentParent = scrollEl;
-
-      do {
-        var el = currentParent,
-            rect = _getRect(el),
-            top = rect.top,
-            bottom = rect.bottom,
-            left = rect.left,
-            right = rect.right,
-            width = rect.width,
-            height = rect.height,
-            scrollWidth,
-            scrollHeight,
-            css,
-            vx,
-            vy,
-            canScrollX,
-            canScrollY,
-            scrollPosX,
-            scrollPosY;
-
-        scrollWidth = el.scrollWidth;
-        scrollHeight = el.scrollHeight;
-        css = _css(el);
-        scrollPosX = el.scrollLeft;
-        scrollPosY = el.scrollTop;
-
-        if (el === winScroller) {
-          canScrollX = width < scrollWidth && (css.overflowX === 'auto' || css.overflowX === 'scroll' || css.overflowX === 'visible');
-          canScrollY = height < scrollHeight && (css.overflowY === 'auto' || css.overflowY === 'scroll' || css.overflowY === 'visible');
-        } else {
-          canScrollX = width < scrollWidth && (css.overflowX === 'auto' || css.overflowX === 'scroll');
-          canScrollY = height < scrollHeight && (css.overflowY === 'auto' || css.overflowY === 'scroll');
-        }
-
-        vx = canScrollX && (abs(right - x) <= sens && scrollPosX + width < scrollWidth) - (abs(left - x) <= sens && !!scrollPosX);
-        vy = canScrollY && (abs(bottom - y) <= sens && scrollPosY + height < scrollHeight) - (abs(top - y) <= sens && !!scrollPosY);
-
-        if (!autoScrolls[layersOut]) {
-          for (var i = 0; i <= layersOut; i++) {
-            if (!autoScrolls[i]) {
-              autoScrolls[i] = {};
-            }
-          }
-        }
-
-        if (autoScrolls[layersOut].vx != vx || autoScrolls[layersOut].vy != vy || autoScrolls[layersOut].el !== el) {
-          autoScrolls[layersOut].el = el;
-          autoScrolls[layersOut].vx = vx;
-          autoScrolls[layersOut].vy = vy;
-          clearInterval(autoScrolls[layersOut].pid);
-
-          if (el && (vx != 0 || vy != 0)) {
-            scrollThisInstance = true;
-            /* jshint loopfunc:true */
-
-            autoScrolls[layersOut].pid = setInterval(function () {
-              // emulate drag over during autoscroll (fallback), emulating native DnD behaviour
-              if (isFallback && this.layer === 0) {
-                Sortable.active._emulateDragOver(true);
-
-                Sortable.active._onTouchMove(touchEvt, true);
-              }
-
-              var scrollOffsetY = autoScrolls[this.layer].vy ? autoScrolls[this.layer].vy * speed : 0;
-              var scrollOffsetX = autoScrolls[this.layer].vx ? autoScrolls[this.layer].vx * speed : 0;
-
-              if ('function' === typeof scrollCustomFn) {
-                if (scrollCustomFn.call(_this, scrollOffsetX, scrollOffsetY, evt, touchEvt, autoScrolls[this.layer].el) !== 'continue') {
-                  return;
-                }
-              }
-
-              _scrollBy(autoScrolls[this.layer].el, scrollOffsetX, scrollOffsetY);
-            }.bind({
-              layer: layersOut
-            }), 24);
-          }
-        }
-
-        layersOut++;
-      } while (options.bubbleScroll && currentParent !== winScroller && (currentParent = _getParentAutoScrollElement(currentParent, false)));
-
-      scrolling = scrollThisInstance; // in case another function catches scrolling as false in between when it is not
-    }
-  }, 30),
-      _clearAutoScrolls = function _clearAutoScrolls() {
-    autoScrolls.forEach(function (autoScroll) {
-      clearInterval(autoScroll.pid);
-    });
-    autoScrolls = [];
-  },
-      _prepareGroup = function _prepareGroup(options) {
-    function toFn(value, pull) {
-      return function (to, from, dragEl, evt) {
-        var sameGroup = to.options.group.name && from.options.group.name && to.options.group.name === from.options.group.name;
-
-        if (value == null && (pull || sameGroup)) {
-          // Default pull value
-          // Default pull and put value if same group
-          return true;
-        } else if (value == null || value === false) {
-          return false;
-        } else if (pull && value === 'clone') {
-          return value;
-        } else if (typeof value === 'function') {
-          return toFn(value(to, from, dragEl, evt), pull)(to, from, dragEl, evt);
-        } else {
-          var otherGroup = (pull ? to : from).options.group.name;
-          return value === true || typeof value === 'string' && value === otherGroup || value.join && value.indexOf(otherGroup) > -1;
-        }
-      };
-    }
-
-    var group = {};
-    var originalGroup = options.group;
-
-    if (!originalGroup || _typeof2(originalGroup) != 'object') {
-      originalGroup = {
-        name: originalGroup
-      };
-    }
-
-    group.name = originalGroup.name;
-    group.checkPull = toFn(originalGroup.pull, true);
-    group.checkPut = toFn(originalGroup.put);
-    group.revertClone = originalGroup.revertClone;
-    options.group = group;
-  },
-      _checkAlignment = function _checkAlignment(evt) {
-    if (!dragEl || !dragEl.parentNode) return;
-    dragEl.parentNode[expando] && dragEl.parentNode[expando]._computeIsAligned(evt);
-  },
-      _hideGhostForTarget = function _hideGhostForTarget() {
-    if (!supportCssPointerEvents && ghostEl) {
-      _css(ghostEl, 'display', 'none');
-    }
-  },
-      _unhideGhostForTarget = function _unhideGhostForTarget() {
-    if (!supportCssPointerEvents && ghostEl) {
-      _css(ghostEl, 'display', '');
-    }
-  }; // #1184 fix - Prevent click event on fallback if dragged but item not changed position
-
-
-  document.addEventListener('click', function (evt) {
-    if (ignoreNextClick) {
-      evt.preventDefault();
-      evt.stopPropagation && evt.stopPropagation();
-      evt.stopImmediatePropagation && evt.stopImmediatePropagation();
-      ignoreNextClick = false;
-      return false;
-    }
-  }, true);
-
-  var nearestEmptyInsertDetectEvent = function nearestEmptyInsertDetectEvent(evt) {
-    if (dragEl) {
-      evt = evt.touches ? evt.touches[0] : evt;
-
-      var nearest = _detectNearestEmptySortable(evt.clientX, evt.clientY);
-
-      if (nearest) {
-        // Create imitation event
-        var event = {};
-
-        for (var i in evt) {
-          event[i] = evt[i];
-        }
-
-        event.target = event.rootEl = nearest;
-        event.preventDefault = void 0;
-        event.stopPropagation = void 0;
-
-        nearest[expando]._onDragOver(event);
-      }
-    }
-  };
-  /**
-   * @class  Sortable
-   * @param  {HTMLElement}  el
-   * @param  {Object}       [options]
-   */
-
-
-  function Sortable(el, options) {
-    if (!(el && el.nodeType && el.nodeType === 1)) {
-      throw 'Sortable: `el` must be HTMLElement, not ' + {}.toString.call(el);
-    }
-
-    this.el = el; // root element
-
-    this.options = options = _extend({}, options); // Export instance
-
-    el[expando] = this; // Default options
-
-    var defaults = {
-      group: null,
-      sort: true,
-      disabled: false,
-      store: null,
-      handle: null,
-      scroll: true,
-      scrollSensitivity: 30,
-      scrollSpeed: 10,
-      bubbleScroll: true,
-      draggable: /[uo]l/i.test(el.nodeName) ? '>li' : '>*',
-      swapThreshold: 1,
-      // percentage; 0 <= x <= 1
-      invertSwap: false,
-      // invert always
-      invertedSwapThreshold: null,
-      // will be set to same as swapThreshold if default
-      removeCloneOnHide: true,
-      direction: function direction() {
-        return _detectDirection(el, this.options);
-      },
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      dragClass: 'sortable-drag',
-      ignore: 'a, img',
-      filter: null,
-      preventOnFilter: true,
-      animation: 0,
-      easing: null,
-      setData: function setData(dataTransfer, dragEl) {
-        dataTransfer.setData('Text', dragEl.textContent);
-      },
-      dropBubble: false,
-      dragoverBubble: false,
-      dataIdAttr: 'data-id',
-      delay: 0,
-      delayOnTouchOnly: false,
-      touchStartThreshold: parseInt(window.devicePixelRatio, 10) || 1,
-      forceFallback: false,
-      fallbackClass: 'sortable-fallback',
-      fallbackOnBody: false,
-      fallbackTolerance: 0,
-      fallbackOffset: {
-        x: 0,
-        y: 0
-      },
-      supportPointer: Sortable.supportPointer !== false && 'PointerEvent' in window,
-      emptyInsertThreshold: 5
-    }; // Set default options
-
-    for (var name in defaults) {
-      !(name in options) && (options[name] = defaults[name]);
-    }
-
-    _prepareGroup(options); // Bind all private methods
-
-
-    for (var fn in this) {
-      if (fn.charAt(0) === '_' && typeof this[fn] === 'function') {
-        this[fn] = this[fn].bind(this);
-      }
-    } // Setup drag mode
-
-
-    this.nativeDraggable = options.forceFallback ? false : supportDraggable;
-
-    if (this.nativeDraggable) {
-      // Touch start threshold cannot be greater than the native dragstart threshold
-      this.options.touchStartThreshold = 1;
-    } // Bind events
-
-
-    if (options.supportPointer) {
-      _on(el, 'pointerdown', this._onTapStart);
-    } else {
-      _on(el, 'mousedown', this._onTapStart);
-
-      _on(el, 'touchstart', this._onTapStart);
-    }
-
-    if (this.nativeDraggable) {
-      _on(el, 'dragover', this);
-
-      _on(el, 'dragenter', this);
-    }
-
-    sortables.push(this.el); // Restore sorting
-
-    options.store && options.store.get && this.sort(options.store.get(this) || []);
-  }
-
-  Sortable.prototype =
-  /** @lends Sortable.prototype */
-  {
-    constructor: Sortable,
-    _computeIsAligned: function _computeIsAligned(evt) {
-      var target;
-
-      if (ghostEl && !supportCssPointerEvents) {
-        _hideGhostForTarget();
-
-        target = document.elementFromPoint(evt.clientX, evt.clientY);
-
-        _unhideGhostForTarget();
-      } else {
-        target = evt.target;
-      }
-
-      target = _closest(target, this.options.draggable, this.el, false);
-      if (_alignedSilent) return;
-      if (!dragEl || dragEl.parentNode !== this.el) return;
-      var children = this.el.children;
-
-      for (var i = 0; i < children.length; i++) {
-        // Don't change for target in case it is changed to aligned before onDragOver is fired
-        if (_closest(children[i], this.options.draggable, this.el, false) && children[i] !== target) {
-          children[i].sortableMouseAligned = _isClientInRowColumn(evt.clientX, evt.clientY, children[i], this._getDirection(evt, null), this.options);
-        }
-      } // Used for nulling last target when not in element, nothing to do with checking if aligned
-
-
-      if (!_closest(target, this.options.draggable, this.el, true)) {
-        lastTarget = null;
-      }
-
-      _alignedSilent = true;
-      setTimeout(function () {
-        _alignedSilent = false;
-      }, 30);
-    },
-    _getDirection: function _getDirection(evt, target) {
-      return typeof this.options.direction === 'function' ? this.options.direction.call(this, evt, target, dragEl) : this.options.direction;
-    },
-    _onTapStart: function _onTapStart(
-    /** Event|TouchEvent */
-    evt) {
-      if (!evt.cancelable) return;
-
-      var _this = this,
-          el = this.el,
-          options = this.options,
-          preventOnFilter = options.preventOnFilter,
-          type = evt.type,
-          touch = evt.touches && evt.touches[0],
-          target = (touch || evt).target,
-          originalTarget = evt.target.shadowRoot && (evt.path && evt.path[0] || evt.composedPath && evt.composedPath()[0]) || target,
-          filter = options.filter,
-          startIndex,
-          startDraggableIndex;
-
-      _saveInputCheckedState(el); // Don't trigger start event when an element is been dragged, otherwise the evt.oldindex always wrong when set option.group.
-
-
-      if (dragEl) {
-        return;
-      }
-
-      if (/mousedown|pointerdown/.test(type) && evt.button !== 0 || options.disabled) {
-        return; // only left button and enabled
-      } // cancel dnd if original target is content editable
-
-
-      if (originalTarget.isContentEditable) {
-        return;
-      }
-
-      target = _closest(target, options.draggable, el, false);
-
-      if (lastDownEl === target) {
-        // Ignoring duplicate `down`
-        return;
-      } // Get the index of the dragged element within its parent
-
-
-      startIndex = _index(target);
-      startDraggableIndex = _index(target, options.draggable); // Check filter
-
-      if (typeof filter === 'function') {
-        if (filter.call(this, evt, target, this)) {
-          _dispatchEvent(_this, originalTarget, 'filter', target, el, el, startIndex, undefined, startDraggableIndex);
-
-          preventOnFilter && evt.cancelable && evt.preventDefault();
-          return; // cancel dnd
-        }
-      } else if (filter) {
-        filter = filter.split(',').some(function (criteria) {
-          criteria = _closest(originalTarget, criteria.trim(), el, false);
-
-          if (criteria) {
-            _dispatchEvent(_this, criteria, 'filter', target, el, el, startIndex, undefined, startDraggableIndex);
-
-            return true;
-          }
-        });
-
-        if (filter) {
-          preventOnFilter && evt.cancelable && evt.preventDefault();
-          return; // cancel dnd
-        }
-      }
-
-      if (options.handle && !_closest(originalTarget, options.handle, el, false)) {
-        return;
-      } // Prepare `dragstart`
-
-
-      this._prepareDragStart(evt, touch, target, startIndex, startDraggableIndex);
-    },
-    _handleAutoScroll: function _handleAutoScroll(evt, fallback) {
-      if (!dragEl || !this.options.scroll) return;
-
-      var x = evt.clientX,
-          y = evt.clientY,
-          elem = document.elementFromPoint(x, y),
-          _this = this; // IE does not seem to have native autoscroll,
-      // Edge's autoscroll seems too conditional,
-      // MACOS Safari does not have autoscroll,
-      // Firefox and Chrome are good
-
-
-      if (fallback || Edge || IE11OrLess || Safari) {
-        _autoScroll(evt, _this.options, elem, fallback); // Listener for pointer element change
-
-
-        var ogElemScroller = _getParentAutoScrollElement(elem, true);
-
-        if (scrolling && (!pointerElemChangedInterval || x !== lastPointerElemX || y !== lastPointerElemY)) {
-          pointerElemChangedInterval && clearInterval(pointerElemChangedInterval); // Detect for pointer elem change, emulating native DnD behaviour
-
-          pointerElemChangedInterval = setInterval(function () {
-            if (!dragEl) return; // could also check if scroll direction on newElem changes due to parent autoscrolling
-
-            var newElem = _getParentAutoScrollElement(document.elementFromPoint(x, y), true);
-
-            if (newElem !== ogElemScroller) {
-              ogElemScroller = newElem;
-
-              _clearAutoScrolls();
-
-              _autoScroll(evt, _this.options, ogElemScroller, fallback);
-            }
-          }, 10);
-          lastPointerElemX = x;
-          lastPointerElemY = y;
-        }
-      } else {
-        // if DnD is enabled (and browser has good autoscrolling), first autoscroll will already scroll, so get parent autoscroll of first autoscroll
-        if (!_this.options.bubbleScroll || _getParentAutoScrollElement(elem, true) === _getWindowScrollingElement()) {
-          _clearAutoScrolls();
-
-          return;
-        }
-
-        _autoScroll(evt, _this.options, _getParentAutoScrollElement(elem, false), false);
-      }
-    },
-    _prepareDragStart: function _prepareDragStart(
-    /** Event */
-    evt,
-    /** Touch */
-    touch,
-    /** HTMLElement */
-    target,
-    /** Number */
-    startIndex,
-    /** Number */
-    startDraggableIndex) {
-      var _this = this,
-          el = _this.el,
-          options = _this.options,
-          ownerDocument = el.ownerDocument,
-          dragStartFn;
-
-      if (target && !dragEl && target.parentNode === el) {
-        rootEl = el;
-        dragEl = target;
-        parentEl = dragEl.parentNode;
-        nextEl = dragEl.nextSibling;
-        lastDownEl = target;
-        activeGroup = options.group;
-        oldIndex = startIndex;
-        oldDraggableIndex = startDraggableIndex;
-        tapEvt = {
-          target: dragEl,
-          clientX: (touch || evt).clientX,
-          clientY: (touch || evt).clientY
-        };
-        this._lastX = (touch || evt).clientX;
-        this._lastY = (touch || evt).clientY;
-        dragEl.style['will-change'] = 'all'; // undo animation if needed
-
-        dragEl.style.transition = '';
-        dragEl.style.transform = '';
-
-        dragStartFn = function dragStartFn() {
-          // Delayed drag has been triggered
-          // we can re-enable the events: touchmove/mousemove
-          _this._disableDelayedDragEvents();
-
-          if (!FireFox && _this.nativeDraggable) {
-            dragEl.draggable = true;
-          } // Bind the events: dragstart/dragend
-
-
-          _this._triggerDragStart(evt, touch); // Drag start event
-
-
-          _dispatchEvent(_this, rootEl, 'choose', dragEl, rootEl, rootEl, oldIndex, undefined, oldDraggableIndex); // Chosen item
-
-
-          _toggleClass(dragEl, options.chosenClass, true);
-        }; // Disable "draggable"
-
-
-        options.ignore.split(',').forEach(function (criteria) {
-          _find(dragEl, criteria.trim(), _disableDraggable);
-        });
-
-        _on(ownerDocument, 'dragover', nearestEmptyInsertDetectEvent);
-
-        _on(ownerDocument, 'mousemove', nearestEmptyInsertDetectEvent);
-
-        _on(ownerDocument, 'touchmove', nearestEmptyInsertDetectEvent);
-
-        _on(ownerDocument, 'mouseup', _this._onDrop);
-
-        _on(ownerDocument, 'touchend', _this._onDrop);
-
-        _on(ownerDocument, 'touchcancel', _this._onDrop); // Make dragEl draggable (must be before delay for FireFox)
-
-
-        if (FireFox && this.nativeDraggable) {
-          this.options.touchStartThreshold = 4;
-          dragEl.draggable = true;
-        } // Delay is impossible for native DnD in Edge or IE
-
-
-        if (options.delay && (options.delayOnTouchOnly ? touch : true) && (!this.nativeDraggable || !(Edge || IE11OrLess))) {
-          // If the user moves the pointer or let go the click or touch
-          // before the delay has been reached:
-          // disable the delayed drag
-          _on(ownerDocument, 'mouseup', _this._disableDelayedDrag);
-
-          _on(ownerDocument, 'touchend', _this._disableDelayedDrag);
-
-          _on(ownerDocument, 'touchcancel', _this._disableDelayedDrag);
-
-          _on(ownerDocument, 'mousemove', _this._delayedDragTouchMoveHandler);
-
-          _on(ownerDocument, 'touchmove', _this._delayedDragTouchMoveHandler);
-
-          options.supportPointer && _on(ownerDocument, 'pointermove', _this._delayedDragTouchMoveHandler);
-          _this._dragStartTimer = setTimeout(dragStartFn, options.delay);
-        } else {
-          dragStartFn();
-        }
-      }
-    },
-    _delayedDragTouchMoveHandler: function _delayedDragTouchMoveHandler(
-    /** TouchEvent|PointerEvent **/
-    e) {
-      var touch = e.touches ? e.touches[0] : e;
-
-      if (max(abs(touch.clientX - this._lastX), abs(touch.clientY - this._lastY)) >= Math.floor(this.options.touchStartThreshold / (this.nativeDraggable && window.devicePixelRatio || 1))) {
-        this._disableDelayedDrag();
-      }
-    },
-    _disableDelayedDrag: function _disableDelayedDrag() {
-      dragEl && _disableDraggable(dragEl);
-      clearTimeout(this._dragStartTimer);
-
-      this._disableDelayedDragEvents();
-    },
-    _disableDelayedDragEvents: function _disableDelayedDragEvents() {
-      var ownerDocument = this.el.ownerDocument;
-
-      _off(ownerDocument, 'mouseup', this._disableDelayedDrag);
-
-      _off(ownerDocument, 'touchend', this._disableDelayedDrag);
-
-      _off(ownerDocument, 'touchcancel', this._disableDelayedDrag);
-
-      _off(ownerDocument, 'mousemove', this._delayedDragTouchMoveHandler);
-
-      _off(ownerDocument, 'touchmove', this._delayedDragTouchMoveHandler);
-
-      _off(ownerDocument, 'pointermove', this._delayedDragTouchMoveHandler);
-    },
-    _triggerDragStart: function _triggerDragStart(
-    /** Event */
-    evt,
-    /** Touch */
-    touch) {
-      touch = touch || (evt.pointerType == 'touch' ? evt : null);
-
-      if (!this.nativeDraggable || touch) {
-        if (this.options.supportPointer) {
-          _on(document, 'pointermove', this._onTouchMove);
-        } else if (touch) {
-          _on(document, 'touchmove', this._onTouchMove);
-        } else {
-          _on(document, 'mousemove', this._onTouchMove);
-        }
-      } else {
-        _on(dragEl, 'dragend', this);
-
-        _on(rootEl, 'dragstart', this._onDragStart);
-      }
-
-      try {
-        if (document.selection) {
-          // Timeout neccessary for IE9
-          _nextTick(function () {
-            document.selection.empty();
-          });
-        } else {
-          window.getSelection().removeAllRanges();
-        }
-      } catch (err) {}
-    },
-    _dragStarted: function _dragStarted(fallback, evt) {
-      awaitingDragStarted = false;
-
-      if (rootEl && dragEl) {
-        if (this.nativeDraggable) {
-          _on(document, 'dragover', this._handleAutoScroll);
-
-          _on(document, 'dragover', _checkAlignment);
-        }
-
-        var options = this.options; // Apply effect
-
-        !fallback && _toggleClass(dragEl, options.dragClass, false);
-
-        _toggleClass(dragEl, options.ghostClass, true); // In case dragging an animated element
-
-
-        _css(dragEl, 'transform', '');
-
-        Sortable.active = this;
-        fallback && this._appendGhost(); // Drag start event
-
-        _dispatchEvent(this, rootEl, 'start', dragEl, rootEl, rootEl, oldIndex, undefined, oldDraggableIndex, undefined, evt);
-      } else {
-        this._nulling();
-      }
-    },
-    _emulateDragOver: function _emulateDragOver(forAutoScroll) {
-      if (touchEvt) {
-        if (this._lastX === touchEvt.clientX && this._lastY === touchEvt.clientY && !forAutoScroll) {
-          return;
-        }
-
-        this._lastX = touchEvt.clientX;
-        this._lastY = touchEvt.clientY;
-
-        _hideGhostForTarget();
-
-        var target = document.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
-        var parent = target;
-
-        while (target && target.shadowRoot) {
-          target = target.shadowRoot.elementFromPoint(touchEvt.clientX, touchEvt.clientY);
-          if (target === parent) break;
-          parent = target;
-        }
-
-        if (parent) {
-          do {
-            if (parent[expando]) {
-              var inserted;
-              inserted = parent[expando]._onDragOver({
-                clientX: touchEvt.clientX,
-                clientY: touchEvt.clientY,
-                target: target,
-                rootEl: parent
-              });
-
-              if (inserted && !this.options.dragoverBubble) {
-                break;
-              }
-            }
-
-            target = parent; // store last element
-          }
-          /* jshint boss:true */
-          while (parent = parent.parentNode);
-        }
-
-        dragEl.parentNode[expando]._computeIsAligned(touchEvt);
-
-        _unhideGhostForTarget();
-      }
-    },
-    _onTouchMove: function _onTouchMove(
-    /**TouchEvent*/
-    evt, forAutoScroll) {
-      if (tapEvt) {
-        var options = this.options,
-            fallbackTolerance = options.fallbackTolerance,
-            fallbackOffset = options.fallbackOffset,
-            touch = evt.touches ? evt.touches[0] : evt,
-            matrix = ghostEl && _matrix(ghostEl),
-            scaleX = ghostEl && matrix && matrix.a,
-            scaleY = ghostEl && matrix && matrix.d,
-            relativeScrollOffset = PositionGhostAbsolutely && ghostRelativeParent && _getRelativeScrollOffset(ghostRelativeParent),
-            dx = (touch.clientX - tapEvt.clientX + fallbackOffset.x) / (scaleX || 1) + (relativeScrollOffset ? relativeScrollOffset[0] - ghostRelativeParentInitialScroll[0] : 0) / (scaleX || 1),
-            dy = (touch.clientY - tapEvt.clientY + fallbackOffset.y) / (scaleY || 1) + (relativeScrollOffset ? relativeScrollOffset[1] - ghostRelativeParentInitialScroll[1] : 0) / (scaleY || 1),
-            translate3d = evt.touches ? 'translate3d(' + dx + 'px,' + dy + 'px,0)' : 'translate(' + dx + 'px,' + dy + 'px)'; // only set the status to dragging, when we are actually dragging
-
-
-        if (!Sortable.active && !awaitingDragStarted) {
-          if (fallbackTolerance && min(abs(touch.clientX - this._lastX), abs(touch.clientY - this._lastY)) < fallbackTolerance) {
-            return;
-          }
-
-          this._onDragStart(evt, true);
-        }
-
-        !forAutoScroll && this._handleAutoScroll(touch, true);
-        moved = true;
-        touchEvt = touch;
-
-        _css(ghostEl, 'webkitTransform', translate3d);
-
-        _css(ghostEl, 'mozTransform', translate3d);
-
-        _css(ghostEl, 'msTransform', translate3d);
-
-        _css(ghostEl, 'transform', translate3d);
-
-        evt.cancelable && evt.preventDefault();
-      }
-    },
-    _appendGhost: function _appendGhost() {
-      // Bug if using scale(): https://stackoverflow.com/questions/2637058
-      // Not being adjusted for
-      if (!ghostEl) {
-        var container = this.options.fallbackOnBody ? document.body : rootEl,
-            rect = _getRect(dragEl, true, container, !PositionGhostAbsolutely),
-            css = _css(dragEl),
-            options = this.options; // Position absolutely
-
-
-        if (PositionGhostAbsolutely) {
-          // Get relatively positioned parent
-          ghostRelativeParent = container;
-
-          while (_css(ghostRelativeParent, 'position') === 'static' && _css(ghostRelativeParent, 'transform') === 'none' && ghostRelativeParent !== document) {
-            ghostRelativeParent = ghostRelativeParent.parentNode;
-          }
-
-          if (ghostRelativeParent !== document) {
-            var ghostRelativeParentRect = _getRect(ghostRelativeParent, true);
-
-            rect.top -= ghostRelativeParentRect.top;
-            rect.left -= ghostRelativeParentRect.left;
-          }
-
-          if (ghostRelativeParent !== document.body && ghostRelativeParent !== document.documentElement) {
-            if (ghostRelativeParent === document) ghostRelativeParent = _getWindowScrollingElement();
-            rect.top += ghostRelativeParent.scrollTop;
-            rect.left += ghostRelativeParent.scrollLeft;
-          } else {
-            ghostRelativeParent = _getWindowScrollingElement();
-          }
-
-          ghostRelativeParentInitialScroll = _getRelativeScrollOffset(ghostRelativeParent);
-        }
-
-        ghostEl = dragEl.cloneNode(true);
-
-        _toggleClass(ghostEl, options.ghostClass, false);
-
-        _toggleClass(ghostEl, options.fallbackClass, true);
-
-        _toggleClass(ghostEl, options.dragClass, true);
-
-        _css(ghostEl, 'box-sizing', 'border-box');
-
-        _css(ghostEl, 'margin', 0);
-
-        _css(ghostEl, 'top', rect.top);
-
-        _css(ghostEl, 'left', rect.left);
-
-        _css(ghostEl, 'width', rect.width);
-
-        _css(ghostEl, 'height', rect.height);
-
-        _css(ghostEl, 'opacity', '0.8');
-
-        _css(ghostEl, 'position', PositionGhostAbsolutely ? 'absolute' : 'fixed');
-
-        _css(ghostEl, 'zIndex', '100000');
-
-        _css(ghostEl, 'pointerEvents', 'none');
-
-        container.appendChild(ghostEl);
-      }
-    },
-    _onDragStart: function _onDragStart(
-    /**Event*/
-    evt,
-    /**boolean*/
-    fallback) {
-      var _this = this;
-
-      var dataTransfer = evt.dataTransfer;
-      var options = _this.options; // Setup clone
-
-      cloneEl = _clone(dragEl);
-      cloneEl.draggable = false;
-      cloneEl.style['will-change'] = '';
-
-      this._hideClone();
-
-      _toggleClass(cloneEl, _this.options.chosenClass, false); // #1143: IFrame support workaround
-
-
-      _this._cloneId = _nextTick(function () {
-        if (!_this.options.removeCloneOnHide) {
-          rootEl.insertBefore(cloneEl, dragEl);
-        }
-
-        _dispatchEvent(_this, rootEl, 'clone', dragEl);
-      });
-      !fallback && _toggleClass(dragEl, options.dragClass, true); // Set proper drop events
-
-      if (fallback) {
-        ignoreNextClick = true;
-        _this._loopId = setInterval(_this._emulateDragOver, 50);
-      } else {
-        // Undo what was set in _prepareDragStart before drag started
-        _off(document, 'mouseup', _this._onDrop);
-
-        _off(document, 'touchend', _this._onDrop);
-
-        _off(document, 'touchcancel', _this._onDrop);
-
-        if (dataTransfer) {
-          dataTransfer.effectAllowed = 'move';
-          options.setData && options.setData.call(_this, dataTransfer, dragEl);
-        }
-
-        _on(document, 'drop', _this); // #1276 fix:
-
-
-        _css(dragEl, 'transform', 'translateZ(0)');
-      }
-
-      awaitingDragStarted = true;
-      _this._dragStartId = _nextTick(_this._dragStarted.bind(_this, fallback, evt));
-
-      _on(document, 'selectstart', _this);
-
-      if (Safari) {
-        _css(document.body, 'user-select', 'none');
-      }
-    },
-    // Returns true - if no further action is needed (either inserted or another condition)
-    _onDragOver: function _onDragOver(
-    /**Event*/
-    evt) {
-      var el = this.el,
-          target = evt.target,
-          dragRect,
-          targetRect,
-          revert,
-          options = this.options,
-          group = options.group,
-          activeSortable = Sortable.active,
-          isOwner = activeGroup === group,
-          canSort = options.sort,
-          _this = this;
-
-      if (_silent) return; // Return invocation when dragEl is inserted (or completed)
-
-      function completed(insertion) {
-        if (insertion) {
-          if (isOwner) {
-            activeSortable._hideClone();
-          } else {
-            activeSortable._showClone(_this);
-          }
-
-          if (activeSortable) {
-            // Set ghost class to new sortable's ghost class
-            _toggleClass(dragEl, putSortable ? putSortable.options.ghostClass : activeSortable.options.ghostClass, false);
-
-            _toggleClass(dragEl, options.ghostClass, true);
-          }
-
-          if (putSortable !== _this && _this !== Sortable.active) {
-            putSortable = _this;
-          } else if (_this === Sortable.active) {
-            putSortable = null;
-          } // Animation
-
-
-          dragRect && _this._animate(dragRect, dragEl);
-          target && targetRect && _this._animate(targetRect, target);
-        } // Null lastTarget if it is not inside a previously swapped element
-
-
-        if (target === dragEl && !dragEl.animated || target === el && !target.animated) {
-          lastTarget = null;
-        } // no bubbling and not fallback
-
-
-        if (!options.dragoverBubble && !evt.rootEl && target !== document) {
-          _this._handleAutoScroll(evt);
-
-          dragEl.parentNode[expando]._computeIsAligned(evt); // Do not detect for empty insert if already inserted
-
-
-          !insertion && nearestEmptyInsertDetectEvent(evt);
-        }
-
-        !options.dragoverBubble && evt.stopPropagation && evt.stopPropagation();
-        return true;
-      } // Call when dragEl has been inserted
-
-
-      function changed() {
-        _dispatchEvent(_this, rootEl, 'change', target, el, rootEl, oldIndex, _index(dragEl), oldDraggableIndex, _index(dragEl, options.draggable), evt);
-      }
-
-      if (evt.preventDefault !== void 0) {
-        evt.cancelable && evt.preventDefault();
-      }
-
-      moved = true;
-      target = _closest(target, options.draggable, el, true); // target is dragEl or target is animated
-
-      if (dragEl.contains(evt.target) || target.animated) {
-        return completed(false);
-      }
-
-      if (target !== dragEl) {
-        ignoreNextClick = false;
-      }
-
-      if (activeSortable && !options.disabled && (isOwner ? canSort || (revert = !rootEl.contains(dragEl)) // Reverting item into the original list
-      : putSortable === this || (this.lastPutMode = activeGroup.checkPull(this, activeSortable, dragEl, evt)) && group.checkPut(this, activeSortable, dragEl, evt))) {
-        var axis = this._getDirection(evt, target);
-
-        dragRect = _getRect(dragEl);
-
-        if (revert) {
-          this._hideClone();
-
-          parentEl = rootEl; // actualization
-
-          if (nextEl) {
-            rootEl.insertBefore(dragEl, nextEl);
-          } else {
-            rootEl.appendChild(dragEl);
-          }
-
-          return completed(true);
-        }
-
-        var elLastChild = _lastChild(el);
-
-        if (!elLastChild || _ghostIsLast(evt, axis, el) && !elLastChild.animated) {
-          // assign target only if condition is true
-          if (elLastChild && el === evt.target) {
-            target = elLastChild;
-          }
-
-          if (target) {
-            targetRect = _getRect(target);
-          }
-
-          if (isOwner) {
-            activeSortable._hideClone();
-          } else {
-            activeSortable._showClone(this);
-          }
-
-          if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, !!target) !== false) {
-            el.appendChild(dragEl);
-            parentEl = el; // actualization
-
-            realDragElRect = null;
-            changed();
-            return completed(true);
-          }
-        } else if (target && target !== dragEl && target.parentNode === el) {
-          var direction = 0,
-              targetBeforeFirstSwap,
-              aligned = target.sortableMouseAligned,
-              differentLevel = dragEl.parentNode !== el,
-              side1 = axis === 'vertical' ? 'top' : 'left',
-              scrolledPastTop = _isScrolledPast(target, 'top') || _isScrolledPast(dragEl, 'top'),
-              scrollBefore = scrolledPastTop ? scrolledPastTop.scrollTop : void 0;
-
-          if (lastTarget !== target) {
-            lastMode = null;
-            targetBeforeFirstSwap = _getRect(target)[side1];
-            pastFirstInvertThresh = false;
-          } // Reference: https://www.lucidchart.com/documents/view/10fa0e93-e362-4126-aca2-b709ee56bd8b/0
-
-
-          if (_isElInRowColumn(dragEl, target, axis) && aligned || differentLevel || scrolledPastTop || options.invertSwap || lastMode === 'insert' || // Needed, in the case that we are inside target and inserted because not aligned... aligned will stay false while inside
-          // and lastMode will change to 'insert', but we must swap
-          lastMode === 'swap') {
-            // New target that we will be inside
-            if (lastMode !== 'swap') {
-              isCircumstantialInvert = options.invertSwap || differentLevel;
-            }
-
-            direction = _getSwapDirection(evt, target, axis, options.swapThreshold, options.invertedSwapThreshold == null ? options.swapThreshold : options.invertedSwapThreshold, isCircumstantialInvert, lastTarget === target);
-            lastMode = 'swap';
-          } else {
-            // Insert at position
-            direction = _getInsertDirection(target);
-            lastMode = 'insert';
-          }
-
-          if (direction === 0) return completed(false);
-          realDragElRect = null;
-          lastTarget = target;
-          lastDirection = direction;
-          targetRect = _getRect(target);
-          var nextSibling = target.nextElementSibling,
-              after = false;
-          after = direction === 1;
-
-          var moveVector = _onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, after);
-
-          if (moveVector !== false) {
-            if (moveVector === 1 || moveVector === -1) {
-              after = moveVector === 1;
-            }
-
-            _silent = true;
-            setTimeout(_unsilent, 30);
-
-            if (isOwner) {
-              activeSortable._hideClone();
-            } else {
-              activeSortable._showClone(this);
-            }
-
-            if (after && !nextSibling) {
-              el.appendChild(dragEl);
-            } else {
-              target.parentNode.insertBefore(dragEl, after ? nextSibling : target);
-            } // Undo chrome's scroll adjustment
-
-
-            if (scrolledPastTop) {
-              _scrollBy(scrolledPastTop, 0, scrollBefore - scrolledPastTop.scrollTop);
-            }
-
-            parentEl = dragEl.parentNode; // actualization
-            // must be done before animation
-
-            if (targetBeforeFirstSwap !== undefined && !isCircumstantialInvert) {
-              targetMoveDistance = abs(targetBeforeFirstSwap - _getRect(target)[side1]);
-            }
-
-            changed();
-            return completed(true);
-          }
-        }
-
-        if (el.contains(dragEl)) {
-          return completed(false);
-        }
-      }
-
-      return false;
-    },
-    _animate: function _animate(prevRect, target) {
-      var ms = this.options.animation;
-
-      if (ms) {
-        var currentRect = _getRect(target);
-
-        if (target === dragEl) {
-          realDragElRect = currentRect;
-        }
-
-        if (prevRect.nodeType === 1) {
-          prevRect = _getRect(prevRect);
-        } // Check if actually moving position
-
-
-        if (prevRect.left + prevRect.width / 2 !== currentRect.left + currentRect.width / 2 || prevRect.top + prevRect.height / 2 !== currentRect.top + currentRect.height / 2) {
-          var matrix = _matrix(this.el),
-              scaleX = matrix && matrix.a,
-              scaleY = matrix && matrix.d;
-
-          _css(target, 'transition', 'none');
-
-          _css(target, 'transform', 'translate3d(' + (prevRect.left - currentRect.left) / (scaleX ? scaleX : 1) + 'px,' + (prevRect.top - currentRect.top) / (scaleY ? scaleY : 1) + 'px,0)');
-
-          this._repaint(target);
-
-          _css(target, 'transition', 'transform ' + ms + 'ms' + (this.options.easing ? ' ' + this.options.easing : ''));
-
-          _css(target, 'transform', 'translate3d(0,0,0)');
-        }
-
-        typeof target.animated === 'number' && clearTimeout(target.animated);
-        target.animated = setTimeout(function () {
-          _css(target, 'transition', '');
-
-          _css(target, 'transform', '');
-
-          target.animated = false;
-        }, ms);
-      }
-    },
-    _repaint: function _repaint(target) {
-      return target.offsetWidth;
-    },
-    _offMoveEvents: function _offMoveEvents() {
-      _off(document, 'touchmove', this._onTouchMove);
-
-      _off(document, 'pointermove', this._onTouchMove);
-
-      _off(document, 'dragover', nearestEmptyInsertDetectEvent);
-
-      _off(document, 'mousemove', nearestEmptyInsertDetectEvent);
-
-      _off(document, 'touchmove', nearestEmptyInsertDetectEvent);
-    },
-    _offUpEvents: function _offUpEvents() {
-      var ownerDocument = this.el.ownerDocument;
-
-      _off(ownerDocument, 'mouseup', this._onDrop);
-
-      _off(ownerDocument, 'touchend', this._onDrop);
-
-      _off(ownerDocument, 'pointerup', this._onDrop);
-
-      _off(ownerDocument, 'touchcancel', this._onDrop);
-
-      _off(document, 'selectstart', this);
-    },
-    _onDrop: function _onDrop(
-    /**Event*/
-    evt) {
-      var el = this.el,
-          options = this.options;
-      awaitingDragStarted = false;
-      scrolling = false;
-      isCircumstantialInvert = false;
-      pastFirstInvertThresh = false;
-      clearInterval(this._loopId);
-      clearInterval(pointerElemChangedInterval);
-
-      _clearAutoScrolls();
-
-      _cancelThrottle();
-
-      clearTimeout(this._dragStartTimer);
-
-      _cancelNextTick(this._cloneId);
-
-      _cancelNextTick(this._dragStartId); // Unbind events
-
-
-      _off(document, 'mousemove', this._onTouchMove);
-
-      if (this.nativeDraggable) {
-        _off(document, 'drop', this);
-
-        _off(el, 'dragstart', this._onDragStart);
-
-        _off(document, 'dragover', this._handleAutoScroll);
-
-        _off(document, 'dragover', _checkAlignment);
-      }
-
-      if (Safari) {
-        _css(document.body, 'user-select', '');
-      }
-
-      this._offMoveEvents();
-
-      this._offUpEvents();
-
-      if (evt) {
-        if (moved) {
-          evt.cancelable && evt.preventDefault();
-          !options.dropBubble && evt.stopPropagation();
-        }
-
-        ghostEl && ghostEl.parentNode && ghostEl.parentNode.removeChild(ghostEl);
-
-        if (rootEl === parentEl || putSortable && putSortable.lastPutMode !== 'clone') {
-          // Remove clone
-          cloneEl && cloneEl.parentNode && cloneEl.parentNode.removeChild(cloneEl);
-        }
-
-        if (dragEl) {
-          if (this.nativeDraggable) {
-            _off(dragEl, 'dragend', this);
-          }
-
-          _disableDraggable(dragEl);
-
-          dragEl.style['will-change'] = ''; // Remove class's
-
-          _toggleClass(dragEl, putSortable ? putSortable.options.ghostClass : this.options.ghostClass, false);
-
-          _toggleClass(dragEl, this.options.chosenClass, false); // Drag stop event
-
-
-          _dispatchEvent(this, rootEl, 'unchoose', dragEl, parentEl, rootEl, oldIndex, null, oldDraggableIndex, null, evt);
-
-          if (rootEl !== parentEl) {
-            newIndex = _index(dragEl);
-            newDraggableIndex = _index(dragEl, options.draggable);
-
-            if (newIndex >= 0) {
-              // Add event
-              _dispatchEvent(null, parentEl, 'add', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt); // Remove event
-
-
-              _dispatchEvent(this, rootEl, 'remove', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt); // drag from one list and drop into another
-
-
-              _dispatchEvent(null, parentEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt);
-
-              _dispatchEvent(this, rootEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt);
-            }
-
-            putSortable && putSortable.save();
-          } else {
-            if (dragEl.nextSibling !== nextEl) {
-              // Get the index of the dragged element within its parent
-              newIndex = _index(dragEl);
-              newDraggableIndex = _index(dragEl, options.draggable);
-
-              if (newIndex >= 0) {
-                // drag & drop within the same list
-                _dispatchEvent(this, rootEl, 'update', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt);
-
-                _dispatchEvent(this, rootEl, 'sort', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt);
-              }
-            }
-          }
-
-          if (Sortable.active) {
-            /* jshint eqnull:true */
-            if (newIndex == null || newIndex === -1) {
-              newIndex = oldIndex;
-              newDraggableIndex = oldDraggableIndex;
-            }
-
-            _dispatchEvent(this, rootEl, 'end', dragEl, parentEl, rootEl, oldIndex, newIndex, oldDraggableIndex, newDraggableIndex, evt); // Save sorting
-
-
-            this.save();
-          }
-        }
-      }
-
-      this._nulling();
-    },
-    _nulling: function _nulling() {
-      rootEl = dragEl = parentEl = ghostEl = nextEl = cloneEl = lastDownEl = scrollEl = scrollParentEl = autoScrolls.length = pointerElemChangedInterval = lastPointerElemX = lastPointerElemY = tapEvt = touchEvt = moved = newIndex = oldIndex = lastTarget = lastDirection = realDragElRect = putSortable = activeGroup = Sortable.active = null;
-      savedInputChecked.forEach(function (el) {
-        el.checked = true;
-      });
-      savedInputChecked.length = 0;
-    },
-    handleEvent: function handleEvent(
-    /**Event*/
-    evt) {
-      switch (evt.type) {
-        case 'drop':
-        case 'dragend':
-          this._onDrop(evt);
-
-          break;
-
-        case 'dragenter':
-        case 'dragover':
-          if (dragEl) {
-            this._onDragOver(evt);
-
-            _globalDragOver(evt);
-          }
-
-          break;
-
-        case 'selectstart':
-          evt.preventDefault();
-          break;
-      }
-    },
-
-    /**
-     * Serializes the item into an array of string.
-     * @returns {String[]}
-     */
-    toArray: function toArray() {
-      var order = [],
-          el,
-          children = this.el.children,
-          i = 0,
-          n = children.length,
-          options = this.options;
-
-      for (; i < n; i++) {
-        el = children[i];
-
-        if (_closest(el, options.draggable, this.el, false)) {
-          order.push(el.getAttribute(options.dataIdAttr) || _generateId(el));
-        }
-      }
-
-      return order;
-    },
-
-    /**
-     * Sorts the elements according to the array.
-     * @param  {String[]}  order  order of the items
-     */
-    sort: function sort(order) {
-      var items = {},
-          rootEl = this.el;
-      this.toArray().forEach(function (id, i) {
-        var el = rootEl.children[i];
-
-        if (_closest(el, this.options.draggable, rootEl, false)) {
-          items[id] = el;
-        }
-      }, this);
-      order.forEach(function (id) {
-        if (items[id]) {
-          rootEl.removeChild(items[id]);
-          rootEl.appendChild(items[id]);
-        }
-      });
-    },
-
-    /**
-     * Save the current sorting
-     */
-    save: function save() {
-      var store = this.options.store;
-      store && store.set && store.set(this);
-    },
-
-    /**
-     * For each element in the set, get the first element that matches the selector by testing the element itself and traversing up through its ancestors in the DOM tree.
-     * @param   {HTMLElement}  el
-     * @param   {String}       [selector]  default: `options.draggable`
-     * @returns {HTMLElement|null}
-     */
-    closest: function closest(el, selector) {
-      return _closest(el, selector || this.options.draggable, this.el, false);
-    },
-
-    /**
-     * Set/get option
-     * @param   {string} name
-     * @param   {*}      [value]
-     * @returns {*}
-     */
-    option: function option(name, value) {
-      var options = this.options;
-
-      if (value === void 0) {
-        return options[name];
-      } else {
-        options[name] = value;
-
-        if (name === 'group') {
-          _prepareGroup(options);
-        }
-      }
-    },
-
-    /**
-     * Destroy
-     */
-    destroy: function destroy() {
-      var el = this.el;
-      el[expando] = null;
-
-      _off(el, 'mousedown', this._onTapStart);
-
-      _off(el, 'touchstart', this._onTapStart);
-
-      _off(el, 'pointerdown', this._onTapStart);
-
-      if (this.nativeDraggable) {
-        _off(el, 'dragover', this);
-
-        _off(el, 'dragenter', this);
-      } // Remove draggable attributes
-
-
-      Array.prototype.forEach.call(el.querySelectorAll('[draggable]'), function (el) {
-        el.removeAttribute('draggable');
-      });
-
-      this._onDrop();
-
-      sortables.splice(sortables.indexOf(this.el), 1);
-      this.el = el = null;
-    },
-    _hideClone: function _hideClone() {
-      if (!cloneEl.cloneHidden) {
-        _css(cloneEl, 'display', 'none');
-
-        cloneEl.cloneHidden = true;
-
-        if (cloneEl.parentNode && this.options.removeCloneOnHide) {
-          cloneEl.parentNode.removeChild(cloneEl);
-        }
-      }
-    },
-    _showClone: function _showClone(putSortable) {
-      if (putSortable.lastPutMode !== 'clone') {
-        this._hideClone();
-
-        return;
-      }
-
-      if (cloneEl.cloneHidden) {
-        // show clone at dragEl or original position
-        if (rootEl.contains(dragEl) && !this.options.group.revertClone) {
-          rootEl.insertBefore(cloneEl, dragEl);
-        } else if (nextEl) {
-          rootEl.insertBefore(cloneEl, nextEl);
-        } else {
-          rootEl.appendChild(cloneEl);
-        }
-
-        if (this.options.group.revertClone) {
-          this._animate(dragEl, cloneEl);
-        }
-
-        _css(cloneEl, 'display', '');
-
-        cloneEl.cloneHidden = false;
-      }
-    }
-  };
-
-  function _closest(
-  /**HTMLElement*/
-  el,
-  /**String*/
-  selector,
-  /**HTMLElement*/
-  ctx, includeCTX) {
-    if (el) {
-      ctx = ctx || document;
-
-      do {
-        if (selector != null && (selector[0] === '>' ? el.parentNode === ctx && _matches(el, selector) : _matches(el, selector)) || includeCTX && el === ctx) {
-          return el;
-        }
-
-        if (el === ctx) break;
-        /* jshint boss:true */
-      } while (el = _getParentOrHost(el));
-    }
-
-    return null;
-  }
-
-  function _getParentOrHost(el) {
-    return el.host && el !== document && el.host.nodeType ? el.host : el.parentNode;
-  }
-
-  function _globalDragOver(
-  /**Event*/
-  evt) {
-    if (evt.dataTransfer) {
-      evt.dataTransfer.dropEffect = 'move';
-    }
-
-    evt.cancelable && evt.preventDefault();
-  }
-
-  function _on(el, event, fn) {
-    el.addEventListener(event, fn, IE11OrLess ? false : captureMode);
-  }
-
-  function _off(el, event, fn) {
-    el.removeEventListener(event, fn, IE11OrLess ? false : captureMode);
-  }
-
-  function _toggleClass(el, name, state) {
-    if (el && name) {
-      if (el.classList) {
-        el.classList[state ? 'add' : 'remove'](name);
-      } else {
-        var className = (' ' + el.className + ' ').replace(R_SPACE, ' ').replace(' ' + name + ' ', ' ');
-        el.className = (className + (state ? ' ' + name : '')).replace(R_SPACE, ' ');
-      }
-    }
-  }
-
-  function _css(el, prop, val) {
-    var style = el && el.style;
-
-    if (style) {
-      if (val === void 0) {
-        if (document.defaultView && document.defaultView.getComputedStyle) {
-          val = document.defaultView.getComputedStyle(el, '');
-        } else if (el.currentStyle) {
-          val = el.currentStyle;
-        }
-
-        return prop === void 0 ? val : val[prop];
-      } else {
-        if (!(prop in style) && prop.indexOf('webkit') === -1) {
-          prop = '-webkit-' + prop;
-        }
-
-        style[prop] = val + (typeof val === 'string' ? '' : 'px');
-      }
-    }
-  }
-
-  function _matrix(el) {
-    var appliedTransforms = '';
-
-    do {
-      var transform = _css(el, 'transform');
-
-      if (transform && transform !== 'none') {
-        appliedTransforms = transform + ' ' + appliedTransforms;
-      }
-      /* jshint boss:true */
-
-    } while (el = el.parentNode);
-
-    if (window.DOMMatrix) {
-      return new DOMMatrix(appliedTransforms);
-    } else if (window.WebKitCSSMatrix) {
-      return new WebKitCSSMatrix(appliedTransforms);
-    } else if (window.CSSMatrix) {
-      return new CSSMatrix(appliedTransforms);
-    }
-  }
-
-  function _find(ctx, tagName, iterator) {
-    if (ctx) {
-      var list = ctx.getElementsByTagName(tagName),
-          i = 0,
-          n = list.length;
-
-      if (iterator) {
-        for (; i < n; i++) {
-          iterator(list[i], i);
-        }
-      }
-
-      return list;
-    }
-
-    return [];
-  }
-
-  function _dispatchEvent(sortable, rootEl, name, targetEl, toEl, fromEl, startIndex, newIndex, startDraggableIndex, newDraggableIndex, originalEvt) {
-    sortable = sortable || rootEl[expando];
-    var evt,
-        options = sortable.options,
-        onName = 'on' + name.charAt(0).toUpperCase() + name.substr(1); // Support for new CustomEvent feature
-
-    if (window.CustomEvent && !IE11OrLess && !Edge) {
-      evt = new CustomEvent(name, {
-        bubbles: true,
-        cancelable: true
-      });
-    } else {
-      evt = document.createEvent('Event');
-      evt.initEvent(name, true, true);
-    }
-
-    evt.to = toEl || rootEl;
-    evt.from = fromEl || rootEl;
-    evt.item = targetEl || rootEl;
-    evt.clone = cloneEl;
-    evt.oldIndex = startIndex;
-    evt.newIndex = newIndex;
-    evt.oldDraggableIndex = startDraggableIndex;
-    evt.newDraggableIndex = newDraggableIndex;
-    evt.originalEvent = originalEvt;
-    evt.pullMode = putSortable ? putSortable.lastPutMode : undefined;
-
-    if (rootEl) {
-      rootEl.dispatchEvent(evt);
-    }
-
-    if (options[onName]) {
-      options[onName].call(sortable, evt);
-    }
-  }
-
-  function _onMove(fromEl, toEl, dragEl, dragRect, targetEl, targetRect, originalEvt, willInsertAfter) {
-    var evt,
-        sortable = fromEl[expando],
-        onMoveFn = sortable.options.onMove,
-        retVal; // Support for new CustomEvent feature
-
-    if (window.CustomEvent && !IE11OrLess && !Edge) {
-      evt = new CustomEvent('move', {
-        bubbles: true,
-        cancelable: true
-      });
-    } else {
-      evt = document.createEvent('Event');
-      evt.initEvent('move', true, true);
-    }
-
-    evt.to = toEl;
-    evt.from = fromEl;
-    evt.dragged = dragEl;
-    evt.draggedRect = dragRect;
-    evt.related = targetEl || toEl;
-    evt.relatedRect = targetRect || _getRect(toEl);
-    evt.willInsertAfter = willInsertAfter;
-    evt.originalEvent = originalEvt;
-    fromEl.dispatchEvent(evt);
-
-    if (onMoveFn) {
-      retVal = onMoveFn.call(sortable, evt, originalEvt);
-    }
-
-    return retVal;
-  }
-
-  function _disableDraggable(el) {
-    el.draggable = false;
-  }
-
-  function _unsilent() {
-    _silent = false;
-  }
-  /**
-   * Gets nth child of el, ignoring hidden children, sortable's elements (does not ignore clone if it's visible)
-   * and non-draggable elements
-   * @param  {HTMLElement} el       The parent element
-   * @param  {Number} childNum      The index of the child
-   * @param  {Object} options       Parent Sortable's options
-   * @return {HTMLElement}          The child at index childNum, or null if not found
-   */
-
-
-  function _getChild(el, childNum, options) {
-    var currentChild = 0,
-        i = 0,
-        children = el.children;
-
-    while (i < children.length) {
-      if (children[i].style.display !== 'none' && children[i] !== ghostEl && children[i] !== dragEl && _closest(children[i], options.draggable, el, false)) {
-        if (currentChild === childNum) {
-          return children[i];
-        }
-
-        currentChild++;
-      }
-
-      i++;
-    }
-
-    return null;
-  }
-  /**
-   * Gets the last child in the el, ignoring ghostEl or invisible elements (clones)
-   * @param  {HTMLElement} el       Parent element
-   * @return {HTMLElement}          The last child, ignoring ghostEl
-   */
-
-
-  function _lastChild(el) {
-    var last = el.lastElementChild;
-
-    while (last && (last === ghostEl || _css(last, 'display') === 'none')) {
-      last = last.previousElementSibling;
-    }
-
-    return last || null;
-  }
-
-  function _ghostIsLast(evt, axis, el) {
-    var elRect = _getRect(_lastChild(el)),
-        mouseOnAxis = axis === 'vertical' ? evt.clientY : evt.clientX,
-        mouseOnOppAxis = axis === 'vertical' ? evt.clientX : evt.clientY,
-        targetS2 = axis === 'vertical' ? elRect.bottom : elRect.right,
-        targetS1Opp = axis === 'vertical' ? elRect.left : elRect.top,
-        targetS2Opp = axis === 'vertical' ? elRect.right : elRect.bottom,
-        spacer = 10;
-
-    return axis === 'vertical' ? mouseOnOppAxis > targetS2Opp + spacer || mouseOnOppAxis <= targetS2Opp && mouseOnAxis > targetS2 && mouseOnOppAxis >= targetS1Opp : mouseOnAxis > targetS2 && mouseOnOppAxis > targetS1Opp || mouseOnAxis <= targetS2 && mouseOnOppAxis > targetS2Opp + spacer;
-  }
-
-  function _getSwapDirection(evt, target, axis, swapThreshold, invertedSwapThreshold, invertSwap, isLastTarget) {
-    var targetRect = _getRect(target),
-        mouseOnAxis = axis === 'vertical' ? evt.clientY : evt.clientX,
-        targetLength = axis === 'vertical' ? targetRect.height : targetRect.width,
-        targetS1 = axis === 'vertical' ? targetRect.top : targetRect.left,
-        targetS2 = axis === 'vertical' ? targetRect.bottom : targetRect.right,
-        dragRect = _getRect(dragEl),
-        invert = false;
-
-    if (!invertSwap) {
-      // Never invert or create dragEl shadow when target movemenet causes mouse to move past the end of regular swapThreshold
-      if (isLastTarget && targetMoveDistance < targetLength * swapThreshold) {
-        // multiplied only by swapThreshold because mouse will already be inside target by (1 - threshold) * targetLength / 2
-        // check if past first invert threshold on side opposite of lastDirection
-        if (!pastFirstInvertThresh && (lastDirection === 1 ? mouseOnAxis > targetS1 + targetLength * invertedSwapThreshold / 2 : mouseOnAxis < targetS2 - targetLength * invertedSwapThreshold / 2)) {
-          // past first invert threshold, do not restrict inverted threshold to dragEl shadow
-          pastFirstInvertThresh = true;
-        }
-
-        if (!pastFirstInvertThresh) {
-          var dragS1 = axis === 'vertical' ? dragRect.top : dragRect.left,
-              dragS2 = axis === 'vertical' ? dragRect.bottom : dragRect.right; // dragEl shadow (target move distance shadow)
-
-          if (lastDirection === 1 ? mouseOnAxis < targetS1 + targetMoveDistance // over dragEl shadow
-          : mouseOnAxis > targetS2 - targetMoveDistance) {
-            return lastDirection * -1;
-          }
-        } else {
-          invert = true;
-        }
-      } else {
-        // Regular
-        if (mouseOnAxis > targetS1 + targetLength * (1 - swapThreshold) / 2 && mouseOnAxis < targetS2 - targetLength * (1 - swapThreshold) / 2) {
-          return _getInsertDirection(target);
-        }
-      }
-    }
-
-    invert = invert || invertSwap;
-
-    if (invert) {
-      // Invert of regular
-      if (mouseOnAxis < targetS1 + targetLength * invertedSwapThreshold / 2 || mouseOnAxis > targetS2 - targetLength * invertedSwapThreshold / 2) {
-        return mouseOnAxis > targetS1 + targetLength / 2 ? 1 : -1;
-      }
-    }
-
-    return 0;
-  }
-  /**
-   * Gets the direction dragEl must be swapped relative to target in order to make it
-   * seem that dragEl has been "inserted" into that element's position
-   * @param  {HTMLElement} target       The target whose position dragEl is being inserted at
-   * @return {Number}                   Direction dragEl must be swapped
-   */
-
-
-  function _getInsertDirection(target) {
-    var dragElIndex = _index(dragEl),
-        targetIndex = _index(target);
-
-    if (dragElIndex < targetIndex) {
-      return 1;
-    } else {
-      return -1;
-    }
-  }
-  /**
-   * Generate id
-   * @param   {HTMLElement} el
-   * @returns {String}
-   * @private
-   */
-
-
-  function _generateId(el) {
-    var str = el.tagName + el.className + el.src + el.href + el.textContent,
-        i = str.length,
-        sum = 0;
-
-    while (i--) {
-      sum += str.charCodeAt(i);
-    }
-
-    return sum.toString(36);
-  }
-  /**
-   * Returns the index of an element within its parent for a selected set of
-   * elements
-   * @param  {HTMLElement} el
-   * @param  {selector} selector
-   * @return {number}
-   */
-
-
-  function _index(el, selector) {
-    var index = 0;
-
-    if (!el || !el.parentNode) {
-      return -1;
-    }
-
-    while (el && (el = el.previousElementSibling)) {
-      if (el.nodeName.toUpperCase() !== 'TEMPLATE' && el !== cloneEl && (!selector || _matches(el, selector))) {
-        index++;
-      }
-    }
-
-    return index;
-  }
-
-  function _matches(
-  /**HTMLElement*/
-  el,
-  /**String*/
-  selector) {
-    if (!selector) return;
-    selector[0] === '>' && (selector = selector.substring(1));
-
-    if (el) {
-      try {
-        if (el.matches) {
-          return el.matches(selector);
-        } else if (el.msMatchesSelector) {
-          return el.msMatchesSelector(selector);
-        } else if (el.webkitMatchesSelector) {
-          return el.webkitMatchesSelector(selector);
-        }
-      } catch (_) {
-        return false;
-      }
-    }
-
-    return false;
-  }
-
-  var _throttleTimeout;
-
-  function _throttle(callback, ms) {
-    return function () {
-      if (!_throttleTimeout) {
-        var args = arguments,
-            _this = this;
-
-        _throttleTimeout = setTimeout(function () {
-          if (args.length === 1) {
-            callback.call(_this, args[0]);
-          } else {
-            callback.apply(_this, args);
-          }
-
-          _throttleTimeout = void 0;
-        }, ms);
-      }
-    };
-  }
-
-  function _cancelThrottle() {
-    clearTimeout(_throttleTimeout);
-    _throttleTimeout = void 0;
-  }
-
-  function _extend(dst, src) {
-    if (dst && src) {
-      for (var key in src) {
-        if (src.hasOwnProperty(key)) {
-          dst[key] = src[key];
-        }
-      }
-    }
-
-    return dst;
-  }
-
-  function _clone(el) {
-    if (Polymer && Polymer.dom) {
-      return Polymer.dom(el).cloneNode(true);
-    } else if ($) {
-      return $(el).clone(true)[0];
-    } else {
-      return el.cloneNode(true);
-    }
-  }
-
-  function _saveInputCheckedState(root) {
-    savedInputChecked.length = 0;
-    var inputs = root.getElementsByTagName('input');
-    var idx = inputs.length;
-
-    while (idx--) {
-      var el = inputs[idx];
-      el.checked && savedInputChecked.push(el);
-    }
-  }
-
-  function _nextTick(fn) {
-    return setTimeout(fn, 0);
-  }
-
-  function _cancelNextTick(id) {
-    return clearTimeout(id);
-  }
-  /**
-   * Returns the "bounding client rect" of given element
-   * @param  {HTMLElement} el                The element whose boundingClientRect is wanted
-   * @param  {[HTMLElement]} container       the parent the element will be placed in
-   * @param  {[Boolean]} adjustForTransform  Whether the rect should compensate for parent's transform
-   * @return {Object}                        The boundingClientRect of el
-   */
-
-
-  function _getRect(el, adjustForTransform, container, adjustForFixed) {
-    if (!el.getBoundingClientRect && el !== win) return;
-    var elRect, top, left, bottom, right, height, width;
-
-    if (el !== win && el !== _getWindowScrollingElement()) {
-      elRect = el.getBoundingClientRect();
-      top = elRect.top;
-      left = elRect.left;
-      bottom = elRect.bottom;
-      right = elRect.right;
-      height = elRect.height;
-      width = elRect.width;
-    } else {
-      top = 0;
-      left = 0;
-      bottom = window.innerHeight;
-      right = window.innerWidth;
-      height = window.innerHeight;
-      width = window.innerWidth;
-    }
-
-    if (adjustForFixed && el !== win) {
-      // Adjust for translate()
-      container = container || el.parentNode; // solves #1123 (see: https://stackoverflow.com/a/37953806/6088312)
-      // Not needed on <= IE11
-
-      if (!IE11OrLess) {
-        do {
-          if (container && container.getBoundingClientRect && _css(container, 'transform') !== 'none') {
-            var containerRect = container.getBoundingClientRect(); // Set relative to edges of padding box of container
-
-            top -= containerRect.top + parseInt(_css(container, 'border-top-width'));
-            left -= containerRect.left + parseInt(_css(container, 'border-left-width'));
-            bottom = top + elRect.height;
-            right = left + elRect.width;
-            break;
-          }
-          /* jshint boss:true */
-
-        } while (container = container.parentNode);
-      }
-    }
-
-    if (adjustForTransform && el !== win) {
-      // Adjust for scale()
-      var matrix = _matrix(container || el),
-          scaleX = matrix && matrix.a,
-          scaleY = matrix && matrix.d;
-
-      if (matrix) {
-        top /= scaleY;
-        left /= scaleX;
-        width /= scaleX;
-        height /= scaleY;
-        bottom = top + height;
-        right = left + width;
-      }
-    }
-
-    return {
-      top: top,
-      left: left,
-      bottom: bottom,
-      right: right,
-      width: width,
-      height: height
-    };
-  }
-  /**
-   * Checks if a side of an element is scrolled past a side of it's parents
-   * @param  {HTMLElement}  el       The element who's side being scrolled out of view is in question
-   * @param  {String}       side     Side of the element in question ('top', 'left', 'right', 'bottom')
-   * @return {HTMLElement}           The parent scroll element that the el's side is scrolled past, or null if there is no such element
-   */
-
-
-  function _isScrolledPast(el, side) {
-    var parent = _getParentAutoScrollElement(el, true),
-        elSide = _getRect(el)[side];
-    /* jshint boss:true */
-
-
-    while (parent) {
-      var parentSide = _getRect(parent)[side],
-          visible;
-
-      if (side === 'top' || side === 'left') {
-        visible = elSide >= parentSide;
-      } else {
-        visible = elSide <= parentSide;
-      }
-
-      if (!visible) return parent;
-      if (parent === _getWindowScrollingElement()) break;
-      parent = _getParentAutoScrollElement(parent, false);
-    }
-
-    return false;
-  }
-  /**
-   * Returns the scroll offset of the given element, added with all the scroll offsets of parent elements.
-   * The value is returned in real pixels.
-   * @param  {HTMLElement} el
-   * @return {Array}             Offsets in the format of [left, top]
-   */
-
-
-  function _getRelativeScrollOffset(el) {
-    var offsetLeft = 0,
-        offsetTop = 0,
-        winScroller = _getWindowScrollingElement();
-
-    if (el) {
-      do {
-        var matrix = _matrix(el),
-            scaleX = matrix.a,
-            scaleY = matrix.d;
-
-        offsetLeft += el.scrollLeft * scaleX;
-        offsetTop += el.scrollTop * scaleY;
-      } while (el !== winScroller && (el = el.parentNode));
-    }
-
-    return [offsetLeft, offsetTop];
-  } // Fixed #973:
-
-
-  _on(document, 'touchmove', function (evt) {
-    if ((Sortable.active || awaitingDragStarted) && evt.cancelable) {
-      evt.preventDefault();
-    }
-  }); // Export utils
-
-
-  Sortable.utils = {
-    on: _on,
-    off: _off,
-    css: _css,
-    find: _find,
-    is: function is(el, selector) {
-      return !!_closest(el, selector, el, false);
-    },
-    extend: _extend,
-    throttle: _throttle,
-    closest: _closest,
-    toggleClass: _toggleClass,
-    clone: _clone,
-    index: _index,
-    nextTick: _nextTick,
-    cancelNextTick: _cancelNextTick,
-    detectDirection: _detectDirection,
-    getChild: _getChild
-  };
-  /**
-   * Create sortable instance
-   * @param {HTMLElement}  el
-   * @param {Object}      [options]
-   */
-
-  Sortable.create = function (el, options) {
-    return new Sortable(el, options);
-  }; // Export
-
-
-  Sortable.version = '1.9.0';
-  return Sortable;
 });
 /*
  * ES2015 accessible modal window system, using ARIA
@@ -7287,8 +5028,14 @@ var pwtImage = function () {
           jQuery(folderItems).each(function (index, folderItem) {
             structure += folderItem;
 
-            if (structure.length > 0) {
-              folderPath[index + 1] = "<a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '/".concat(structure, "', '").concat(target, "'); return false;\"><span class=\"icon-folder-2\"></span>").concat(folderItem, "</a>");
+            if (structure.length > 1) {
+              folderPath[index + 1] = '';
+
+              if (index > 1) {
+                folderPath[index + 1] = "<span class=\"format-slash\">/</span>";
+              }
+
+              folderPath[index + 1] += "<a onclick=\"pwtImage.loadFolder('.pwt-gallery__items--folders', '/".concat(structure, "', '").concat(target, "'); return false;\"><span class=\"icon-folder-2\"></span>").concat(folderItem, "</a>");
               structure += '/';
             }
           });
@@ -7920,7 +5667,12 @@ var pwtImage = function () {
     } // Show the Use original image option
 
 
-    document.getElementById('useOriginal').parentElement.style.display = 'block'; // Show some basic info of the original file
+    var useOriginal = document.getElementById('useOriginal');
+
+    if (useOriginal) {
+      useOriginal.parentElement.style.display = 'block';
+    } // Show some basic info of the original file
+
 
     jQuery.ajax({
       type: 'POST',
@@ -8196,18 +5948,31 @@ var pwtImage = function () {
 
       window.Joomla.renderMessages(message);
     }
-  } // Return the public parts
+  }
+  /**
+   * Set the hotkeys
+   */
+
+
+  pwtImage.setHotkeys = function (modalId) {
+    document.addEventListener('keyup', function (e) {
+      if (e.key === 'Escape') {
+        pwtImage.closeModal();
+      } else if (e.key === 'Enter') {
+        var _modalId = window.Joomla.optionsStorage.PWTImageConfig.modalId;
+        pwtImage.saveImage(_modalId);
+      }
+    });
+  }; // Return the public parts
 
 
   return pwtImage;
 }();
+/*! choices.js v7.1.5 | © 2019 Josh Johnson | https://github.com/jshjohnson/Choices#readme */
+
 
 (function webpackUniversalModuleDefinition(root, factory) {
-  //CommonJS2
-  if ((typeof exports === "undefined" ? "undefined" : _typeof2(exports)) === 'object' && (typeof module === "undefined" ? "undefined" : _typeof2(module)) === 'object') module.exports = factory(); //AMD
-  else if (typeof define === 'function' && define.amd) define([], factory); //CommonJS
-    else if ((typeof exports === "undefined" ? "undefined" : _typeof2(exports)) === 'object') exports["Choices"] = factory(); //Window
-      else root["Choices"] = factory();
+  if ((typeof exports === "undefined" ? "undefined" : _typeof2(exports)) === 'object' && (typeof module === "undefined" ? "undefined" : _typeof2(module)) === 'object') module.exports = factory();else if (typeof define === 'function' && define.amd) define([], factory);else if ((typeof exports === "undefined" ? "undefined" : _typeof2(exports)) === 'object') exports["Choices"] = factory();else root["Choices"] = factory();
 })(window, function () {
   return (
     /******/
@@ -8457,7 +6222,7 @@ var pwtImage = function () {
 
       /******/
 
-      return __webpack_require__(__webpack_require__.s = 9);
+      return __webpack_require__(__webpack_require__.s = 5);
       /******/
     }(
     /************************************************************************/
@@ -8468,294 +6233,62 @@ var pwtImage = function () {
 
     /***/
     function (module, exports, __webpack_require__) {
-      "use strict";
+      var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
+      /*!
+      Copyright (c) 2017 Jed Watson.
+      Licensed under the MIT License (MIT), see
+      http://jedwatson.github.io/classnames
+      */
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.diff = exports.cloneObject = exports.existsInArray = exports.isIE11 = exports.fetchFromObject = exports.getWindowHeight = exports.dispatchEvent = exports.sortByScore = exports.sortByAlpha = exports.calcWidthOfInput = exports.strToEl = exports.sanitise = exports.isScrolledIntoView = exports.getAdjacentEl = exports.findAncestorByAttrName = exports.wrap = exports.isElement = exports.isType = exports.getType = exports.generateId = exports.generateChars = exports.getRandomNumber = void 0;
-
-      var _this = void 0;
-
-      var getRandomNumber = function getRandomNumber(min, max) {
-        return Math.floor(Math.random() * (max - min) + min);
-      };
-
-      exports.getRandomNumber = getRandomNumber;
-
-      var generateChars = function generateChars(length) {
-        var chars = '';
-
-        for (var i = 0; i < length; i++) {
-          var randomChar = getRandomNumber(0, 36);
-          chars += randomChar.toString(36);
-        }
-
-        return chars;
-      };
-
-      exports.generateChars = generateChars;
-
-      var generateId = function generateId(element, prefix) {
-        var id = element.id || element.name && "".concat(element.name, "-").concat(generateChars(2)) || generateChars(4);
-        id = id.replace(/(:|\.|\[|\]|,)/g, '');
-        id = "".concat(prefix, "-").concat(id);
-        return id;
-      };
-
-      exports.generateId = generateId;
-
-      var getType = function getType(obj) {
-        return Object.prototype.toString.call(obj).slice(8, -1);
-      };
-
-      exports.getType = getType;
-
-      var isType = function isType(type, obj) {
-        return obj !== undefined && obj !== null && getType(obj) === type;
-      };
-
-      exports.isType = isType;
-
-      var isElement = function isElement(element) {
-        return element instanceof Element;
-      };
-
-      exports.isElement = isElement;
-
-      var wrap = function wrap(element) {
-        var wrapper = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document.createElement('div');
-
-        if (element.nextSibling) {
-          element.parentNode.insertBefore(wrapper, element.nextSibling);
-        } else {
-          element.parentNode.appendChild(wrapper);
-        }
-
-        return wrapper.appendChild(element);
-      };
-
-      exports.wrap = wrap;
-
-      var findAncestorByAttrName = function findAncestorByAttrName(el, attr) {
-        var target = el;
-
-        while (target) {
-          if (target.hasAttribute(attr)) {
-            return target;
-          }
-
-          target = target.parentElement;
-        }
-
-        return null;
-      };
-
-      exports.findAncestorByAttrName = findAncestorByAttrName;
-
-      var getAdjacentEl = function getAdjacentEl(startEl, className) {
-        var direction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-
-        if (!startEl || !className) {
-          return;
-        }
-
-        var parent = startEl.parentNode.parentNode;
-        var children = Array.from(parent.querySelectorAll(className));
-        var startPos = children.indexOf(startEl);
-        var operatorDirection = direction > 0 ? 1 : -1;
-        return children[startPos + operatorDirection];
-      };
-
-      exports.getAdjacentEl = getAdjacentEl;
-
-      var isScrolledIntoView = function isScrolledIntoView(el, parent) {
-        var direction = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 1;
-
-        if (!el) {
-          return;
-        }
-
-        var isVisible;
-
-        if (direction > 0) {
-          // In view from bottom
-          isVisible = parent.scrollTop + parent.offsetHeight >= el.offsetTop + el.offsetHeight;
-        } else {
-          // In view from top
-          isVisible = el.offsetTop >= parent.scrollTop;
-        }
-
-        return isVisible;
-      };
-
-      exports.isScrolledIntoView = isScrolledIntoView;
-
-      var sanitise = function sanitise(value) {
-        if (!isType('String', value)) {
-          return value;
-        }
-
-        return value.replace(/&/g, '&amp;').replace(/>/g, '&rt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-      };
-
-      exports.sanitise = sanitise;
-
-      var strToEl = function () {
-        var tmpEl = document.createElement('div');
-        return function (str) {
-          var cleanedInput = str.trim();
-          tmpEl.innerHTML = cleanedInput;
-          var firldChild = tmpEl.children[0];
-
-          while (tmpEl.firstChild) {
-            tmpEl.removeChild(tmpEl.firstChild);
-          }
-
-          return firldChild;
-        };
-      }();
-      /**
-       * Determines the width of a passed input based on its value and passes
-       * it to the supplied callback function.
-       */
+      /* global define */
 
 
-      exports.strToEl = strToEl;
+      (function () {
+        'use strict';
 
-      var calcWidthOfInput = function calcWidthOfInput(input, callback) {
-        var value = input.value || input.placeholder;
-        var width = input.offsetWidth;
+        var hasOwn = {}.hasOwnProperty;
 
-        if (value) {
-          var testEl = strToEl("<span>".concat(sanitise(value), "</span>"));
-          testEl.style.position = 'absolute';
-          testEl.style.padding = '0';
-          testEl.style.top = '-9999px';
-          testEl.style.left = '-9999px';
-          testEl.style.width = 'auto';
-          testEl.style.whiteSpace = 'pre';
+        function classNames() {
+          var classes = [];
 
-          if (document.body.contains(input) && window.getComputedStyle) {
-            var inputStyle = window.getComputedStyle(input);
+          for (var i = 0; i < arguments.length; i++) {
+            var arg = arguments[i];
+            if (!arg) continue;
 
-            if (inputStyle) {
-              testEl.style.fontSize = inputStyle.fontSize;
-              testEl.style.fontFamily = inputStyle.fontFamily;
-              testEl.style.fontWeight = inputStyle.fontWeight;
-              testEl.style.fontStyle = inputStyle.fontStyle;
-              testEl.style.letterSpacing = inputStyle.letterSpacing;
-              testEl.style.textTransform = inputStyle.textTransform;
-              testEl.style.padding = inputStyle.padding;
+            var argType = _typeof2(arg);
+
+            if (argType === 'string' || argType === 'number') {
+              classes.push(arg);
+            } else if (Array.isArray(arg) && arg.length) {
+              var inner = classNames.apply(null, arg);
+
+              if (inner) {
+                classes.push(inner);
+              }
+            } else if (argType === 'object') {
+              for (var key in arg) {
+                if (hasOwn.call(arg, key) && arg[key]) {
+                  classes.push(key);
+                }
+              }
             }
           }
 
-          document.body.appendChild(testEl);
-          requestAnimationFrame(function () {
-            if (value && testEl.offsetWidth !== input.offsetWidth) {
-              width = testEl.offsetWidth + 4;
-            }
-
-            document.body.removeChild(testEl);
-            callback.call(_this, "".concat(width, "px"));
-          });
-        } else {
-          callback.call(_this, "".concat(width, "px"));
-        }
-      };
-
-      exports.calcWidthOfInput = calcWidthOfInput;
-
-      var sortByAlpha = function sortByAlpha(a, b) {
-        var labelA = "".concat(a.label || a.value).toLowerCase();
-        var labelB = "".concat(b.label || b.value).toLowerCase();
-
-        if (labelA < labelB) {
-          return -1;
+          return classes.join(' ');
         }
 
-        if (labelA > labelB) {
-          return 1;
-        }
-
-        return 0;
-      };
-
-      exports.sortByAlpha = sortByAlpha;
-
-      var sortByScore = function sortByScore(a, b) {
-        return a.score - b.score;
-      };
-
-      exports.sortByScore = sortByScore;
-
-      var dispatchEvent = function dispatchEvent(element, type) {
-        var customArgs = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-        var event = new CustomEvent(type, {
-          detail: customArgs,
-          bubbles: true,
-          cancelable: true
-        });
-        return element.dispatchEvent(event);
-      };
-
-      exports.dispatchEvent = dispatchEvent;
-
-      var getWindowHeight = function getWindowHeight() {
-        var body = document.body;
-        var html = document.documentElement;
-        return Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
-      };
-
-      exports.getWindowHeight = getWindowHeight;
-
-      var fetchFromObject = function fetchFromObject(object, path) {
-        var index = path.indexOf('.');
-
-        if (index > -1) {
-          return fetchFromObject(object[path.substring(0, index)], path.substr(index + 1));
-        }
-
-        return object[path];
-      };
-
-      exports.fetchFromObject = fetchFromObject;
-
-      var isIE11 = function isIE11() {
-        return !!(navigator.userAgent.match(/Trident/) && navigator.userAgent.match(/rv[ :]11/));
-      };
-
-      exports.isIE11 = isIE11;
-
-      var existsInArray = function existsInArray(array, value) {
-        var key = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'value';
-        return array.some(function (item) {
-          if (isType('String', value)) {
-            return item[key] === value.trim();
-          }
-
-          return item[key] === value;
-        });
-      };
-
-      exports.existsInArray = existsInArray;
-
-      var cloneObject = function cloneObject(obj) {
-        return JSON.parse(JSON.stringify(obj));
-      };
-
-      exports.cloneObject = cloneObject;
-
-      var diff = function diff(a, b) {
-        var aKeys = Object.keys(a).sort();
-        var bKeys = Object.keys(b).sort();
-        return aKeys.filter(function (i) {
-          return bKeys.indexOf(i) < 0;
-        });
-      };
-
-      exports.diff = diff;
+        if (true && module.exports) {
+          classNames["default"] = classNames;
+          module.exports = classNames;
+        } else if (true) {
+          // register as 'classnames', consistent with npm package name
+          !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+            return classNames;
+          }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+        } else {}
+      })();
       /***/
+
     },
     /* 1 */
 
@@ -8763,133 +6296,128 @@ var pwtImage = function () {
     function (module, exports, __webpack_require__) {
       "use strict";
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.SCROLLING_SPEED = exports.KEY_CODES = exports.ACTION_TYPES = exports.EVENTS = exports.DEFAULT_CONFIG = exports.DEFAULT_CLASSNAMES = void 0;
+      var isMergeableObject = function isMergeableObject(value) {
+        return isNonNullObject(value) && !isSpecial(value);
+      };
 
-      var _utils = __webpack_require__(0);
+      function isNonNullObject(value) {
+        return !!value && _typeof2(value) === 'object';
+      }
 
-      var DEFAULT_CLASSNAMES = {
-        containerOuter: 'choices',
-        containerInner: 'choices__inner',
-        input: 'choices__input',
-        inputCloned: 'choices__input--cloned',
-        list: 'choices__list',
-        listItems: 'choices__list--multiple',
-        listSingle: 'choices__list--single',
-        listDropdown: 'choices__list--dropdown',
-        item: 'choices__item',
-        itemSelectable: 'choices__item--selectable',
-        itemDisabled: 'choices__item--disabled',
-        itemChoice: 'choices__item--choice',
-        placeholder: 'choices__placeholder',
-        group: 'choices__group',
-        groupHeading: 'choices__heading',
-        button: 'choices__button',
-        activeState: 'is-active',
-        focusState: 'is-focused',
-        openState: 'is-open',
-        disabledState: 'is-disabled',
-        highlightedState: 'is-highlighted',
-        hiddenState: 'is-hidden',
-        flippedState: 'is-flipped',
-        loadingState: 'is-loading',
-        noResults: 'has-no-results',
-        noChoices: 'has-no-choices'
+      function isSpecial(value) {
+        var stringValue = Object.prototype.toString.call(value);
+        return stringValue === '[object RegExp]' || stringValue === '[object Date]' || isReactElement(value);
+      } // see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+
+
+      var canUseSymbol = typeof Symbol === 'function' && Symbol["for"];
+      var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol["for"]('react.element') : 0xeac7;
+
+      function isReactElement(value) {
+        return value.$$typeof === REACT_ELEMENT_TYPE;
+      }
+
+      function emptyTarget(val) {
+        return Array.isArray(val) ? [] : {};
+      }
+
+      function cloneUnlessOtherwiseSpecified(value, options) {
+        return options.clone !== false && options.isMergeableObject(value) ? deepmerge(emptyTarget(value), value, options) : value;
+      }
+
+      function defaultArrayMerge(target, source, options) {
+        return target.concat(source).map(function (element) {
+          return cloneUnlessOtherwiseSpecified(element, options);
+        });
+      }
+
+      function getMergeFunction(key, options) {
+        if (!options.customMerge) {
+          return deepmerge;
+        }
+
+        var customMerge = options.customMerge(key);
+        return typeof customMerge === 'function' ? customMerge : deepmerge;
+      }
+
+      function getEnumerableOwnPropertySymbols(target) {
+        return Object.getOwnPropertySymbols ? Object.getOwnPropertySymbols(target).filter(function (symbol) {
+          return target.propertyIsEnumerable(symbol);
+        }) : [];
+      }
+
+      function getKeys(target) {
+        return Object.keys(target).concat(getEnumerableOwnPropertySymbols(target));
+      } // Protects from prototype poisoning and unexpected merging up the prototype chain.
+
+
+      function propertyIsUnsafe(target, key) {
+        try {
+          return key in target && // Properties are safe to merge if they don't exist in the target yet,
+          !(Object.hasOwnProperty.call(target, key) // unsafe if they exist up the prototype chain,
+          && Object.propertyIsEnumerable.call(target, key)); // and also unsafe if they're nonenumerable.
+        } catch (unused) {
+          // Counterintuitively, it's safe to merge any property on a target that causes the `in` operator to throw.
+          // This happens when trying to copy an object in the source over a plain string in the target.
+          return false;
+        }
+      }
+
+      function mergeObject(target, source, options) {
+        var destination = {};
+
+        if (options.isMergeableObject(target)) {
+          getKeys(target).forEach(function (key) {
+            destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+          });
+        }
+
+        getKeys(source).forEach(function (key) {
+          if (propertyIsUnsafe(target, key)) {
+            return;
+          }
+
+          if (!options.isMergeableObject(source[key]) || !target[key]) {
+            destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
+          } else {
+            destination[key] = getMergeFunction(key, options)(target[key], source[key], options);
+          }
+        });
+        return destination;
+      }
+
+      function deepmerge(target, source, options) {
+        options = options || {};
+        options.arrayMerge = options.arrayMerge || defaultArrayMerge;
+        options.isMergeableObject = options.isMergeableObject || isMergeableObject; // cloneUnlessOtherwiseSpecified is added to `options` so that custom arrayMerge()
+        // implementations can use it. The caller may not replace it.
+
+        options.cloneUnlessOtherwiseSpecified = cloneUnlessOtherwiseSpecified;
+        var sourceIsArray = Array.isArray(source);
+        var targetIsArray = Array.isArray(target);
+        var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
+
+        if (!sourceAndTargetTypesMatch) {
+          return cloneUnlessOtherwiseSpecified(source, options);
+        } else if (sourceIsArray) {
+          return options.arrayMerge(target, source, options);
+        } else {
+          return mergeObject(target, source, options);
+        }
+      }
+
+      deepmerge.all = function deepmergeAll(array, options) {
+        if (!Array.isArray(array)) {
+          throw new Error('first argument should be an array');
+        }
+
+        return array.reduce(function (prev, next) {
+          return deepmerge(prev, next, options);
+        }, {});
       };
-      exports.DEFAULT_CLASSNAMES = DEFAULT_CLASSNAMES;
-      var DEFAULT_CONFIG = {
-        items: [],
-        choices: [],
-        silent: false,
-        renderChoiceLimit: -1,
-        maxItemCount: -1,
-        addItems: true,
-        addItemFilterFn: null,
-        removeItems: true,
-        removeItemButton: false,
-        editItems: false,
-        duplicateItemsAllowed: true,
-        delimiter: ',',
-        paste: true,
-        searchEnabled: true,
-        searchChoices: true,
-        searchFloor: 1,
-        searchResultLimit: 4,
-        searchFields: ['label', 'value'],
-        position: 'auto',
-        resetScrollPosition: true,
-        shouldSort: true,
-        shouldSortItems: false,
-        sortFn: _utils.sortByAlpha,
-        placeholder: true,
-        placeholderValue: null,
-        searchPlaceholderValue: null,
-        prependValue: null,
-        appendValue: null,
-        renderSelectedChoices: 'auto',
-        loadingText: 'Loading...',
-        noResultsText: 'No results found',
-        noChoicesText: 'No choices to choose from',
-        itemSelectText: 'Press to select',
-        uniqueItemText: 'Only unique values can be added',
-        customAddItemText: 'Only values matching specific conditions can be added',
-        addItemText: function addItemText(value) {
-          return "Press Enter to add <b>\"".concat((0, _utils.sanitise)(value), "\"</b>");
-        },
-        maxItemText: function maxItemText(maxItemCount) {
-          return "Only ".concat(maxItemCount, " values can be added");
-        },
-        itemComparer: function itemComparer(choice, item) {
-          return choice === item;
-        },
-        fuseOptions: {
-          includeScore: true
-        },
-        callbackOnInit: null,
-        callbackOnCreateTemplates: null,
-        classNames: DEFAULT_CLASSNAMES
-      };
-      exports.DEFAULT_CONFIG = DEFAULT_CONFIG;
-      var EVENTS = {
-        showDropdown: 'showDropdown',
-        hideDropdown: 'hideDropdown',
-        change: 'change',
-        choice: 'choice',
-        search: 'search',
-        addItem: 'addItem',
-        removeItem: 'removeItem',
-        highlightItem: 'highlightItem',
-        highlightChoice: 'highlightChoice'
-      };
-      exports.EVENTS = EVENTS;
-      var ACTION_TYPES = {
-        ADD_CHOICE: 'ADD_CHOICE',
-        FILTER_CHOICES: 'FILTER_CHOICES',
-        ACTIVATE_CHOICES: 'ACTIVATE_CHOICES',
-        CLEAR_CHOICES: 'CLEAR_CHOICES',
-        ADD_GROUP: 'ADD_GROUP',
-        ADD_ITEM: 'ADD_ITEM',
-        REMOVE_ITEM: 'REMOVE_ITEM',
-        HIGHLIGHT_ITEM: 'HIGHLIGHT_ITEM',
-        CLEAR_ALL: 'CLEAR_ALL'
-      };
-      exports.ACTION_TYPES = ACTION_TYPES;
-      var KEY_CODES = {
-        BACK_KEY: 46,
-        DELETE_KEY: 8,
-        ENTER_KEY: 13,
-        A_KEY: 65,
-        ESC_KEY: 27,
-        UP_KEY: 38,
-        DOWN_KEY: 40,
-        PAGE_UP_KEY: 33,
-        PAGE_DOWN_KEY: 34
-      };
-      exports.KEY_CODES = KEY_CODES;
-      var SCROLLING_SPEED = 4;
-      exports.SCROLLING_SPEED = SCROLLING_SPEED;
+
+      var deepmerge_1 = deepmerge;
+      module.exports = deepmerge_1;
       /***/
     },
     /* 2 */
@@ -8901,7 +6429,7 @@ var pwtImage = function () {
 
       (function (global, module) {
         /* harmony import */
-        var _ponyfill_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(7);
+        var _ponyfill_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(4);
         /* global window */
 
 
@@ -8924,3425 +6452,10 @@ var pwtImage = function () {
 
         __webpack_exports__["a"] = result;
         /* WEBPACK VAR INJECTION */
-      }).call(this, __webpack_require__(3), __webpack_require__(14)(module));
+      }).call(this, __webpack_require__(7), __webpack_require__(8)(module));
       /***/
     },
     /* 3 */
-
-    /***/
-    function (module, exports) {
-      var g; // This works in non-strict mode
-
-      g = function () {
-        return this;
-      }();
-
-      try {
-        // This works if eval is allowed (see CSP)
-        g = g || new Function("return this")();
-      } catch (e) {
-        // This works if the window reference is available
-        if ((typeof window === "undefined" ? "undefined" : _typeof2(window)) === "object") g = window;
-      } // g can still be undefined, but nothing to do about it...
-      // We return undefined, instead of nothing here, so it's
-      // easier to handle this case. if(!global) { ...}
-
-
-      module.exports = g;
-      /***/
-    },
-    /* 4 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _utils = __webpack_require__(0);
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-          var descriptor = props[i];
-          descriptor.enumerable = descriptor.enumerable || false;
-          descriptor.configurable = true;
-          if ("value" in descriptor) descriptor.writable = true;
-          Object.defineProperty(target, descriptor.key, descriptor);
-        }
-      }
-
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
-        return Constructor;
-      }
-
-      var WrappedElement =
-      /*#__PURE__*/
-      function () {
-        function WrappedElement(_ref) {
-          var element = _ref.element,
-              classNames = _ref.classNames;
-
-          _classCallCheck(this, WrappedElement);
-
-          Object.assign(this, {
-            element: element,
-            classNames: classNames
-          });
-
-          if (!(0, _utils.isElement)(element)) {
-            throw new TypeError('Invalid element passed');
-          }
-
-          this.isDisabled = false;
-        }
-
-        _createClass(WrappedElement, [{
-          key: "conceal",
-          value: function conceal() {
-            // Hide passed input
-            this.element.classList.add(this.classNames.input);
-            this.element.classList.add(this.classNames.hiddenState); // Remove element from tab index
-
-            this.element.tabIndex = '-1'; // Backup original styles if any
-
-            var origStyle = this.element.getAttribute('style');
-
-            if (origStyle) {
-              this.element.setAttribute('data-choice-orig-style', origStyle);
-            }
-
-            this.element.setAttribute('aria-hidden', 'true');
-            this.element.setAttribute('data-choice', 'active');
-          }
-        }, {
-          key: "reveal",
-          value: function reveal() {
-            // Reinstate passed element
-            this.element.classList.remove(this.classNames.input);
-            this.element.classList.remove(this.classNames.hiddenState);
-            this.element.removeAttribute('tabindex'); // Recover original styles if any
-
-            var origStyle = this.element.getAttribute('data-choice-orig-style');
-
-            if (origStyle) {
-              this.element.removeAttribute('data-choice-orig-style');
-              this.element.setAttribute('style', origStyle);
-            } else {
-              this.element.removeAttribute('style');
-            }
-
-            this.element.removeAttribute('aria-hidden');
-            this.element.removeAttribute('data-choice'); // Re-assign values - this is weird, I know
-
-            this.element.value = this.element.value;
-          }
-        }, {
-          key: "enable",
-          value: function enable() {
-            this.element.removeAttribute('disabled');
-            this.element.disabled = false;
-            this.isDisabled = false;
-          }
-        }, {
-          key: "disable",
-          value: function disable() {
-            this.element.setAttribute('disabled', '');
-            this.element.disabled = true;
-            this.isDisabled = true;
-          }
-        }, {
-          key: "triggerEvent",
-          value: function triggerEvent(eventType, data) {
-            (0, _utils.dispatchEvent)(this.element, eventType, data);
-          }
-        }, {
-          key: "value",
-          get: function get() {
-            return this.element.value;
-          }
-        }]);
-
-        return WrappedElement;
-      }();
-
-      exports["default"] = WrappedElement;
-      /***/
-    },
-    /* 5 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = exports.TEMPLATES = void 0;
-
-      var _classnames = _interopRequireDefault(__webpack_require__(27));
-
-      var _utils = __webpack_require__(0);
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
-        };
-      }
-
-      function _defineProperty(obj, key, value) {
-        if (key in obj) {
-          Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-          });
-        } else {
-          obj[key] = value;
-        }
-
-        return obj;
-      }
-
-      var TEMPLATES = {
-        containerOuter: function containerOuter(globalClasses, direction, isSelectElement, isSelectOneElement, searchEnabled, passedElementType) {
-          var tabIndex = isSelectOneElement ? 'tabindex="0"' : '';
-          var role = isSelectElement ? 'role="listbox"' : '';
-          var ariaAutoComplete = '';
-
-          if (isSelectElement && searchEnabled) {
-            role = 'role="combobox"';
-            ariaAutoComplete = 'aria-autocomplete="list"';
-          }
-
-          return (0, _utils.strToEl)("\n      <div\n        class=\"".concat(globalClasses.containerOuter, "\"\n        data-type=\"").concat(passedElementType, "\"\n        ").concat(role, "\n        ").concat(tabIndex, "\n        ").concat(ariaAutoComplete, "\n        aria-haspopup=\"true\"\n        aria-expanded=\"false\"\n        dir=\"").concat(direction, "\"\n        >\n      </div>\n    "));
-        },
-        containerInner: function containerInner(globalClasses) {
-          return (0, _utils.strToEl)("\n      <div class=\"".concat(globalClasses.containerInner, "\"></div>\n    "));
-        },
-        itemList: function itemList(globalClasses, isSelectOneElement) {
-          var _classNames;
-
-          var localClasses = (0, _classnames["default"])(globalClasses.list, (_classNames = {}, _defineProperty(_classNames, globalClasses.listSingle, isSelectOneElement), _defineProperty(_classNames, globalClasses.listItems, !isSelectOneElement), _classNames));
-          return (0, _utils.strToEl)("\n      <div class=\"".concat(localClasses, "\"></div>\n    "));
-        },
-        placeholder: function placeholder(globalClasses, value) {
-          return (0, _utils.strToEl)("\n      <div class=\"".concat(globalClasses.placeholder, "\">\n        ").concat(value, "\n      </div>\n    "));
-        },
-        item: function item(globalClasses, data, removeItemButton) {
-          var _classNames2;
-
-          var ariaSelected = data.active ? 'aria-selected="true"' : '';
-          var ariaDisabled = data.disabled ? 'aria-disabled="true"' : '';
-          var localClasses = (0, _classnames["default"])(globalClasses.item, (_classNames2 = {}, _defineProperty(_classNames2, globalClasses.highlightedState, data.highlighted), _defineProperty(_classNames2, globalClasses.itemSelectable, !data.highlighted), _defineProperty(_classNames2, globalClasses.placeholder, data.placeholder), _classNames2));
-
-          if (removeItemButton) {
-            var _classNames3;
-
-            localClasses = (0, _classnames["default"])(globalClasses.item, (_classNames3 = {}, _defineProperty(_classNames3, globalClasses.highlightedState, data.highlighted), _defineProperty(_classNames3, globalClasses.itemSelectable, !data.disabled), _defineProperty(_classNames3, globalClasses.placeholder, data.placeholder), _classNames3));
-            return (0, _utils.strToEl)("\n        <div\n          class=\"".concat(localClasses, "\"\n          data-item\n          data-id=\"").concat(data.id, "\"\n          data-value=\"").concat(data.value, "\"\n          data-custom-properties='").concat(data.customProperties, "'\n          data-deletable\n          ").concat(ariaSelected, "\n          ").concat(ariaDisabled, "\n          >\n          ").concat(data.label, "<!--\n       --><button\n            type=\"button\"\n            class=\"").concat(globalClasses.button, "\"\n            data-button\n            aria-label=\"Remove item: '").concat(data.value, "'\"\n            >\n            Remove item\n          </button>\n        </div>\n      "));
-          }
-
-          return (0, _utils.strToEl)("\n      <div\n        class=\"".concat(localClasses, "\"\n        data-item\n        data-id=\"").concat(data.id, "\"\n        data-value=\"").concat(data.value, "\"\n        ").concat(ariaSelected, "\n        ").concat(ariaDisabled, "\n        >\n        ").concat(data.label, "\n      </div>\n    "));
-        },
-        choiceList: function choiceList(globalClasses, isSelectOneElement) {
-          var ariaMultiSelectable = !isSelectOneElement ? 'aria-multiselectable="true"' : '';
-          return (0, _utils.strToEl)("\n      <div\n        class=\"".concat(globalClasses.list, "\"\n        dir=\"ltr\"\n        role=\"listbox\"\n        ").concat(ariaMultiSelectable, "\n        >\n      </div>\n    "));
-        },
-        choiceGroup: function choiceGroup(globalClasses, data) {
-          var ariaDisabled = data.disabled ? 'aria-disabled="true"' : '';
-          var localClasses = (0, _classnames["default"])(globalClasses.group, _defineProperty({}, globalClasses.itemDisabled, data.disabled));
-          return (0, _utils.strToEl)("\n      <div\n        class=\"".concat(localClasses, "\"\n        data-group\n        data-id=\"").concat(data.id, "\"\n        data-value=\"").concat(data.value, "\"\n        role=\"group\"\n        ").concat(ariaDisabled, "\n        >\n        <div class=\"").concat(globalClasses.groupHeading, "\">").concat(data.value, "</div>\n      </div>\n    "));
-        },
-        choice: function choice(globalClasses, data, itemSelectText) {
-          var _classNames5;
-
-          var role = data.groupId > 0 ? 'role="treeitem"' : 'role="option"';
-          var localClasses = (0, _classnames["default"])(globalClasses.item, globalClasses.itemChoice, (_classNames5 = {}, _defineProperty(_classNames5, globalClasses.itemDisabled, data.disabled), _defineProperty(_classNames5, globalClasses.itemSelectable, !data.disabled), _defineProperty(_classNames5, globalClasses.placeholder, data.placeholder), _classNames5));
-          return (0, _utils.strToEl)("\n      <div\n        class=\"".concat(localClasses, "\"\n        data-select-text=\"").concat(itemSelectText, "\"\n        data-choice\n        data-id=\"").concat(data.id, "\"\n        data-value=\"").concat(data.value, "\"\n        ").concat(data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable', "\n        id=\"").concat(data.elementId, "\"\n        ").concat(role, "\n        >\n        ").concat(data.label, "\n      </div>\n    "));
-        },
-        input: function input(globalClasses) {
-          var localClasses = (0, _classnames["default"])(globalClasses.input, globalClasses.inputCloned);
-          return (0, _utils.strToEl)("\n      <input\n        type=\"text\"\n        class=\"".concat(localClasses, "\"\n        autocomplete=\"off\"\n        autocapitalize=\"off\"\n        spellcheck=\"false\"\n        role=\"textbox\"\n        aria-autocomplete=\"list\"\n        >\n    "));
-        },
-        dropdown: function dropdown(globalClasses) {
-          var localClasses = (0, _classnames["default"])(globalClasses.list, globalClasses.listDropdown);
-          return (0, _utils.strToEl)("\n      <div\n        class=\"".concat(localClasses, "\"\n        aria-expanded=\"false\"\n        >\n      </div>\n    "));
-        },
-        notice: function notice(globalClasses, label) {
-          var _classNames6;
-
-          var type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-          var localClasses = (0, _classnames["default"])(globalClasses.item, globalClasses.itemChoice, (_classNames6 = {}, _defineProperty(_classNames6, globalClasses.noResults, type === 'no-results'), _defineProperty(_classNames6, globalClasses.noChoices, type === 'no-choices'), _classNames6));
-          return (0, _utils.strToEl)("\n      <div class=\"".concat(localClasses, "\">\n        ").concat(label, "\n      </div>\n    "));
-        },
-        option: function option(data) {
-          return (0, _utils.strToEl)("\n      <option value=\"".concat(data.value, "\" ").concat(data.active ? 'selected' : '', " ").concat(data.disabled ? 'disabled' : '', " ").concat(data.customProperties ? "data-custom-properties=".concat(data.customProperties) : '', ">").concat(data.label, "</option>\n    "));
-        }
-      };
-      exports.TEMPLATES = TEMPLATES;
-      var _default = TEMPLATES;
-      exports["default"] = _default;
-      /***/
-    },
-    /* 6 */
-
-    /***/
-    function (module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-
-      __webpack_require__.r(__webpack_exports__); // EXTERNAL MODULE: ./node_modules/lodash-es/_freeGlobal.js
-
-
-      var _freeGlobal = __webpack_require__(8); // CONCATENATED MODULE: ./node_modules/lodash-es/_root.js
-
-      /** Detect free variable `self`. */
-
-
-      var freeSelf = (typeof self === "undefined" ? "undefined" : _typeof2(self)) == 'object' && self && self.Object === Object && self;
-      /** Used as a reference to the global object. */
-
-      var root = _freeGlobal["a"
-      /* default */
-      ] || freeSelf || Function('return this')();
-      /* harmony default export */
-
-      var _root = root; // CONCATENATED MODULE: ./node_modules/lodash-es/_Symbol.js
-
-      /** Built-in value references. */
-
-      var _Symbol2 = _root.Symbol;
-      /* harmony default export */
-
-      var _Symbol = _Symbol2; // CONCATENATED MODULE: ./node_modules/lodash-es/_getRawTag.js
-
-      /** Used for built-in method references. */
-
-      var objectProto = Object.prototype;
-      /** Used to check objects for own properties. */
-
-      var _getRawTag_hasOwnProperty = objectProto.hasOwnProperty;
-      /**
-       * Used to resolve the
-       * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-       * of values.
-       */
-
-      var nativeObjectToString = objectProto.toString;
-      /** Built-in value references. */
-
-      var symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
-      /**
-       * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
-       *
-       * @private
-       * @param {*} value The value to query.
-       * @returns {string} Returns the raw `toStringTag`.
-       */
-
-      function getRawTag(value) {
-        var isOwn = _getRawTag_hasOwnProperty.call(value, symToStringTag),
-            tag = value[symToStringTag];
-
-        try {
-          value[symToStringTag] = undefined;
-          var unmasked = true;
-        } catch (e) {}
-
-        var result = nativeObjectToString.call(value);
-
-        if (unmasked) {
-          if (isOwn) {
-            value[symToStringTag] = tag;
-          } else {
-            delete value[symToStringTag];
-          }
-        }
-
-        return result;
-      }
-      /* harmony default export */
-
-
-      var _getRawTag = getRawTag; // CONCATENATED MODULE: ./node_modules/lodash-es/_objectToString.js
-
-      /** Used for built-in method references. */
-
-      var _objectToString_objectProto = Object.prototype;
-      /**
-       * Used to resolve the
-       * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
-       * of values.
-       */
-
-      var _objectToString_nativeObjectToString = _objectToString_objectProto.toString;
-      /**
-       * Converts `value` to a string using `Object.prototype.toString`.
-       *
-       * @private
-       * @param {*} value The value to convert.
-       * @returns {string} Returns the converted string.
-       */
-
-      function objectToString(value) {
-        return _objectToString_nativeObjectToString.call(value);
-      }
-      /* harmony default export */
-
-
-      var _objectToString = objectToString; // CONCATENATED MODULE: ./node_modules/lodash-es/_baseGetTag.js
-
-      /** `Object#toString` result references. */
-
-      var nullTag = '[object Null]',
-          undefinedTag = '[object Undefined]';
-      /** Built-in value references. */
-
-      var _baseGetTag_symToStringTag = _Symbol ? _Symbol.toStringTag : undefined;
-      /**
-       * The base implementation of `getTag` without fallbacks for buggy environments.
-       *
-       * @private
-       * @param {*} value The value to query.
-       * @returns {string} Returns the `toStringTag`.
-       */
-
-
-      function baseGetTag(value) {
-        if (value == null) {
-          return value === undefined ? undefinedTag : nullTag;
-        }
-
-        return _baseGetTag_symToStringTag && _baseGetTag_symToStringTag in Object(value) ? _getRawTag(value) : _objectToString(value);
-      }
-      /* harmony default export */
-
-
-      var _baseGetTag = baseGetTag; // CONCATENATED MODULE: ./node_modules/lodash-es/_overArg.js
-
-      /**
-       * Creates a unary function that invokes `func` with its argument transformed.
-       *
-       * @private
-       * @param {Function} func The function to wrap.
-       * @param {Function} transform The argument transform.
-       * @returns {Function} Returns the new function.
-       */
-
-      function overArg(func, transform) {
-        return function (arg) {
-          return func(transform(arg));
-        };
-      }
-      /* harmony default export */
-
-
-      var _overArg = overArg; // CONCATENATED MODULE: ./node_modules/lodash-es/_getPrototype.js
-
-      /** Built-in value references. */
-
-      var getPrototype = _overArg(Object.getPrototypeOf, Object);
-      /* harmony default export */
-
-
-      var _getPrototype = getPrototype; // CONCATENATED MODULE: ./node_modules/lodash-es/isObjectLike.js
-
-      /**
-       * Checks if `value` is object-like. A value is object-like if it's not `null`
-       * and has a `typeof` result of "object".
-       *
-       * @static
-       * @memberOf _
-       * @since 4.0.0
-       * @category Lang
-       * @param {*} value The value to check.
-       * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
-       * @example
-       *
-       * _.isObjectLike({});
-       * // => true
-       *
-       * _.isObjectLike([1, 2, 3]);
-       * // => true
-       *
-       * _.isObjectLike(_.noop);
-       * // => false
-       *
-       * _.isObjectLike(null);
-       * // => false
-       */
-
-      function isObjectLike(value) {
-        return value != null && _typeof2(value) == 'object';
-      }
-      /* harmony default export */
-
-
-      var lodash_es_isObjectLike = isObjectLike; // CONCATENATED MODULE: ./node_modules/lodash-es/isPlainObject.js
-
-      /** `Object#toString` result references. */
-
-      var objectTag = '[object Object]';
-      /** Used for built-in method references. */
-
-      var funcProto = Function.prototype,
-          isPlainObject_objectProto = Object.prototype;
-      /** Used to resolve the decompiled source of functions. */
-
-      var funcToString = funcProto.toString;
-      /** Used to check objects for own properties. */
-
-      var isPlainObject_hasOwnProperty = isPlainObject_objectProto.hasOwnProperty;
-      /** Used to infer the `Object` constructor. */
-
-      var objectCtorString = funcToString.call(Object);
-      /**
-       * Checks if `value` is a plain object, that is, an object created by the
-       * `Object` constructor or one with a `[[Prototype]]` of `null`.
-       *
-       * @static
-       * @memberOf _
-       * @since 0.8.0
-       * @category Lang
-       * @param {*} value The value to check.
-       * @returns {boolean} Returns `true` if `value` is a plain object, else `false`.
-       * @example
-       *
-       * function Foo() {
-       *   this.a = 1;
-       * }
-       *
-       * _.isPlainObject(new Foo);
-       * // => false
-       *
-       * _.isPlainObject([1, 2, 3]);
-       * // => false
-       *
-       * _.isPlainObject({ 'x': 0, 'y': 0 });
-       * // => true
-       *
-       * _.isPlainObject(Object.create(null));
-       * // => true
-       */
-
-      function isPlainObject(value) {
-        if (!lodash_es_isObjectLike(value) || _baseGetTag(value) != objectTag) {
-          return false;
-        }
-
-        var proto = _getPrototype(value);
-
-        if (proto === null) {
-          return true;
-        }
-
-        var Ctor = isPlainObject_hasOwnProperty.call(proto, 'constructor') && proto.constructor;
-        return typeof Ctor == 'function' && Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString;
-      }
-      /* harmony default export */
-
-
-      var lodash_es_isPlainObject = isPlainObject; // EXTERNAL MODULE: ./node_modules/symbol-observable/es/index.js
-
-      var es = __webpack_require__(2); // CONCATENATED MODULE: ./node_modules/redux/es/createStore.js
-
-      /**
-       * These are private action types reserved by Redux.
-       * For any unknown actions, you must return the current state.
-       * If the current state is undefined, you must return the initial state.
-       * Do not reference these action types directly in your code.
-       */
-
-
-      var ActionTypes = {
-        INIT: '@@redux/INIT'
-        /**
-         * Creates a Redux store that holds the state tree.
-         * The only way to change the data in the store is to call `dispatch()` on it.
-         *
-         * There should only be a single store in your app. To specify how different
-         * parts of the state tree respond to actions, you may combine several reducers
-         * into a single reducer function by using `combineReducers`.
-         *
-         * @param {Function} reducer A function that returns the next state tree, given
-         * the current state tree and the action to handle.
-         *
-         * @param {any} [preloadedState] The initial state. You may optionally specify it
-         * to hydrate the state from the server in universal apps, or to restore a
-         * previously serialized user session.
-         * If you use `combineReducers` to produce the root reducer function, this must be
-         * an object with the same shape as `combineReducers` keys.
-         *
-         * @param {Function} [enhancer] The store enhancer. You may optionally specify it
-         * to enhance the store with third-party capabilities such as middleware,
-         * time travel, persistence, etc. The only store enhancer that ships with Redux
-         * is `applyMiddleware()`.
-         *
-         * @returns {Store} A Redux store that lets you read the state, dispatch actions
-         * and subscribe to changes.
-         */
-
-      };
-
-      function createStore_createStore(reducer, preloadedState, enhancer) {
-        var _ref2;
-
-        if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
-          enhancer = preloadedState;
-          preloadedState = undefined;
-        }
-
-        if (typeof enhancer !== 'undefined') {
-          if (typeof enhancer !== 'function') {
-            throw new Error('Expected the enhancer to be a function.');
-          }
-
-          return enhancer(createStore_createStore)(reducer, preloadedState);
-        }
-
-        if (typeof reducer !== 'function') {
-          throw new Error('Expected the reducer to be a function.');
-        }
-
-        var currentReducer = reducer;
-        var currentState = preloadedState;
-        var currentListeners = [];
-        var nextListeners = currentListeners;
-        var isDispatching = false;
-
-        function ensureCanMutateNextListeners() {
-          if (nextListeners === currentListeners) {
-            nextListeners = currentListeners.slice();
-          }
-        }
-        /**
-         * Reads the state tree managed by the store.
-         *
-         * @returns {any} The current state tree of your application.
-         */
-
-
-        function getState() {
-          return currentState;
-        }
-        /**
-         * Adds a change listener. It will be called any time an action is dispatched,
-         * and some part of the state tree may potentially have changed. You may then
-         * call `getState()` to read the current state tree inside the callback.
-         *
-         * You may call `dispatch()` from a change listener, with the following
-         * caveats:
-         *
-         * 1. The subscriptions are snapshotted just before every `dispatch()` call.
-         * If you subscribe or unsubscribe while the listeners are being invoked, this
-         * will not have any effect on the `dispatch()` that is currently in progress.
-         * However, the next `dispatch()` call, whether nested or not, will use a more
-         * recent snapshot of the subscription list.
-         *
-         * 2. The listener should not expect to see all state changes, as the state
-         * might have been updated multiple times during a nested `dispatch()` before
-         * the listener is called. It is, however, guaranteed that all subscribers
-         * registered before the `dispatch()` started will be called with the latest
-         * state by the time it exits.
-         *
-         * @param {Function} listener A callback to be invoked on every dispatch.
-         * @returns {Function} A function to remove this change listener.
-         */
-
-
-        function subscribe(listener) {
-          if (typeof listener !== 'function') {
-            throw new Error('Expected listener to be a function.');
-          }
-
-          var isSubscribed = true;
-          ensureCanMutateNextListeners();
-          nextListeners.push(listener);
-          return function unsubscribe() {
-            if (!isSubscribed) {
-              return;
-            }
-
-            isSubscribed = false;
-            ensureCanMutateNextListeners();
-            var index = nextListeners.indexOf(listener);
-            nextListeners.splice(index, 1);
-          };
-        }
-        /**
-         * Dispatches an action. It is the only way to trigger a state change.
-         *
-         * The `reducer` function, used to create the store, will be called with the
-         * current state tree and the given `action`. Its return value will
-         * be considered the **next** state of the tree, and the change listeners
-         * will be notified.
-         *
-         * The base implementation only supports plain object actions. If you want to
-         * dispatch a Promise, an Observable, a thunk, or something else, you need to
-         * wrap your store creating function into the corresponding middleware. For
-         * example, see the documentation for the `redux-thunk` package. Even the
-         * middleware will eventually dispatch plain object actions using this method.
-         *
-         * @param {Object} action A plain object representing “what changed”. It is
-         * a good idea to keep actions serializable so you can record and replay user
-         * sessions, or use the time travelling `redux-devtools`. An action must have
-         * a `type` property which may not be `undefined`. It is a good idea to use
-         * string constants for action types.
-         *
-         * @returns {Object} For convenience, the same action object you dispatched.
-         *
-         * Note that, if you use a custom middleware, it may wrap `dispatch()` to
-         * return something else (for example, a Promise you can await).
-         */
-
-
-        function dispatch(action) {
-          if (!lodash_es_isPlainObject(action)) {
-            throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
-          }
-
-          if (typeof action.type === 'undefined') {
-            throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
-          }
-
-          if (isDispatching) {
-            throw new Error('Reducers may not dispatch actions.');
-          }
-
-          try {
-            isDispatching = true;
-            currentState = currentReducer(currentState, action);
-          } finally {
-            isDispatching = false;
-          }
-
-          var listeners = currentListeners = nextListeners;
-
-          for (var i = 0; i < listeners.length; i++) {
-            var listener = listeners[i];
-            listener();
-          }
-
-          return action;
-        }
-        /**
-         * Replaces the reducer currently used by the store to calculate the state.
-         *
-         * You might need this if your app implements code splitting and you want to
-         * load some of the reducers dynamically. You might also need this if you
-         * implement a hot reloading mechanism for Redux.
-         *
-         * @param {Function} nextReducer The reducer for the store to use instead.
-         * @returns {void}
-         */
-
-
-        function replaceReducer(nextReducer) {
-          if (typeof nextReducer !== 'function') {
-            throw new Error('Expected the nextReducer to be a function.');
-          }
-
-          currentReducer = nextReducer;
-          dispatch({
-            type: ActionTypes.INIT
-          });
-        }
-        /**
-         * Interoperability point for observable/reactive libraries.
-         * @returns {observable} A minimal observable of state changes.
-         * For more information, see the observable proposal:
-         * https://github.com/tc39/proposal-observable
-         */
-
-
-        function observable() {
-          var _ref;
-
-          var outerSubscribe = subscribe;
-          return _ref = {
-            /**
-             * The minimal observable subscription method.
-             * @param {Object} observer Any object that can be used as an observer.
-             * The observer object should have a `next` method.
-             * @returns {subscription} An object with an `unsubscribe` method that can
-             * be used to unsubscribe the observable from the store, and prevent further
-             * emission of values from the observable.
-             */
-            subscribe: function subscribe(observer) {
-              if (_typeof2(observer) !== 'object') {
-                throw new TypeError('Expected the observer to be an object.');
-              }
-
-              function observeState() {
-                if (observer.next) {
-                  observer.next(getState());
-                }
-              }
-
-              observeState();
-              var unsubscribe = outerSubscribe(observeState);
-              return {
-                unsubscribe: unsubscribe
-              };
-            }
-          }, _ref[es["a"
-          /* default */
-          ]] = function () {
-            return this;
-          }, _ref;
-        } // When a store is created, an "INIT" action is dispatched so that every
-        // reducer returns their initial state. This effectively populates
-        // the initial state tree.
-
-
-        dispatch({
-          type: ActionTypes.INIT
-        });
-        return _ref2 = {
-          dispatch: dispatch,
-          subscribe: subscribe,
-          getState: getState,
-          replaceReducer: replaceReducer
-        }, _ref2[es["a"
-        /* default */
-        ]] = observable, _ref2;
-      } // CONCATENATED MODULE: ./node_modules/redux/es/utils/warning.js
-
-      /**
-       * Prints a warning in the console if it exists.
-       *
-       * @param {String} message The warning message.
-       * @returns {void}
-       */
-
-
-      function warning(message) {
-        /* eslint-disable no-console */
-        if (typeof console !== 'undefined' && typeof console.error === 'function') {
-          console.error(message);
-        }
-        /* eslint-enable no-console */
-
-
-        try {
-          // This error was thrown as a convenience so that if you enable
-          // "break on all exceptions" in your console,
-          // it would pause the execution at this line.
-          throw new Error(message);
-          /* eslint-disable no-empty */
-        } catch (e) {}
-        /* eslint-enable no-empty */
-
-      } // CONCATENATED MODULE: ./node_modules/redux/es/combineReducers.js
-
-
-      function getUndefinedStateErrorMessage(key, action) {
-        var actionType = action && action.type;
-        var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
-        return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state. ' + 'If you want this reducer to hold no value, you can return null instead of undefined.';
-      }
-
-      function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
-        var reducerKeys = Object.keys(reducers);
-        var argumentName = action && action.type === ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
-
-        if (reducerKeys.length === 0) {
-          return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
-        }
-
-        if (!lodash_es_isPlainObject(inputState)) {
-          return 'The ' + argumentName + ' has unexpected type of "' + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
-        }
-
-        var unexpectedKeys = Object.keys(inputState).filter(function (key) {
-          return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
-        });
-        unexpectedKeys.forEach(function (key) {
-          unexpectedKeyCache[key] = true;
-        });
-
-        if (unexpectedKeys.length > 0) {
-          return 'Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" found in ' + argumentName + '. ') + 'Expected to find one of the known reducer keys instead: ' + ('"' + reducerKeys.join('", "') + '". Unexpected keys will be ignored.');
-        }
-      }
-
-      function assertReducerShape(reducers) {
-        Object.keys(reducers).forEach(function (key) {
-          var reducer = reducers[key];
-          var initialState = reducer(undefined, {
-            type: ActionTypes.INIT
-          });
-
-          if (typeof initialState === 'undefined') {
-            throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined. If you don\'t want to set a value for this reducer, ' + 'you can use null instead of undefined.');
-          }
-
-          var type = '@@redux/PROBE_UNKNOWN_ACTION_' + Math.random().toString(36).substring(7).split('').join('.');
-
-          if (typeof reducer(undefined, {
-            type: type
-          }) === 'undefined') {
-            throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined, but can be null.');
-          }
-        });
-      }
-      /**
-       * Turns an object whose values are different reducer functions, into a single
-       * reducer function. It will call every child reducer, and gather their results
-       * into a single state object, whose keys correspond to the keys of the passed
-       * reducer functions.
-       *
-       * @param {Object} reducers An object whose values correspond to different
-       * reducer functions that need to be combined into one. One handy way to obtain
-       * it is to use ES6 `import * as reducers` syntax. The reducers may never return
-       * undefined for any action. Instead, they should return their initial state
-       * if the state passed to them was undefined, and the current state for any
-       * unrecognized action.
-       *
-       * @returns {Function} A reducer function that invokes every reducer inside the
-       * passed object, and builds a state object with the same shape.
-       */
-
-
-      function combineReducers(reducers) {
-        var reducerKeys = Object.keys(reducers);
-        var finalReducers = {};
-
-        for (var i = 0; i < reducerKeys.length; i++) {
-          var key = reducerKeys[i];
-
-          if (false) {}
-
-          if (typeof reducers[key] === 'function') {
-            finalReducers[key] = reducers[key];
-          }
-        }
-
-        var finalReducerKeys = Object.keys(finalReducers);
-        var unexpectedKeyCache = void 0;
-
-        if (false) {}
-
-        var shapeAssertionError = void 0;
-
-        try {
-          assertReducerShape(finalReducers);
-        } catch (e) {
-          shapeAssertionError = e;
-        }
-
-        return function combination() {
-          var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
-          var action = arguments[1];
-
-          if (shapeAssertionError) {
-            throw shapeAssertionError;
-          }
-
-          if (false) {
-            var warningMessage;
-          }
-
-          var hasChanged = false;
-          var nextState = {};
-
-          for (var _i = 0; _i < finalReducerKeys.length; _i++) {
-            var _key = finalReducerKeys[_i];
-            var reducer = finalReducers[_key];
-            var previousStateForKey = state[_key];
-            var nextStateForKey = reducer(previousStateForKey, action);
-
-            if (typeof nextStateForKey === 'undefined') {
-              var errorMessage = getUndefinedStateErrorMessage(_key, action);
-              throw new Error(errorMessage);
-            }
-
-            nextState[_key] = nextStateForKey;
-            hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
-          }
-
-          return hasChanged ? nextState : state;
-        };
-      } // CONCATENATED MODULE: ./node_modules/redux/es/bindActionCreators.js
-
-
-      function bindActionCreator(actionCreator, dispatch) {
-        return function () {
-          return dispatch(actionCreator.apply(undefined, arguments));
-        };
-      }
-      /**
-       * Turns an object whose values are action creators, into an object with the
-       * same keys, but with every function wrapped into a `dispatch` call so they
-       * may be invoked directly. This is just a convenience method, as you can call
-       * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
-       *
-       * For convenience, you can also pass a single function as the first argument,
-       * and get a function in return.
-       *
-       * @param {Function|Object} actionCreators An object whose values are action
-       * creator functions. One handy way to obtain it is to use ES6 `import * as`
-       * syntax. You may also pass a single function.
-       *
-       * @param {Function} dispatch The `dispatch` function available on your Redux
-       * store.
-       *
-       * @returns {Function|Object} The object mimicking the original object, but with
-       * every action creator wrapped into the `dispatch` call. If you passed a
-       * function as `actionCreators`, the return value will also be a single
-       * function.
-       */
-
-
-      function bindActionCreators(actionCreators, dispatch) {
-        if (typeof actionCreators === 'function') {
-          return bindActionCreator(actionCreators, dispatch);
-        }
-
-        if (_typeof2(actionCreators) !== 'object' || actionCreators === null) {
-          throw new Error('bindActionCreators expected an object or a function, instead received ' + (actionCreators === null ? 'null' : _typeof2(actionCreators)) + '. ' + 'Did you write "import ActionCreators from" instead of "import * as ActionCreators from"?');
-        }
-
-        var keys = Object.keys(actionCreators);
-        var boundActionCreators = {};
-
-        for (var i = 0; i < keys.length; i++) {
-          var key = keys[i];
-          var actionCreator = actionCreators[key];
-
-          if (typeof actionCreator === 'function') {
-            boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
-          }
-        }
-
-        return boundActionCreators;
-      } // CONCATENATED MODULE: ./node_modules/redux/es/compose.js
-
-      /**
-       * Composes single-argument functions from right to left. The rightmost
-       * function can take multiple arguments as it provides the signature for
-       * the resulting composite function.
-       *
-       * @param {...Function} funcs The functions to compose.
-       * @returns {Function} A function obtained by composing the argument functions
-       * from right to left. For example, compose(f, g, h) is identical to doing
-       * (...args) => f(g(h(...args))).
-       */
-
-
-      function compose() {
-        for (var _len = arguments.length, funcs = Array(_len), _key = 0; _key < _len; _key++) {
-          funcs[_key] = arguments[_key];
-        }
-
-        if (funcs.length === 0) {
-          return function (arg) {
-            return arg;
-          };
-        }
-
-        if (funcs.length === 1) {
-          return funcs[0];
-        }
-
-        return funcs.reduce(function (a, b) {
-          return function () {
-            return a(b.apply(undefined, arguments));
-          };
-        });
-      } // CONCATENATED MODULE: ./node_modules/redux/es/applyMiddleware.js
-
-
-      var _extends = Object.assign || function (target) {
-        for (var i = 1; i < arguments.length; i++) {
-          var source = arguments[i];
-
-          for (var key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-              target[key] = source[key];
-            }
-          }
-        }
-
-        return target;
-      };
-      /**
-       * Creates a store enhancer that applies middleware to the dispatch method
-       * of the Redux store. This is handy for a variety of tasks, such as expressing
-       * asynchronous actions in a concise manner, or logging every action payload.
-       *
-       * See `redux-thunk` package as an example of the Redux middleware.
-       *
-       * Because middleware is potentially asynchronous, this should be the first
-       * store enhancer in the composition chain.
-       *
-       * Note that each middleware will be given the `dispatch` and `getState` functions
-       * as named arguments.
-       *
-       * @param {...Function} middlewares The middleware chain to be applied.
-       * @returns {Function} A store enhancer applying the middleware.
-       */
-
-
-      function applyMiddleware() {
-        for (var _len = arguments.length, middlewares = Array(_len), _key = 0; _key < _len; _key++) {
-          middlewares[_key] = arguments[_key];
-        }
-
-        return function (createStore) {
-          return function (reducer, preloadedState, enhancer) {
-            var store = createStore(reducer, preloadedState, enhancer);
-            var _dispatch = store.dispatch;
-            var chain = [];
-            var middlewareAPI = {
-              getState: store.getState,
-              dispatch: function dispatch(action) {
-                return _dispatch(action);
-              }
-            };
-            chain = middlewares.map(function (middleware) {
-              return middleware(middlewareAPI);
-            });
-            _dispatch = compose.apply(undefined, chain)(store.dispatch);
-            return _extends({}, store, {
-              dispatch: _dispatch
-            });
-          };
-        };
-      } // CONCATENATED MODULE: ./node_modules/redux/es/index.js
-
-      /* concated harmony reexport createStore */
-
-
-      __webpack_require__.d(__webpack_exports__, "createStore", function () {
-        return createStore_createStore;
-      });
-      /* concated harmony reexport combineReducers */
-
-
-      __webpack_require__.d(__webpack_exports__, "combineReducers", function () {
-        return combineReducers;
-      });
-      /* concated harmony reexport bindActionCreators */
-
-
-      __webpack_require__.d(__webpack_exports__, "bindActionCreators", function () {
-        return bindActionCreators;
-      });
-      /* concated harmony reexport applyMiddleware */
-
-
-      __webpack_require__.d(__webpack_exports__, "applyMiddleware", function () {
-        return applyMiddleware;
-      });
-      /* concated harmony reexport compose */
-
-
-      __webpack_require__.d(__webpack_exports__, "compose", function () {
-        return compose;
-      });
-      /*
-      * This is a dummy function to check if the function name has been altered by minification.
-      * If the function has been minified and NODE_ENV !== 'production', warn the user.
-      */
-
-
-      function isCrushed() {}
-
-      if (false) {}
-      /***/
-
-    },
-    /* 7 */
-
-    /***/
-    function (module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-      /* harmony export (binding) */
-
-      __webpack_require__.d(__webpack_exports__, "a", function () {
-        return symbolObservablePonyfill;
-      });
-
-      function symbolObservablePonyfill(root) {
-        var result;
-        var _Symbol3 = root.Symbol;
-
-        if (typeof _Symbol3 === 'function') {
-          if (_Symbol3.observable) {
-            result = _Symbol3.observable;
-          } else {
-            result = _Symbol3('observable');
-            _Symbol3.observable = result;
-          }
-        } else {
-          result = '@@observable';
-        }
-
-        return result;
-      }
-
-      ;
-      /***/
-    },
-    /* 8 */
-
-    /***/
-    function (module, __webpack_exports__, __webpack_require__) {
-      "use strict";
-      /* WEBPACK VAR INJECTION */
-
-      (function (global) {
-        /** Detect free variable `global` from Node.js. */
-        var freeGlobal = _typeof2(global) == 'object' && global && global.Object === Object && global;
-        /* harmony default export */
-
-        __webpack_exports__["a"] = freeGlobal;
-        /* WEBPACK VAR INJECTION */
-      }).call(this, __webpack_require__(3));
-      /***/
-    },
-    /* 9 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      module.exports = __webpack_require__(10);
-      /***/
-    },
-    /* 10 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      var _fuse = _interopRequireDefault(__webpack_require__(11));
-
-      var _deepmerge = _interopRequireDefault(__webpack_require__(12));
-
-      var _store = _interopRequireDefault(__webpack_require__(13));
-
-      var _components = __webpack_require__(20);
-
-      var _constants = __webpack_require__(1);
-
-      var _templates = __webpack_require__(5);
-
-      var _choices = __webpack_require__(28);
-
-      var _items = __webpack_require__(29);
-
-      var _groups = __webpack_require__(30);
-
-      var _misc = __webpack_require__(31);
-
-      var _general = __webpack_require__(32);
-
-      var _utils = __webpack_require__(0);
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
-        };
-      }
-
-      function _defineProperty(obj, key, value) {
-        if (key in obj) {
-          Object.defineProperty(obj, key, {
-            value: value,
-            enumerable: true,
-            configurable: true,
-            writable: true
-          });
-        } else {
-          obj[key] = value;
-        }
-
-        return obj;
-      }
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-          var descriptor = props[i];
-          descriptor.enumerable = descriptor.enumerable || false;
-          descriptor.configurable = true;
-          if ("value" in descriptor) descriptor.writable = true;
-          Object.defineProperty(target, descriptor.key, descriptor);
-        }
-      }
-
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
-        return Constructor;
-      }
-      /**
-       * Choices
-       * @author Josh Johnson<josh@joshuajohnson.co.uk>
-       */
-
-
-      var Choices =
-      /*#__PURE__*/
-      function () {
-        function Choices() {
-          var element = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '[data-choice]';
-          var userConfig = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
-          _classCallCheck(this, Choices);
-
-          if ((0, _utils.isType)('String', element)) {
-            var elements = Array.from(document.querySelectorAll(element)); // If there are multiple elements, create a new instance
-            // for each element besides the first one (as that already has an instance)
-
-            if (elements.length > 1) {
-              return this._generateInstances(elements, userConfig);
-            }
-          }
-
-          this.config = _deepmerge["default"].all([_constants.DEFAULT_CONFIG, Choices.userDefaults, userConfig], // When merging array configs, replace with a copy of the userConfig array,
-          // instead of concatenating with the default array
-          {
-            arrayMerge: function arrayMerge(destinationArray, sourceArray) {
-              return [].concat(sourceArray);
-            }
-          });
-          var invalidConfigOptions = (0, _utils.diff)(this.config, _constants.DEFAULT_CONFIG);
-
-          if (invalidConfigOptions.length) {
-            console.warn('Unknown config option(s) passed', invalidConfigOptions.join(', '));
-          }
-
-          if (!['auto', 'always'].includes(this.config.renderSelectedChoices)) {
-            this.config.renderSelectedChoices = 'auto';
-          } // Retrieve triggering element (i.e. element with 'data-choice' trigger)
-
-
-          var passedElement = (0, _utils.isType)('String', element) ? document.querySelector(element) : element;
-
-          if (!passedElement) {
-            return console.error('Could not find passed element or passed element was of an invalid type');
-          }
-
-          this._isTextElement = passedElement.type === 'text';
-          this._isSelectOneElement = passedElement.type === 'select-one';
-          this._isSelectMultipleElement = passedElement.type === 'select-multiple';
-          this._isSelectElement = this._isSelectOneElement || this._isSelectMultipleElement;
-
-          if (this._isTextElement) {
-            this.passedElement = new _components.WrappedInput({
-              element: passedElement,
-              classNames: this.config.classNames,
-              delimiter: this.config.delimiter
-            });
-          } else if (this._isSelectElement) {
-            this.passedElement = new _components.WrappedSelect({
-              element: passedElement,
-              classNames: this.config.classNames
-            });
-          }
-
-          if (!this.passedElement) {
-            return console.error('Passed element was of an invalid type');
-          }
-
-          if (this.config.shouldSortItems === true && this._isSelectOneElement && !this.config.silent) {
-            console.warn("shouldSortElements: Type of passed element is 'select-one', falling back to false.");
-          }
-
-          this.initialised = false;
-          this._store = new _store["default"](this.render);
-          this._initialState = {};
-          this._currentState = {};
-          this._prevState = {};
-          this._currentValue = '';
-          this._canSearch = this.config.searchEnabled;
-          this._isScrollingOnIe = false;
-          this._highlightPosition = 0;
-          this._wasTap = true;
-          this._placeholderValue = this._generatePlaceholderValue();
-          this._baseId = (0, _utils.generateId)(this.passedElement.element, 'choices-');
-          this._direction = this.passedElement.element.getAttribute('dir') || 'ltr';
-          this._idNames = {
-            itemChoice: 'item-choice'
-          }; // Assign preset choices from passed object
-
-          this._presetChoices = this.config.choices; // Assign preset items from passed object first
-
-          this._presetItems = this.config.items; // Then add any values passed from attribute
-
-          if (this.passedElement.value) {
-            this._presetItems = this._presetItems.concat(this.passedElement.value.split(this.config.delimiter));
-          }
-
-          this._render = this._render.bind(this);
-          this._onFocus = this._onFocus.bind(this);
-          this._onBlur = this._onBlur.bind(this);
-          this._onKeyUp = this._onKeyUp.bind(this);
-          this._onKeyDown = this._onKeyDown.bind(this);
-          this._onClick = this._onClick.bind(this);
-          this._onTouchMove = this._onTouchMove.bind(this);
-          this._onTouchEnd = this._onTouchEnd.bind(this);
-          this._onMouseDown = this._onMouseDown.bind(this);
-          this._onMouseOver = this._onMouseOver.bind(this);
-          this._onFormReset = this._onFormReset.bind(this);
-          this._onAKey = this._onAKey.bind(this);
-          this._onEnterKey = this._onEnterKey.bind(this);
-          this._onEscapeKey = this._onEscapeKey.bind(this);
-          this._onDirectionKey = this._onDirectionKey.bind(this);
-          this._onDeleteKey = this._onDeleteKey.bind(this); // If element has already been initialised with Choices, fail silently
-
-          if (this.passedElement.element.getAttribute('data-choice') === 'active') {
-            console.warn('Trying to initialise Choices on element already initialised');
-          } // Let's go
-
-
-          this.init();
-        }
-        /* ========================================
-        =            Public functions            =
-        ======================================== */
-
-
-        _createClass(Choices, [{
-          key: "init",
-          value: function init() {
-            if (this.initialised) {
-              return;
-            }
-
-            this._createTemplates();
-
-            this._createElements();
-
-            this._createStructure(); // Set initial state (We need to clone the state because some reducers
-            // modify the inner objects properties in the state) 🤢
-
-
-            this._initialState = (0, _utils.cloneObject)(this._store.state);
-
-            this._store.subscribe(this._render);
-
-            this._render();
-
-            this._addEventListeners();
-
-            var shouldDisable = !this.config.addItems || this.passedElement.element.hasAttribute('disabled');
-
-            if (shouldDisable) {
-              this.disable();
-            }
-
-            this.initialised = true;
-            var callbackOnInit = this.config.callbackOnInit; // Run callback if it is a function
-
-            if (callbackOnInit && (0, _utils.isType)('Function', callbackOnInit)) {
-              callbackOnInit.call(this);
-            }
-          }
-        }, {
-          key: "destroy",
-          value: function destroy() {
-            if (!this.initialised) {
-              return;
-            }
-
-            this._removeEventListeners();
-
-            this.passedElement.reveal();
-            this.containerOuter.unwrap(this.passedElement.element);
-
-            if (this._isSelectElement) {
-              this.passedElement.options = this._presetChoices;
-            }
-
-            this.clearStore();
-            this.config.templates = null;
-            this.initialised = false;
-          }
-        }, {
-          key: "enable",
-          value: function enable() {
-            if (this.passedElement.isDisabled) {
-              this.passedElement.enable();
-            }
-
-            if (this.containerOuter.isDisabled) {
-              this._addEventListeners();
-
-              this.input.enable();
-              this.containerOuter.enable();
-            }
-
-            return this;
-          }
-        }, {
-          key: "disable",
-          value: function disable() {
-            if (!this.passedElement.isDisabled) {
-              this.passedElement.disable();
-            }
-
-            if (!this.containerOuter.isDisabled) {
-              this._removeEventListeners();
-
-              this.input.disable();
-              this.containerOuter.disable();
-            }
-
-            return this;
-          }
-        }, {
-          key: "highlightItem",
-          value: function highlightItem(item) {
-            var runEvent = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
-            if (!item) {
-              return this;
-            }
-
-            var id = item.id,
-                _item$groupId = item.groupId,
-                groupId = _item$groupId === void 0 ? -1 : _item$groupId,
-                _item$value = item.value,
-                value = _item$value === void 0 ? '' : _item$value,
-                _item$label = item.label,
-                label = _item$label === void 0 ? '' : _item$label;
-            var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-
-            this._store.dispatch((0, _items.highlightItem)(id, true));
-
-            if (runEvent) {
-              this.passedElement.triggerEvent(_constants.EVENTS.highlightItem, {
-                id: id,
-                value: value,
-                label: label,
-                groupValue: group && group.value ? group.value : null
-              });
-            }
-
-            return this;
-          }
-        }, {
-          key: "unhighlightItem",
-          value: function unhighlightItem(item) {
-            if (!item) {
-              return this;
-            }
-
-            var id = item.id,
-                _item$groupId2 = item.groupId,
-                groupId = _item$groupId2 === void 0 ? -1 : _item$groupId2,
-                _item$value2 = item.value,
-                value = _item$value2 === void 0 ? '' : _item$value2,
-                _item$label2 = item.label,
-                label = _item$label2 === void 0 ? '' : _item$label2;
-            var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-
-            this._store.dispatch((0, _items.highlightItem)(id, false));
-
-            this.passedElement.triggerEvent(_constants.EVENTS.highlightItem, {
-              id: id,
-              value: value,
-              label: label,
-              groupValue: group && group.value ? group.value : null
-            });
-            return this;
-          }
-        }, {
-          key: "highlightAll",
-          value: function highlightAll() {
-            var _this = this;
-
-            this._store.items.forEach(function (item) {
-              return _this.highlightItem(item);
-            });
-
-            return this;
-          }
-        }, {
-          key: "unhighlightAll",
-          value: function unhighlightAll() {
-            var _this2 = this;
-
-            this._store.items.forEach(function (item) {
-              return _this2.unhighlightItem(item);
-            });
-
-            return this;
-          }
-        }, {
-          key: "removeActiveItemsByValue",
-          value: function removeActiveItemsByValue(value) {
-            var _this3 = this;
-
-            this._store.activeItems.filter(function (item) {
-              return item.value === value;
-            }).forEach(function (item) {
-              return _this3._removeItem(item);
-            });
-
-            return this;
-          }
-        }, {
-          key: "removeActiveItems",
-          value: function removeActiveItems(excludedId) {
-            var _this4 = this;
-
-            this._store.activeItems.filter(function (_ref) {
-              var id = _ref.id;
-              return id !== excludedId;
-            }).forEach(function (item) {
-              return _this4._removeItem(item);
-            });
-
-            return this;
-          }
-        }, {
-          key: "removeHighlightedItems",
-          value: function removeHighlightedItems() {
-            var _this5 = this;
-
-            var runEvent = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-            this._store.highlightedActiveItems.forEach(function (item) {
-              _this5._removeItem(item); // If this action was performed by the user
-              // trigger the event
-
-
-              if (runEvent) {
-                _this5._triggerChange(item.value);
-              }
-            });
-
-            return this;
-          }
-        }, {
-          key: "showDropdown",
-          value: function showDropdown(preventInputFocus) {
-            var _this6 = this;
-
-            if (this.dropdown.isActive) {
-              return this;
-            }
-
-            requestAnimationFrame(function () {
-              _this6.dropdown.show();
-
-              _this6.containerOuter.open(_this6.dropdown.distanceFromTopWindow());
-
-              if (!preventInputFocus && _this6._canSearch) {
-                _this6.input.focus();
-              }
-
-              _this6.passedElement.triggerEvent(_constants.EVENTS.showDropdown, {});
-            });
-            return this;
-          }
-        }, {
-          key: "hideDropdown",
-          value: function hideDropdown(preventInputBlur) {
-            var _this7 = this;
-
-            if (!this.dropdown.isActive) {
-              return this;
-            }
-
-            requestAnimationFrame(function () {
-              _this7.dropdown.hide();
-
-              _this7.containerOuter.close();
-
-              if (!preventInputBlur && _this7._canSearch) {
-                _this7.input.removeActiveDescendant();
-
-                _this7.input.blur();
-              }
-
-              _this7.passedElement.triggerEvent(_constants.EVENTS.hideDropdown, {});
-            });
-            return this;
-          }
-        }, {
-          key: "getValue",
-          value: function getValue() {
-            var valueOnly = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-
-            var values = this._store.activeItems.reduce(function (selectedItems, item) {
-              var itemValue = valueOnly ? item.value : item;
-              selectedItems.push(itemValue);
-              return selectedItems;
-            }, []);
-
-            return this._isSelectOneElement ? values[0] : values;
-          }
-        }, {
-          key: "setValue",
-          value: function setValue(args) {
-            var _this8 = this;
-
-            if (!this.initialised) {
-              return this;
-            }
-
-            [].concat(args).forEach(function (value) {
-              return _this8._setChoiceOrItem(value);
-            });
-            return this;
-          }
-        }, {
-          key: "setChoiceByValue",
-          value: function setChoiceByValue(value) {
-            var _this9 = this;
-
-            if (!this.initialised || this._isTextElement) {
-              return this;
-            } // If only one value has been passed, convert to array
-
-
-            var choiceValue = (0, _utils.isType)('Array', value) ? value : [value]; // Loop through each value and
-
-            choiceValue.forEach(function (val) {
-              return _this9._findAndSelectChoiceByValue(val);
-            });
-            return this;
-          }
-        }, {
-          key: "setChoices",
-          value: function setChoices() {
-            var _this10 = this;
-
-            var choices = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-            var value = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : '';
-            var label = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : '';
-            var replaceChoices = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
-
-            if (!this._isSelectElement || !value) {
-              return this;
-            } // Clear choices if needed
-
-
-            if (replaceChoices) {
-              this.clearChoices();
-            }
-
-            this.containerOuter.removeLoadingState();
-
-            var addGroupsAndChoices = function addGroupsAndChoices(groupOrChoice) {
-              if (groupOrChoice.choices) {
-                _this10._addGroup({
-                  group: groupOrChoice,
-                  id: groupOrChoice.id || null,
-                  valueKey: value,
-                  labelKey: label
-                });
-              } else {
-                _this10._addChoice({
-                  value: groupOrChoice[value],
-                  label: groupOrChoice[label],
-                  isSelected: groupOrChoice.selected,
-                  isDisabled: groupOrChoice.disabled,
-                  customProperties: groupOrChoice.customProperties,
-                  placeholder: groupOrChoice.placeholder
-                });
-              }
-            };
-
-            this._setLoading(true);
-
-            choices.forEach(addGroupsAndChoices);
-
-            this._setLoading(false);
-
-            return this;
-          }
-        }, {
-          key: "clearChoices",
-          value: function clearChoices() {
-            this._store.dispatch((0, _choices.clearChoices)());
-          }
-        }, {
-          key: "clearStore",
-          value: function clearStore() {
-            this._store.dispatch((0, _misc.clearAll)());
-
-            return this;
-          }
-        }, {
-          key: "clearInput",
-          value: function clearInput() {
-            var shouldSetInputWidth = !this._isSelectOneElement;
-            this.input.clear(shouldSetInputWidth);
-
-            if (!this._isTextElement && this._canSearch) {
-              this._isSearching = false;
-
-              this._store.dispatch((0, _choices.activateChoices)(true));
-            }
-
-            return this;
-          }
-        }, {
-          key: "ajax",
-          value: function ajax(fn) {
-            var _this11 = this;
-
-            if (!this.initialised || !this._isSelectElement || !fn) {
-              return this;
-            }
-
-            requestAnimationFrame(function () {
-              return _this11._handleLoadingState(true);
-            });
-            fn(this._ajaxCallback());
-            return this;
-          }
-          /* =====  End of Public functions  ====== */
-
-          /* =============================================
-          =                Private functions            =
-          ============================================= */
-
-        }, {
-          key: "_render",
-          value: function _render() {
-            if (this._store.isLoading()) {
-              return;
-            }
-
-            this._currentState = this._store.state;
-            var stateChanged = this._currentState.choices !== this._prevState.choices || this._currentState.groups !== this._prevState.groups || this._currentState.items !== this._prevState.items;
-            var shouldRenderChoices = this._isSelectElement;
-            var shouldRenderItems = this._currentState.items !== this._prevState.items;
-
-            if (!stateChanged) {
-              return;
-            }
-
-            if (shouldRenderChoices) {
-              this._renderChoices();
-            }
-
-            if (shouldRenderItems) {
-              this._renderItems();
-            }
-
-            this._prevState = this._currentState;
-          }
-        }, {
-          key: "_renderChoices",
-          value: function _renderChoices() {
-            var _this12 = this;
-
-            var _this$_store = this._store,
-                activeGroups = _this$_store.activeGroups,
-                activeChoices = _this$_store.activeChoices;
-            var choiceListFragment = document.createDocumentFragment();
-            this.choiceList.clear();
-
-            if (this.config.resetScrollPosition) {
-              requestAnimationFrame(function () {
-                return _this12.choiceList.scrollToTop();
-              });
-            } // If we have grouped options
-
-
-            if (activeGroups.length >= 1 && !this._isSearching) {
-              // If we have a placeholder choice along with groups
-              var activePlaceholders = activeChoices.filter(function (activeChoice) {
-                return activeChoice.placeholder === true && activeChoice.groupId === -1;
-              });
-
-              if (activePlaceholders.length >= 1) {
-                choiceListFragment = this._createChoicesFragment(activePlaceholders, choiceListFragment);
-              }
-
-              choiceListFragment = this._createGroupsFragment(activeGroups, activeChoices, choiceListFragment);
-            } else if (activeChoices.length >= 1) {
-              choiceListFragment = this._createChoicesFragment(activeChoices, choiceListFragment);
-            } // If we have choices to show
-
-
-            if (choiceListFragment.childNodes && choiceListFragment.childNodes.length > 0) {
-              var activeItems = this._store.activeItems;
-
-              var canAddItem = this._canAddItem(activeItems, this.input.value); // ...and we can select them
-
-
-              if (canAddItem.response) {
-                // ...append them and highlight the first choice
-                this.choiceList.append(choiceListFragment);
-
-                this._highlightChoice();
-              } else {
-                // ...otherwise show a notice
-                this.choiceList.append(this._getTemplate('notice', canAddItem.notice));
-              }
-            } else {
-              // Otherwise show a notice
-              var dropdownItem;
-              var notice;
-
-              if (this._isSearching) {
-                notice = (0, _utils.isType)('Function', this.config.noResultsText) ? this.config.noResultsText() : this.config.noResultsText;
-                dropdownItem = this._getTemplate('notice', notice, 'no-results');
-              } else {
-                notice = (0, _utils.isType)('Function', this.config.noChoicesText) ? this.config.noChoicesText() : this.config.noChoicesText;
-                dropdownItem = this._getTemplate('notice', notice, 'no-choices');
-              }
-
-              this.choiceList.append(dropdownItem);
-            }
-          }
-        }, {
-          key: "_renderItems",
-          value: function _renderItems() {
-            var activeItems = this._store.activeItems || [];
-            this.itemList.clear(); // Create a fragment to store our list items
-            // (so we don't have to update the DOM for each item)
-
-            var itemListFragment = this._createItemsFragment(activeItems); // If we have items to add, append them
-
-
-            if (itemListFragment.childNodes) {
-              this.itemList.append(itemListFragment);
-            }
-          }
-        }, {
-          key: "_createGroupsFragment",
-          value: function _createGroupsFragment(groups, choices, fragment) {
-            var _this13 = this;
-
-            var groupFragment = fragment || document.createDocumentFragment();
-
-            var getGroupChoices = function getGroupChoices(group) {
-              return choices.filter(function (choice) {
-                if (_this13._isSelectOneElement) {
-                  return choice.groupId === group.id;
-                }
-
-                return choice.groupId === group.id && (_this13.config.renderSelectedChoices === 'always' || !choice.selected);
-              });
-            }; // If sorting is enabled, filter groups
-
-
-            if (this.config.shouldSort) {
-              groups.sort(this.config.sortFn);
-            }
-
-            groups.forEach(function (group) {
-              var groupChoices = getGroupChoices(group);
-
-              if (groupChoices.length >= 1) {
-                var dropdownGroup = _this13._getTemplate('choiceGroup', group);
-
-                groupFragment.appendChild(dropdownGroup);
-
-                _this13._createChoicesFragment(groupChoices, groupFragment, true);
-              }
-            });
-            return groupFragment;
-          }
-        }, {
-          key: "_createChoicesFragment",
-          value: function _createChoicesFragment(choices, fragment) {
-            var _this14 = this;
-
-            var withinGroup = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false; // Create a fragment to store our list items (so we don't have to update the DOM for each item)
-
-            var choicesFragment = fragment || document.createDocumentFragment();
-            var _this$config = this.config,
-                renderSelectedChoices = _this$config.renderSelectedChoices,
-                searchResultLimit = _this$config.searchResultLimit,
-                renderChoiceLimit = _this$config.renderChoiceLimit;
-            var filter = this._isSearching ? _utils.sortByScore : this.config.sortFn;
-
-            var appendChoice = function appendChoice(choice) {
-              var shouldRender = renderSelectedChoices === 'auto' ? _this14._isSelectOneElement || !choice.selected : true;
-
-              if (shouldRender) {
-                var dropdownItem = _this14._getTemplate('choice', choice, _this14.config.itemSelectText);
-
-                choicesFragment.appendChild(dropdownItem);
-              }
-            };
-
-            var rendererableChoices = choices;
-
-            if (renderSelectedChoices === 'auto' && !this._isSelectOneElement) {
-              rendererableChoices = choices.filter(function (choice) {
-                return !choice.selected;
-              });
-            } // Split array into placeholders and "normal" choices
-
-
-            var _rendererableChoices$ = rendererableChoices.reduce(function (acc, choice) {
-              if (choice.placeholder) {
-                acc.placeholderChoices.push(choice);
-              } else {
-                acc.normalChoices.push(choice);
-              }
-
-              return acc;
-            }, {
-              placeholderChoices: [],
-              normalChoices: []
-            }),
-                placeholderChoices = _rendererableChoices$.placeholderChoices,
-                normalChoices = _rendererableChoices$.normalChoices; // If sorting is enabled or the user is searching, filter choices
-
-
-            if (this.config.shouldSort || this._isSearching) {
-              normalChoices.sort(filter);
-            }
-
-            var choiceLimit = rendererableChoices.length; // Prepend placeholeder
-
-            var sortedChoices = [].concat(placeholderChoices, normalChoices);
-
-            if (this._isSearching) {
-              choiceLimit = searchResultLimit;
-            } else if (renderChoiceLimit > 0 && !withinGroup) {
-              choiceLimit = renderChoiceLimit;
-            } // Add each choice to dropdown within range
-
-
-            for (var i = 0; i < choiceLimit; i += 1) {
-              if (sortedChoices[i]) {
-                appendChoice(sortedChoices[i]);
-              }
-            }
-
-            return choicesFragment;
-          }
-        }, {
-          key: "_createItemsFragment",
-          value: function _createItemsFragment(items) {
-            var _this15 = this;
-
-            var fragment = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null; // Create fragment to add elements to
-
-            var _this$config2 = this.config,
-                shouldSortItems = _this$config2.shouldSortItems,
-                sortFn = _this$config2.sortFn,
-                removeItemButton = _this$config2.removeItemButton;
-            var itemListFragment = fragment || document.createDocumentFragment(); // If sorting is enabled, filter items
-
-            if (shouldSortItems && !this._isSelectOneElement) {
-              items.sort(sortFn);
-            }
-
-            if (this._isTextElement) {
-              // Update the value of the hidden input
-              this.passedElement.value = items;
-            } else {
-              // Update the options of the hidden input
-              this.passedElement.options = items;
-            }
-
-            var addItemToFragment = function addItemToFragment(item) {
-              // Create new list element
-              var listItem = _this15._getTemplate('item', item, removeItemButton); // Append it to list
-
-
-              itemListFragment.appendChild(listItem);
-            }; // Add each list item to list
-
-
-            items.forEach(function (item) {
-              return addItemToFragment(item);
-            });
-            return itemListFragment;
-          }
-        }, {
-          key: "_triggerChange",
-          value: function _triggerChange(value) {
-            if (value === undefined || value === null) {
-              return;
-            }
-
-            this.passedElement.triggerEvent(_constants.EVENTS.change, {
-              value: value
-            });
-          }
-        }, {
-          key: "_selectPlaceholderChoice",
-          value: function _selectPlaceholderChoice() {
-            var placeholderChoice = this._store.placeholderChoice;
-
-            if (placeholderChoice) {
-              this._addItem({
-                value: placeholderChoice.value,
-                label: placeholderChoice.label,
-                choiceId: placeholderChoice.id,
-                groupId: placeholderChoice.groupId,
-                placeholder: placeholderChoice.placeholder
-              });
-
-              this._triggerChange(placeholderChoice.value);
-            }
-          }
-        }, {
-          key: "_handleButtonAction",
-          value: function _handleButtonAction(activeItems, element) {
-            if (!activeItems || !element || !this.config.removeItems || !this.config.removeItemButton) {
-              return;
-            }
-
-            var itemId = element.parentNode.getAttribute('data-id');
-            var itemToRemove = activeItems.find(function (item) {
-              return item.id === parseInt(itemId, 10);
-            }); // Remove item associated with button
-
-            this._removeItem(itemToRemove);
-
-            this._triggerChange(itemToRemove.value);
-
-            if (this._isSelectOneElement) {
-              this._selectPlaceholderChoice();
-            }
-          }
-        }, {
-          key: "_handleItemAction",
-          value: function _handleItemAction(activeItems, element) {
-            var _this16 = this;
-
-            var hasShiftKey = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-
-            if (!activeItems || !element || !this.config.removeItems || this._isSelectOneElement) {
-              return;
-            }
-
-            var passedId = element.getAttribute('data-id'); // We only want to select one item with a click
-            // so we deselect any items that aren't the target
-            // unless shift is being pressed
-
-            activeItems.forEach(function (item) {
-              if (item.id === parseInt(passedId, 10) && !item.highlighted) {
-                _this16.highlightItem(item);
-              } else if (!hasShiftKey && item.highlighted) {
-                _this16.unhighlightItem(item);
-              }
-            }); // Focus input as without focus, a user cannot do anything with a
-            // highlighted item
-
-            this.input.focus();
-          }
-        }, {
-          key: "_handleChoiceAction",
-          value: function _handleChoiceAction(activeItems, element) {
-            if (!activeItems || !element) {
-              return;
-            } // If we are clicking on an option
-
-
-            var id = element.getAttribute('data-id');
-
-            var choice = this._store.getChoiceById(id);
-
-            var passedKeyCode = activeItems[0] && activeItems[0].keyCode ? activeItems[0].keyCode : null;
-            var hasActiveDropdown = this.dropdown.isActive; // Update choice keyCode
-
-            choice.keyCode = passedKeyCode;
-            this.passedElement.triggerEvent(_constants.EVENTS.choice, {
-              choice: choice
-            });
-
-            if (choice && !choice.selected && !choice.disabled) {
-              var canAddItem = this._canAddItem(activeItems, choice.value);
-
-              if (canAddItem.response) {
-                this._addItem({
-                  value: choice.value,
-                  label: choice.label,
-                  choiceId: choice.id,
-                  groupId: choice.groupId,
-                  customProperties: choice.customProperties,
-                  placeholder: choice.placeholder,
-                  keyCode: choice.keyCode
-                });
-
-                this._triggerChange(choice.value);
-              }
-            }
-
-            this.clearInput(); // We wont to close the dropdown if we are dealing with a single select box
-
-            if (hasActiveDropdown && this._isSelectOneElement) {
-              this.hideDropdown(true);
-              this.containerOuter.focus();
-            }
-          }
-        }, {
-          key: "_handleBackspace",
-          value: function _handleBackspace(activeItems) {
-            if (!this.config.removeItems || !activeItems) {
-              return;
-            }
-
-            var lastItem = activeItems[activeItems.length - 1];
-            var hasHighlightedItems = activeItems.some(function (item) {
-              return item.highlighted;
-            }); // If editing the last item is allowed and there are not other selected items,
-            // we can edit the item value. Otherwise if we can remove items, remove all selected items
-
-            if (this.config.editItems && !hasHighlightedItems && lastItem) {
-              this.input.value = lastItem.value;
-              this.input.setWidth();
-
-              this._removeItem(lastItem);
-
-              this._triggerChange(lastItem.value);
-            } else {
-              if (!hasHighlightedItems) {
-                // Highlight last item if none already highlighted
-                this.highlightItem(lastItem, false);
-              }
-
-              this.removeHighlightedItems(true);
-            }
-          }
-        }, {
-          key: "_setLoading",
-          value: function _setLoading(isLoading) {
-            this._store.dispatch((0, _general.setIsLoading)(isLoading));
-          }
-        }, {
-          key: "_handleLoadingState",
-          value: function _handleLoadingState() {
-            var setLoading = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-            var placeholderItem = this.itemList.getChild(".".concat(this.config.classNames.placeholder));
-
-            if (setLoading) {
-              this.disable();
-              this.containerOuter.addLoadingState();
-
-              if (this._isSelectOneElement) {
-                if (!placeholderItem) {
-                  placeholderItem = this._getTemplate('placeholder', this.config.loadingText);
-                  this.itemList.append(placeholderItem);
-                } else {
-                  placeholderItem.innerHTML = this.config.loadingText;
-                }
-              } else {
-                this.input.placeholder = this.config.loadingText;
-              }
-            } else {
-              this.enable();
-              this.containerOuter.removeLoadingState();
-
-              if (this._isSelectOneElement) {
-                placeholderItem.innerHTML = this._placeholderValue || '';
-              } else {
-                this.input.placeholder = this._placeholderValue || '';
-              }
-            }
-          }
-        }, {
-          key: "_handleSearch",
-          value: function _handleSearch(value) {
-            if (!value || !this.input.isFocussed) {
-              return;
-            }
-
-            var choices = this._store.choices;
-            var _this$config3 = this.config,
-                searchFloor = _this$config3.searchFloor,
-                searchChoices = _this$config3.searchChoices;
-            var hasUnactiveChoices = choices.some(function (option) {
-              return !option.active;
-            }); // Check that we have a value to search and the input was an alphanumeric character
-
-            if (value && value.length >= searchFloor) {
-              var resultCount = searchChoices ? this._searchChoices(value) : 0; // Trigger search event
-
-              this.passedElement.triggerEvent(_constants.EVENTS.search, {
-                value: value,
-                resultCount: resultCount
-              });
-            } else if (hasUnactiveChoices) {
-              // Otherwise reset choices to active
-              this._isSearching = false;
-
-              this._store.dispatch((0, _choices.activateChoices)(true));
-            }
-          }
-        }, {
-          key: "_canAddItem",
-          value: function _canAddItem(activeItems, value) {
-            var canAddItem = true;
-            var notice = (0, _utils.isType)('Function', this.config.addItemText) ? this.config.addItemText(value) : this.config.addItemText;
-
-            if (!this._isSelectOneElement) {
-              var isDuplicateValue = (0, _utils.existsInArray)(activeItems, value);
-
-              if (this.config.maxItemCount > 0 && this.config.maxItemCount <= activeItems.length) {
-                // If there is a max entry limit and we have reached that limit
-                // don't update
-                canAddItem = false;
-                notice = (0, _utils.isType)('Function', this.config.maxItemText) ? this.config.maxItemText(this.config.maxItemCount) : this.config.maxItemText;
-              }
-
-              if (!this.config.duplicateItemsAllowed && isDuplicateValue && canAddItem) {
-                canAddItem = false;
-                notice = (0, _utils.isType)('Function', this.config.uniqueItemText) ? this.config.uniqueItemText(value) : this.config.uniqueItemText;
-              }
-
-              if (this._isTextElement && this.config.addItems && canAddItem && (0, _utils.isType)('Function', this.config.addItemFilterFn) && !this.config.addItemFilterFn(value)) {
-                canAddItem = false;
-                notice = (0, _utils.isType)('Function', this.config.customAddItemText) ? this.config.customAddItemText(value) : this.config.customAddItemText;
-              }
-            }
-
-            return {
-              response: canAddItem,
-              notice: notice
-            };
-          }
-        }, {
-          key: "_ajaxCallback",
-          value: function _ajaxCallback() {
-            var _this17 = this;
-
-            return function (results, value, label) {
-              if (!results || !value) {
-                return;
-              }
-
-              var parsedResults = (0, _utils.isType)('Object', results) ? [results] : results;
-
-              if (parsedResults && (0, _utils.isType)('Array', parsedResults) && parsedResults.length) {
-                // Remove loading states/text
-                _this17._handleLoadingState(false);
-
-                _this17._setLoading(true); // Add each result as a choice
-
-
-                parsedResults.forEach(function (result) {
-                  if (result.choices) {
-                    _this17._addGroup({
-                      group: result,
-                      id: result.id || null,
-                      valueKey: value,
-                      labelKey: label
-                    });
-                  } else {
-                    _this17._addChoice({
-                      value: (0, _utils.fetchFromObject)(result, value),
-                      label: (0, _utils.fetchFromObject)(result, label),
-                      isSelected: result.selected,
-                      isDisabled: result.disabled,
-                      customProperties: result.customProperties,
-                      placeholder: result.placeholder
-                    });
-                  }
-                });
-
-                _this17._setLoading(false);
-
-                if (_this17._isSelectOneElement) {
-                  _this17._selectPlaceholderChoice();
-                }
-              } else {
-                // No results, remove loading state
-                _this17._handleLoadingState(false);
-              }
-            };
-          }
-        }, {
-          key: "_searchChoices",
-          value: function _searchChoices(value) {
-            var newValue = (0, _utils.isType)('String', value) ? value.trim() : value;
-            var currentValue = (0, _utils.isType)('String', this._currentValue) ? this._currentValue.trim() : this._currentValue;
-
-            if (newValue.length < 1 && newValue === "".concat(currentValue, " ")) {
-              return 0;
-            } // If new value matches the desired length and is not the same as the current value with a space
-
-
-            var haystack = this._store.searchableChoices;
-            var needle = newValue;
-            var keys = [].concat(this.config.searchFields);
-            var options = Object.assign(this.config.fuseOptions, {
-              keys: keys
-            });
-            var fuse = new _fuse["default"](haystack, options);
-            var results = fuse.search(needle);
-            this._currentValue = newValue;
-            this._highlightPosition = 0;
-            this._isSearching = true;
-
-            this._store.dispatch((0, _choices.filterChoices)(results));
-
-            return results.length;
-          }
-        }, {
-          key: "_addEventListeners",
-          value: function _addEventListeners() {
-            document.addEventListener('keyup', this._onKeyUp);
-            document.addEventListener('keydown', this._onKeyDown);
-            document.addEventListener('click', this._onClick);
-            document.addEventListener('touchmove', this._onTouchMove);
-            document.addEventListener('touchend', this._onTouchEnd);
-            document.addEventListener('mousedown', this._onMouseDown);
-            document.addEventListener('mouseover', this._onMouseOver);
-
-            if (this._isSelectOneElement) {
-              this.containerOuter.element.addEventListener('focus', this._onFocus);
-              this.containerOuter.element.addEventListener('blur', this._onBlur);
-            }
-
-            this.input.element.addEventListener('focus', this._onFocus);
-            this.input.element.addEventListener('blur', this._onBlur);
-
-            if (this.input.element.form) {
-              this.input.element.form.addEventListener('reset', this._onFormReset);
-            }
-
-            this.input.addEventListeners();
-          }
-        }, {
-          key: "_removeEventListeners",
-          value: function _removeEventListeners() {
-            document.removeEventListener('keyup', this._onKeyUp);
-            document.removeEventListener('keydown', this._onKeyDown);
-            document.removeEventListener('click', this._onClick);
-            document.removeEventListener('touchmove', this._onTouchMove);
-            document.removeEventListener('touchend', this._onTouchEnd);
-            document.removeEventListener('mousedown', this._onMouseDown);
-            document.removeEventListener('mouseover', this._onMouseOver);
-
-            if (this._isSelectOneElement) {
-              this.containerOuter.element.removeEventListener('focus', this._onFocus);
-              this.containerOuter.element.removeEventListener('blur', this._onBlur);
-            }
-
-            this.input.element.removeEventListener('focus', this._onFocus);
-            this.input.element.removeEventListener('blur', this._onBlur);
-
-            if (this.input.element.form) {
-              this.input.element.form.removeEventListener('reset', this._onFormReset);
-            }
-
-            this.input.removeEventListeners();
-          }
-        }, {
-          key: "_onKeyDown",
-          value: function _onKeyDown(event) {
-            var _keyDownActions;
-
-            var target = event.target,
-                keyCode = event.keyCode,
-                ctrlKey = event.ctrlKey,
-                metaKey = event.metaKey;
-
-            if (target !== this.input.element && !this.containerOuter.element.contains(target)) {
-              return;
-            }
-
-            var activeItems = this._store.activeItems;
-            var hasFocusedInput = this.input.isFocussed;
-            var hasActiveDropdown = this.dropdown.isActive;
-            var hasItems = this.itemList.hasChildren;
-            var keyString = String.fromCharCode(keyCode);
-            var BACK_KEY = _constants.KEY_CODES.BACK_KEY,
-                DELETE_KEY = _constants.KEY_CODES.DELETE_KEY,
-                ENTER_KEY = _constants.KEY_CODES.ENTER_KEY,
-                A_KEY = _constants.KEY_CODES.A_KEY,
-                ESC_KEY = _constants.KEY_CODES.ESC_KEY,
-                UP_KEY = _constants.KEY_CODES.UP_KEY,
-                DOWN_KEY = _constants.KEY_CODES.DOWN_KEY,
-                PAGE_UP_KEY = _constants.KEY_CODES.PAGE_UP_KEY,
-                PAGE_DOWN_KEY = _constants.KEY_CODES.PAGE_DOWN_KEY;
-            var hasCtrlDownKeyPressed = ctrlKey || metaKey; // If a user is typing and the dropdown is not active
-
-            if (!this._isTextElement && /[a-zA-Z0-9-_ ]/.test(keyString)) {
-              this.showDropdown();
-            } // Map keys to key actions
-
-
-            var keyDownActions = (_keyDownActions = {}, _defineProperty(_keyDownActions, A_KEY, this._onAKey), _defineProperty(_keyDownActions, ENTER_KEY, this._onEnterKey), _defineProperty(_keyDownActions, ESC_KEY, this._onEscapeKey), _defineProperty(_keyDownActions, UP_KEY, this._onDirectionKey), _defineProperty(_keyDownActions, PAGE_UP_KEY, this._onDirectionKey), _defineProperty(_keyDownActions, DOWN_KEY, this._onDirectionKey), _defineProperty(_keyDownActions, PAGE_DOWN_KEY, this._onDirectionKey), _defineProperty(_keyDownActions, DELETE_KEY, this._onDeleteKey), _defineProperty(_keyDownActions, BACK_KEY, this._onDeleteKey), _keyDownActions); // If keycode has a function, run it
-
-            if (keyDownActions[keyCode]) {
-              keyDownActions[keyCode]({
-                event: event,
-                target: target,
-                keyCode: keyCode,
-                metaKey: metaKey,
-                activeItems: activeItems,
-                hasFocusedInput: hasFocusedInput,
-                hasActiveDropdown: hasActiveDropdown,
-                hasItems: hasItems,
-                hasCtrlDownKeyPressed: hasCtrlDownKeyPressed
-              });
-            }
-          }
-        }, {
-          key: "_onKeyUp",
-          value: function _onKeyUp(_ref2) {
-            var target = _ref2.target,
-                keyCode = _ref2.keyCode;
-
-            if (target !== this.input.element) {
-              return;
-            }
-
-            var value = this.input.value;
-            var activeItems = this._store.activeItems;
-
-            var canAddItem = this._canAddItem(activeItems, value);
-
-            var backKey = _constants.KEY_CODES.BACK_KEY,
-                deleteKey = _constants.KEY_CODES.DELETE_KEY; // We are typing into a text input and have a value, we want to show a dropdown
-            // notice. Otherwise hide the dropdown
-
-            if (this._isTextElement) {
-              var canShowDropdownNotice = canAddItem.notice && value;
-
-              if (canShowDropdownNotice) {
-                var dropdownItem = this._getTemplate('notice', canAddItem.notice);
-
-                this.dropdown.element.innerHTML = dropdownItem.outerHTML;
-                this.showDropdown(true);
-              } else {
-                this.hideDropdown(true);
-              }
-            } else {
-              var userHasRemovedValue = (keyCode === backKey || keyCode === deleteKey) && !target.value;
-              var canReactivateChoices = !this._isTextElement && this._isSearching;
-              var canSearch = this._canSearch && canAddItem.response;
-
-              if (userHasRemovedValue && canReactivateChoices) {
-                this._isSearching = false;
-
-                this._store.dispatch((0, _choices.activateChoices)(true));
-              } else if (canSearch) {
-                this._handleSearch(this.input.value);
-              }
-            }
-
-            this._canSearch = this.config.searchEnabled;
-          }
-        }, {
-          key: "_onAKey",
-          value: function _onAKey(_ref3) {
-            var hasItems = _ref3.hasItems,
-                hasCtrlDownKeyPressed = _ref3.hasCtrlDownKeyPressed; // If CTRL + A or CMD + A have been pressed and there are items to select
-
-            if (hasCtrlDownKeyPressed && hasItems) {
-              this._canSearch = false;
-              var shouldHightlightAll = this.config.removeItems && !this.input.value && this.input.element === document.activeElement;
-
-              if (shouldHightlightAll) {
-                this.highlightAll();
-              }
-            }
-          }
-        }, {
-          key: "_onEnterKey",
-          value: function _onEnterKey(_ref4) {
-            var event = _ref4.event,
-                target = _ref4.target,
-                activeItems = _ref4.activeItems,
-                hasActiveDropdown = _ref4.hasActiveDropdown;
-            var enterKey = _constants.KEY_CODES.ENTER_KEY;
-            var targetWasButton = target.hasAttribute('data-button');
-
-            if (this._isTextElement && target.value) {
-              var value = this.input.value;
-
-              var canAddItem = this._canAddItem(activeItems, value);
-
-              if (canAddItem.response) {
-                this.hideDropdown(true);
-
-                this._addItem({
-                  value: value
-                });
-
-                this._triggerChange(value);
-
-                this.clearInput();
-              }
-            }
-
-            if (targetWasButton) {
-              this._handleButtonAction(activeItems, target);
-
-              event.preventDefault();
-            }
-
-            if (hasActiveDropdown) {
-              var highlightedChoice = this.dropdown.getChild(".".concat(this.config.classNames.highlightedState));
-
-              if (highlightedChoice) {
-                // add enter keyCode value
-                if (activeItems[0]) {
-                  activeItems[0].keyCode = enterKey; // eslint-disable-line no-param-reassign
-                }
-
-                this._handleChoiceAction(activeItems, highlightedChoice);
-              }
-
-              event.preventDefault();
-            } else if (this._isSelectOneElement) {
-              this.showDropdown();
-              event.preventDefault();
-            }
-          }
-        }, {
-          key: "_onEscapeKey",
-          value: function _onEscapeKey(_ref5) {
-            var hasActiveDropdown = _ref5.hasActiveDropdown;
-
-            if (hasActiveDropdown) {
-              this.hideDropdown(true);
-              this.containerOuter.focus();
-            }
-          }
-        }, {
-          key: "_onDirectionKey",
-          value: function _onDirectionKey(_ref6) {
-            var event = _ref6.event,
-                hasActiveDropdown = _ref6.hasActiveDropdown,
-                keyCode = _ref6.keyCode,
-                metaKey = _ref6.metaKey;
-            var downKey = _constants.KEY_CODES.DOWN_KEY,
-                pageUpKey = _constants.KEY_CODES.PAGE_UP_KEY,
-                pageDownKey = _constants.KEY_CODES.PAGE_DOWN_KEY; // If up or down key is pressed, traverse through options
-
-            if (hasActiveDropdown || this._isSelectOneElement) {
-              this.showDropdown();
-              this._canSearch = false;
-              var directionInt = keyCode === downKey || keyCode === pageDownKey ? 1 : -1;
-              var skipKey = metaKey || keyCode === pageDownKey || keyCode === pageUpKey;
-              var selectableChoiceIdentifier = '[data-choice-selectable]';
-              var nextEl;
-
-              if (skipKey) {
-                if (directionInt > 0) {
-                  nextEl = Array.from(this.dropdown.element.querySelectorAll(selectableChoiceIdentifier)).pop();
-                } else {
-                  nextEl = this.dropdown.element.querySelector(selectableChoiceIdentifier);
-                }
-              } else {
-                var currentEl = this.dropdown.element.querySelector(".".concat(this.config.classNames.highlightedState));
-
-                if (currentEl) {
-                  nextEl = (0, _utils.getAdjacentEl)(currentEl, selectableChoiceIdentifier, directionInt);
-                } else {
-                  nextEl = this.dropdown.element.querySelector(selectableChoiceIdentifier);
-                }
-              }
-
-              if (nextEl) {
-                // We prevent default to stop the cursor moving
-                // when pressing the arrow
-                if (!(0, _utils.isScrolledIntoView)(nextEl, this.choiceList.element, directionInt)) {
-                  this.choiceList.scrollToChoice(nextEl, directionInt);
-                }
-
-                this._highlightChoice(nextEl);
-              } // Prevent default to maintain cursor position whilst
-              // traversing dropdown options
-
-
-              event.preventDefault();
-            }
-          }
-        }, {
-          key: "_onDeleteKey",
-          value: function _onDeleteKey(_ref7) {
-            var event = _ref7.event,
-                target = _ref7.target,
-                hasFocusedInput = _ref7.hasFocusedInput,
-                activeItems = _ref7.activeItems; // If backspace or delete key is pressed and the input has no value
-
-            if (hasFocusedInput && !target.value && !this._isSelectOneElement) {
-              this._handleBackspace(activeItems);
-
-              event.preventDefault();
-            }
-          }
-        }, {
-          key: "_onTouchMove",
-          value: function _onTouchMove() {
-            if (this._wasTap) {
-              this._wasTap = false;
-            }
-          }
-        }, {
-          key: "_onTouchEnd",
-          value: function _onTouchEnd(event) {
-            var _ref8 = event || event.touches[0],
-                target = _ref8.target;
-
-            var touchWasWithinContainer = this._wasTap && this.containerOuter.element.contains(target);
-
-            if (touchWasWithinContainer) {
-              var containerWasExactTarget = target === this.containerOuter.element || target === this.containerInner.element;
-
-              if (containerWasExactTarget) {
-                if (this._isTextElement) {
-                  this.input.focus();
-                } else if (this._isSelectMultipleElement) {
-                  this.showDropdown();
-                }
-              } // Prevents focus event firing
-
-
-              event.stopPropagation();
-            }
-
-            this._wasTap = true;
-          }
-        }, {
-          key: "_onMouseDown",
-          value: function _onMouseDown(event) {
-            var target = event.target,
-                shiftKey = event.shiftKey; // If we have our mouse down on the scrollbar and are on IE11...
-
-            if (this.choiceList.element.contains(target) && (0, _utils.isIE11)()) {
-              this._isScrollingOnIe = true;
-            }
-
-            if (!this.containerOuter.element.contains(target) || target === this.input.element) {
-              return;
-            }
-
-            var activeItems = this._store.activeItems;
-            var hasShiftKey = shiftKey;
-            var buttonTarget = (0, _utils.findAncestorByAttrName)(target, 'data-button');
-            var itemTarget = (0, _utils.findAncestorByAttrName)(target, 'data-item');
-            var choiceTarget = (0, _utils.findAncestorByAttrName)(target, 'data-choice');
-
-            if (buttonTarget) {
-              this._handleButtonAction(activeItems, buttonTarget);
-            } else if (itemTarget) {
-              this._handleItemAction(activeItems, itemTarget, hasShiftKey);
-            } else if (choiceTarget) {
-              this._handleChoiceAction(activeItems, choiceTarget);
-            }
-
-            event.preventDefault();
-          }
-        }, {
-          key: "_onMouseOver",
-          value: function _onMouseOver(_ref9) {
-            var target = _ref9.target;
-            var targetWithinDropdown = target === this.dropdown || this.dropdown.element.contains(target);
-            var shouldHighlightChoice = targetWithinDropdown && target.hasAttribute('data-choice');
-
-            if (shouldHighlightChoice) {
-              this._highlightChoice(target);
-            }
-          }
-        }, {
-          key: "_onClick",
-          value: function _onClick(_ref10) {
-            var target = _ref10.target;
-            var clickWasWithinContainer = this.containerOuter.element.contains(target);
-
-            if (clickWasWithinContainer) {
-              if (!this.dropdown.isActive && !this.containerOuter.isDisabled) {
-                if (this._isTextElement) {
-                  if (document.activeElement !== this.input.element) {
-                    this.input.focus();
-                  }
-                } else {
-                  this.showDropdown();
-                  this.containerOuter.focus();
-                }
-              } else if (this._isSelectOneElement && target !== this.input.element && !this.dropdown.element.contains(target)) {
-                this.hideDropdown();
-              }
-            } else {
-              var hasHighlightedItems = this._store.highlightedActiveItems;
-
-              if (hasHighlightedItems) {
-                this.unhighlightAll();
-              }
-
-              this.containerOuter.removeFocusState();
-              this.hideDropdown(true);
-            }
-          }
-        }, {
-          key: "_onFocus",
-          value: function _onFocus(_ref11) {
-            var _this18 = this;
-
-            var target = _ref11.target;
-            var focusWasWithinContainer = this.containerOuter.element.contains(target);
-
-            if (!focusWasWithinContainer) {
-              return;
-            }
-
-            var focusActions = {
-              text: function text() {
-                if (target === _this18.input.element) {
-                  _this18.containerOuter.addFocusState();
-                }
-              },
-              'select-one': function selectOne() {
-                _this18.containerOuter.addFocusState();
-
-                if (target === _this18.input.element) {
-                  _this18.showDropdown(true);
-                }
-              },
-              'select-multiple': function selectMultiple() {
-                if (target === _this18.input.element) {
-                  _this18.showDropdown(true); // If element is a select box, the focused element is the container and the dropdown
-                  // isn't already open, focus and show dropdown
-
-
-                  _this18.containerOuter.addFocusState();
-                }
-              }
-            };
-            focusActions[this.passedElement.element.type]();
-          }
-        }, {
-          key: "_onBlur",
-          value: function _onBlur(_ref12) {
-            var _this19 = this;
-
-            var target = _ref12.target;
-            var blurWasWithinContainer = this.containerOuter.element.contains(target);
-
-            if (blurWasWithinContainer && !this._isScrollingOnIe) {
-              var activeItems = this._store.activeItems;
-              var hasHighlightedItems = activeItems.some(function (item) {
-                return item.highlighted;
-              });
-              var blurActions = {
-                text: function text() {
-                  if (target === _this19.input.element) {
-                    _this19.containerOuter.removeFocusState();
-
-                    if (hasHighlightedItems) {
-                      _this19.unhighlightAll();
-                    }
-
-                    _this19.hideDropdown(true);
-                  }
-                },
-                'select-one': function selectOne() {
-                  _this19.containerOuter.removeFocusState();
-
-                  if (target === _this19.input.element || target === _this19.containerOuter.element && !_this19._canSearch) {
-                    _this19.hideDropdown(true);
-                  }
-                },
-                'select-multiple': function selectMultiple() {
-                  if (target === _this19.input.element) {
-                    _this19.containerOuter.removeFocusState();
-
-                    _this19.hideDropdown(true);
-
-                    if (hasHighlightedItems) {
-                      _this19.unhighlightAll();
-                    }
-                  }
-                }
-              };
-              blurActions[this.passedElement.element.type]();
-            } else {
-              // On IE11, clicking the scollbar blurs our input and thus
-              // closes the dropdown. To stop this, we refocus our input
-              // if we know we are on IE *and* are scrolling.
-              this._isScrollingOnIe = false;
-              this.input.element.focus();
-            }
-          }
-        }, {
-          key: "_onFormReset",
-          value: function _onFormReset() {
-            this._store.dispatch((0, _misc.resetTo)(this._initialState));
-          }
-        }, {
-          key: "_highlightChoice",
-          value: function _highlightChoice() {
-            var _this20 = this;
-
-            var el = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
-            var choices = Array.from(this.dropdown.element.querySelectorAll('[data-choice-selectable]'));
-
-            if (!choices.length) {
-              return;
-            }
-
-            var passedEl = el;
-            var highlightedChoices = Array.from(this.dropdown.element.querySelectorAll(".".concat(this.config.classNames.highlightedState))); // Remove any highlighted choices
-
-            highlightedChoices.forEach(function (choice) {
-              choice.classList.remove(_this20.config.classNames.highlightedState);
-              choice.setAttribute('aria-selected', 'false');
-            });
-
-            if (passedEl) {
-              this._highlightPosition = choices.indexOf(passedEl);
-            } else {
-              // Highlight choice based on last known highlight location
-              if (choices.length > this._highlightPosition) {
-                // If we have an option to highlight
-                passedEl = choices[this._highlightPosition];
-              } else {
-                // Otherwise highlight the option before
-                passedEl = choices[choices.length - 1];
-              }
-
-              if (!passedEl) {
-                passedEl = choices[0];
-              }
-            }
-
-            passedEl.classList.add(this.config.classNames.highlightedState);
-            passedEl.setAttribute('aria-selected', 'true');
-            this.passedElement.triggerEvent(_constants.EVENTS.highlightChoice, {
-              el: passedEl
-            });
-
-            if (this.dropdown.isActive) {
-              // IE11 ignores aria-label and blocks virtual keyboard
-              // if aria-activedescendant is set without a dropdown
-              this.input.setActiveDescendant(passedEl.id);
-              this.containerOuter.setActiveDescendant(passedEl.id);
-            }
-          }
-        }, {
-          key: "_addItem",
-          value: function _addItem(_ref13) {
-            var value = _ref13.value,
-                _ref13$label = _ref13.label,
-                label = _ref13$label === void 0 ? null : _ref13$label,
-                _ref13$choiceId = _ref13.choiceId,
-                choiceId = _ref13$choiceId === void 0 ? -1 : _ref13$choiceId,
-                _ref13$groupId = _ref13.groupId,
-                groupId = _ref13$groupId === void 0 ? -1 : _ref13$groupId,
-                _ref13$customProperti = _ref13.customProperties,
-                customProperties = _ref13$customProperti === void 0 ? null : _ref13$customProperti,
-                _ref13$placeholder = _ref13.placeholder,
-                placeholder = _ref13$placeholder === void 0 ? false : _ref13$placeholder,
-                _ref13$keyCode = _ref13.keyCode,
-                keyCode = _ref13$keyCode === void 0 ? null : _ref13$keyCode;
-            var passedValue = (0, _utils.isType)('String', value) ? value.trim() : value;
-            var passedKeyCode = keyCode;
-            var passedCustomProperties = customProperties;
-            var items = this._store.items;
-            var passedLabel = label || passedValue;
-            var passedOptionId = parseInt(choiceId, 10) || -1;
-            var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-            var id = items ? items.length + 1 : 1; // If a prepended value has been passed, prepend it
-
-            if (this.config.prependValue) {
-              passedValue = this.config.prependValue + passedValue.toString();
-            } // If an appended value has been passed, append it
-
-
-            if (this.config.appendValue) {
-              passedValue += this.config.appendValue.toString();
-            }
-
-            this._store.dispatch((0, _items.addItem)({
-              value: passedValue,
-              label: passedLabel,
-              id: id,
-              choiceId: passedOptionId,
-              groupId: groupId,
-              customProperties: customProperties,
-              placeholder: placeholder,
-              keyCode: passedKeyCode
-            }));
-
-            if (this._isSelectOneElement) {
-              this.removeActiveItems(id);
-            } // Trigger change event
-
-
-            this.passedElement.triggerEvent(_constants.EVENTS.addItem, {
-              id: id,
-              value: passedValue,
-              label: passedLabel,
-              customProperties: passedCustomProperties,
-              groupValue: group && group.value ? group.value : undefined,
-              keyCode: passedKeyCode
-            });
-            return this;
-          }
-        }, {
-          key: "_removeItem",
-          value: function _removeItem(item) {
-            if (!item || !(0, _utils.isType)('Object', item)) {
-              return this;
-            }
-
-            var id = item.id,
-                value = item.value,
-                label = item.label,
-                choiceId = item.choiceId,
-                groupId = item.groupId;
-            var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
-
-            this._store.dispatch((0, _items.removeItem)(id, choiceId));
-
-            if (group && group.value) {
-              this.passedElement.triggerEvent(_constants.EVENTS.removeItem, {
-                id: id,
-                value: value,
-                label: label,
-                groupValue: group.value
-              });
-            } else {
-              this.passedElement.triggerEvent(_constants.EVENTS.removeItem, {
-                id: id,
-                value: value,
-                label: label
-              });
-            }
-
-            return this;
-          }
-        }, {
-          key: "_addChoice",
-          value: function _addChoice(_ref14) {
-            var value = _ref14.value,
-                _ref14$label = _ref14.label,
-                label = _ref14$label === void 0 ? null : _ref14$label,
-                _ref14$isSelected = _ref14.isSelected,
-                isSelected = _ref14$isSelected === void 0 ? false : _ref14$isSelected,
-                _ref14$isDisabled = _ref14.isDisabled,
-                isDisabled = _ref14$isDisabled === void 0 ? false : _ref14$isDisabled,
-                _ref14$groupId = _ref14.groupId,
-                groupId = _ref14$groupId === void 0 ? -1 : _ref14$groupId,
-                _ref14$customProperti = _ref14.customProperties,
-                customProperties = _ref14$customProperti === void 0 ? null : _ref14$customProperti,
-                _ref14$placeholder = _ref14.placeholder,
-                placeholder = _ref14$placeholder === void 0 ? false : _ref14$placeholder,
-                _ref14$keyCode = _ref14.keyCode,
-                keyCode = _ref14$keyCode === void 0 ? null : _ref14$keyCode;
-
-            if (typeof value === 'undefined' || value === null) {
-              return;
-            } // Generate unique id
-
-
-            var choices = this._store.choices;
-            var choiceLabel = label || value;
-            var choiceId = choices ? choices.length + 1 : 1;
-            var choiceElementId = "".concat(this._baseId, "-").concat(this._idNames.itemChoice, "-").concat(choiceId);
-
-            this._store.dispatch((0, _choices.addChoice)({
-              value: value,
-              label: choiceLabel,
-              id: choiceId,
-              groupId: groupId,
-              disabled: isDisabled,
-              elementId: choiceElementId,
-              customProperties: customProperties,
-              placeholder: placeholder,
-              keyCode: keyCode
-            }));
-
-            if (isSelected) {
-              this._addItem({
-                value: value,
-                label: choiceLabel,
-                choiceId: choiceId,
-                customProperties: customProperties,
-                placeholder: placeholder,
-                keyCode: keyCode
-              });
-            }
-          }
-        }, {
-          key: "_addGroup",
-          value: function _addGroup(_ref15) {
-            var _this21 = this;
-
-            var group = _ref15.group,
-                id = _ref15.id,
-                _ref15$valueKey = _ref15.valueKey,
-                valueKey = _ref15$valueKey === void 0 ? 'value' : _ref15$valueKey,
-                _ref15$labelKey = _ref15.labelKey,
-                labelKey = _ref15$labelKey === void 0 ? 'label' : _ref15$labelKey;
-            var groupChoices = (0, _utils.isType)('Object', group) ? group.choices : Array.from(group.getElementsByTagName('OPTION'));
-            var groupId = id || Math.floor(new Date().valueOf() * Math.random());
-            var isDisabled = group.disabled ? group.disabled : false;
-
-            if (groupChoices) {
-              this._store.dispatch((0, _groups.addGroup)(group.label, groupId, true, isDisabled));
-
-              var addGroupChoices = function addGroupChoices(choice) {
-                var isOptDisabled = choice.disabled || choice.parentNode && choice.parentNode.disabled;
-
-                _this21._addChoice({
-                  value: choice[valueKey],
-                  label: (0, _utils.isType)('Object', choice) ? choice[labelKey] : choice.innerHTML,
-                  isSelected: choice.selected,
-                  isDisabled: isOptDisabled,
-                  groupId: groupId,
-                  customProperties: choice.customProperties,
-                  placeholder: choice.placeholder
-                });
-              };
-
-              groupChoices.forEach(addGroupChoices);
-            } else {
-              this._store.dispatch((0, _groups.addGroup)(group.label, group.id, false, group.disabled));
-            }
-          }
-        }, {
-          key: "_getTemplate",
-          value: function _getTemplate(template) {
-            var _templates$template;
-
-            if (!template) {
-              return null;
-            }
-
-            var _this$config4 = this.config,
-                templates = _this$config4.templates,
-                classNames = _this$config4.classNames;
-
-            for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-              args[_key - 1] = arguments[_key];
-            }
-
-            return (_templates$template = templates[template]).call.apply(_templates$template, [this, classNames].concat(args));
-          }
-        }, {
-          key: "_createTemplates",
-          value: function _createTemplates() {
-            var callbackOnCreateTemplates = this.config.callbackOnCreateTemplates;
-            var userTemplates = {};
-
-            if (callbackOnCreateTemplates && (0, _utils.isType)('Function', callbackOnCreateTemplates)) {
-              userTemplates = callbackOnCreateTemplates.call(this, _utils.strToEl);
-            }
-
-            this.config.templates = (0, _deepmerge["default"])(_templates.TEMPLATES, userTemplates);
-          }
-        }, {
-          key: "_createElements",
-          value: function _createElements() {
-            this.containerOuter = new _components.Container({
-              element: this._getTemplate('containerOuter', this._direction, this._isSelectElement, this._isSelectOneElement, this.config.searchEnabled, this.passedElement.element.type),
-              classNames: this.config.classNames,
-              type: this.passedElement.element.type,
-              position: this.config.position
-            });
-            this.containerInner = new _components.Container({
-              element: this._getTemplate('containerInner'),
-              classNames: this.config.classNames,
-              type: this.passedElement.element.type,
-              position: this.config.position
-            });
-            this.input = new _components.Input({
-              element: this._getTemplate('input'),
-              classNames: this.config.classNames,
-              type: this.passedElement.element.type
-            });
-            this.choiceList = new _components.List({
-              element: this._getTemplate('choiceList', this._isSelectOneElement)
-            });
-            this.itemList = new _components.List({
-              element: this._getTemplate('itemList', this._isSelectOneElement)
-            });
-            this.dropdown = new _components.Dropdown({
-              element: this._getTemplate('dropdown'),
-              classNames: this.config.classNames,
-              type: this.passedElement.element.type
-            });
-          }
-        }, {
-          key: "_createStructure",
-          value: function _createStructure() {
-            // Hide original element
-            this.passedElement.conceal(); // Wrap input in container preserving DOM ordering
-
-            this.containerInner.wrap(this.passedElement.element); // Wrapper inner container with outer container
-
-            this.containerOuter.wrap(this.containerInner.element);
-
-            if (this._isSelectOneElement) {
-              this.input.placeholder = this.config.searchPlaceholderValue || '';
-            } else if (this._placeholderValue) {
-              this.input.placeholder = this._placeholderValue;
-              this.input.setWidth(true);
-            }
-
-            this.containerOuter.element.appendChild(this.containerInner.element);
-            this.containerOuter.element.appendChild(this.dropdown.element);
-            this.containerInner.element.appendChild(this.itemList.element);
-
-            if (!this._isTextElement) {
-              this.dropdown.element.appendChild(this.choiceList.element);
-            }
-
-            if (!this._isSelectOneElement) {
-              this.containerInner.element.appendChild(this.input.element);
-            } else if (this.config.searchEnabled) {
-              this.dropdown.element.insertBefore(this.input.element, this.dropdown.element.firstChild);
-            }
-
-            if (this._isSelectElement) {
-              this._addPredefinedChoices();
-            } else if (this._isTextElement) {
-              this._addPredefinedItems();
-            }
-          }
-        }, {
-          key: "_addPredefinedChoices",
-          value: function _addPredefinedChoices() {
-            var _this22 = this;
-
-            var passedGroups = this.passedElement.optionGroups;
-            this._highlightPosition = 0;
-            this._isSearching = false;
-
-            this._setLoading(true);
-
-            if (passedGroups && passedGroups.length) {
-              // If we have a placeholder option
-              var placeholderChoice = this.passedElement.placeholderOption;
-
-              if (placeholderChoice && placeholderChoice.parentNode.tagName === 'SELECT') {
-                this._addChoice({
-                  value: placeholderChoice.value,
-                  label: placeholderChoice.innerHTML,
-                  isSelected: placeholderChoice.selected,
-                  isDisabled: placeholderChoice.disabled,
-                  placeholder: true
-                });
-              }
-
-              passedGroups.forEach(function (group) {
-                return _this22._addGroup({
-                  group: group,
-                  id: group.id || null
-                });
-              });
-            } else {
-              var passedOptions = this.passedElement.options;
-              var filter = this.config.sortFn;
-              var allChoices = this._presetChoices; // Create array of options from option elements
-
-              passedOptions.forEach(function (o) {
-                allChoices.push({
-                  value: o.value,
-                  label: o.innerHTML,
-                  selected: o.selected,
-                  disabled: o.disabled || o.parentNode.disabled,
-                  placeholder: o.hasAttribute('placeholder'),
-                  customProperties: o.getAttribute('data-custom-properties')
-                });
-              }); // If sorting is enabled or the user is searching, filter choices
-
-              if (this.config.shouldSort) allChoices.sort(filter); // Determine whether there is a selected choice
-
-              var hasSelectedChoice = allChoices.some(function (choice) {
-                return choice.selected;
-              });
-
-              var handleChoice = function handleChoice(choice, index) {
-                var value = choice.value,
-                    label = choice.label,
-                    customProperties = choice.customProperties,
-                    placeholder = choice.placeholder;
-
-                if (_this22._isSelectElement) {
-                  // If the choice is actually a group
-                  if (choice.choices) {
-                    _this22._addGroup({
-                      group: choice,
-                      id: choice.id || null
-                    });
-                  } else {
-                    // If there is a selected choice already or the choice is not
-                    // the first in the array, add each choice normally
-                    // Otherwise pre-select the first choice in the array if it's a single select
-                    var shouldPreselect = _this22._isSelectOneElement && !hasSelectedChoice && index === 0;
-                    var isSelected = shouldPreselect ? true : choice.selected;
-                    var isDisabled = shouldPreselect ? false : choice.disabled;
-
-                    _this22._addChoice({
-                      value: value,
-                      label: label,
-                      isSelected: isSelected,
-                      isDisabled: isDisabled,
-                      customProperties: customProperties,
-                      placeholder: placeholder
-                    });
-                  }
-                } else {
-                  _this22._addChoice({
-                    value: value,
-                    label: label,
-                    isSelected: choice.selected,
-                    isDisabled: choice.disabled,
-                    customProperties: customProperties,
-                    placeholder: placeholder
-                  });
-                }
-              }; // Add each choice
-
-
-              allChoices.forEach(function (choice, index) {
-                return handleChoice(choice, index);
-              });
-            }
-
-            this._setLoading(false);
-          }
-        }, {
-          key: "_addPredefinedItems",
-          value: function _addPredefinedItems() {
-            var _this23 = this;
-
-            var handlePresetItem = function handlePresetItem(item) {
-              var itemType = (0, _utils.getType)(item);
-
-              if (itemType === 'Object' && item.value) {
-                _this23._addItem({
-                  value: item.value,
-                  label: item.label,
-                  choiceId: item.id,
-                  customProperties: item.customProperties,
-                  placeholder: item.placeholder
-                });
-              } else if (itemType === 'String') {
-                _this23._addItem({
-                  value: item
-                });
-              }
-            };
-
-            this._presetItems.forEach(function (item) {
-              return handlePresetItem(item);
-            });
-          }
-        }, {
-          key: "_setChoiceOrItem",
-          value: function _setChoiceOrItem(item) {
-            var _this24 = this;
-
-            var itemType = (0, _utils.getType)(item).toLowerCase();
-            var handleType = {
-              object: function object() {
-                if (!item.value) {
-                  return;
-                } // If we are dealing with a select input, we need to create an option first
-                // that is then selected. For text inputs we can just add items normally.
-
-
-                if (!_this24._isTextElement) {
-                  _this24._addChoice({
-                    value: item.value,
-                    label: item.label,
-                    isSelected: true,
-                    isDisabled: false,
-                    customProperties: item.customProperties,
-                    placeholder: item.placeholder
-                  });
-                } else {
-                  _this24._addItem({
-                    value: item.value,
-                    label: item.label,
-                    choiceId: item.id,
-                    customProperties: item.customProperties,
-                    placeholder: item.placeholder
-                  });
-                }
-              },
-              string: function string() {
-                if (!_this24._isTextElement) {
-                  _this24._addChoice({
-                    value: item,
-                    label: item,
-                    isSelected: true,
-                    isDisabled: false
-                  });
-                } else {
-                  _this24._addItem({
-                    value: item
-                  });
-                }
-              }
-            };
-            handleType[itemType]();
-          }
-        }, {
-          key: "_findAndSelectChoiceByValue",
-          value: function _findAndSelectChoiceByValue(val) {
-            var _this25 = this;
-
-            var choices = this._store.choices; // Check 'value' property exists and the choice isn't already selected
-
-            var foundChoice = choices.find(function (choice) {
-              return _this25.config.itemComparer(choice.value, val);
-            });
-
-            if (foundChoice && !foundChoice.selected) {
-              this._addItem({
-                value: foundChoice.value,
-                label: foundChoice.label,
-                choiceId: foundChoice.id,
-                groupId: foundChoice.groupId,
-                customProperties: foundChoice.customProperties,
-                placeholder: foundChoice.placeholder,
-                keyCode: foundChoice.keyCode
-              });
-            }
-          }
-        }, {
-          key: "_generateInstances",
-          value: function _generateInstances(elements, config) {
-            return elements.reduce(function (instances, element) {
-              instances.push(new Choices(element, config));
-              return instances;
-            }, [this]);
-          }
-        }, {
-          key: "_generatePlaceholderValue",
-          value: function _generatePlaceholderValue() {
-            if (this._isSelectOneElement) {
-              return false;
-            }
-
-            return this.config.placeholder ? this.config.placeholderValue || this.passedElement.element.getAttribute('placeholder') : false;
-          }
-          /* =====  End of Private functions  ====== */
-
-        }]);
-
-        return Choices;
-      }();
-
-      Choices.userDefaults = {}; // We cannot export default here due to Webpack: https://github.com/webpack/webpack/issues/3929
-
-      module.exports = Choices;
-      /***/
-    },
-    /* 11 */
 
     /***/
     function (module, exports, __webpack_require__) {
@@ -12972,9 +7085,7 @@ var pwtImage = function () {
               /*! ./bitap_pattern_alphabet */
               "./src/bitap/bitap_pattern_alphabet.js");
 
-              var Bitap =
-              /*#__PURE__*/
-              function () {
+              var Bitap = /*#__PURE__*/function () {
                 function Bitap(pattern, _ref) {
                   var _ref$location = _ref.location,
                       location = _ref$location === void 0 ? 0 : _ref$location,
@@ -13194,9 +7305,7 @@ var pwtImage = function () {
               /*! ./helpers/is_array */
               "./src/helpers/is_array.js");
 
-              var Fuse =
-              /*#__PURE__*/
-              function () {
+              var Fuse = /*#__PURE__*/function () {
                 function Fuse(list, _ref) {
                   var _ref$location = _ref.location,
                       location = _ref$location === void 0 ? 0 : _ref$location,
@@ -13687,127 +7796,1356 @@ var pwtImage = function () {
       /***/
 
     },
-    /* 12 */
+    /* 4 */
+
+    /***/
+    function (module, __webpack_exports__, __webpack_require__) {
+      "use strict";
+      /* harmony export (binding) */
+
+      __webpack_require__.d(__webpack_exports__, "a", function () {
+        return symbolObservablePonyfill;
+      });
+
+      function symbolObservablePonyfill(root) {
+        var result;
+        var _Symbol = root.Symbol;
+
+        if (typeof _Symbol === 'function') {
+          if (_Symbol.observable) {
+            result = _Symbol.observable;
+          } else {
+            result = _Symbol('observable');
+            _Symbol.observable = result;
+          }
+        } else {
+          result = '@@observable';
+        }
+
+        return result;
+      }
+
+      ;
+      /***/
+    },
+    /* 5 */
+
+    /***/
+    function (module, exports, __webpack_require__) {
+      module.exports = __webpack_require__(9);
+      /***/
+    },
+    /* 6 */
+
+    /***/
+    function (module, exports) {
+      window.delegateEvent = function delegateEvent() {
+        var events;
+        var addedListenerTypes;
+
+        if (typeof events === 'undefined') {
+          events = new Map();
+        }
+
+        if (typeof addedListenerTypes === 'undefined') {
+          addedListenerTypes = [];
+        }
+
+        function _callback(event) {
+          var type = events.get(event.type);
+          if (!type) return;
+          type.forEach(function (fn) {
+            return fn(event);
+          });
+        }
+
+        return {
+          add: function add(type, fn) {
+            // Cache list of events.
+            if (events.has(type)) {
+              events.get(type).push(fn);
+            } else {
+              events.set(type, [fn]);
+            } // Setup events.
+
+
+            if (addedListenerTypes.indexOf(type) === -1) {
+              document.documentElement.addEventListener(type, _callback, true);
+              addedListenerTypes.push(type);
+            }
+          },
+          remove: function remove(type, fn) {
+            if (!events.get(type)) return;
+            events.set(type, events.get(type).filter(function (item) {
+              return item !== fn;
+            }));
+
+            if (!events.get(type).length) {
+              addedListenerTypes.splice(addedListenerTypes.indexOf(type), 1);
+            }
+          }
+        };
+      }();
+      /***/
+
+    },
+    /* 7 */
+
+    /***/
+    function (module, exports) {
+      var g; // This works in non-strict mode
+
+      g = function () {
+        return this;
+      }();
+
+      try {
+        // This works if eval is allowed (see CSP)
+        g = g || new Function("return this")();
+      } catch (e) {
+        // This works if the window reference is available
+        if ((typeof window === "undefined" ? "undefined" : _typeof2(window)) === "object") g = window;
+      } // g can still be undefined, but nothing to do about it...
+      // We return undefined, instead of nothing here, so it's
+      // easier to handle this case. if(!global) { ...}
+
+
+      module.exports = g;
+      /***/
+    },
+    /* 8 */
+
+    /***/
+    function (module, exports) {
+      module.exports = function (originalModule) {
+        if (!originalModule.webpackPolyfill) {
+          var module = Object.create(originalModule); // module.parent = undefined by default
+
+          if (!module.children) module.children = [];
+          Object.defineProperty(module, "loaded", {
+            enumerable: true,
+            get: function get() {
+              return module.l;
+            }
+          });
+          Object.defineProperty(module, "id", {
+            enumerable: true,
+            get: function get() {
+              return module.i;
+            }
+          });
+          Object.defineProperty(module, "exports", {
+            enumerable: true
+          });
+          module.webpackPolyfill = 1;
+        }
+
+        return module;
+      };
+      /***/
+
+    },
+    /* 9 */
 
     /***/
     function (module, __webpack_exports__, __webpack_require__) {
       "use strict";
 
-      __webpack_require__.r(__webpack_exports__);
+      __webpack_require__.r(__webpack_exports__); // EXTERNAL MODULE: ./node_modules/fuse.js/dist/fuse.js
 
-      var isMergeableObject = function isMergeableObject(value) {
-        return isNonNullObject(value) && !isSpecial(value);
+
+      var dist_fuse = __webpack_require__(3);
+
+      var fuse_default = /*#__PURE__*/__webpack_require__.n(dist_fuse); // EXTERNAL MODULE: ./node_modules/deepmerge/dist/cjs.js
+
+
+      var cjs = __webpack_require__(1);
+
+      var cjs_default = /*#__PURE__*/__webpack_require__.n(cjs); // EXTERNAL MODULE: ./src/scripts/lib/delegate-events.js
+
+
+      var delegate_events = __webpack_require__(6); // EXTERNAL MODULE: ./node_modules/symbol-observable/es/index.js
+
+
+      var es = __webpack_require__(2); // CONCATENATED MODULE: ./node_modules/redux/es/redux.js
+
+      /**
+       * These are private action types reserved by Redux.
+       * For any unknown actions, you must return the current state.
+       * If the current state is undefined, you must return the initial state.
+       * Do not reference these action types directly in your code.
+       */
+
+
+      var randomString = function randomString() {
+        return Math.random().toString(36).substring(7).split('').join('.');
       };
 
-      function isNonNullObject(value) {
-        return !!value && _typeof2(value) === 'object';
+      var ActionTypes = {
+        INIT: "@@redux/INIT" + randomString(),
+        REPLACE: "@@redux/REPLACE" + randomString(),
+        PROBE_UNKNOWN_ACTION: function PROBE_UNKNOWN_ACTION() {
+          return "@@redux/PROBE_UNKNOWN_ACTION" + randomString();
+        }
+      };
+      /**
+       * @param {any} obj The object to inspect.
+       * @returns {boolean} True if the argument appears to be a plain object.
+       */
+
+      function isPlainObject(obj) {
+        if (_typeof2(obj) !== 'object' || obj === null) return false;
+        var proto = obj;
+
+        while (Object.getPrototypeOf(proto) !== null) {
+          proto = Object.getPrototypeOf(proto);
+        }
+
+        return Object.getPrototypeOf(obj) === proto;
       }
+      /**
+       * Creates a Redux store that holds the state tree.
+       * The only way to change the data in the store is to call `dispatch()` on it.
+       *
+       * There should only be a single store in your app. To specify how different
+       * parts of the state tree respond to actions, you may combine several reducers
+       * into a single reducer function by using `combineReducers`.
+       *
+       * @param {Function} reducer A function that returns the next state tree, given
+       * the current state tree and the action to handle.
+       *
+       * @param {any} [preloadedState] The initial state. You may optionally specify it
+       * to hydrate the state from the server in universal apps, or to restore a
+       * previously serialized user session.
+       * If you use `combineReducers` to produce the root reducer function, this must be
+       * an object with the same shape as `combineReducers` keys.
+       *
+       * @param {Function} [enhancer] The store enhancer. You may optionally specify it
+       * to enhance the store with third-party capabilities such as middleware,
+       * time travel, persistence, etc. The only store enhancer that ships with Redux
+       * is `applyMiddleware()`.
+       *
+       * @returns {Store} A Redux store that lets you read the state, dispatch actions
+       * and subscribe to changes.
+       */
 
-      function isSpecial(value) {
-        var stringValue = Object.prototype.toString.call(value);
-        return stringValue === '[object RegExp]' || stringValue === '[object Date]' || isReactElement(value);
-      } // see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+
+      function createStore(reducer, preloadedState, enhancer) {
+        var _ref2;
+
+        if (typeof preloadedState === 'function' && typeof enhancer === 'function' || typeof enhancer === 'function' && typeof arguments[3] === 'function') {
+          throw new Error('It looks like you are passing several store enhancers to ' + 'createStore(). This is not supported. Instead, compose them ' + 'together to a single function.');
+        }
+
+        if (typeof preloadedState === 'function' && typeof enhancer === 'undefined') {
+          enhancer = preloadedState;
+          preloadedState = undefined;
+        }
+
+        if (typeof enhancer !== 'undefined') {
+          if (typeof enhancer !== 'function') {
+            throw new Error('Expected the enhancer to be a function.');
+          }
+
+          return enhancer(createStore)(reducer, preloadedState);
+        }
+
+        if (typeof reducer !== 'function') {
+          throw new Error('Expected the reducer to be a function.');
+        }
+
+        var currentReducer = reducer;
+        var currentState = preloadedState;
+        var currentListeners = [];
+        var nextListeners = currentListeners;
+        var isDispatching = false;
+        /**
+         * This makes a shallow copy of currentListeners so we can use
+         * nextListeners as a temporary list while dispatching.
+         *
+         * This prevents any bugs around consumers calling
+         * subscribe/unsubscribe in the middle of a dispatch.
+         */
+
+        function ensureCanMutateNextListeners() {
+          if (nextListeners === currentListeners) {
+            nextListeners = currentListeners.slice();
+          }
+        }
+        /**
+         * Reads the state tree managed by the store.
+         *
+         * @returns {any} The current state tree of your application.
+         */
 
 
-      var canUseSymbol = typeof Symbol === 'function' && Symbol["for"];
-      var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol["for"]('react.element') : 0xeac7;
+        function getState() {
+          if (isDispatching) {
+            throw new Error('You may not call store.getState() while the reducer is executing. ' + 'The reducer has already received the state as an argument. ' + 'Pass it down from the top reducer instead of reading it from the store.');
+          }
 
-      function isReactElement(value) {
-        return value.$$typeof === REACT_ELEMENT_TYPE;
-      }
+          return currentState;
+        }
+        /**
+         * Adds a change listener. It will be called any time an action is dispatched,
+         * and some part of the state tree may potentially have changed. You may then
+         * call `getState()` to read the current state tree inside the callback.
+         *
+         * You may call `dispatch()` from a change listener, with the following
+         * caveats:
+         *
+         * 1. The subscriptions are snapshotted just before every `dispatch()` call.
+         * If you subscribe or unsubscribe while the listeners are being invoked, this
+         * will not have any effect on the `dispatch()` that is currently in progress.
+         * However, the next `dispatch()` call, whether nested or not, will use a more
+         * recent snapshot of the subscription list.
+         *
+         * 2. The listener should not expect to see all state changes, as the state
+         * might have been updated multiple times during a nested `dispatch()` before
+         * the listener is called. It is, however, guaranteed that all subscribers
+         * registered before the `dispatch()` started will be called with the latest
+         * state by the time it exits.
+         *
+         * @param {Function} listener A callback to be invoked on every dispatch.
+         * @returns {Function} A function to remove this change listener.
+         */
 
-      function emptyTarget(val) {
-        return Array.isArray(val) ? [] : {};
-      }
 
-      function cloneUnlessOtherwiseSpecified(value, options) {
-        return options.clone !== false && options.isMergeableObject(value) ? deepmerge(emptyTarget(value), value, options) : value;
-      }
+        function subscribe(listener) {
+          if (typeof listener !== 'function') {
+            throw new Error('Expected the listener to be a function.');
+          }
 
-      function defaultArrayMerge(target, source, options) {
-        return target.concat(source).map(function (element) {
-          return cloneUnlessOtherwiseSpecified(element, options);
-        });
-      }
+          if (isDispatching) {
+            throw new Error('You may not call store.subscribe() while the reducer is executing. ' + 'If you would like to be notified after the store has been updated, subscribe from a ' + 'component and invoke store.getState() in the callback to access the latest state. ' + 'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.');
+          }
 
-      function mergeObject(target, source, options) {
-        var destination = {};
+          var isSubscribed = true;
+          ensureCanMutateNextListeners();
+          nextListeners.push(listener);
+          return function unsubscribe() {
+            if (!isSubscribed) {
+              return;
+            }
 
-        if (options.isMergeableObject(target)) {
-          Object.keys(target).forEach(function (key) {
-            destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+            if (isDispatching) {
+              throw new Error('You may not unsubscribe from a store listener while the reducer is executing. ' + 'See https://redux.js.org/api-reference/store#subscribe(listener) for more details.');
+            }
+
+            isSubscribed = false;
+            ensureCanMutateNextListeners();
+            var index = nextListeners.indexOf(listener);
+            nextListeners.splice(index, 1);
+          };
+        }
+        /**
+         * Dispatches an action. It is the only way to trigger a state change.
+         *
+         * The `reducer` function, used to create the store, will be called with the
+         * current state tree and the given `action`. Its return value will
+         * be considered the **next** state of the tree, and the change listeners
+         * will be notified.
+         *
+         * The base implementation only supports plain object actions. If you want to
+         * dispatch a Promise, an Observable, a thunk, or something else, you need to
+         * wrap your store creating function into the corresponding middleware. For
+         * example, see the documentation for the `redux-thunk` package. Even the
+         * middleware will eventually dispatch plain object actions using this method.
+         *
+         * @param {Object} action A plain object representing “what changed”. It is
+         * a good idea to keep actions serializable so you can record and replay user
+         * sessions, or use the time travelling `redux-devtools`. An action must have
+         * a `type` property which may not be `undefined`. It is a good idea to use
+         * string constants for action types.
+         *
+         * @returns {Object} For convenience, the same action object you dispatched.
+         *
+         * Note that, if you use a custom middleware, it may wrap `dispatch()` to
+         * return something else (for example, a Promise you can await).
+         */
+
+
+        function dispatch(action) {
+          if (!isPlainObject(action)) {
+            throw new Error('Actions must be plain objects. ' + 'Use custom middleware for async actions.');
+          }
+
+          if (typeof action.type === 'undefined') {
+            throw new Error('Actions may not have an undefined "type" property. ' + 'Have you misspelled a constant?');
+          }
+
+          if (isDispatching) {
+            throw new Error('Reducers may not dispatch actions.');
+          }
+
+          try {
+            isDispatching = true;
+            currentState = currentReducer(currentState, action);
+          } finally {
+            isDispatching = false;
+          }
+
+          var listeners = currentListeners = nextListeners;
+
+          for (var i = 0; i < listeners.length; i++) {
+            var listener = listeners[i];
+            listener();
+          }
+
+          return action;
+        }
+        /**
+         * Replaces the reducer currently used by the store to calculate the state.
+         *
+         * You might need this if your app implements code splitting and you want to
+         * load some of the reducers dynamically. You might also need this if you
+         * implement a hot reloading mechanism for Redux.
+         *
+         * @param {Function} nextReducer The reducer for the store to use instead.
+         * @returns {void}
+         */
+
+
+        function replaceReducer(nextReducer) {
+          if (typeof nextReducer !== 'function') {
+            throw new Error('Expected the nextReducer to be a function.');
+          }
+
+          currentReducer = nextReducer; // This action has a similiar effect to ActionTypes.INIT.
+          // Any reducers that existed in both the new and old rootReducer
+          // will receive the previous state. This effectively populates
+          // the new state tree with any relevant data from the old one.
+
+          dispatch({
+            type: ActionTypes.REPLACE
           });
         }
+        /**
+         * Interoperability point for observable/reactive libraries.
+         * @returns {observable} A minimal observable of state changes.
+         * For more information, see the observable proposal:
+         * https://github.com/tc39/proposal-observable
+         */
 
-        Object.keys(source).forEach(function (key) {
-          if (!options.isMergeableObject(source[key]) || !target[key]) {
-            destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
-          } else {
-            destination[key] = deepmerge(target[key], source[key], options);
+
+        function observable() {
+          var _ref;
+
+          var outerSubscribe = subscribe;
+          return _ref = {
+            /**
+             * The minimal observable subscription method.
+             * @param {Object} observer Any object that can be used as an observer.
+             * The observer object should have a `next` method.
+             * @returns {subscription} An object with an `unsubscribe` method that can
+             * be used to unsubscribe the observable from the store, and prevent further
+             * emission of values from the observable.
+             */
+            subscribe: function subscribe(observer) {
+              if (_typeof2(observer) !== 'object' || observer === null) {
+                throw new TypeError('Expected the observer to be an object.');
+              }
+
+              function observeState() {
+                if (observer.next) {
+                  observer.next(getState());
+                }
+              }
+
+              observeState();
+              var unsubscribe = outerSubscribe(observeState);
+              return {
+                unsubscribe: unsubscribe
+              };
+            }
+          }, _ref[es["a"
+          /* default */
+          ]] = function () {
+            return this;
+          }, _ref;
+        } // When a store is created, an "INIT" action is dispatched so that every
+        // reducer returns their initial state. This effectively populates
+        // the initial state tree.
+
+
+        dispatch({
+          type: ActionTypes.INIT
+        });
+        return _ref2 = {
+          dispatch: dispatch,
+          subscribe: subscribe,
+          getState: getState,
+          replaceReducer: replaceReducer
+        }, _ref2[es["a"
+        /* default */
+        ]] = observable, _ref2;
+      }
+      /**
+       * Prints a warning in the console if it exists.
+       *
+       * @param {String} message The warning message.
+       * @returns {void}
+       */
+
+
+      function warning(message) {
+        /* eslint-disable no-console */
+        if (typeof console !== 'undefined' && typeof console.error === 'function') {
+          console.error(message);
+        }
+        /* eslint-enable no-console */
+
+
+        try {
+          // This error was thrown as a convenience so that if you enable
+          // "break on all exceptions" in your console,
+          // it would pause the execution at this line.
+          throw new Error(message);
+        } catch (e) {} // eslint-disable-line no-empty
+
+      }
+
+      function getUndefinedStateErrorMessage(key, action) {
+        var actionType = action && action.type;
+        var actionDescription = actionType && "action \"" + String(actionType) + "\"" || 'an action';
+        return "Given " + actionDescription + ", reducer \"" + key + "\" returned undefined. " + "To ignore an action, you must explicitly return the previous state. " + "If you want this reducer to hold no value, you can return null instead of undefined.";
+      }
+
+      function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
+        var reducerKeys = Object.keys(reducers);
+        var argumentName = action && action.type === ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
+
+        if (reducerKeys.length === 0) {
+          return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
+        }
+
+        if (!isPlainObject(inputState)) {
+          return "The " + argumentName + " has unexpected type of \"" + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + "\". Expected argument to be an object with the following " + ("keys: \"" + reducerKeys.join('", "') + "\"");
+        }
+
+        var unexpectedKeys = Object.keys(inputState).filter(function (key) {
+          return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
+        });
+        unexpectedKeys.forEach(function (key) {
+          unexpectedKeyCache[key] = true;
+        });
+        if (action && action.type === ActionTypes.REPLACE) return;
+
+        if (unexpectedKeys.length > 0) {
+          return "Unexpected " + (unexpectedKeys.length > 1 ? 'keys' : 'key') + " " + ("\"" + unexpectedKeys.join('", "') + "\" found in " + argumentName + ". ") + "Expected to find one of the known reducer keys instead: " + ("\"" + reducerKeys.join('", "') + "\". Unexpected keys will be ignored.");
+        }
+      }
+
+      function assertReducerShape(reducers) {
+        Object.keys(reducers).forEach(function (key) {
+          var reducer = reducers[key];
+          var initialState = reducer(undefined, {
+            type: ActionTypes.INIT
+          });
+
+          if (typeof initialState === 'undefined') {
+            throw new Error("Reducer \"" + key + "\" returned undefined during initialization. " + "If the state passed to the reducer is undefined, you must " + "explicitly return the initial state. The initial state may " + "not be undefined. If you don't want to set a value for this reducer, " + "you can use null instead of undefined.");
+          }
+
+          if (typeof reducer(undefined, {
+            type: ActionTypes.PROBE_UNKNOWN_ACTION()
+          }) === 'undefined') {
+            throw new Error("Reducer \"" + key + "\" returned undefined when probed with a random type. " + ("Don't try to handle " + ActionTypes.INIT + " or other actions in \"redux/*\" ") + "namespace. They are considered private. Instead, you must return the " + "current state for any unknown actions, unless it is undefined, " + "in which case you must return the initial state, regardless of the " + "action type. The initial state may not be undefined, but can be null.");
           }
         });
-        return destination;
       }
+      /**
+       * Turns an object whose values are different reducer functions, into a single
+       * reducer function. It will call every child reducer, and gather their results
+       * into a single state object, whose keys correspond to the keys of the passed
+       * reducer functions.
+       *
+       * @param {Object} reducers An object whose values correspond to different
+       * reducer functions that need to be combined into one. One handy way to obtain
+       * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+       * undefined for any action. Instead, they should return their initial state
+       * if the state passed to them was undefined, and the current state for any
+       * unrecognized action.
+       *
+       * @returns {Function} A reducer function that invokes every reducer inside the
+       * passed object, and builds a state object with the same shape.
+       */
 
-      function deepmerge(target, source, options) {
-        options = options || {};
-        options.arrayMerge = options.arrayMerge || defaultArrayMerge;
-        options.isMergeableObject = options.isMergeableObject || isMergeableObject;
-        var sourceIsArray = Array.isArray(source);
-        var targetIsArray = Array.isArray(target);
-        var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
 
-        if (!sourceAndTargetTypesMatch) {
-          return cloneUnlessOtherwiseSpecified(source, options);
-        } else if (sourceIsArray) {
-          return options.arrayMerge(target, source, options);
-        } else {
-          return mergeObject(target, source, options);
+      function combineReducers(reducers) {
+        var reducerKeys = Object.keys(reducers);
+        var finalReducers = {};
+
+        for (var i = 0; i < reducerKeys.length; i++) {
+          var key = reducerKeys[i];
+
+          if (false) {}
+
+          if (typeof reducers[key] === 'function') {
+            finalReducers[key] = reducers[key];
+          }
         }
-      }
 
-      deepmerge.all = function deepmergeAll(array, options) {
-        if (!Array.isArray(array)) {
-          throw new Error('first argument should be an array');
+        var finalReducerKeys = Object.keys(finalReducers); // This is used to make sure we don't warn about the same
+        // keys multiple times.
+
+        var unexpectedKeyCache;
+
+        if (false) {}
+
+        var shapeAssertionError;
+
+        try {
+          assertReducerShape(finalReducers);
+        } catch (e) {
+          shapeAssertionError = e;
         }
 
-        return array.reduce(function (prev, next) {
-          return deepmerge(prev, next, options);
-        }, {});
-      };
+        return function combination(state, action) {
+          if (state === void 0) {
+            state = {};
+          }
 
-      var deepmerge_1 = deepmerge;
-      /* harmony default export */
+          if (shapeAssertionError) {
+            throw shapeAssertionError;
+          }
 
-      __webpack_exports__["default"] = deepmerge_1;
-      /***/
-    },
-    /* 13 */
+          if (false) {
+            var warningMessage;
+          }
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
+          var hasChanged = false;
+          var nextState = {};
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
+          for (var _i = 0; _i < finalReducerKeys.length; _i++) {
+            var _key = finalReducerKeys[_i];
+            var reducer = finalReducers[_key];
+            var previousStateForKey = state[_key];
+            var nextStateForKey = reducer(previousStateForKey, action);
 
-      var _redux = __webpack_require__(6);
+            if (typeof nextStateForKey === 'undefined') {
+              var errorMessage = getUndefinedStateErrorMessage(_key, action);
+              throw new Error(errorMessage);
+            }
 
-      var _index = _interopRequireDefault(__webpack_require__(15));
+            nextState[_key] = nextStateForKey;
+            hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+          }
 
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
+          return hasChanged ? nextState : state;
         };
       }
 
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
+      function bindActionCreator(actionCreator, dispatch) {
+        return function () {
+          return dispatch(actionCreator.apply(this, arguments));
+        };
       }
+      /**
+       * Turns an object whose values are action creators, into an object with the
+       * same keys, but with every function wrapped into a `dispatch` call so they
+       * may be invoked directly. This is just a convenience method, as you can call
+       * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
+       *
+       * For convenience, you can also pass an action creator as the first argument,
+       * and get a dispatch wrapped function in return.
+       *
+       * @param {Function|Object} actionCreators An object whose values are action
+       * creator functions. One handy way to obtain it is to use ES6 `import * as`
+       * syntax. You may also pass a single function.
+       *
+       * @param {Function} dispatch The `dispatch` function available on your Redux
+       * store.
+       *
+       * @returns {Function|Object} The object mimicking the original object, but with
+       * every action creator wrapped into the `dispatch` call. If you passed a
+       * function as `actionCreators`, the return value will also be a single
+       * function.
+       */
+
+
+      function bindActionCreators(actionCreators, dispatch) {
+        if (typeof actionCreators === 'function') {
+          return bindActionCreator(actionCreators, dispatch);
+        }
+
+        if (_typeof2(actionCreators) !== 'object' || actionCreators === null) {
+          throw new Error("bindActionCreators expected an object or a function, instead received " + (actionCreators === null ? 'null' : _typeof2(actionCreators)) + ". " + "Did you write \"import ActionCreators from\" instead of \"import * as ActionCreators from\"?");
+        }
+
+        var boundActionCreators = {};
+
+        for (var key in actionCreators) {
+          var actionCreator = actionCreators[key];
+
+          if (typeof actionCreator === 'function') {
+            boundActionCreators[key] = bindActionCreator(actionCreator, dispatch);
+          }
+        }
+
+        return boundActionCreators;
+      }
+
+      function _defineProperty(obj, key, value) {
+        if (key in obj) {
+          Object.defineProperty(obj, key, {
+            value: value,
+            enumerable: true,
+            configurable: true,
+            writable: true
+          });
+        } else {
+          obj[key] = value;
+        }
+
+        return obj;
+      }
+
+      function ownKeys(object, enumerableOnly) {
+        var keys = Object.keys(object);
+
+        if (Object.getOwnPropertySymbols) {
+          keys.push.apply(keys, Object.getOwnPropertySymbols(object));
+        }
+
+        if (enumerableOnly) keys = keys.filter(function (sym) {
+          return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+        });
+        return keys;
+      }
+
+      function _objectSpread2(target) {
+        for (var i = 1; i < arguments.length; i++) {
+          var source = arguments[i] != null ? arguments[i] : {};
+
+          if (i % 2) {
+            ownKeys(source, true).forEach(function (key) {
+              _defineProperty(target, key, source[key]);
+            });
+          } else if (Object.getOwnPropertyDescriptors) {
+            Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
+          } else {
+            ownKeys(source).forEach(function (key) {
+              Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+            });
+          }
+        }
+
+        return target;
+      }
+      /**
+       * Composes single-argument functions from right to left. The rightmost
+       * function can take multiple arguments as it provides the signature for
+       * the resulting composite function.
+       *
+       * @param {...Function} funcs The functions to compose.
+       * @returns {Function} A function obtained by composing the argument functions
+       * from right to left. For example, compose(f, g, h) is identical to doing
+       * (...args) => f(g(h(...args))).
+       */
+
+
+      function compose() {
+        for (var _len = arguments.length, funcs = new Array(_len), _key = 0; _key < _len; _key++) {
+          funcs[_key] = arguments[_key];
+        }
+
+        if (funcs.length === 0) {
+          return function (arg) {
+            return arg;
+          };
+        }
+
+        if (funcs.length === 1) {
+          return funcs[0];
+        }
+
+        return funcs.reduce(function (a, b) {
+          return function () {
+            return a(b.apply(void 0, arguments));
+          };
+        });
+      }
+      /**
+       * Creates a store enhancer that applies middleware to the dispatch method
+       * of the Redux store. This is handy for a variety of tasks, such as expressing
+       * asynchronous actions in a concise manner, or logging every action payload.
+       *
+       * See `redux-thunk` package as an example of the Redux middleware.
+       *
+       * Because middleware is potentially asynchronous, this should be the first
+       * store enhancer in the composition chain.
+       *
+       * Note that each middleware will be given the `dispatch` and `getState` functions
+       * as named arguments.
+       *
+       * @param {...Function} middlewares The middleware chain to be applied.
+       * @returns {Function} A store enhancer applying the middleware.
+       */
+
+
+      function applyMiddleware() {
+        for (var _len = arguments.length, middlewares = new Array(_len), _key = 0; _key < _len; _key++) {
+          middlewares[_key] = arguments[_key];
+        }
+
+        return function (createStore) {
+          return function () {
+            var store = createStore.apply(void 0, arguments);
+
+            var _dispatch = function dispatch() {
+              throw new Error('Dispatching while constructing your middleware is not allowed. ' + 'Other middleware would not be applied to this dispatch.');
+            };
+
+            var middlewareAPI = {
+              getState: store.getState,
+              dispatch: function dispatch() {
+                return _dispatch.apply(void 0, arguments);
+              }
+            };
+            var chain = middlewares.map(function (middleware) {
+              return middleware(middlewareAPI);
+            });
+            _dispatch = compose.apply(void 0, chain)(store.dispatch);
+            return _objectSpread2({}, store, {
+              dispatch: _dispatch
+            });
+          };
+        };
+      }
+      /*
+       * This is a dummy function to check if the function name has been altered by minification.
+       * If the function has been minified and NODE_ENV !== 'production', warn the user.
+       */
+
+
+      function isCrushed() {}
+
+      if (false) {} // CONCATENATED MODULE: ./src/scripts/reducers/items.js
+
+
+      var defaultState = [];
+
+      function items_items(state, action) {
+        if (state === void 0) {
+          state = defaultState;
+        }
+
+        switch (action.type) {
+          case 'ADD_ITEM':
+            {
+              // Add object to items array
+              var newState = [].concat(state, [{
+                id: action.id,
+                choiceId: action.choiceId,
+                groupId: action.groupId,
+                value: action.value,
+                label: action.label,
+                active: true,
+                highlighted: false,
+                customProperties: action.customProperties,
+                placeholder: action.placeholder || false,
+                keyCode: null
+              }]);
+              return newState.map(function (obj) {
+                var item = obj;
+                item.highlighted = false;
+                return item;
+              });
+            }
+
+          case 'REMOVE_ITEM':
+            {
+              // Set item to inactive
+              return state.map(function (obj) {
+                var item = obj;
+
+                if (item.id === action.id) {
+                  item.active = false;
+                }
+
+                return item;
+              });
+            }
+
+          case 'HIGHLIGHT_ITEM':
+            {
+              return state.map(function (obj) {
+                var item = obj;
+
+                if (item.id === action.id) {
+                  item.highlighted = action.highlighted;
+                }
+
+                return item;
+              });
+            }
+
+          default:
+            {
+              return state;
+            }
+        }
+      } // CONCATENATED MODULE: ./src/scripts/reducers/groups.js
+
+
+      var groups_defaultState = [];
+
+      function groups(state, action) {
+        if (state === void 0) {
+          state = groups_defaultState;
+        }
+
+        switch (action.type) {
+          case 'ADD_GROUP':
+            {
+              return [].concat(state, [{
+                id: action.id,
+                value: action.value,
+                active: action.active,
+                disabled: action.disabled
+              }]);
+            }
+
+          case 'CLEAR_CHOICES':
+            {
+              return [];
+            }
+
+          default:
+            {
+              return state;
+            }
+        }
+      } // CONCATENATED MODULE: ./src/scripts/reducers/choices.js
+
+
+      var choices_defaultState = [];
+
+      function choices_choices(state, action) {
+        if (state === void 0) {
+          state = choices_defaultState;
+        }
+
+        switch (action.type) {
+          case 'ADD_CHOICE':
+            {
+              /*
+                  A disabled choice appears in the choice dropdown but cannot be selected
+                  A selected choice has been added to the passed input's value (added as an item)
+                  An active choice appears within the choice dropdown
+               */
+              return [].concat(state, [{
+                id: action.id,
+                elementId: action.elementId,
+                groupId: action.groupId,
+                value: action.value,
+                label: action.label || action.value,
+                disabled: action.disabled || false,
+                selected: false,
+                active: true,
+                score: 9999,
+                customProperties: action.customProperties,
+                placeholder: action.placeholder || false,
+                keyCode: null
+              }]);
+            }
+
+          case 'ADD_ITEM':
+            {
+              // If all choices need to be activated
+              if (action.activateOptions) {
+                return state.map(function (obj) {
+                  var choice = obj;
+                  choice.active = action.active;
+                  return choice;
+                });
+              } // When an item is added and it has an associated choice,
+              // we want to disable it so it can't be chosen again
+
+
+              if (action.choiceId > -1) {
+                return state.map(function (obj) {
+                  var choice = obj;
+
+                  if (choice.id === parseInt(action.choiceId, 10)) {
+                    choice.selected = true;
+                  }
+
+                  return choice;
+                });
+              }
+
+              return state;
+            }
+
+          case 'REMOVE_ITEM':
+            {
+              // When an item is removed and it has an associated choice,
+              // we want to re-enable it so it can be chosen again
+              if (action.choiceId > -1) {
+                return state.map(function (obj) {
+                  var choice = obj;
+
+                  if (choice.id === parseInt(action.choiceId, 10)) {
+                    choice.selected = false;
+                  }
+
+                  return choice;
+                });
+              }
+
+              return state;
+            }
+
+          case 'FILTER_CHOICES':
+            {
+              return state.map(function (obj) {
+                var choice = obj; // Set active state based on whether choice is
+                // within filtered results
+
+                choice.active = action.results.some(function (_ref) {
+                  var item = _ref.item,
+                      score = _ref.score;
+
+                  if (item.id === choice.id) {
+                    choice.score = score;
+                    return true;
+                  }
+
+                  return false;
+                });
+                return choice;
+              });
+            }
+
+          case 'ACTIVATE_CHOICES':
+            {
+              return state.map(function (obj) {
+                var choice = obj;
+                choice.active = action.active;
+                return choice;
+              });
+            }
+
+          case 'CLEAR_CHOICES':
+            {
+              return choices_defaultState;
+            }
+
+          default:
+            {
+              return state;
+            }
+        }
+      } // CONCATENATED MODULE: ./src/scripts/reducers/general.js
+
+
+      var general_defaultState = {
+        loading: false
+      };
+
+      var general = function general(state, action) {
+        if (state === void 0) {
+          state = general_defaultState;
+        }
+
+        switch (action.type) {
+          case 'SET_IS_LOADING':
+            {
+              return {
+                loading: action.isLoading
+              };
+            }
+
+          default:
+            {
+              return state;
+            }
+        }
+      };
+      /* harmony default export */
+
+
+      var reducers_general = general; // CONCATENATED MODULE: ./src/scripts/lib/utils.js
+
+      var utils_this = undefined;
+
+      var getRandomNumber = function getRandomNumber(min, max) {
+        return Math.floor(Math.random() * (max - min) + min);
+      };
+
+      var generateChars = function generateChars(length) {
+        var chars = '';
+
+        for (var i = 0; i < length; i++) {
+          var randomChar = getRandomNumber(0, 36);
+          chars += randomChar.toString(36);
+        }
+
+        return chars;
+      };
+
+      var generateId = function generateId(element, prefix) {
+        var id = element.id || element.name && element.name + "-" + generateChars(2) || generateChars(4);
+        id = id.replace(/(:|\.|\[|\]|,)/g, '');
+        id = prefix + "-" + id;
+        return id;
+      };
+
+      var getType = function getType(obj) {
+        return Object.prototype.toString.call(obj).slice(8, -1);
+      };
+
+      var isType = function isType(type, obj) {
+        return obj !== undefined && obj !== null && getType(obj) === type;
+      };
+
+      var isElement = function isElement(element) {
+        return element instanceof Element;
+      };
+
+      var utils_wrap = function wrap(element, wrapper) {
+        if (wrapper === void 0) {
+          wrapper = document.createElement('div');
+        }
+
+        if (element.nextSibling) {
+          element.parentNode.insertBefore(wrapper, element.nextSibling);
+        } else {
+          element.parentNode.appendChild(wrapper);
+        }
+
+        return wrapper.appendChild(element);
+      };
+
+      var findAncestorByAttrName = function findAncestorByAttrName(el, attr) {
+        var target = el;
+
+        while (target) {
+          if (target.hasAttribute(attr)) {
+            return target;
+          }
+
+          target = target.parentElement;
+        }
+
+        return null;
+      };
+
+      var getAdjacentEl = function getAdjacentEl(startEl, className, direction) {
+        if (direction === void 0) {
+          direction = 1;
+        }
+
+        if (!startEl || !className) {
+          return;
+        }
+
+        var parent = startEl.parentNode.parentNode;
+        var children = Array.from(parent.querySelectorAll(className));
+        var startPos = children.indexOf(startEl);
+        var operatorDirection = direction > 0 ? 1 : -1;
+        return children[startPos + operatorDirection];
+      };
+
+      var isScrolledIntoView = function isScrolledIntoView(el, parent, direction) {
+        if (direction === void 0) {
+          direction = 1;
+        }
+
+        if (!el) {
+          return;
+        }
+
+        var isVisible;
+
+        if (direction > 0) {
+          // In view from bottom
+          isVisible = parent.scrollTop + parent.offsetHeight >= el.offsetTop + el.offsetHeight;
+        } else {
+          // In view from top
+          isVisible = el.offsetTop >= parent.scrollTop;
+        }
+
+        return isVisible;
+      };
+
+      var sanitise = function sanitise(value) {
+        if (!isType('String', value)) {
+          return value;
+        }
+
+        return value.replace(/&/g, '&amp;').replace(/>/g, '&rt;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+      };
+
+      var strToEl = function () {
+        var tmpEl = document.createElement('div');
+        return function (str) {
+          var cleanedInput = str.trim();
+          tmpEl.innerHTML = cleanedInput;
+          var firldChild = tmpEl.children[0];
+
+          while (tmpEl.firstChild) {
+            tmpEl.removeChild(tmpEl.firstChild);
+          }
+
+          return firldChild;
+        };
+      }();
+      /**
+       * Determines the width of a passed input based on its value and passes
+       * it to the supplied callback function.
+       */
+
+
+      var calcWidthOfInput = function calcWidthOfInput(input, callback) {
+        var value = input.value || input.placeholder;
+        var width = input.offsetWidth;
+
+        if (value) {
+          var testEl = strToEl("<span>" + sanitise(value) + "</span>");
+          testEl.style.position = 'absolute';
+          testEl.style.padding = '0';
+          testEl.style.top = '-9999px';
+          testEl.style.left = '-9999px';
+          testEl.style.width = 'auto';
+          testEl.style.whiteSpace = 'pre';
+
+          if (document.body.contains(input) && window.getComputedStyle) {
+            var inputStyle = window.getComputedStyle(input);
+
+            if (inputStyle) {
+              testEl.style.fontSize = inputStyle.fontSize;
+              testEl.style.fontFamily = inputStyle.fontFamily;
+              testEl.style.fontWeight = inputStyle.fontWeight;
+              testEl.style.fontStyle = inputStyle.fontStyle;
+              testEl.style.letterSpacing = inputStyle.letterSpacing;
+              testEl.style.textTransform = inputStyle.textTransform;
+              testEl.style.paddingLeft = inputStyle.paddingLeft;
+              testEl.style.paddingRight = inputStyle.paddingRight;
+            }
+          }
+
+          document.body.appendChild(testEl);
+          requestAnimationFrame(function () {
+            if (value && testEl.offsetWidth !== input.offsetWidth) {
+              width = testEl.offsetWidth + 4;
+            }
+
+            document.body.removeChild(testEl);
+            callback.call(utils_this, width + "px");
+          });
+        } else {
+          callback.call(utils_this, width + "px");
+        }
+      };
+
+      var sortByAlpha = function sortByAlpha(a, b) {
+        var labelA = ("" + (a.label || a.value)).toLowerCase();
+        var labelB = ("" + (b.label || b.value)).toLowerCase();
+
+        if (labelA < labelB) {
+          return -1;
+        }
+
+        if (labelA > labelB) {
+          return 1;
+        }
+
+        return 0;
+      };
+
+      var sortByScore = function sortByScore(a, b) {
+        return a.score - b.score;
+      };
+
+      var dispatchEvent = function dispatchEvent(element, type, customArgs) {
+        if (customArgs === void 0) {
+          customArgs = null;
+        }
+
+        var event = new CustomEvent(type, {
+          detail: customArgs,
+          bubbles: true,
+          cancelable: true
+        });
+        return element.dispatchEvent(event);
+      };
+
+      var getWindowHeight = function getWindowHeight() {
+        var _document = document,
+            body = _document.body;
+        var html = document.documentElement;
+        return Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight, html.scrollHeight, html.offsetHeight);
+      };
+
+      var fetchFromObject = function fetchFromObject(object, path) {
+        var index = path.indexOf('.');
+
+        if (index > -1) {
+          return fetchFromObject(object[path.substring(0, index)], path.substr(index + 1));
+        }
+
+        return object[path];
+      };
+
+      var isIE11 = function isIE11() {
+        return !!(navigator.userAgent.match(/Trident/) && navigator.userAgent.match(/rv[ :]11/));
+      };
+
+      var existsInArray = function existsInArray(array, value, key) {
+        if (key === void 0) {
+          key = 'value';
+        }
+
+        return array.some(function (item) {
+          if (isType('String', value)) {
+            return item[key] === value.trim();
+          }
+
+          return item[key] === value;
+        });
+      };
+
+      var cloneObject = function cloneObject(obj) {
+        return JSON.parse(JSON.stringify(obj));
+      };
+
+      var diff = function diff(a, b) {
+        var aKeys = Object.keys(a).sort();
+        var bKeys = Object.keys(b).sort();
+        return aKeys.filter(function (i) {
+          return bKeys.indexOf(i) < 0;
+        });
+      }; // CONCATENATED MODULE: ./src/scripts/reducers/index.js
+
+
+      var appReducer = combineReducers({
+        items: items_items,
+        groups: groups,
+        choices: choices_choices,
+        general: reducers_general
+      });
+
+      var reducers_rootReducer = function rootReducer(passedState, action) {
+        var state = passedState; // If we are clearing all items, groups and options we reassign
+        // state and then pass that state to our proper reducer. This isn't
+        // mutating our actual state
+        // See: http://stackoverflow.com/a/35641992
+
+        if (action.type === 'CLEAR_ALL') {
+          state = undefined;
+        } else if (action.type === 'RESET_TO') {
+          return cloneObject(action.state);
+        }
+
+        return appReducer(state, action);
+      };
+      /* harmony default export */
+
+
+      var reducers = reducers_rootReducer; // CONCATENATED MODULE: ./src/scripts/store/store.js
 
       function _defineProperties(target, props) {
         for (var i = 0; i < props.length; i++) {
@@ -13825,13 +9163,9 @@ var pwtImage = function () {
         return Constructor;
       }
 
-      var Store =
-      /*#__PURE__*/
-      function () {
+      var store_Store = /*#__PURE__*/function () {
         function Store() {
-          _classCallCheck(this, Store);
-
-          this._store = (0, _redux.createStore)(_index["default"], window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
+          this._store = createStore(reducers, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
         }
         /**
          * Subscribe store to function call (wrapped Redux method)
@@ -13840,69 +9174,64 @@ var pwtImage = function () {
          */
 
 
-        _createClass(Store, [{
-          key: "subscribe",
-          value: function subscribe(onChange) {
-            this._store.subscribe(onChange);
-          }
-          /**
-           * Dispatch event to store (wrapped Redux method)
-           * @param  {Function} action Action function to trigger
-           * @return
-           */
+        var _proto = Store.prototype;
 
-        }, {
-          key: "dispatch",
-          value: function dispatch(action) {
-            this._store.dispatch(action);
-          }
-          /**
-           * Get store object (wrapping Redux method)
-           * @return {Object} State
-           */
+        _proto.subscribe = function subscribe(onChange) {
+          this._store.subscribe(onChange);
+        }
+        /**
+         * Dispatch event to store (wrapped Redux method)
+         * @param  {Function} action Action function to trigger
+         * @return
+         */
+        ;
 
-        }, {
-          key: "isLoading",
+        _proto.dispatch = function dispatch(action) {
+          this._store.dispatch(action);
+        }
+        /**
+         * Get store object (wrapping Redux method)
+         * @return {Object} State
+         */
+        ;
+        /**
+         * Get loading state from store
+         * @return {Boolean} Loading State
+         */
 
-          /**
-           * Get loading state from store
-           * @return {Boolean} Loading State
-           */
-          value: function isLoading() {
-            return this.state.general.loading;
-          }
-          /**
-           * Get single choice by it's ID
-           * @return {Object} Found choice
-           */
 
-        }, {
-          key: "getChoiceById",
-          value: function getChoiceById(id) {
-            if (id) {
-              var choices = this.activeChoices;
-              var foundChoice = choices.find(function (choice) {
-                return choice.id === parseInt(id, 10);
-              });
-              return foundChoice;
-            }
+        _proto.isLoading = function isLoading() {
+          return this.state.general.loading;
+        }
+        /**
+         * Get single choice by it's ID
+         * @return {Object} Found choice
+         */
+        ;
 
-            return false;
-          }
-          /**
-           * Get group by group id
-           * @param  {Number} id Group ID
-           * @return {Object}    Group data
-           */
-
-        }, {
-          key: "getGroupById",
-          value: function getGroupById(id) {
-            return this.groups.find(function (group) {
-              return group.id === parseInt(id, 10);
+        _proto.getChoiceById = function getChoiceById(id) {
+          if (id) {
+            return this.activeChoices.find(function (choice) {
+              return choice.id === parseInt(id, 10);
             });
           }
-        }, {
+
+          return false;
+        }
+        /**
+         * Get group by group id
+         * @param  {Number} id Group ID
+         * @return {Object}    Group data
+         */
+        ;
+
+        _proto.getGroupById = function getGroupById(id) {
+          return this.groups.find(function (group) {
+            return group.id === parseInt(id, 10);
+          });
+        };
+
+        _createClass(Store, [{
           key: "state",
           get: function get() {
             return this._store.getState();
@@ -14019,8 +9348,8 @@ var pwtImage = function () {
         }, {
           key: "activeGroups",
           get: function get() {
-            var groups = this.groups;
-            var choices = this.choices;
+            var groups = this.groups,
+                choices = this.choices;
             return groups.filter(function (group) {
               var isActive = group.active === true && group.disabled === false;
               var hasActiveOptions = choices.some(function (choice) {
@@ -14032,498 +9361,14 @@ var pwtImage = function () {
         }]);
 
         return Store;
-      }();
+      }(); // CONCATENATED MODULE: ./src/scripts/components/dropdown.js
 
-      exports["default"] = Store;
-      /***/
-    },
-    /* 14 */
 
-    /***/
-    function (module, exports) {
-      module.exports = function (originalModule) {
-        if (!originalModule.webpackPolyfill) {
-          var module = Object.create(originalModule); // module.parent = undefined by default
-
-          if (!module.children) module.children = [];
-          Object.defineProperty(module, "loaded", {
-            enumerable: true,
-            get: function get() {
-              return module.l;
-            }
-          });
-          Object.defineProperty(module, "id", {
-            enumerable: true,
-            get: function get() {
-              return module.i;
-            }
-          });
-          Object.defineProperty(module, "exports", {
-            enumerable: true
-          });
-          module.webpackPolyfill = 1;
-        }
-
-        return module;
-      };
-      /***/
-
-    },
-    /* 15 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _redux = __webpack_require__(6);
-
-      var _items = _interopRequireDefault(__webpack_require__(16));
-
-      var _groups = _interopRequireDefault(__webpack_require__(17));
-
-      var _choices = _interopRequireDefault(__webpack_require__(18));
-
-      var _general = _interopRequireDefault(__webpack_require__(19));
-
-      var _utils = __webpack_require__(0);
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
-        };
-      }
-
-      var appReducer = (0, _redux.combineReducers)({
-        items: _items["default"],
-        groups: _groups["default"],
-        choices: _choices["default"],
-        general: _general["default"]
-      });
-
-      var rootReducer = function rootReducer(passedState, action) {
-        var state = passedState; // If we are clearing all items, groups and options we reassign
-        // state and then pass that state to our proper reducer. This isn't
-        // mutating our actual state
-        // See: http://stackoverflow.com/a/35641992
-
-        if (action.type === 'CLEAR_ALL') {
-          state = undefined;
-        } else if (action.type === 'RESET_TO') {
-          return (0, _utils.cloneObject)(action.state);
-        }
-
-        return appReducer(state, action);
-      };
-
-      var _default = rootReducer;
-      exports["default"] = _default;
-      /***/
-    },
-    /* 16 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = items;
-      exports.defaultState = void 0;
-      var defaultState = [];
-      exports.defaultState = defaultState;
-
-      function items() {
-        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-        var action = arguments.length > 1 ? arguments[1] : undefined;
-
-        switch (action.type) {
-          case 'ADD_ITEM':
-            {
-              // Add object to items array
-              var newState = [].concat(state, [{
-                id: action.id,
-                choiceId: action.choiceId,
-                groupId: action.groupId,
-                value: action.value,
-                label: action.label,
-                active: true,
-                highlighted: false,
-                customProperties: action.customProperties,
-                placeholder: action.placeholder || false,
-                keyCode: null
-              }]);
-              return newState.map(function (obj) {
-                var item = obj;
-                item.highlighted = false;
-                return item;
-              });
-            }
-
-          case 'REMOVE_ITEM':
-            {
-              // Set item to inactive
-              return state.map(function (obj) {
-                var item = obj;
-
-                if (item.id === action.id) {
-                  item.active = false;
-                }
-
-                return item;
-              });
-            }
-
-          case 'HIGHLIGHT_ITEM':
-            {
-              return state.map(function (obj) {
-                var item = obj;
-
-                if (item.id === action.id) {
-                  item.highlighted = action.highlighted;
-                }
-
-                return item;
-              });
-            }
-
-          default:
-            {
-              return state;
-            }
-        }
-      }
-      /***/
-
-    },
-    /* 17 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = groups;
-      exports.defaultState = void 0;
-      var defaultState = [];
-      exports.defaultState = defaultState;
-
-      function groups() {
-        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-        var action = arguments.length > 1 ? arguments[1] : undefined;
-
-        switch (action.type) {
-          case 'ADD_GROUP':
-            {
-              return [].concat(state, [{
-                id: action.id,
-                value: action.value,
-                active: action.active,
-                disabled: action.disabled
-              }]);
-            }
-
-          case 'CLEAR_CHOICES':
-            {
-              return [];
-            }
-
-          default:
-            {
-              return state;
-            }
-        }
-      }
-      /***/
-
-    },
-    /* 18 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = choices;
-      exports.defaultState = void 0;
-      var defaultState = [];
-      exports.defaultState = defaultState;
-
-      function choices() {
-        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-        var action = arguments.length > 1 ? arguments[1] : undefined;
-
-        switch (action.type) {
-          case 'ADD_CHOICE':
-            {
-              /*
-                  A disabled choice appears in the choice dropdown but cannot be selected
-                  A selected choice has been added to the passed input's value (added as an item)
-                  An active choice appears within the choice dropdown
-               */
-              return [].concat(state, [{
-                id: action.id,
-                elementId: action.elementId,
-                groupId: action.groupId,
-                value: action.value,
-                label: action.label || action.value,
-                disabled: action.disabled || false,
-                selected: false,
-                active: true,
-                score: 9999,
-                customProperties: action.customProperties,
-                placeholder: action.placeholder || false,
-                keyCode: null
-              }]);
-            }
-
-          case 'ADD_ITEM':
-            {
-              // If all choices need to be activated
-              if (action.activateOptions) {
-                return state.map(function (obj) {
-                  var choice = obj;
-                  choice.active = action.active;
-                  return choice;
-                });
-              } // When an item is added and it has an associated choice,
-              // we want to disable it so it can't be chosen again
-
-
-              if (action.choiceId > -1) {
-                return state.map(function (obj) {
-                  var choice = obj;
-
-                  if (choice.id === parseInt(action.choiceId, 10)) {
-                    choice.selected = true;
-                  }
-
-                  return choice;
-                });
-              }
-
-              return state;
-            }
-
-          case 'REMOVE_ITEM':
-            {
-              // When an item is removed and it has an associated choice,
-              // we want to re-enable it so it can be chosen again
-              if (action.choiceId > -1) {
-                return state.map(function (obj) {
-                  var choice = obj;
-
-                  if (choice.id === parseInt(action.choiceId, 10)) {
-                    choice.selected = false;
-                  }
-
-                  return choice;
-                });
-              }
-
-              return state;
-            }
-
-          case 'FILTER_CHOICES':
-            {
-              return state.map(function (obj) {
-                var choice = obj; // Set active state based on whether choice is
-                // within filtered results
-
-                choice.active = action.results.some(function (_ref) {
-                  var item = _ref.item,
-                      score = _ref.score;
-
-                  if (item.id === choice.id) {
-                    choice.score = score;
-                    return true;
-                  }
-
-                  return false;
-                });
-                return choice;
-              });
-            }
-
-          case 'ACTIVATE_CHOICES':
-            {
-              return state.map(function (obj) {
-                var choice = obj;
-                choice.active = action.active;
-                return choice;
-              });
-            }
-
-          case 'CLEAR_CHOICES':
-            {
-              return defaultState;
-            }
-
-          default:
-            {
-              return state;
-            }
-        }
-      }
-      /***/
-
-    },
-    /* 19 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = exports.defaultState = void 0;
-      var defaultState = {
-        loading: false
-      };
-      exports.defaultState = defaultState;
-
-      var general = function general() {
-        var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaultState;
-        var action = arguments.length > 1 ? arguments[1] : undefined;
-
-        switch (action.type) {
-          case 'SET_IS_LOADING':
-            {
-              return {
-                loading: action.isLoading
-              };
-            }
-
-          default:
-            {
-              return state;
-            }
-        }
-      };
-
-      var _default = general;
-      exports["default"] = _default;
-      /***/
-    },
-    /* 20 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      Object.defineProperty(exports, "Dropdown", {
-        enumerable: true,
-        get: function get() {
-          return _dropdown["default"];
-        }
-      });
-      Object.defineProperty(exports, "Container", {
-        enumerable: true,
-        get: function get() {
-          return _container["default"];
-        }
-      });
-      Object.defineProperty(exports, "Input", {
-        enumerable: true,
-        get: function get() {
-          return _input["default"];
-        }
-      });
-      Object.defineProperty(exports, "List", {
-        enumerable: true,
-        get: function get() {
-          return _list["default"];
-        }
-      });
-      Object.defineProperty(exports, "WrappedInput", {
-        enumerable: true,
-        get: function get() {
-          return _wrappedInput["default"];
-        }
-      });
-      Object.defineProperty(exports, "WrappedSelect", {
-        enumerable: true,
-        get: function get() {
-          return _wrappedSelect["default"];
-        }
-      });
-
-      var _dropdown = _interopRequireDefault(__webpack_require__(21));
-
-      var _container = _interopRequireDefault(__webpack_require__(22));
-
-      var _input = _interopRequireDefault(__webpack_require__(23));
-
-      var _list = _interopRequireDefault(__webpack_require__(24));
-
-      var _wrappedInput = _interopRequireDefault(__webpack_require__(25));
-
-      var _wrappedSelect = _interopRequireDefault(__webpack_require__(26));
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
-        };
-      }
-      /***/
-
-    },
-    /* 21 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-          var descriptor = props[i];
-          descriptor.enumerable = descriptor.enumerable || false;
-          descriptor.configurable = true;
-          if ("value" in descriptor) descriptor.writable = true;
-          Object.defineProperty(target, descriptor.key, descriptor);
-        }
-      }
-
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
-        return Constructor;
-      }
-
-      var Dropdown =
-      /*#__PURE__*/
-      function () {
+      var Dropdown = /*#__PURE__*/function () {
         function Dropdown(_ref) {
           var element = _ref.element,
               type = _ref.type,
               classNames = _ref.classNames;
-
-          _classCallCheck(this, Dropdown);
-
           Object.assign(this, {
             element: element,
             type: type,
@@ -14538,105 +9383,59 @@ var pwtImage = function () {
          */
 
 
-        _createClass(Dropdown, [{
-          key: "distanceFromTopWindow",
-          value: function distanceFromTopWindow() {
-            this.dimensions = this.element.getBoundingClientRect();
-            this.position = Math.ceil(this.dimensions.top + window.pageYOffset + this.element.offsetHeight);
-            return this.position;
-          }
-          /**
-           * Find element that matches passed selector
-           * @return {HTMLElement}
-           */
+        var _proto = Dropdown.prototype;
 
-        }, {
-          key: "getChild",
-          value: function getChild(selector) {
-            return this.element.querySelector(selector);
-          }
-          /**
-           * Show dropdown to user by adding active state class
-           * @return {Object} Class instance
-           * @public
-           */
+        _proto.distanceFromTopWindow = function distanceFromTopWindow() {
+          this.dimensions = this.element.getBoundingClientRect();
+          this.position = Math.ceil(this.dimensions.top + window.pageYOffset + this.element.offsetHeight);
+          return this.position;
+        }
+        /**
+         * Find element that matches passed selector
+         * @return {HTMLElement}
+         */
+        ;
 
-        }, {
-          key: "show",
-          value: function show() {
-            this.element.classList.add(this.classNames.activeState);
-            this.element.setAttribute('aria-expanded', 'true');
-            this.isActive = true;
-            return this;
-          }
-          /**
-           * Hide dropdown from user
-           * @return {Object} Class instance
-           * @public
-           */
+        _proto.getChild = function getChild(selector) {
+          return this.element.querySelector(selector);
+        }
+        /**
+         * Show dropdown to user by adding active state class
+         * @return {Object} Class instance
+         * @public
+         */
+        ;
 
-        }, {
-          key: "hide",
-          value: function hide() {
-            this.element.classList.remove(this.classNames.activeState);
-            this.element.setAttribute('aria-expanded', 'false');
-            this.isActive = false;
-            return this;
-          }
-        }]);
+        _proto.show = function show() {
+          this.element.classList.add(this.classNames.activeState);
+          this.element.setAttribute('aria-expanded', 'true');
+          this.isActive = true;
+          return this;
+        }
+        /**
+         * Hide dropdown from user
+         * @return {Object} Class instance
+         * @public
+         */
+        ;
+
+        _proto.hide = function hide() {
+          this.element.classList.remove(this.classNames.activeState);
+          this.element.setAttribute('aria-expanded', 'false');
+          this.isActive = false;
+          return this;
+        };
 
         return Dropdown;
-      }();
+      }(); // CONCATENATED MODULE: ./src/scripts/components/container.js
 
-      exports["default"] = Dropdown;
-      /***/
-    },
-    /* 22 */
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _utils = __webpack_require__(0);
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-          var descriptor = props[i];
-          descriptor.enumerable = descriptor.enumerable || false;
-          descriptor.configurable = true;
-          if ("value" in descriptor) descriptor.writable = true;
-          Object.defineProperty(target, descriptor.key, descriptor);
-        }
-      }
-
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
-        return Constructor;
-      }
-
-      var Container =
-      /*#__PURE__*/
-      function () {
+      var container_Container = /*#__PURE__*/function () {
         function Container(_ref) {
           var element = _ref.element,
               type = _ref.type,
               classNames = _ref.classNames,
               position = _ref.position;
-
-          _classCallCheck(this, Container);
-
           Object.assign(this, {
             element: element,
             classNames: classNames,
@@ -14656,226 +9455,189 @@ var pwtImage = function () {
          */
 
 
-        _createClass(Container, [{
-          key: "addEventListeners",
-          value: function addEventListeners() {
-            this.element.addEventListener('focus', this._onFocus);
-            this.element.addEventListener('blur', this._onBlur);
+        var _proto = Container.prototype;
+
+        _proto.addEventListeners = function addEventListeners() {
+          this.element.addEventListener('focus', this._onFocus);
+          this.element.addEventListener('blur', this._onBlur);
+        }
+        /**
+         * Remove event listeners
+         */
+
+        /** */
+        ;
+
+        _proto.removeEventListeners = function removeEventListeners() {
+          this.element.removeEventListener('focus', this._onFocus);
+          this.element.removeEventListener('blur', this._onBlur);
+        }
+        /**
+         * Determine whether container should be flipped
+         * based on passed dropdown position
+         * @param {Number} dropdownPos
+         * @returns
+         */
+        ;
+
+        _proto.shouldFlip = function shouldFlip(dropdownPos, windowHeight) {
+          if (windowHeight === void 0) {
+            windowHeight = getWindowHeight();
           }
-          /**
-           * Remove event listeners
-           */
 
-          /** */
+          if (dropdownPos === undefined) {
+            return false;
+          } // If flip is enabled and the dropdown bottom position is
+          // greater than the window height flip the dropdown.
 
-        }, {
-          key: "removeEventListeners",
-          value: function removeEventListeners() {
-            this.element.removeEventListener('focus', this._onFocus);
-            this.element.removeEventListener('blur', this._onBlur);
+
+          var shouldFlip = false;
+
+          if (this.position === 'auto') {
+            shouldFlip = dropdownPos >= windowHeight;
+          } else if (this.position === 'top') {
+            shouldFlip = true;
           }
-          /**
-           * Determine whether container should be flipped
-           * based on passed dropdown position
-           * @param {Number} dropdownPos
-           * @returns
-           */
 
-        }, {
-          key: "shouldFlip",
-          value: function shouldFlip(dropdownPos) {
-            var windowHeight = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : (0, _utils.getWindowHeight)();
+          return shouldFlip;
+        }
+        /**
+         * Set active descendant attribute
+         * @param {Number} activeDescendant ID of active descendant
+         */
+        ;
 
-            if (dropdownPos === undefined) {
-              return false;
-            } // If flip is enabled and the dropdown bottom position is
-            // greater than the window height flip the dropdown.
+        _proto.setActiveDescendant = function setActiveDescendant(activeDescendantID) {
+          this.element.setAttribute('aria-activedescendant', activeDescendantID);
+        }
+        /**
+         * Remove active descendant attribute
+         */
+        ;
 
+        _proto.removeActiveDescendant = function removeActiveDescendant() {
+          this.element.removeAttribute('aria-activedescendant');
+        };
 
-            var shouldFlip = false;
+        _proto.open = function open(dropdownPos) {
+          this.element.classList.add(this.classNames.openState);
+          this.element.setAttribute('aria-expanded', 'true');
+          this.isOpen = true;
 
-            if (this.position === 'auto') {
-              shouldFlip = dropdownPos >= windowHeight;
-            } else if (this.position === 'top') {
-              shouldFlip = true;
-            }
-
-            return shouldFlip;
+          if (this.shouldFlip(dropdownPos)) {
+            this.element.classList.add(this.classNames.flippedState);
+            this.isFlipped = true;
           }
-          /**
-           * Set active descendant attribute
-           * @param {Number} activeDescendant ID of active descendant
-           */
+        };
 
-        }, {
-          key: "setActiveDescendant",
-          value: function setActiveDescendant(activeDescendantID) {
-            this.element.setAttribute('aria-activedescendant', activeDescendantID);
-          }
-          /**
-           * Remove active descendant attribute
-           */
+        _proto.close = function close() {
+          this.element.classList.remove(this.classNames.openState);
+          this.element.setAttribute('aria-expanded', 'false');
+          this.removeActiveDescendant();
+          this.isOpen = false; // A dropdown flips if it does not have space within the page
 
-        }, {
-          key: "removeActiveDescendant",
-          value: function removeActiveDescendant() {
-            this.element.removeAttribute('aria-activedescendant');
+          if (this.isFlipped) {
+            this.element.classList.remove(this.classNames.flippedState);
+            this.isFlipped = false;
           }
-        }, {
-          key: "open",
-          value: function open(dropdownPos) {
-            this.element.classList.add(this.classNames.openState);
-            this.element.setAttribute('aria-expanded', 'true');
-            this.isOpen = true;
+        };
 
-            if (this.shouldFlip(dropdownPos)) {
-              this.element.classList.add(this.classNames.flippedState);
-              this.isFlipped = true;
-            }
+        _proto.focus = function focus() {
+          if (!this.isFocussed) {
+            this.element.focus();
           }
-        }, {
-          key: "close",
-          value: function close() {
-            this.element.classList.remove(this.classNames.openState);
-            this.element.setAttribute('aria-expanded', 'false');
-            this.removeActiveDescendant();
-            this.isOpen = false; // A dropdown flips if it does not have space within the page
+        };
 
-            if (this.isFlipped) {
-              this.element.classList.remove(this.classNames.flippedState);
-              this.isFlipped = false;
-            }
-          }
-        }, {
-          key: "focus",
-          value: function focus() {
-            if (!this.isFocussed) {
-              this.element.focus();
-            }
-          }
-        }, {
-          key: "addFocusState",
-          value: function addFocusState() {
-            this.element.classList.add(this.classNames.focusState);
-          }
-        }, {
-          key: "removeFocusState",
-          value: function removeFocusState() {
-            this.element.classList.remove(this.classNames.focusState);
-          }
-          /**
-           * Remove disabled state
-           */
+        _proto.addFocusState = function addFocusState() {
+          this.element.classList.add(this.classNames.focusState);
+        };
 
-        }, {
-          key: "enable",
-          value: function enable() {
-            this.element.classList.remove(this.classNames.disabledState);
-            this.element.removeAttribute('aria-disabled');
+        _proto.removeFocusState = function removeFocusState() {
+          this.element.classList.remove(this.classNames.focusState);
+        }
+        /**
+         * Remove disabled state
+         */
+        ;
 
-            if (this.type === 'select-one') {
-              this.element.setAttribute('tabindex', '0');
-            }
+        _proto.enable = function enable() {
+          this.element.classList.remove(this.classNames.disabledState);
+          this.element.removeAttribute('aria-disabled');
 
-            this.isDisabled = false;
+          if (this.type === 'select-one') {
+            this.element.setAttribute('tabindex', '0');
           }
-          /**
-           * Set disabled state
-           */
 
-        }, {
-          key: "disable",
-          value: function disable() {
-            this.element.classList.add(this.classNames.disabledState);
-            this.element.setAttribute('aria-disabled', 'true');
+          this.isDisabled = false;
+        }
+        /**
+         * Set disabled state
+         */
+        ;
 
-            if (this.type === 'select-one') {
-              this.element.setAttribute('tabindex', '-1');
-            }
+        _proto.disable = function disable() {
+          this.element.classList.add(this.classNames.disabledState);
+          this.element.setAttribute('aria-disabled', 'true');
 
-            this.isDisabled = true;
+          if (this.type === 'select-one') {
+            this.element.setAttribute('tabindex', '-1');
           }
-        }, {
-          key: "wrap",
-          value: function wrap(element) {
-            (0, _utils.wrap)(element, this.element);
-          }
-        }, {
-          key: "unwrap",
-          value: function unwrap(element) {
-            // Move passed element outside this element
-            this.element.parentNode.insertBefore(element, this.element); // Remove this element
 
-            this.element.parentNode.removeChild(this.element);
-          }
-          /**
-           * Add loading state to element
-           */
+          this.isDisabled = true;
+        };
 
-        }, {
-          key: "addLoadingState",
-          value: function addLoadingState() {
-            this.element.classList.add(this.classNames.loadingState);
-            this.element.setAttribute('aria-busy', 'true');
-            this.isLoading = true;
-          }
-          /**
-           * Remove loading state from element
-           */
+        _proto.wrap = function wrap(element) {
+          utils_wrap(element, this.element);
+        };
 
-        }, {
-          key: "removeLoadingState",
-          value: function removeLoadingState() {
-            this.element.classList.remove(this.classNames.loadingState);
-            this.element.removeAttribute('aria-busy');
-            this.isLoading = false;
-          }
-          /**
-           * Set focussed state
-           */
+        _proto.unwrap = function unwrap(element) {
+          // Move passed element outside this element
+          this.element.parentNode.insertBefore(element, this.element); // Remove this element
 
-        }, {
-          key: "_onFocus",
-          value: function _onFocus() {
-            this.isFocussed = true;
-          }
-          /**
-           * Remove blurred state
-           */
+          this.element.parentNode.removeChild(this.element);
+        }
+        /**
+         * Add loading state to element
+         */
+        ;
 
-        }, {
-          key: "_onBlur",
-          value: function _onBlur() {
-            this.isFocussed = false;
-          }
-        }]);
+        _proto.addLoadingState = function addLoadingState() {
+          this.element.classList.add(this.classNames.loadingState);
+          this.element.setAttribute('aria-busy', 'true');
+          this.isLoading = true;
+        }
+        /**
+         * Remove loading state from element
+         */
+        ;
+
+        _proto.removeLoadingState = function removeLoadingState() {
+          this.element.classList.remove(this.classNames.loadingState);
+          this.element.removeAttribute('aria-busy');
+          this.isLoading = false;
+        }
+        /**
+         * Set focussed state
+         */
+        ;
+
+        _proto._onFocus = function _onFocus() {
+          this.isFocussed = true;
+        }
+        /**
+         * Remove blurred state
+         */
+        ;
+
+        _proto._onBlur = function _onBlur() {
+          this.isFocussed = false;
+        };
 
         return Container;
-      }();
+      }(); // CONCATENATED MODULE: ./src/scripts/components/input.js
 
-      exports["default"] = Container;
-      /***/
-    },
-    /* 23 */
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _utils = __webpack_require__(0);
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
+      function input_defineProperties(target, props) {
         for (var i = 0; i < props.length; i++) {
           var descriptor = props[i];
           descriptor.enumerable = descriptor.enumerable || false;
@@ -14885,23 +9647,18 @@ var pwtImage = function () {
         }
       }
 
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
+      function input_createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) input_defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) input_defineProperties(Constructor, staticProps);
         return Constructor;
       }
 
-      var Input =
-      /*#__PURE__*/
-      function () {
+      var input_Input = /*#__PURE__*/function () {
         function Input(_ref) {
           var element = _ref.element,
               type = _ref.type,
               classNames = _ref.classNames,
               placeholderValue = _ref.placeholderValue;
-
-          _classCallCheck(this, Input);
-
           Object.assign(this, {
             element: element,
             type: type,
@@ -14918,147 +9675,136 @@ var pwtImage = function () {
           this._onBlur = this._onBlur.bind(this);
         }
 
-        _createClass(Input, [{
-          key: "addEventListeners",
-          value: function addEventListeners() {
-            this.element.addEventListener('input', this._onInput);
-            this.element.addEventListener('paste', this._onPaste);
-            this.element.addEventListener('focus', this._onFocus);
-            this.element.addEventListener('blur', this._onBlur);
+        var _proto = Input.prototype;
 
-            if (this.element.form) {
-              this.element.form.addEventListener('reset', this._onFormReset);
-            }
+        _proto.addEventListeners = function addEventListeners() {
+          this.element.addEventListener('input', this._onInput);
+          this.element.addEventListener('paste', this._onPaste);
+          this.element.addEventListener('focus', this._onFocus);
+          this.element.addEventListener('blur', this._onBlur);
+
+          if (this.element.form) {
+            this.element.form.addEventListener('reset', this._onFormReset);
           }
-        }, {
-          key: "removeEventListeners",
-          value: function removeEventListeners() {
-            this.element.removeEventListener('input', this._onInput);
-            this.element.removeEventListener('paste', this._onPaste);
-            this.element.removeEventListener('focus', this._onFocus);
-            this.element.removeEventListener('blur', this._onBlur);
+        };
 
-            if (this.element.form) {
-              this.element.form.removeEventListener('reset', this._onFormReset);
-            }
+        _proto.removeEventListeners = function removeEventListeners() {
+          this.element.removeEventListener('input', this._onInput);
+          this.element.removeEventListener('paste', this._onPaste);
+          this.element.removeEventListener('focus', this._onFocus);
+          this.element.removeEventListener('blur', this._onBlur);
+
+          if (this.element.form) {
+            this.element.form.removeEventListener('reset', this._onFormReset);
           }
-        }, {
-          key: "enable",
-          value: function enable() {
-            this.element.removeAttribute('disabled');
-            this.isDisabled = false;
+        };
+
+        _proto.enable = function enable() {
+          this.element.removeAttribute('disabled');
+          this.isDisabled = false;
+        };
+
+        _proto.disable = function disable() {
+          this.element.setAttribute('disabled', '');
+          this.isDisabled = true;
+        };
+
+        _proto.focus = function focus() {
+          if (!this.isFocussed) {
+            this.element.focus();
           }
-        }, {
-          key: "disable",
-          value: function disable() {
-            this.element.setAttribute('disabled', '');
-            this.isDisabled = true;
+        };
+
+        _proto.blur = function blur() {
+          if (this.isFocussed) {
+            this.element.blur();
           }
-        }, {
-          key: "focus",
-          value: function focus() {
-            if (!this.isFocussed) {
-              this.element.focus();
-            }
+        }
+        /**
+         * Set value of input to blank
+         * @return {Object} Class instance
+         * @public
+         */
+        ;
+
+        _proto.clear = function clear(setWidth) {
+          if (setWidth === void 0) {
+            setWidth = true;
           }
-        }, {
-          key: "blur",
-          value: function blur() {
-            if (this.isFocussed) {
-              this.element.blur();
-            }
+
+          if (this.element.value) {
+            this.element.value = '';
           }
-          /**
-           * Set value of input to blank
-           * @return {Object} Class instance
-           * @public
-           */
 
-        }, {
-          key: "clear",
-          value: function clear() {
-            var setWidth = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
-
-            if (this.element.value) {
-              this.element.value = '';
-            }
-
-            if (setWidth) {
-              this.setWidth();
-            }
-
-            return this;
+          if (setWidth) {
+            this.setWidth();
           }
-          /**
-           * Set the correct input width based on placeholder
-           * value or input value
-           * @return
-           */
 
-        }, {
-          key: "setWidth",
-          value: function setWidth(enforceWidth) {
-            var _this = this;
+          return this;
+        }
+        /**
+         * Set the correct input width based on placeholder
+         * value or input value
+         * @return
+         */
+        ;
 
-            var callback = function callback(width) {
-              _this.element.style.width = width;
-            };
+        _proto.setWidth = function setWidth(enforceWidth) {
+          var _this = this;
 
-            if (this._placeholderValue) {
-              // If there is a placeholder, we only want to set the width of the input when it is a greater
-              // length than 75% of the placeholder. This stops the input jumping around.
-              var valueHasDesiredLength = this.element.value.length >= this._placeholderValue.length / 1.25;
+          var callback = function callback(width) {
+            _this.element.style.width = width;
+          };
 
-              if (this.element.value && valueHasDesiredLength || enforceWidth) {
-                this.calcWidth(callback);
-              }
-            } else {
-              // If there is no placeholder, resize input to contents
+          if (this._placeholderValue) {
+            // If there is a placeholder, we only want to set the width of the input when it is a greater
+            // length than 75% of the placeholder. This stops the input jumping around.
+            var valueHasDesiredLength = this.element.value.length >= this._placeholderValue.length / 1.25;
+
+            if (this.element.value && valueHasDesiredLength || enforceWidth) {
               this.calcWidth(callback);
             }
+          } else {
+            // If there is no placeholder, resize input to contents
+            this.calcWidth(callback);
           }
-        }, {
-          key: "calcWidth",
-          value: function calcWidth(callback) {
-            return (0, _utils.calcWidthOfInput)(this.element, callback);
-          }
-        }, {
-          key: "setActiveDescendant",
-          value: function setActiveDescendant(activeDescendantID) {
-            this.element.setAttribute('aria-activedescendant', activeDescendantID);
-          }
-        }, {
-          key: "removeActiveDescendant",
-          value: function removeActiveDescendant() {
-            this.element.removeAttribute('aria-activedescendant');
-          }
-        }, {
-          key: "_onInput",
-          value: function _onInput() {
-            if (this.type !== 'select-one') {
-              this.setWidth();
-            }
-          }
-        }, {
-          key: "_onPaste",
-          value: function _onPaste(event) {
-            var target = event.target;
+        };
 
-            if (target === this.element && this.preventPaste) {
-              event.preventDefault();
-            }
+        _proto.calcWidth = function calcWidth(callback) {
+          return calcWidthOfInput(this.element, callback);
+        };
+
+        _proto.setActiveDescendant = function setActiveDescendant(activeDescendantID) {
+          this.element.setAttribute('aria-activedescendant', activeDescendantID);
+        };
+
+        _proto.removeActiveDescendant = function removeActiveDescendant() {
+          this.element.removeAttribute('aria-activedescendant');
+        };
+
+        _proto._onInput = function _onInput() {
+          if (this.type !== 'select-one') {
+            this.setWidth();
           }
-        }, {
-          key: "_onFocus",
-          value: function _onFocus() {
-            this.isFocussed = true;
+        };
+
+        _proto._onPaste = function _onPaste(event) {
+          var target = event.target;
+
+          if (target === this.element && this.preventPaste) {
+            event.preventDefault();
           }
-        }, {
-          key: "_onBlur",
-          value: function _onBlur() {
-            this.isFocussed = false;
-          }
-        }, {
+        };
+
+        _proto._onFocus = function _onFocus() {
+          this.isFocussed = true;
+        };
+
+        _proto._onBlur = function _onBlur() {
+          this.isFocussed = false;
+        };
+
+        input_createClass(Input, [{
           key: "placeholder",
           set: function set(placeholder) {
             this.element.placeholder = placeholder;
@@ -15069,59 +9815,131 @@ var pwtImage = function () {
             this.element.value = value;
           },
           get: function get() {
-            return (0, _utils.sanitise)(this.element.value);
+            return sanitise(this.element.value);
           }
         }]);
-
         return Input;
-      }();
+      }(); // CONCATENATED MODULE: ./src/scripts/constants.js
 
-      exports["default"] = Input;
-      /***/
-    },
-    /* 24 */
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
+      var DEFAULT_CLASSNAMES = {
+        containerOuter: 'choices',
+        containerInner: 'choices__inner',
+        input: 'choices__input',
+        inputCloned: 'choices__input--cloned',
+        list: 'choices__list',
+        listItems: 'choices__list--multiple',
+        listSingle: 'choices__list--single',
+        listDropdown: 'choices__list--dropdown',
+        item: 'choices__item',
+        itemSelectable: 'choices__item--selectable',
+        itemDisabled: 'choices__item--disabled',
+        itemChoice: 'choices__item--choice',
+        placeholder: 'choices__placeholder',
+        group: 'choices__group',
+        groupHeading: 'choices__heading',
+        button: 'choices__button',
+        activeState: 'is-active',
+        focusState: 'is-focused',
+        openState: 'is-open',
+        disabledState: 'is-disabled',
+        highlightedState: 'is-highlighted',
+        hiddenState: 'is-hidden',
+        flippedState: 'is-flipped',
+        loadingState: 'is-loading',
+        noResults: 'has-no-results',
+        noChoices: 'has-no-choices'
+      };
+      var DEFAULT_CONFIG = {
+        items: [],
+        choices: [],
+        silent: false,
+        renderChoiceLimit: -1,
+        maxItemCount: -1,
+        addItems: true,
+        addItemFilterFn: null,
+        removeItems: true,
+        removeItemButton: false,
+        editItems: false,
+        duplicateItemsAllowed: true,
+        delimiter: ',',
+        paste: true,
+        searchEnabled: true,
+        searchChoices: true,
+        searchFloor: 1,
+        searchResultLimit: 4,
+        searchFields: ['label', 'value'],
+        position: 'auto',
+        resetScrollPosition: true,
+        shouldSort: true,
+        shouldSortItems: false,
+        sortFn: sortByAlpha,
+        placeholder: true,
+        placeholderValue: null,
+        searchPlaceholderValue: null,
+        prependValue: null,
+        appendValue: null,
+        renderSelectedChoices: 'auto',
+        loadingText: 'Loading...',
+        noResultsText: 'No results found',
+        noChoicesText: 'No choices to choose from',
+        itemSelectText: 'Press to select',
+        uniqueItemText: 'Only unique values can be added',
+        customAddItemText: 'Only values matching specific conditions can be added',
+        addItemText: function addItemText(value) {
+          return "Press Enter to add <b>\"" + sanitise(value) + "\"</b>";
+        },
+        maxItemText: function maxItemText(maxItemCount) {
+          return "Only " + maxItemCount + " values can be added";
+        },
+        itemComparer: function itemComparer(choice, item) {
+          return choice === item;
+        },
+        fuseOptions: {
+          includeScore: true
+        },
+        callbackOnInit: null,
+        callbackOnCreateTemplates: null,
+        classNames: DEFAULT_CLASSNAMES
+      };
+      var EVENTS = {
+        showDropdown: 'showDropdown',
+        hideDropdown: 'hideDropdown',
+        change: 'change',
+        choice: 'choice',
+        search: 'search',
+        addItem: 'addItem',
+        removeItem: 'removeItem',
+        highlightItem: 'highlightItem',
+        highlightChoice: 'highlightChoice'
+      };
+      var ACTION_TYPES = {
+        ADD_CHOICE: 'ADD_CHOICE',
+        FILTER_CHOICES: 'FILTER_CHOICES',
+        ACTIVATE_CHOICES: 'ACTIVATE_CHOICES',
+        CLEAR_CHOICES: 'CLEAR_CHOICES',
+        ADD_GROUP: 'ADD_GROUP',
+        ADD_ITEM: 'ADD_ITEM',
+        REMOVE_ITEM: 'REMOVE_ITEM',
+        HIGHLIGHT_ITEM: 'HIGHLIGHT_ITEM',
+        CLEAR_ALL: 'CLEAR_ALL'
+      };
+      var KEY_CODES = {
+        BACK_KEY: 46,
+        DELETE_KEY: 8,
+        ENTER_KEY: 13,
+        A_KEY: 65,
+        ESC_KEY: 27,
+        UP_KEY: 38,
+        DOWN_KEY: 40,
+        PAGE_UP_KEY: 33,
+        PAGE_DOWN_KEY: 34
+      };
+      var SCROLLING_SPEED = 4; // CONCATENATED MODULE: ./src/scripts/components/list.js
 
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _constants = __webpack_require__(1);
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-          var descriptor = props[i];
-          descriptor.enumerable = descriptor.enumerable || false;
-          descriptor.configurable = true;
-          if ("value" in descriptor) descriptor.writable = true;
-          Object.defineProperty(target, descriptor.key, descriptor);
-        }
-      }
-
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
-        return Constructor;
-      }
-
-      var List =
-      /*#__PURE__*/
-      function () {
+      var list_List = /*#__PURE__*/function () {
         function List(_ref) {
           var element = _ref.element;
-
-          _classCallCheck(this, List);
-
           Object.assign(this, {
             element: element
           });
@@ -15130,138 +9948,89 @@ var pwtImage = function () {
           this.hasChildren = !!this.element.children;
         }
 
-        _createClass(List, [{
-          key: "clear",
-          value: function clear() {
-            this.element.innerHTML = '';
-          }
-        }, {
-          key: "append",
-          value: function append(node) {
-            this.element.appendChild(node);
-          }
-        }, {
-          key: "getChild",
-          value: function getChild(selector) {
-            return this.element.querySelector(selector);
-          }
-        }, {
-          key: "scrollToTop",
-          value: function scrollToTop() {
-            this.element.scrollTop = 0;
-          }
-        }, {
-          key: "scrollToChoice",
-          value: function scrollToChoice(choice, direction) {
-            var _this = this;
+        var _proto = List.prototype;
 
-            if (!choice) {
-              return;
+        _proto.clear = function clear() {
+          this.element.innerHTML = '';
+        };
+
+        _proto.append = function append(node) {
+          this.element.appendChild(node);
+        };
+
+        _proto.getChild = function getChild(selector) {
+          return this.element.querySelector(selector);
+        };
+
+        _proto.scrollToTop = function scrollToTop() {
+          this.element.scrollTop = 0;
+        };
+
+        _proto.scrollToChoice = function scrollToChoice(choice, direction) {
+          var _this = this;
+
+          if (!choice) {
+            return;
+          }
+
+          var dropdownHeight = this.element.offsetHeight;
+          var choiceHeight = choice.offsetHeight; // Distance from bottom of element to top of parent
+
+          var choicePos = choice.offsetTop + choiceHeight; // Scroll position of dropdown
+
+          var containerScrollPos = this.element.scrollTop + dropdownHeight; // Difference between the choice and scroll position
+
+          var endpoint = direction > 0 ? this.element.scrollTop + choicePos - containerScrollPos : choice.offsetTop;
+          requestAnimationFrame(function (time) {
+            _this._animateScroll(time, endpoint, direction);
+          });
+        };
+
+        _proto._scrollDown = function _scrollDown(scrollPos, strength, endpoint) {
+          var easing = (endpoint - scrollPos) / strength;
+          var distance = easing > 1 ? easing : 1;
+          this.element.scrollTop = scrollPos + distance;
+        };
+
+        _proto._scrollUp = function _scrollUp(scrollPos, strength, endpoint) {
+          var easing = (scrollPos - endpoint) / strength;
+          var distance = easing > 1 ? easing : 1;
+          this.element.scrollTop = scrollPos - distance;
+        };
+
+        _proto._animateScroll = function _animateScroll(time, endpoint, direction) {
+          var _this2 = this;
+
+          var strength = SCROLLING_SPEED;
+          var choiceListScrollTop = this.element.scrollTop;
+          var continueAnimation = false;
+
+          if (direction > 0) {
+            this._scrollDown(choiceListScrollTop, strength, endpoint);
+
+            if (choiceListScrollTop < endpoint) {
+              continueAnimation = true;
             }
+          } else {
+            this._scrollUp(choiceListScrollTop, strength, endpoint);
 
-            var dropdownHeight = this.element.offsetHeight;
-            var choiceHeight = choice.offsetHeight; // Distance from bottom of element to top of parent
+            if (choiceListScrollTop > endpoint) {
+              continueAnimation = true;
+            }
+          }
 
-            var choicePos = choice.offsetTop + choiceHeight; // Scroll position of dropdown
-
-            var containerScrollPos = this.element.scrollTop + dropdownHeight; // Difference between the choice and scroll position
-
-            var endpoint = direction > 0 ? this.element.scrollTop + choicePos - containerScrollPos : choice.offsetTop;
-            requestAnimationFrame(function (time) {
-              _this._animateScroll(time, endpoint, direction);
+          if (continueAnimation) {
+            requestAnimationFrame(function () {
+              _this2._animateScroll(time, endpoint, direction);
             });
           }
-        }, {
-          key: "_scrollDown",
-          value: function _scrollDown(scrollPos, strength, endpoint) {
-            var easing = (endpoint - scrollPos) / strength;
-            var distance = easing > 1 ? easing : 1;
-            this.element.scrollTop = scrollPos + distance;
-          }
-        }, {
-          key: "_scrollUp",
-          value: function _scrollUp(scrollPos, strength, endpoint) {
-            var easing = (scrollPos - endpoint) / strength;
-            var distance = easing > 1 ? easing : 1;
-            this.element.scrollTop = scrollPos - distance;
-          }
-        }, {
-          key: "_animateScroll",
-          value: function _animateScroll(time, endpoint, direction) {
-            var _this2 = this;
-
-            var strength = _constants.SCROLLING_SPEED;
-            var choiceListScrollTop = this.element.scrollTop;
-            var continueAnimation = false;
-
-            if (direction > 0) {
-              this._scrollDown(choiceListScrollTop, strength, endpoint);
-
-              if (choiceListScrollTop < endpoint) {
-                continueAnimation = true;
-              }
-            } else {
-              this._scrollUp(choiceListScrollTop, strength, endpoint);
-
-              if (choiceListScrollTop > endpoint) {
-                continueAnimation = true;
-              }
-            }
-
-            if (continueAnimation) {
-              requestAnimationFrame(function () {
-                _this2._animateScroll(time, endpoint, direction);
-              });
-            }
-          }
-        }]);
+        };
 
         return List;
-      }();
+      }(); // CONCATENATED MODULE: ./src/scripts/components/wrapped-element.js
 
-      exports["default"] = List;
-      /***/
-    },
-    /* 25 */
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _wrappedElement = _interopRequireDefault(__webpack_require__(4));
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
-        };
-      }
-
-      function _typeof(obj) {
-        if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-          _typeof = function _typeof(obj) {
-            return _typeof2(obj);
-          };
-        } else {
-          _typeof = function _typeof(obj) {
-            return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-          };
-        }
-
-        return _typeof(obj);
-      }
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
+      function wrapped_element_defineProperties(target, props) {
         for (var i = 0; i < props.length; i++) {
           var descriptor = props[i];
           descriptor.enumerable = descriptor.enumerable || false;
@@ -15271,93 +10040,122 @@ var pwtImage = function () {
         }
       }
 
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
+      function wrapped_element_createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) wrapped_element_defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) wrapped_element_defineProperties(Constructor, staticProps);
         return Constructor;
       }
 
-      function _possibleConstructorReturn(self, call) {
-        if (call && (_typeof(call) === "object" || typeof call === "function")) {
-          return call;
-        }
+      var wrapped_element_WrappedElement = /*#__PURE__*/function () {
+        function WrappedElement(_ref) {
+          var element = _ref.element,
+              classNames = _ref.classNames;
+          Object.assign(this, {
+            element: element,
+            classNames: classNames
+          });
 
-        return _assertThisInitialized(self);
-      }
-
-      function _assertThisInitialized(self) {
-        if (self === void 0) {
-          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return self;
-      }
-
-      function _get(target, property, receiver) {
-        if (typeof Reflect !== "undefined" && Reflect.get) {
-          _get = Reflect.get;
-        } else {
-          _get = function _get(target, property, receiver) {
-            var base = _superPropBase(target, property);
-
-            if (!base) return;
-            var desc = Object.getOwnPropertyDescriptor(base, property);
-
-            if (desc.get) {
-              return desc.get.call(receiver);
-            }
-
-            return desc.value;
-          };
-        }
-
-        return _get(target, property, receiver || target);
-      }
-
-      function _superPropBase(object, property) {
-        while (!Object.prototype.hasOwnProperty.call(object, property)) {
-          object = _getPrototypeOf(object);
-          if (object === null) break;
-        }
-
-        return object;
-      }
-
-      function _getPrototypeOf(o) {
-        _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-          return o.__proto__ || Object.getPrototypeOf(o);
-        };
-        return _getPrototypeOf(o);
-      }
-
-      function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-          throw new TypeError("Super expression must either be null or a function");
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-          constructor: {
-            value: subClass,
-            writable: true,
-            configurable: true
+          if (!isElement(element)) {
+            throw new TypeError('Invalid element passed');
           }
-        });
-        if (superClass) _setPrototypeOf(subClass, superClass);
-      }
 
-      function _setPrototypeOf(o, p) {
-        _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-          o.__proto__ = p;
-          return o;
+          this.isDisabled = false;
+        }
+
+        var _proto = WrappedElement.prototype;
+
+        _proto.conceal = function conceal() {
+          // Hide passed input
+          this.element.classList.add(this.classNames.input);
+          this.element.classList.add(this.classNames.hiddenState); // Remove element from tab index
+
+          this.element.tabIndex = '-1'; // Backup original styles if any
+
+          var origStyle = this.element.getAttribute('style');
+
+          if (origStyle) {
+            this.element.setAttribute('data-choice-orig-style', origStyle);
+          }
+
+          this.element.setAttribute('aria-hidden', 'true');
+          this.element.setAttribute('data-choice', 'active');
         };
 
-        return _setPrototypeOf(o, p);
+        _proto.reveal = function reveal() {
+          // Reinstate passed element
+          this.element.classList.remove(this.classNames.input);
+          this.element.classList.remove(this.classNames.hiddenState);
+          this.element.removeAttribute('tabindex'); // Recover original styles if any
+
+          var origStyle = this.element.getAttribute('data-choice-orig-style');
+
+          if (origStyle) {
+            this.element.removeAttribute('data-choice-orig-style');
+            this.element.setAttribute('style', origStyle);
+          } else {
+            this.element.removeAttribute('style');
+          }
+
+          this.element.removeAttribute('aria-hidden');
+          this.element.removeAttribute('data-choice'); // Re-assign values - this is weird, I know
+
+          this.element.value = this.element.value;
+        };
+
+        _proto.enable = function enable() {
+          this.element.removeAttribute('disabled');
+          this.element.disabled = false;
+          this.isDisabled = false;
+        };
+
+        _proto.disable = function disable() {
+          this.element.setAttribute('disabled', '');
+          this.element.disabled = true;
+          this.isDisabled = true;
+        };
+
+        _proto.triggerEvent = function triggerEvent(eventType, data) {
+          dispatchEvent(this.element, eventType, data);
+        };
+
+        wrapped_element_createClass(WrappedElement, [{
+          key: "value",
+          get: function get() {
+            return this.element.value;
+          },
+          set: function set(value) {
+            // you must define setter here otherwise it will be readonly property
+            this.element.value = value;
+          }
+        }]);
+        return WrappedElement;
+      }(); // CONCATENATED MODULE: ./src/scripts/components/wrapped-input.js
+
+
+      function wrapped_input_defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
       }
 
-      var WrappedInput =
-      /*#__PURE__*/
-      function (_WrappedElement) {
-        _inherits(WrappedInput, _WrappedElement);
+      function wrapped_input_createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) wrapped_input_defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) wrapped_input_defineProperties(Constructor, staticProps);
+        return Constructor;
+      }
+
+      function _inheritsLoose(subClass, superClass) {
+        subClass.prototype = Object.create(superClass.prototype);
+        subClass.prototype.constructor = subClass;
+        subClass.__proto__ = superClass;
+      }
+
+      var WrappedInput = /*#__PURE__*/function (_WrappedElement) {
+        _inheritsLoose(WrappedInput, _WrappedElement);
 
         function WrappedInput(_ref) {
           var _this;
@@ -15365,18 +10163,15 @@ var pwtImage = function () {
           var element = _ref.element,
               classNames = _ref.classNames,
               delimiter = _ref.delimiter;
-
-          _classCallCheck(this, WrappedInput);
-
-          _this = _possibleConstructorReturn(this, _getPrototypeOf(WrappedInput).call(this, {
+          _this = _WrappedElement.call(this, {
             element: element,
             classNames: classNames
-          }));
+          }) || this;
           _this.delimiter = delimiter;
           return _this;
         }
 
-        _createClass(WrappedInput, [{
+        wrapped_input_createClass(WrappedInput, [{
           key: "value",
           set: function set(items) {
             var itemValues = items.map(function (_ref2) {
@@ -15386,61 +10181,16 @@ var pwtImage = function () {
             var joinedValues = itemValues.join(this.delimiter);
             this.element.setAttribute('value', joinedValues);
             this.element.value = joinedValues;
-          } // @todo figure out why we need this? Perhaps a babel issue
-          ,
+          },
           get: function get() {
-            return _get(_getPrototypeOf(WrappedInput.prototype), "value", this);
+            return this.element.value;
           }
         }]);
-
         return WrappedInput;
-      }(_wrappedElement["default"]);
+      }(wrapped_element_WrappedElement); // CONCATENATED MODULE: ./src/scripts/components/wrapped-select.js
 
-      exports["default"] = WrappedInput;
-      /***/
-    },
-    /* 26 */
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports["default"] = void 0;
-
-      var _wrappedElement = _interopRequireDefault(__webpack_require__(4));
-
-      var _templates = _interopRequireDefault(__webpack_require__(5));
-
-      function _interopRequireDefault(obj) {
-        return obj && obj.__esModule ? obj : {
-          "default": obj
-        };
-      }
-
-      function _typeof(obj) {
-        if (typeof Symbol === "function" && _typeof2(Symbol.iterator) === "symbol") {
-          _typeof = function _typeof(obj) {
-            return _typeof2(obj);
-          };
-        } else {
-          _typeof = function _typeof(obj) {
-            return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : _typeof2(obj);
-          };
-        }
-
-        return _typeof(obj);
-      }
-
-      function _classCallCheck(instance, Constructor) {
-        if (!(instance instanceof Constructor)) {
-          throw new TypeError("Cannot call a class as a function");
-        }
-      }
-
-      function _defineProperties(target, props) {
+      function wrapped_select_defineProperties(target, props) {
         for (var i = 0; i < props.length; i++) {
           var descriptor = props[i];
           descriptor.enumerable = descriptor.enumerable || false;
@@ -15450,86 +10200,47 @@ var pwtImage = function () {
         }
       }
 
-      function _createClass(Constructor, protoProps, staticProps) {
-        if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) _defineProperties(Constructor, staticProps);
+      function wrapped_select_createClass(Constructor, protoProps, staticProps) {
+        if (protoProps) wrapped_select_defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) wrapped_select_defineProperties(Constructor, staticProps);
         return Constructor;
       }
 
-      function _possibleConstructorReturn(self, call) {
-        if (call && (_typeof(call) === "object" || typeof call === "function")) {
-          return call;
-        }
-
-        return _assertThisInitialized(self);
+      function wrapped_select_inheritsLoose(subClass, superClass) {
+        subClass.prototype = Object.create(superClass.prototype);
+        subClass.prototype.constructor = subClass;
+        subClass.__proto__ = superClass;
       }
 
-      function _assertThisInitialized(self) {
-        if (self === void 0) {
-          throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-        }
-
-        return self;
-      }
-
-      function _getPrototypeOf(o) {
-        _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) {
-          return o.__proto__ || Object.getPrototypeOf(o);
-        };
-        return _getPrototypeOf(o);
-      }
-
-      function _inherits(subClass, superClass) {
-        if (typeof superClass !== "function" && superClass !== null) {
-          throw new TypeError("Super expression must either be null or a function");
-        }
-
-        subClass.prototype = Object.create(superClass && superClass.prototype, {
-          constructor: {
-            value: subClass,
-            writable: true,
-            configurable: true
-          }
-        });
-        if (superClass) _setPrototypeOf(subClass, superClass);
-      }
-
-      function _setPrototypeOf(o, p) {
-        _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-          o.__proto__ = p;
-          return o;
-        };
-
-        return _setPrototypeOf(o, p);
-      }
-
-      var WrappedSelect =
-      /*#__PURE__*/
-      function (_WrappedElement) {
-        _inherits(WrappedSelect, _WrappedElement);
+      var WrappedSelect = /*#__PURE__*/function (_WrappedElement) {
+        wrapped_select_inheritsLoose(WrappedSelect, _WrappedElement);
 
         function WrappedSelect(_ref) {
+          var _this;
+
           var element = _ref.element,
-              classNames = _ref.classNames;
-
-          _classCallCheck(this, WrappedSelect);
-
-          return _possibleConstructorReturn(this, _getPrototypeOf(WrappedSelect).call(this, {
+              classNames = _ref.classNames,
+              template = _ref.template;
+          _this = _WrappedElement.call(this, {
             element: element,
             classNames: classNames
-          }));
+          }) || this;
+          _this.template = template;
+          return _this;
         }
 
-        _createClass(WrappedSelect, [{
-          key: "appendDocFragment",
-          value: function appendDocFragment(fragment) {
-            this.element.innerHTML = '';
-            this.element.appendChild(fragment);
-          }
-        }, {
+        var _proto = WrappedSelect.prototype;
+
+        _proto.appendDocFragment = function appendDocFragment(fragment) {
+          this.element.innerHTML = '';
+          this.element.appendChild(fragment);
+        };
+
+        wrapped_select_createClass(WrappedSelect, [{
           key: "placeholderOption",
           get: function get() {
-            return this.element.querySelector('option[placeholder]');
+            return this.element.querySelector('option[value=""]') || // Backward compatibility layer for the non-standard placeholder attribute supported in older versions.
+            this.element.querySelector('option[placeholder]');
           }
         }, {
           key: "optionGroups",
@@ -15542,14 +10253,16 @@ var pwtImage = function () {
             return Array.from(this.element.options);
           },
           set: function set(options) {
+            var _this2 = this;
+
             var fragment = document.createDocumentFragment();
 
             var addOptionToFragment = function addOptionToFragment(data) {
               // Create a standard select option
-              var template = _templates["default"].option(data); // Append it to fragment
+              var option = _this2.template(data); // Append it to fragment
 
 
-              fragment.appendChild(template);
+              fragment.appendChild(option);
             }; // Add each list item to list
 
 
@@ -15559,88 +10272,102 @@ var pwtImage = function () {
             this.appendDocFragment(fragment);
           }
         }]);
-
         return WrappedSelect;
-      }(_wrappedElement["default"]);
-
-      exports["default"] = WrappedSelect;
-      /***/
-    },
-    /* 27 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;
-      /*!
-      Copyright (c) 2017 Jed Watson.
-      Licensed under the MIT License (MIT), see
-      http://jedwatson.github.io/classnames
-      */
-
-      /* global define */
+      }(wrapped_element_WrappedElement); // CONCATENATED MODULE: ./src/scripts/components/index.js
+      // EXTERNAL MODULE: ./node_modules/classnames/index.js
 
 
-      (function () {
-        'use strict';
+      var classnames = __webpack_require__(0);
 
-        var hasOwn = {}.hasOwnProperty;
+      var classnames_default = /*#__PURE__*/__webpack_require__.n(classnames); // CONCATENATED MODULE: ./src/scripts/templates.js
 
-        function classNames() {
-          var classes = [];
 
-          for (var i = 0; i < arguments.length; i++) {
-            var arg = arguments[i];
-            if (!arg) continue;
+      var TEMPLATES = {
+        containerOuter: function containerOuter(globalClasses, direction, isSelectElement, isSelectOneElement, searchEnabled, passedElementType) {
+          var tabIndex = isSelectOneElement ? 'tabindex="0"' : '';
+          var role = isSelectElement ? 'role="listbox"' : '';
+          var ariaAutoComplete = '';
 
-            var argType = _typeof2(arg);
-
-            if (argType === 'string' || argType === 'number') {
-              classes.push(arg);
-            } else if (Array.isArray(arg) && arg.length) {
-              var inner = classNames.apply(null, arg);
-
-              if (inner) {
-                classes.push(inner);
-              }
-            } else if (argType === 'object') {
-              for (var key in arg) {
-                if (hasOwn.call(arg, key) && arg[key]) {
-                  classes.push(key);
-                }
-              }
-            }
+          if (isSelectElement && searchEnabled) {
+            role = 'role="combobox"';
+            ariaAutoComplete = 'aria-autocomplete="list"';
           }
 
-          return classes.join(' ');
+          return strToEl("\n      <div\n        class=\"" + globalClasses.containerOuter + "\"\n        data-type=\"" + passedElementType + "\"\n        " + role + "\n        " + tabIndex + "\n        " + ariaAutoComplete + "\n        aria-haspopup=\"true\"\n        aria-expanded=\"false\"\n        dir=\"" + direction + "\"\n        >\n      </div>\n    ");
+        },
+        containerInner: function containerInner(globalClasses) {
+          return strToEl("\n      <div class=\"" + globalClasses.containerInner + "\"></div>\n    ");
+        },
+        itemList: function itemList(globalClasses, isSelectOneElement) {
+          var _classNames;
+
+          var localClasses = classnames_default()(globalClasses.list, (_classNames = {}, _classNames[globalClasses.listSingle] = isSelectOneElement, _classNames[globalClasses.listItems] = !isSelectOneElement, _classNames));
+          return strToEl("\n      <div class=\"" + localClasses + "\"></div>\n    ");
+        },
+        placeholder: function placeholder(globalClasses, value) {
+          return strToEl("\n      <div class=\"" + globalClasses.placeholder + "\">\n        " + value + "\n      </div>\n    ");
+        },
+        item: function item(globalClasses, data, removeItemButton) {
+          var _classNames2;
+
+          var ariaSelected = data.active ? 'aria-selected="true"' : '';
+          var ariaDisabled = data.disabled ? 'aria-disabled="true"' : '';
+          var localClasses = classnames_default()(globalClasses.item, (_classNames2 = {}, _classNames2[globalClasses.highlightedState] = data.highlighted, _classNames2[globalClasses.itemSelectable] = !data.highlighted, _classNames2[globalClasses.placeholder] = data.placeholder, _classNames2));
+
+          if (removeItemButton) {
+            var _classNames3;
+
+            localClasses = classnames_default()(globalClasses.item, (_classNames3 = {}, _classNames3[globalClasses.highlightedState] = data.highlighted, _classNames3[globalClasses.itemSelectable] = !data.disabled, _classNames3[globalClasses.placeholder] = data.placeholder, _classNames3));
+            return strToEl("\n        <div\n          class=\"" + localClasses + "\"\n          data-item\n          data-id=\"" + data.id + "\"\n          data-value=\"" + data.value + "\"\n          data-custom-properties='" + data.customProperties + "'\n          data-deletable\n          " + ariaSelected + "\n          " + ariaDisabled + "\n          >\n          " + data.label + "<!--\n       --><button\n            type=\"button\"\n            class=\"" + globalClasses.button + "\"\n            data-button\n            aria-label=\"Remove item: '" + data.value + "'\"\n            >\n            Remove item\n          </button>\n        </div>\n      ");
+          }
+
+          return strToEl("\n      <div\n        class=\"" + localClasses + "\"\n        data-item\n        data-id=\"" + data.id + "\"\n        data-value=\"" + data.value + "\"\n        " + ariaSelected + "\n        " + ariaDisabled + "\n        >\n        " + data.label + "\n      </div>\n    ");
+        },
+        choiceList: function choiceList(globalClasses, isSelectOneElement) {
+          var ariaMultiSelectable = !isSelectOneElement ? 'aria-multiselectable="true"' : '';
+          return strToEl("\n      <div\n        class=\"" + globalClasses.list + "\"\n        dir=\"ltr\"\n        role=\"listbox\"\n        " + ariaMultiSelectable + "\n        >\n      </div>\n    ");
+        },
+        choiceGroup: function choiceGroup(globalClasses, data) {
+          var _classNames4;
+
+          var ariaDisabled = data.disabled ? 'aria-disabled="true"' : '';
+          var localClasses = classnames_default()(globalClasses.group, (_classNames4 = {}, _classNames4[globalClasses.itemDisabled] = data.disabled, _classNames4));
+          return strToEl("\n      <div\n        class=\"" + localClasses + "\"\n        data-group\n        data-id=\"" + data.id + "\"\n        data-value=\"" + data.value + "\"\n        role=\"group\"\n        " + ariaDisabled + "\n        >\n        <div class=\"" + globalClasses.groupHeading + "\">" + data.value + "</div>\n      </div>\n    ");
+        },
+        choice: function choice(globalClasses, data, itemSelectText) {
+          var _classNames5;
+
+          var role = data.groupId > 0 ? 'role="treeitem"' : 'role="option"';
+          var localClasses = classnames_default()(globalClasses.item, globalClasses.itemChoice, (_classNames5 = {}, _classNames5[globalClasses.itemDisabled] = data.disabled, _classNames5[globalClasses.itemSelectable] = !data.disabled, _classNames5[globalClasses.placeholder] = data.placeholder, _classNames5));
+          return strToEl("\n      <div\n        class=\"" + localClasses + "\"\n        data-select-text=\"" + itemSelectText + "\"\n        data-choice\n        data-id=\"" + data.id + "\"\n        data-value=\"" + data.value + "\"\n        " + (data.disabled ? 'data-choice-disabled aria-disabled="true"' : 'data-choice-selectable') + "\n        id=\"" + data.elementId + "\"\n        " + role + "\n        >\n        " + data.label + "\n      </div>\n    ");
+        },
+        input: function input(globalClasses, placeholderValue) {
+          var localClasses = classnames_default()(globalClasses.input, globalClasses.inputCloned);
+          return strToEl("\n      <input\n        type=\"text\"\n        class=\"" + localClasses + "\"\n        autocomplete=\"off\"\n        autocapitalize=\"off\"\n        spellcheck=\"false\"\n        role=\"textbox\"\n        aria-autocomplete=\"list\"\n        aria-label=\"" + placeholderValue + "\"\n        >\n    ");
+        },
+        dropdown: function dropdown(globalClasses) {
+          var localClasses = classnames_default()(globalClasses.list, globalClasses.listDropdown);
+          return strToEl("\n      <div\n        class=\"" + localClasses + "\"\n        aria-expanded=\"false\"\n        >\n      </div>\n    ");
+        },
+        notice: function notice(globalClasses, label, type) {
+          var _classNames6;
+
+          if (type === void 0) {
+            type = '';
+          }
+
+          var localClasses = classnames_default()(globalClasses.item, globalClasses.itemChoice, (_classNames6 = {}, _classNames6[globalClasses.noResults] = type === 'no-results', _classNames6[globalClasses.noChoices] = type === 'no-choices', _classNames6));
+          return strToEl("\n      <div class=\"" + localClasses + "\">\n        " + label + "\n      </div>\n    ");
+        },
+        option: function option(data) {
+          return strToEl("\n      <option value=\"" + data.value + "\" " + (data.active ? 'selected' : '') + " " + (data.disabled ? 'disabled' : '') + " " + (data.customProperties ? "data-custom-properties=" + data.customProperties : '') + ">" + data.label + "</option>\n    ");
         }
+      };
+      /* harmony default export */
 
-        if (true && module.exports) {
-          classNames["default"] = classNames;
-          module.exports = classNames;
-        } else if (true) {
-          // register as 'classnames', consistent with npm package name
-          !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-            return classNames;
-          }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-        } else {}
-      })();
-      /***/
+      var templates = TEMPLATES; // CONCATENATED MODULE: ./src/scripts/actions/choices.js
 
-    },
-    /* 28 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.clearChoices = exports.activateChoices = exports.filterChoices = exports.addChoice = void 0;
-
-      var _constants = __webpack_require__(1);
-
-      var addChoice = function addChoice(_ref) {
+      var choices_addChoice = function addChoice(_ref) {
         var value = _ref.value,
             label = _ref.label,
             id = _ref.id,
@@ -15651,7 +10378,7 @@ var pwtImage = function () {
             placeholder = _ref.placeholder,
             keyCode = _ref.keyCode;
         return {
-          type: _constants.ACTION_TYPES.ADD_CHOICE,
+          type: ACTION_TYPES.ADD_CHOICE,
           value: value,
           label: label,
           id: id,
@@ -15664,50 +10391,32 @@ var pwtImage = function () {
         };
       };
 
-      exports.addChoice = addChoice;
-
-      var filterChoices = function filterChoices(results) {
+      var choices_filterChoices = function filterChoices(results) {
         return {
-          type: _constants.ACTION_TYPES.FILTER_CHOICES,
+          type: ACTION_TYPES.FILTER_CHOICES,
           results: results
         };
       };
 
-      exports.filterChoices = filterChoices;
+      var choices_activateChoices = function activateChoices(active) {
+        if (active === void 0) {
+          active = true;
+        }
 
-      var activateChoices = function activateChoices() {
-        var active = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
         return {
-          type: _constants.ACTION_TYPES.ACTIVATE_CHOICES,
+          type: ACTION_TYPES.ACTIVATE_CHOICES,
           active: active
         };
       };
 
-      exports.activateChoices = activateChoices;
-
-      var clearChoices = function clearChoices() {
+      var choices_clearChoices = function clearChoices() {
         return {
-          type: _constants.ACTION_TYPES.CLEAR_CHOICES
+          type: ACTION_TYPES.CLEAR_CHOICES
         };
-      };
+      }; // CONCATENATED MODULE: ./src/scripts/actions/items.js
 
-      exports.clearChoices = clearChoices;
-      /***/
-    },
-    /* 29 */
 
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.highlightItem = exports.removeItem = exports.addItem = void 0;
-
-      var _constants = __webpack_require__(1);
-
-      var addItem = function addItem(_ref) {
+      var items_addItem = function addItem(_ref) {
         var value = _ref.value,
             label = _ref.label,
             id = _ref.id,
@@ -15717,7 +10426,7 @@ var pwtImage = function () {
             placeholder = _ref.placeholder,
             keyCode = _ref.keyCode;
         return {
-          type: _constants.ACTION_TYPES.ADD_ITEM,
+          type: ACTION_TYPES.ADD_ITEM,
           value: value,
           label: label,
           id: id,
@@ -15729,67 +10438,35 @@ var pwtImage = function () {
         };
       };
 
-      exports.addItem = addItem;
-
-      var removeItem = function removeItem(id, choiceId) {
+      var items_removeItem = function removeItem(id, choiceId) {
         return {
-          type: _constants.ACTION_TYPES.REMOVE_ITEM,
+          type: ACTION_TYPES.REMOVE_ITEM,
           id: id,
           choiceId: choiceId
         };
       };
 
-      exports.removeItem = removeItem;
-
-      var highlightItem = function highlightItem(id, highlighted) {
+      var items_highlightItem = function highlightItem(id, highlighted) {
         return {
-          type: _constants.ACTION_TYPES.HIGHLIGHT_ITEM,
+          type: ACTION_TYPES.HIGHLIGHT_ITEM,
           id: id,
           highlighted: highlighted
         };
-      };
+      }; // CONCATENATED MODULE: ./src/scripts/actions/groups.js
 
-      exports.highlightItem = highlightItem;
-      /***/
-    },
-    /* 30 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.addGroup = void 0;
-
-      var _constants = __webpack_require__(1);
       /* eslint-disable import/prefer-default-export */
 
 
-      var addGroup = function addGroup(value, id, active, disabled) {
+      var groups_addGroup = function addGroup(value, id, active, disabled) {
         return {
-          type: _constants.ACTION_TYPES.ADD_GROUP,
+          type: ACTION_TYPES.ADD_GROUP,
           value: value,
           id: id,
           active: active,
           disabled: disabled
         };
-      };
+      }; // CONCATENATED MODULE: ./src/scripts/actions/misc.js
 
-      exports.addGroup = addGroup;
-      /***/
-    },
-    /* 31 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.resetTo = exports.clearAll = void 0;
 
       var clearAll = function clearAll() {
         return {
@@ -15797,40 +10474,2149 @@ var pwtImage = function () {
         };
       };
 
-      exports.clearAll = clearAll;
-
       var resetTo = function resetTo(state) {
         return {
           type: 'RESET_TO',
           state: state
         };
-      };
+      }; // CONCATENATED MODULE: ./src/scripts/actions/general.js
 
-      exports.resetTo = resetTo;
-      /***/
-    },
-    /* 32 */
-
-    /***/
-    function (module, exports, __webpack_require__) {
-      "use strict";
-
-      Object.defineProperty(exports, "__esModule", {
-        value: true
-      });
-      exports.setIsLoading = void 0;
       /* eslint-disable import/prefer-default-export */
+
 
       var setIsLoading = function setIsLoading(isLoading) {
         return {
           type: 'SET_IS_LOADING',
           isLoading: isLoading
         };
-      };
+      }; // CONCATENATED MODULE: ./src/scripts/choices.js
 
-      exports.setIsLoading = setIsLoading;
+      /**
+       * Choices
+       * @author Josh Johnson<josh@joshuajohnson.co.uk>
+       */
+
+
+      var choices_Choices = /*#__PURE__*/function () {
+        function Choices(element, userConfig) {
+          var _this = this;
+
+          if (element === void 0) {
+            element = '[data-choice]';
+          }
+
+          if (userConfig === void 0) {
+            userConfig = {};
+          }
+
+          if (isType('String', element)) {
+            var elements = Array.from(document.querySelectorAll(element)); // If there are multiple elements, create a new instance
+            // for each element besides the first one (as that already has an instance)
+
+            if (elements.length > 1) {
+              return this._generateInstances(elements, userConfig);
+            }
+          }
+
+          this.config = cjs_default.a.all([DEFAULT_CONFIG, Choices.userDefaults, userConfig], // When merging array configs, replace with a copy of the userConfig array,
+          // instead of concatenating with the default array
+          {
+            arrayMerge: function arrayMerge(destinationArray, sourceArray) {
+              return [].concat(sourceArray);
+            }
+          });
+          var invalidConfigOptions = diff(this.config, DEFAULT_CONFIG);
+
+          if (invalidConfigOptions.length) {
+            console.warn('Unknown config option(s) passed', invalidConfigOptions.join(', '));
+          }
+
+          if (!['auto', 'always'].includes(this.config.renderSelectedChoices)) {
+            this.config.renderSelectedChoices = 'auto';
+          } // Retrieve triggering element (i.e. element with 'data-choice' trigger)
+
+
+          var passedElement = isType('String', element) ? document.querySelector(element) : element;
+
+          if (!passedElement) {
+            if (!this.config.silent) {
+              console.error('Could not find passed element or passed element was of an invalid type');
+            }
+
+            return;
+          }
+
+          this._isTextElement = passedElement.type === 'text';
+          this._isSelectOneElement = passedElement.type === 'select-one';
+          this._isSelectMultipleElement = passedElement.type === 'select-multiple';
+          this._isSelectElement = this._isSelectOneElement || this._isSelectMultipleElement;
+
+          if (this._isTextElement) {
+            this.passedElement = new WrappedInput({
+              element: passedElement,
+              classNames: this.config.classNames,
+              delimiter: this.config.delimiter
+            });
+          } else if (this._isSelectElement) {
+            this.passedElement = new WrappedSelect({
+              element: passedElement,
+              classNames: this.config.classNames,
+              template: function template(data) {
+                return _this.config.templates.option(data);
+              }
+            });
+          }
+
+          if (!this.passedElement) {
+            return console.error('Passed element was of an invalid type');
+          }
+
+          this.initialised = false;
+          this._store = new store_Store(this.render);
+          this._initialState = {};
+          this._currentState = {};
+          this._prevState = {};
+          this._currentValue = '';
+          this._canSearch = this.config.searchEnabled;
+          this._isScrollingOnIe = false;
+          this._highlightPosition = 0;
+          this._wasTap = true;
+          this._placeholderValue = this._generatePlaceholderValue();
+          this._baseId = generateId(this.passedElement.element, 'choices-');
+          this._direction = this.passedElement.element.getAttribute('dir') || 'ltr';
+          this._idNames = {
+            itemChoice: 'item-choice'
+          }; // Assign preset choices from passed object
+
+          this._presetChoices = this.config.choices; // Assign preset items from passed object first
+
+          this._presetItems = this.config.items; // Then add any values passed from attribute
+
+          if (this.passedElement.value) {
+            this._presetItems = this._presetItems.concat(this.passedElement.value.split(this.config.delimiter));
+          }
+
+          this._render = this._render.bind(this);
+          this._onFocus = this._onFocus.bind(this);
+          this._onBlur = this._onBlur.bind(this);
+          this._onKeyUp = this._onKeyUp.bind(this);
+          this._onKeyDown = this._onKeyDown.bind(this);
+          this._onClick = this._onClick.bind(this);
+          this._onTouchMove = this._onTouchMove.bind(this);
+          this._onTouchEnd = this._onTouchEnd.bind(this);
+          this._onMouseDown = this._onMouseDown.bind(this);
+          this._onMouseOver = this._onMouseOver.bind(this);
+          this._onFormReset = this._onFormReset.bind(this);
+          this._onAKey = this._onAKey.bind(this);
+          this._onEnterKey = this._onEnterKey.bind(this);
+          this._onEscapeKey = this._onEscapeKey.bind(this);
+          this._onDirectionKey = this._onDirectionKey.bind(this);
+          this._onDeleteKey = this._onDeleteKey.bind(this);
+
+          if (!this.config.silent) {
+            if (this.config.shouldSortItems === true && this._isSelectOneElement) {
+              console.warn("shouldSortElements: Type of passed element is 'select-one', falling back to false.");
+            } // If element has already been initialised with Choices, fail silently
+
+
+            if (this.passedElement.element.getAttribute('data-choice') === 'active') {
+              console.warn('Trying to initialise Choices on element already initialised');
+            }
+          } // Let's go
+
+
+          this.init();
+        }
+        /* ========================================
+        =            Public functions            =
+        ======================================== */
+
+
+        var _proto = Choices.prototype;
+
+        _proto.init = function init() {
+          if (this.initialised) {
+            return;
+          }
+
+          this._createTemplates();
+
+          this._createElements();
+
+          this._createStructure(); // Set initial state (We need to clone the state because some reducers
+          // modify the inner objects properties in the state) 🤢
+
+
+          this._initialState = cloneObject(this._store.state);
+
+          this._store.subscribe(this._render);
+
+          this._render();
+
+          this._addEventListeners();
+
+          var shouldDisable = !this.config.addItems || this.passedElement.element.hasAttribute('disabled');
+
+          if (shouldDisable) {
+            this.disable();
+          }
+
+          this.initialised = true;
+          var callbackOnInit = this.config.callbackOnInit; // Run callback if it is a function
+
+          if (callbackOnInit && isType('Function', callbackOnInit)) {
+            callbackOnInit.call(this);
+          }
+        };
+
+        _proto.destroy = function destroy() {
+          if (!this.initialised) {
+            return;
+          }
+
+          this._removeEventListeners();
+
+          this.passedElement.reveal();
+          this.containerOuter.unwrap(this.passedElement.element);
+
+          if (this._isSelectElement) {
+            this.passedElement.options = this._presetChoices;
+          }
+
+          this.clearStore();
+          this.config.templates = null;
+          this.initialised = false;
+        };
+
+        _proto.enable = function enable() {
+          if (this.passedElement.isDisabled) {
+            this.passedElement.enable();
+          }
+
+          if (this.containerOuter.isDisabled) {
+            this._addEventListeners();
+
+            this.input.enable();
+            this.containerOuter.enable();
+          }
+
+          return this;
+        };
+
+        _proto.disable = function disable() {
+          if (!this.passedElement.isDisabled) {
+            this.passedElement.disable();
+          }
+
+          if (!this.containerOuter.isDisabled) {
+            this._removeEventListeners();
+
+            this.input.disable();
+            this.containerOuter.disable();
+          }
+
+          return this;
+        };
+
+        _proto.highlightItem = function highlightItem(item, runEvent) {
+          if (runEvent === void 0) {
+            runEvent = true;
+          }
+
+          if (!item) {
+            return this;
+          }
+
+          var id = item.id,
+              _item$groupId = item.groupId,
+              groupId = _item$groupId === void 0 ? -1 : _item$groupId,
+              _item$value = item.value,
+              value = _item$value === void 0 ? '' : _item$value,
+              _item$label = item.label,
+              label = _item$label === void 0 ? '' : _item$label;
+          var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
+
+          this._store.dispatch(items_highlightItem(id, true));
+
+          if (runEvent) {
+            this.passedElement.triggerEvent(EVENTS.highlightItem, {
+              id: id,
+              value: value,
+              label: label,
+              groupValue: group && group.value ? group.value : null
+            });
+          }
+
+          return this;
+        };
+
+        _proto.unhighlightItem = function unhighlightItem(item) {
+          if (!item) {
+            return this;
+          }
+
+          var id = item.id,
+              _item$groupId2 = item.groupId,
+              groupId = _item$groupId2 === void 0 ? -1 : _item$groupId2,
+              _item$value2 = item.value,
+              value = _item$value2 === void 0 ? '' : _item$value2,
+              _item$label2 = item.label,
+              label = _item$label2 === void 0 ? '' : _item$label2;
+          var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
+
+          this._store.dispatch(items_highlightItem(id, false));
+
+          this.passedElement.triggerEvent(EVENTS.highlightItem, {
+            id: id,
+            value: value,
+            label: label,
+            groupValue: group && group.value ? group.value : null
+          });
+          return this;
+        };
+
+        _proto.highlightAll = function highlightAll() {
+          var _this2 = this;
+
+          this._store.items.forEach(function (item) {
+            return _this2.highlightItem(item);
+          });
+
+          return this;
+        };
+
+        _proto.unhighlightAll = function unhighlightAll() {
+          var _this3 = this;
+
+          this._store.items.forEach(function (item) {
+            return _this3.unhighlightItem(item);
+          });
+
+          return this;
+        };
+
+        _proto.removeActiveItemsByValue = function removeActiveItemsByValue(value) {
+          var _this4 = this;
+
+          this._store.activeItems.filter(function (item) {
+            return item.value === value;
+          }).forEach(function (item) {
+            return _this4._removeItem(item);
+          });
+
+          return this;
+        };
+
+        _proto.removeActiveItems = function removeActiveItems(excludedId) {
+          var _this5 = this;
+
+          this._store.activeItems.filter(function (_ref) {
+            var id = _ref.id;
+            return id !== excludedId;
+          }).forEach(function (item) {
+            return _this5._removeItem(item);
+          });
+
+          return this;
+        };
+
+        _proto.removeHighlightedItems = function removeHighlightedItems(runEvent) {
+          var _this6 = this;
+
+          if (runEvent === void 0) {
+            runEvent = false;
+          }
+
+          this._store.highlightedActiveItems.forEach(function (item) {
+            _this6._removeItem(item); // If this action was performed by the user
+            // trigger the event
+
+
+            if (runEvent) {
+              _this6._triggerChange(item.value);
+            }
+          });
+
+          return this;
+        };
+
+        _proto.showDropdown = function showDropdown(preventInputFocus) {
+          var _this7 = this;
+
+          if (this.dropdown.isActive) {
+            return this;
+          }
+
+          requestAnimationFrame(function () {
+            _this7.dropdown.show();
+
+            _this7.containerOuter.open(_this7.dropdown.distanceFromTopWindow());
+
+            if (!preventInputFocus && _this7._canSearch) {
+              _this7.input.focus();
+            }
+
+            _this7.passedElement.triggerEvent(EVENTS.showDropdown, {});
+          });
+          return this;
+        };
+
+        _proto.hideDropdown = function hideDropdown(preventInputBlur) {
+          var _this8 = this;
+
+          if (!this.dropdown.isActive) {
+            return this;
+          }
+
+          requestAnimationFrame(function () {
+            _this8.dropdown.hide();
+
+            _this8.containerOuter.close();
+
+            if (!preventInputBlur && _this8._canSearch) {
+              _this8.input.removeActiveDescendant();
+
+              _this8.input.blur();
+            }
+
+            _this8.passedElement.triggerEvent(EVENTS.hideDropdown, {});
+          });
+          return this;
+        };
+
+        _proto.getValue = function getValue(valueOnly) {
+          if (valueOnly === void 0) {
+            valueOnly = false;
+          }
+
+          var values = this._store.activeItems.reduce(function (selectedItems, item) {
+            var itemValue = valueOnly ? item.value : item;
+            selectedItems.push(itemValue);
+            return selectedItems;
+          }, []);
+
+          return this._isSelectOneElement ? values[0] : values;
+        };
+
+        _proto.setValue = function setValue(args) {
+          var _this9 = this;
+
+          if (!this.initialised) {
+            return this;
+          }
+
+          [].concat(args).forEach(function (value) {
+            return _this9._setChoiceOrItem(value);
+          });
+          return this;
+        };
+
+        _proto.setChoiceByValue = function setChoiceByValue(value) {
+          var _this10 = this;
+
+          if (!this.initialised || this._isTextElement) {
+            return this;
+          } // If only one value has been passed, convert to array
+
+
+          var choiceValue = isType('Array', value) ? value : [value]; // Loop through each value and
+
+          choiceValue.forEach(function (val) {
+            return _this10._findAndSelectChoiceByValue(val);
+          });
+          return this;
+        };
+
+        _proto.setChoices = function setChoices(choices, value, label, replaceChoices) {
+          var _this11 = this;
+
+          if (choices === void 0) {
+            choices = [];
+          }
+
+          if (value === void 0) {
+            value = '';
+          }
+
+          if (label === void 0) {
+            label = '';
+          }
+
+          if (replaceChoices === void 0) {
+            replaceChoices = false;
+          }
+
+          if (!this._isSelectElement || !value) {
+            return this;
+          } // Clear choices if needed
+
+
+          if (replaceChoices) {
+            this.clearChoices();
+          }
+
+          this.containerOuter.removeLoadingState();
+
+          var addGroupsAndChoices = function addGroupsAndChoices(groupOrChoice) {
+            if (groupOrChoice.choices) {
+              _this11._addGroup({
+                group: groupOrChoice,
+                id: groupOrChoice.id || null,
+                valueKey: value,
+                labelKey: label
+              });
+            } else {
+              _this11._addChoice({
+                value: groupOrChoice[value],
+                label: groupOrChoice[label],
+                isSelected: groupOrChoice.selected,
+                isDisabled: groupOrChoice.disabled,
+                customProperties: groupOrChoice.customProperties,
+                placeholder: groupOrChoice.placeholder
+              });
+            }
+          };
+
+          this._setLoading(true);
+
+          choices.forEach(addGroupsAndChoices);
+
+          this._setLoading(false);
+
+          return this;
+        };
+
+        _proto.clearChoices = function clearChoices() {
+          this._store.dispatch(choices_clearChoices());
+        };
+
+        _proto.clearStore = function clearStore() {
+          this._store.dispatch(clearAll());
+
+          return this;
+        };
+
+        _proto.clearInput = function clearInput() {
+          var shouldSetInputWidth = !this._isSelectOneElement;
+          this.input.clear(shouldSetInputWidth);
+
+          if (!this._isTextElement && this._canSearch) {
+            this._isSearching = false;
+
+            this._store.dispatch(choices_activateChoices(true));
+          }
+
+          return this;
+        };
+
+        _proto.ajax = function ajax(fn) {
+          var _this12 = this;
+
+          if (!this.initialised || !this._isSelectElement || !fn) {
+            return this;
+          }
+
+          requestAnimationFrame(function () {
+            return _this12._handleLoadingState(true);
+          });
+          fn(this._ajaxCallback());
+          return this;
+        }
+        /* =====  End of Public functions  ====== */
+
+        /* =============================================
+        =                Private functions            =
+        ============================================= */
+        ;
+
+        _proto._render = function _render() {
+          if (this._store.isLoading()) {
+            return;
+          }
+
+          this._currentState = this._store.state;
+          var stateChanged = this._currentState.choices !== this._prevState.choices || this._currentState.groups !== this._prevState.groups || this._currentState.items !== this._prevState.items;
+          var shouldRenderChoices = this._isSelectElement;
+          var shouldRenderItems = this._currentState.items !== this._prevState.items;
+
+          if (!stateChanged) {
+            return;
+          }
+
+          if (shouldRenderChoices) {
+            this._renderChoices();
+          }
+
+          if (shouldRenderItems) {
+            this._renderItems();
+          }
+
+          this._prevState = this._currentState;
+        };
+
+        _proto._renderChoices = function _renderChoices() {
+          var _this13 = this;
+
+          var _this$_store = this._store,
+              activeGroups = _this$_store.activeGroups,
+              activeChoices = _this$_store.activeChoices;
+          var choiceListFragment = document.createDocumentFragment();
+          this.choiceList.clear();
+
+          if (this.config.resetScrollPosition) {
+            requestAnimationFrame(function () {
+              return _this13.choiceList.scrollToTop();
+            });
+          } // If we have grouped options
+
+
+          if (activeGroups.length >= 1 && !this._isSearching) {
+            // If we have a placeholder choice along with groups
+            var activePlaceholders = activeChoices.filter(function (activeChoice) {
+              return activeChoice.placeholder === true && activeChoice.groupId === -1;
+            });
+
+            if (activePlaceholders.length >= 1) {
+              choiceListFragment = this._createChoicesFragment(activePlaceholders, choiceListFragment);
+            }
+
+            choiceListFragment = this._createGroupsFragment(activeGroups, activeChoices, choiceListFragment);
+          } else if (activeChoices.length >= 1) {
+            choiceListFragment = this._createChoicesFragment(activeChoices, choiceListFragment);
+          } // If we have choices to show
+
+
+          if (choiceListFragment.childNodes && choiceListFragment.childNodes.length > 0) {
+            var activeItems = this._store.activeItems;
+
+            var canAddItem = this._canAddItem(activeItems, this.input.value); // ...and we can select them
+
+
+            if (canAddItem.response) {
+              // ...append them and highlight the first choice
+              this.choiceList.append(choiceListFragment);
+
+              this._highlightChoice();
+            } else {
+              // ...otherwise show a notice
+              this.choiceList.append(this._getTemplate('notice', canAddItem.notice));
+            }
+          } else {
+            // Otherwise show a notice
+            var dropdownItem;
+            var notice;
+
+            if (this._isSearching) {
+              notice = isType('Function', this.config.noResultsText) ? this.config.noResultsText() : this.config.noResultsText;
+              dropdownItem = this._getTemplate('notice', notice, 'no-results');
+            } else {
+              notice = isType('Function', this.config.noChoicesText) ? this.config.noChoicesText() : this.config.noChoicesText;
+              dropdownItem = this._getTemplate('notice', notice, 'no-choices');
+            }
+
+            this.choiceList.append(dropdownItem);
+          }
+        };
+
+        _proto._renderItems = function _renderItems() {
+          var activeItems = this._store.activeItems || [];
+          this.itemList.clear(); // Create a fragment to store our list items
+          // (so we don't have to update the DOM for each item)
+
+          var itemListFragment = this._createItemsFragment(activeItems); // If we have items to add, append them
+
+
+          if (itemListFragment.childNodes) {
+            this.itemList.append(itemListFragment);
+          }
+        };
+
+        _proto._createGroupsFragment = function _createGroupsFragment(groups, choices, fragment) {
+          var _this14 = this;
+
+          var groupFragment = fragment || document.createDocumentFragment();
+
+          var getGroupChoices = function getGroupChoices(group) {
+            return choices.filter(function (choice) {
+              if (_this14._isSelectOneElement) {
+                return choice.groupId === group.id;
+              }
+
+              return choice.groupId === group.id && (_this14.config.renderSelectedChoices === 'always' || !choice.selected);
+            });
+          }; // If sorting is enabled, filter groups
+
+
+          if (this.config.shouldSort) {
+            groups.sort(this.config.sortFn);
+          }
+
+          groups.forEach(function (group) {
+            var groupChoices = getGroupChoices(group);
+
+            if (groupChoices.length >= 1) {
+              var dropdownGroup = _this14._getTemplate('choiceGroup', group);
+
+              groupFragment.appendChild(dropdownGroup);
+
+              _this14._createChoicesFragment(groupChoices, groupFragment, true);
+            }
+          });
+          return groupFragment;
+        };
+
+        _proto._createChoicesFragment = function _createChoicesFragment(choices, fragment, withinGroup) {
+          var _this15 = this;
+
+          if (withinGroup === void 0) {
+            withinGroup = false;
+          } // Create a fragment to store our list items (so we don't have to update the DOM for each item)
+
+
+          var choicesFragment = fragment || document.createDocumentFragment();
+          var _this$config = this.config,
+              renderSelectedChoices = _this$config.renderSelectedChoices,
+              searchResultLimit = _this$config.searchResultLimit,
+              renderChoiceLimit = _this$config.renderChoiceLimit;
+          var filter = this._isSearching ? sortByScore : this.config.sortFn;
+
+          var appendChoice = function appendChoice(choice) {
+            var shouldRender = renderSelectedChoices === 'auto' ? _this15._isSelectOneElement || !choice.selected : true;
+
+            if (shouldRender) {
+              var dropdownItem = _this15._getTemplate('choice', choice, _this15.config.itemSelectText);
+
+              choicesFragment.appendChild(dropdownItem);
+            }
+          };
+
+          var rendererableChoices = choices;
+
+          if (renderSelectedChoices === 'auto' && !this._isSelectOneElement) {
+            rendererableChoices = choices.filter(function (choice) {
+              return !choice.selected;
+            });
+          } // Split array into placeholders and "normal" choices
+
+
+          var _rendererableChoices$ = rendererableChoices.reduce(function (acc, choice) {
+            if (choice.placeholder) {
+              acc.placeholderChoices.push(choice);
+            } else {
+              acc.normalChoices.push(choice);
+            }
+
+            return acc;
+          }, {
+            placeholderChoices: [],
+            normalChoices: []
+          }),
+              placeholderChoices = _rendererableChoices$.placeholderChoices,
+              normalChoices = _rendererableChoices$.normalChoices; // If sorting is enabled or the user is searching, filter choices
+
+
+          if (this.config.shouldSort || this._isSearching) {
+            normalChoices.sort(filter);
+          }
+
+          var choiceLimit = rendererableChoices.length; // Prepend placeholeder
+
+          var sortedChoices = [].concat(placeholderChoices, normalChoices);
+
+          if (this._isSearching) {
+            choiceLimit = searchResultLimit;
+          } else if (renderChoiceLimit > 0 && !withinGroup) {
+            choiceLimit = renderChoiceLimit;
+          } // Add each choice to dropdown within range
+
+
+          for (var i = 0; i < choiceLimit; i += 1) {
+            if (sortedChoices[i]) {
+              appendChoice(sortedChoices[i]);
+            }
+          }
+
+          return choicesFragment;
+        };
+
+        _proto._createItemsFragment = function _createItemsFragment(items, fragment) {
+          var _this16 = this;
+
+          if (fragment === void 0) {
+            fragment = null;
+          } // Create fragment to add elements to
+
+
+          var _this$config2 = this.config,
+              shouldSortItems = _this$config2.shouldSortItems,
+              sortFn = _this$config2.sortFn,
+              removeItemButton = _this$config2.removeItemButton;
+          var itemListFragment = fragment || document.createDocumentFragment(); // If sorting is enabled, filter items
+
+          if (shouldSortItems && !this._isSelectOneElement) {
+            items.sort(sortFn);
+          }
+
+          if (this._isTextElement) {
+            // Update the value of the hidden input
+            this.passedElement.value = items;
+          } else {
+            // Update the options of the hidden input
+            this.passedElement.options = items;
+          }
+
+          var addItemToFragment = function addItemToFragment(item) {
+            // Create new list element
+            var listItem = _this16._getTemplate('item', item, removeItemButton); // Append it to list
+
+
+            itemListFragment.appendChild(listItem);
+          }; // Add each list item to list
+
+
+          items.forEach(function (item) {
+            return addItemToFragment(item);
+          });
+          return itemListFragment;
+        };
+
+        _proto._triggerChange = function _triggerChange(value) {
+          if (value === undefined || value === null) {
+            return;
+          }
+
+          this.passedElement.triggerEvent(EVENTS.change, {
+            value: value
+          });
+        };
+
+        _proto._selectPlaceholderChoice = function _selectPlaceholderChoice() {
+          var placeholderChoice = this._store.placeholderChoice;
+
+          if (placeholderChoice) {
+            this._addItem({
+              value: placeholderChoice.value,
+              label: placeholderChoice.label,
+              choiceId: placeholderChoice.id,
+              groupId: placeholderChoice.groupId,
+              placeholder: placeholderChoice.placeholder
+            });
+
+            this._triggerChange(placeholderChoice.value);
+          }
+        };
+
+        _proto._handleButtonAction = function _handleButtonAction(activeItems, element) {
+          if (!activeItems || !element || !this.config.removeItems || !this.config.removeItemButton) {
+            return;
+          }
+
+          var itemId = element.parentNode.getAttribute('data-id');
+          var itemToRemove = activeItems.find(function (item) {
+            return item.id === parseInt(itemId, 10);
+          }); // Remove item associated with button
+
+          this._removeItem(itemToRemove);
+
+          this._triggerChange(itemToRemove.value);
+
+          if (this._isSelectOneElement) {
+            this._selectPlaceholderChoice();
+          }
+        };
+
+        _proto._handleItemAction = function _handleItemAction(activeItems, element, hasShiftKey) {
+          var _this17 = this;
+
+          if (hasShiftKey === void 0) {
+            hasShiftKey = false;
+          }
+
+          if (!activeItems || !element || !this.config.removeItems || this._isSelectOneElement) {
+            return;
+          }
+
+          var passedId = element.getAttribute('data-id'); // We only want to select one item with a click
+          // so we deselect any items that aren't the target
+          // unless shift is being pressed
+
+          activeItems.forEach(function (item) {
+            if (item.id === parseInt(passedId, 10) && !item.highlighted) {
+              _this17.highlightItem(item);
+            } else if (!hasShiftKey && item.highlighted) {
+              _this17.unhighlightItem(item);
+            }
+          }); // Focus input as without focus, a user cannot do anything with a
+          // highlighted item
+
+          this.input.focus();
+        };
+
+        _proto._handleChoiceAction = function _handleChoiceAction(activeItems, element) {
+          if (!activeItems || !element) {
+            return;
+          } // If we are clicking on an option
+
+
+          var id = element.getAttribute('data-id');
+
+          var choice = this._store.getChoiceById(id);
+
+          var passedKeyCode = activeItems[0] && activeItems[0].keyCode ? activeItems[0].keyCode : null;
+          var hasActiveDropdown = this.dropdown.isActive; // Update choice keyCode
+
+          choice.keyCode = passedKeyCode;
+          this.passedElement.triggerEvent(EVENTS.choice, {
+            choice: choice
+          });
+
+          if (choice && !choice.selected && !choice.disabled) {
+            var canAddItem = this._canAddItem(activeItems, choice.value);
+
+            if (canAddItem.response) {
+              this._addItem({
+                value: choice.value,
+                label: choice.label,
+                choiceId: choice.id,
+                groupId: choice.groupId,
+                customProperties: choice.customProperties,
+                placeholder: choice.placeholder,
+                keyCode: choice.keyCode
+              });
+
+              this._triggerChange(choice.value);
+            }
+          }
+
+          this.clearInput(); // We wont to close the dropdown if we are dealing with a single select box
+
+          if (hasActiveDropdown && this._isSelectOneElement) {
+            this.hideDropdown(true);
+            this.containerOuter.focus();
+          }
+        };
+
+        _proto._handleBackspace = function _handleBackspace(activeItems) {
+          if (!this.config.removeItems || !activeItems) {
+            return;
+          }
+
+          var lastItem = activeItems[activeItems.length - 1];
+          var hasHighlightedItems = activeItems.some(function (item) {
+            return item.highlighted;
+          }); // If editing the last item is allowed and there are not other selected items,
+          // we can edit the item value. Otherwise if we can remove items, remove all selected items
+
+          if (this.config.editItems && !hasHighlightedItems && lastItem) {
+            this.input.value = lastItem.value;
+            this.input.setWidth();
+
+            this._removeItem(lastItem);
+
+            this._triggerChange(lastItem.value);
+          } else {
+            if (!hasHighlightedItems) {
+              // Highlight last item if none already highlighted
+              this.highlightItem(lastItem, false);
+            }
+
+            this.removeHighlightedItems(true);
+          }
+        };
+
+        _proto._setLoading = function _setLoading(isLoading) {
+          this._store.dispatch(setIsLoading(isLoading));
+        };
+
+        _proto._handleLoadingState = function _handleLoadingState(setLoading) {
+          if (setLoading === void 0) {
+            setLoading = true;
+          }
+
+          var placeholderItem = this.itemList.getChild("." + this.config.classNames.placeholder);
+
+          if (setLoading) {
+            this.disable();
+            this.containerOuter.addLoadingState();
+
+            if (this._isSelectOneElement) {
+              if (!placeholderItem) {
+                placeholderItem = this._getTemplate('placeholder', this.config.loadingText);
+                this.itemList.append(placeholderItem);
+              } else {
+                placeholderItem.innerHTML = this.config.loadingText;
+              }
+            } else {
+              this.input.placeholder = this.config.loadingText;
+            }
+          } else {
+            this.enable();
+            this.containerOuter.removeLoadingState();
+
+            if (this._isSelectOneElement) {
+              placeholderItem.innerHTML = this._placeholderValue || '';
+            } else {
+              this.input.placeholder = this._placeholderValue || '';
+            }
+          }
+        };
+
+        _proto._handleSearch = function _handleSearch(value) {
+          if (!value || !this.input.isFocussed) {
+            return;
+          }
+
+          var choices = this._store.choices;
+          var _this$config3 = this.config,
+              searchFloor = _this$config3.searchFloor,
+              searchChoices = _this$config3.searchChoices;
+          var hasUnactiveChoices = choices.some(function (option) {
+            return !option.active;
+          }); // Check that we have a value to search and the input was an alphanumeric character
+
+          if (value && value.length >= searchFloor) {
+            var resultCount = searchChoices ? this._searchChoices(value) : 0; // Trigger search event
+
+            this.passedElement.triggerEvent(EVENTS.search, {
+              value: value,
+              resultCount: resultCount
+            });
+          } else if (hasUnactiveChoices) {
+            // Otherwise reset choices to active
+            this._isSearching = false;
+
+            this._store.dispatch(choices_activateChoices(true));
+          }
+        };
+
+        _proto._canAddItem = function _canAddItem(activeItems, value) {
+          var canAddItem = true;
+          var notice = isType('Function', this.config.addItemText) ? this.config.addItemText(value) : this.config.addItemText;
+
+          if (!this._isSelectOneElement) {
+            var isDuplicateValue = existsInArray(activeItems, value);
+
+            if (this.config.maxItemCount > 0 && this.config.maxItemCount <= activeItems.length) {
+              // If there is a max entry limit and we have reached that limit
+              // don't update
+              canAddItem = false;
+              notice = isType('Function', this.config.maxItemText) ? this.config.maxItemText(this.config.maxItemCount) : this.config.maxItemText;
+            }
+
+            if (!this.config.duplicateItemsAllowed && isDuplicateValue && canAddItem) {
+              canAddItem = false;
+              notice = isType('Function', this.config.uniqueItemText) ? this.config.uniqueItemText(value) : this.config.uniqueItemText;
+            }
+
+            if (this._isTextElement && this.config.addItems && canAddItem && isType('Function', this.config.addItemFilterFn) && !this.config.addItemFilterFn(value)) {
+              canAddItem = false;
+              notice = isType('Function', this.config.customAddItemText) ? this.config.customAddItemText(value) : this.config.customAddItemText;
+            }
+          }
+
+          return {
+            response: canAddItem,
+            notice: notice
+          };
+        };
+
+        _proto._ajaxCallback = function _ajaxCallback() {
+          var _this18 = this;
+
+          return function (results, value, label) {
+            if (!results || !value) {
+              return;
+            }
+
+            var parsedResults = isType('Object', results) ? [results] : results;
+
+            if (parsedResults && isType('Array', parsedResults) && parsedResults.length) {
+              // Remove loading states/text
+              _this18._handleLoadingState(false);
+
+              _this18._setLoading(true); // Add each result as a choice
+
+
+              parsedResults.forEach(function (result) {
+                if (result.choices) {
+                  _this18._addGroup({
+                    group: result,
+                    id: result.id || null,
+                    valueKey: value,
+                    labelKey: label
+                  });
+                } else {
+                  _this18._addChoice({
+                    value: fetchFromObject(result, value),
+                    label: fetchFromObject(result, label),
+                    isSelected: result.selected,
+                    isDisabled: result.disabled,
+                    customProperties: result.customProperties,
+                    placeholder: result.placeholder
+                  });
+                }
+              });
+
+              _this18._setLoading(false);
+
+              if (_this18._isSelectOneElement) {
+                _this18._selectPlaceholderChoice();
+              }
+            } else {
+              // No results, remove loading state
+              _this18._handleLoadingState(false);
+            }
+          };
+        };
+
+        _proto._searchChoices = function _searchChoices(value) {
+          var newValue = isType('String', value) ? value.trim() : value;
+          var currentValue = isType('String', this._currentValue) ? this._currentValue.trim() : this._currentValue;
+
+          if (newValue.length < 1 && newValue === currentValue + " ") {
+            return 0;
+          } // If new value matches the desired length and is not the same as the current value with a space
+
+
+          var haystack = this._store.searchableChoices;
+          var needle = newValue;
+          var keys = [].concat(this.config.searchFields);
+          var options = Object.assign(this.config.fuseOptions, {
+            keys: keys
+          });
+          var fuse = new fuse_default.a(haystack, options);
+          var results = fuse.search(needle);
+          this._currentValue = newValue;
+          this._highlightPosition = 0;
+          this._isSearching = true;
+
+          this._store.dispatch(choices_filterChoices(results));
+
+          return results.length;
+        };
+
+        _proto._addEventListeners = function _addEventListeners() {
+          window.delegateEvent.add('keyup', this._onKeyUp);
+          window.delegateEvent.add('keydown', this._onKeyDown);
+          window.delegateEvent.add('click', this._onClick);
+          window.delegateEvent.add('touchmove', this._onTouchMove);
+          window.delegateEvent.add('touchend', this._onTouchEnd);
+          window.delegateEvent.add('mousedown', this._onMouseDown);
+          window.delegateEvent.add('mouseover', this._onMouseOver);
+
+          if (this._isSelectOneElement) {
+            this.containerOuter.element.addEventListener('focus', this._onFocus);
+            this.containerOuter.element.addEventListener('blur', this._onBlur);
+          }
+
+          this.input.element.addEventListener('focus', this._onFocus);
+          this.input.element.addEventListener('blur', this._onBlur);
+
+          if (this.input.element.form) {
+            this.input.element.form.addEventListener('reset', this._onFormReset);
+          }
+
+          this.input.addEventListeners();
+        };
+
+        _proto._removeEventListeners = function _removeEventListeners() {
+          window.delegateEvent.remove('keyup', this._onKeyUp);
+          window.delegateEvent.remove('keydown', this._onKeyDown);
+          window.delegateEvent.remove('click', this._onClick);
+          window.delegateEvent.remove('touchmove', this._onTouchMove);
+          window.delegateEvent.remove('touchend', this._onTouchEnd);
+          window.delegateEvent.remove('mousedown', this._onMouseDown);
+          window.delegateEvent.remove('mouseover', this._onMouseOver);
+
+          if (this._isSelectOneElement) {
+            this.containerOuter.element.removeEventListener('focus', this._onFocus);
+            this.containerOuter.element.removeEventListener('blur', this._onBlur);
+          }
+
+          this.input.element.removeEventListener('focus', this._onFocus);
+          this.input.element.removeEventListener('blur', this._onBlur);
+
+          if (this.input.element.form) {
+            this.input.element.form.removeEventListener('reset', this._onFormReset);
+          }
+
+          this.input.removeEventListeners();
+        };
+
+        _proto._onKeyDown = function _onKeyDown(event) {
+          var _keyDownActions;
+
+          var target = event.target,
+              keyCode = event.keyCode,
+              ctrlKey = event.ctrlKey,
+              metaKey = event.metaKey;
+
+          if (target !== this.input.element && !this.containerOuter.element.contains(target)) {
+            return;
+          }
+
+          var activeItems = this._store.activeItems;
+          var hasFocusedInput = this.input.isFocussed;
+          var hasActiveDropdown = this.dropdown.isActive;
+          var hasItems = this.itemList.hasChildren;
+          var keyString = String.fromCharCode(keyCode);
+          var BACK_KEY = KEY_CODES.BACK_KEY,
+              DELETE_KEY = KEY_CODES.DELETE_KEY,
+              ENTER_KEY = KEY_CODES.ENTER_KEY,
+              A_KEY = KEY_CODES.A_KEY,
+              ESC_KEY = KEY_CODES.ESC_KEY,
+              UP_KEY = KEY_CODES.UP_KEY,
+              DOWN_KEY = KEY_CODES.DOWN_KEY,
+              PAGE_UP_KEY = KEY_CODES.PAGE_UP_KEY,
+              PAGE_DOWN_KEY = KEY_CODES.PAGE_DOWN_KEY;
+          var hasCtrlDownKeyPressed = ctrlKey || metaKey; // If a user is typing and the dropdown is not active
+
+          if (!this._isTextElement && /[a-zA-Z0-9-_ ]/.test(keyString)) {
+            this.showDropdown();
+          } // Map keys to key actions
+
+
+          var keyDownActions = (_keyDownActions = {}, _keyDownActions[A_KEY] = this._onAKey, _keyDownActions[ENTER_KEY] = this._onEnterKey, _keyDownActions[ESC_KEY] = this._onEscapeKey, _keyDownActions[UP_KEY] = this._onDirectionKey, _keyDownActions[PAGE_UP_KEY] = this._onDirectionKey, _keyDownActions[DOWN_KEY] = this._onDirectionKey, _keyDownActions[PAGE_DOWN_KEY] = this._onDirectionKey, _keyDownActions[DELETE_KEY] = this._onDeleteKey, _keyDownActions[BACK_KEY] = this._onDeleteKey, _keyDownActions); // If keycode has a function, run it
+
+          if (keyDownActions[keyCode]) {
+            keyDownActions[keyCode]({
+              event: event,
+              target: target,
+              keyCode: keyCode,
+              metaKey: metaKey,
+              activeItems: activeItems,
+              hasFocusedInput: hasFocusedInput,
+              hasActiveDropdown: hasActiveDropdown,
+              hasItems: hasItems,
+              hasCtrlDownKeyPressed: hasCtrlDownKeyPressed
+            });
+          }
+        };
+
+        _proto._onKeyUp = function _onKeyUp(_ref2) {
+          var target = _ref2.target,
+              keyCode = _ref2.keyCode;
+
+          if (target !== this.input.element) {
+            return;
+          }
+
+          var value = this.input.value;
+          var activeItems = this._store.activeItems;
+
+          var canAddItem = this._canAddItem(activeItems, value);
+
+          var backKey = KEY_CODES.BACK_KEY,
+              deleteKey = KEY_CODES.DELETE_KEY; // We are typing into a text input and have a value, we want to show a dropdown
+          // notice. Otherwise hide the dropdown
+
+          if (this._isTextElement) {
+            var canShowDropdownNotice = canAddItem.notice && value;
+
+            if (canShowDropdownNotice) {
+              var dropdownItem = this._getTemplate('notice', canAddItem.notice);
+
+              this.dropdown.element.innerHTML = dropdownItem.outerHTML;
+              this.showDropdown(true);
+            } else {
+              this.hideDropdown(true);
+            }
+          } else {
+            var userHasRemovedValue = (keyCode === backKey || keyCode === deleteKey) && !target.value;
+            var canReactivateChoices = !this._isTextElement && this._isSearching;
+            var canSearch = this._canSearch && canAddItem.response;
+
+            if (userHasRemovedValue && canReactivateChoices) {
+              this._isSearching = false;
+
+              this._store.dispatch(choices_activateChoices(true));
+            } else if (canSearch) {
+              this._handleSearch(this.input.value);
+            }
+          }
+
+          this._canSearch = this.config.searchEnabled;
+        };
+
+        _proto._onAKey = function _onAKey(_ref3) {
+          var hasItems = _ref3.hasItems,
+              hasCtrlDownKeyPressed = _ref3.hasCtrlDownKeyPressed; // If CTRL + A or CMD + A have been pressed and there are items to select
+
+          if (hasCtrlDownKeyPressed && hasItems) {
+            this._canSearch = false;
+            var shouldHightlightAll = this.config.removeItems && !this.input.value && this.input.element === document.activeElement;
+
+            if (shouldHightlightAll) {
+              this.highlightAll();
+            }
+          }
+        };
+
+        _proto._onEnterKey = function _onEnterKey(_ref4) {
+          var event = _ref4.event,
+              target = _ref4.target,
+              activeItems = _ref4.activeItems,
+              hasActiveDropdown = _ref4.hasActiveDropdown;
+          var enterKey = KEY_CODES.ENTER_KEY;
+          var targetWasButton = target.hasAttribute('data-button');
+
+          if (this._isTextElement && target.value) {
+            var value = this.input.value;
+
+            var canAddItem = this._canAddItem(activeItems, value);
+
+            if (canAddItem.response) {
+              this.hideDropdown(true);
+
+              this._addItem({
+                value: value
+              });
+
+              this._triggerChange(value);
+
+              this.clearInput();
+            }
+          }
+
+          if (targetWasButton) {
+            this._handleButtonAction(activeItems, target);
+
+            event.preventDefault();
+          }
+
+          if (hasActiveDropdown) {
+            var highlightedChoice = this.dropdown.getChild("." + this.config.classNames.highlightedState);
+
+            if (highlightedChoice) {
+              // add enter keyCode value
+              if (activeItems[0]) {
+                activeItems[0].keyCode = enterKey; // eslint-disable-line no-param-reassign
+              }
+
+              this._handleChoiceAction(activeItems, highlightedChoice);
+            }
+
+            event.preventDefault();
+          } else if (this._isSelectOneElement) {
+            this.showDropdown();
+            event.preventDefault();
+          }
+        };
+
+        _proto._onEscapeKey = function _onEscapeKey(_ref5) {
+          var hasActiveDropdown = _ref5.hasActiveDropdown;
+
+          if (hasActiveDropdown) {
+            this.hideDropdown(true);
+            this.containerOuter.focus();
+          }
+        };
+
+        _proto._onDirectionKey = function _onDirectionKey(_ref6) {
+          var event = _ref6.event,
+              hasActiveDropdown = _ref6.hasActiveDropdown,
+              keyCode = _ref6.keyCode,
+              metaKey = _ref6.metaKey;
+          var downKey = KEY_CODES.DOWN_KEY,
+              pageUpKey = KEY_CODES.PAGE_UP_KEY,
+              pageDownKey = KEY_CODES.PAGE_DOWN_KEY; // If up or down key is pressed, traverse through options
+
+          if (hasActiveDropdown || this._isSelectOneElement) {
+            this.showDropdown();
+            this._canSearch = false;
+            var directionInt = keyCode === downKey || keyCode === pageDownKey ? 1 : -1;
+            var skipKey = metaKey || keyCode === pageDownKey || keyCode === pageUpKey;
+            var selectableChoiceIdentifier = '[data-choice-selectable]';
+            var nextEl;
+
+            if (skipKey) {
+              if (directionInt > 0) {
+                nextEl = Array.from(this.dropdown.element.querySelectorAll(selectableChoiceIdentifier)).pop();
+              } else {
+                nextEl = this.dropdown.element.querySelector(selectableChoiceIdentifier);
+              }
+            } else {
+              var currentEl = this.dropdown.element.querySelector("." + this.config.classNames.highlightedState);
+
+              if (currentEl) {
+                nextEl = getAdjacentEl(currentEl, selectableChoiceIdentifier, directionInt);
+              } else {
+                nextEl = this.dropdown.element.querySelector(selectableChoiceIdentifier);
+              }
+            }
+
+            if (nextEl) {
+              // We prevent default to stop the cursor moving
+              // when pressing the arrow
+              if (!isScrolledIntoView(nextEl, this.choiceList.element, directionInt)) {
+                this.choiceList.scrollToChoice(nextEl, directionInt);
+              }
+
+              this._highlightChoice(nextEl);
+            } // Prevent default to maintain cursor position whilst
+            // traversing dropdown options
+
+
+            event.preventDefault();
+          }
+        };
+
+        _proto._onDeleteKey = function _onDeleteKey(_ref7) {
+          var event = _ref7.event,
+              target = _ref7.target,
+              hasFocusedInput = _ref7.hasFocusedInput,
+              activeItems = _ref7.activeItems; // If backspace or delete key is pressed and the input has no value
+
+          if (hasFocusedInput && !target.value && !this._isSelectOneElement) {
+            this._handleBackspace(activeItems);
+
+            event.preventDefault();
+          }
+        };
+
+        _proto._onTouchMove = function _onTouchMove() {
+          if (this._wasTap) {
+            this._wasTap = false;
+          }
+        };
+
+        _proto._onTouchEnd = function _onTouchEnd(event) {
+          var _ref8 = event || event.touches[0],
+              target = _ref8.target;
+
+          var touchWasWithinContainer = this._wasTap && this.containerOuter.element.contains(target);
+
+          if (touchWasWithinContainer) {
+            var containerWasExactTarget = target === this.containerOuter.element || target === this.containerInner.element;
+
+            if (containerWasExactTarget) {
+              if (this._isTextElement) {
+                this.input.focus();
+              } else if (this._isSelectMultipleElement) {
+                this.showDropdown();
+              }
+            } // Prevents focus event firing
+
+
+            event.stopPropagation();
+          }
+
+          this._wasTap = true;
+        };
+
+        _proto._onMouseDown = function _onMouseDown(event) {
+          var target = event.target,
+              shiftKey = event.shiftKey; // If we have our mouse down on the scrollbar and are on IE11...
+
+          if (this.choiceList.element.contains(target) && isIE11()) {
+            this._isScrollingOnIe = true;
+          }
+
+          if (!this.containerOuter.element.contains(target) || target === this.input.element) {
+            return;
+          }
+
+          var activeItems = this._store.activeItems;
+          var hasShiftKey = shiftKey;
+          var buttonTarget = findAncestorByAttrName(target, 'data-button');
+          var itemTarget = findAncestorByAttrName(target, 'data-item');
+          var choiceTarget = findAncestorByAttrName(target, 'data-choice');
+
+          if (buttonTarget) {
+            this._handleButtonAction(activeItems, buttonTarget);
+          } else if (itemTarget) {
+            this._handleItemAction(activeItems, itemTarget, hasShiftKey);
+          } else if (choiceTarget) {
+            this._handleChoiceAction(activeItems, choiceTarget);
+          }
+
+          event.preventDefault();
+        };
+
+        _proto._onMouseOver = function _onMouseOver(_ref9) {
+          var target = _ref9.target;
+          var targetWithinDropdown = target === this.dropdown || this.dropdown.element.contains(target);
+          var shouldHighlightChoice = targetWithinDropdown && target.hasAttribute('data-choice');
+
+          if (shouldHighlightChoice) {
+            this._highlightChoice(target);
+          }
+        };
+
+        _proto._onClick = function _onClick(_ref10) {
+          var target = _ref10.target;
+          var clickWasWithinContainer = this.containerOuter.element.contains(target);
+
+          if (clickWasWithinContainer) {
+            if (!this.dropdown.isActive && !this.containerOuter.isDisabled) {
+              if (this._isTextElement) {
+                if (document.activeElement !== this.input.element) {
+                  this.input.focus();
+                }
+              } else {
+                this.showDropdown();
+                this.containerOuter.focus();
+              }
+            } else if (this._isSelectOneElement && target !== this.input.element && !this.dropdown.element.contains(target)) {
+              this.hideDropdown();
+            }
+          } else {
+            var hasHighlightedItems = this._store.highlightedActiveItems.length > 0;
+
+            if (hasHighlightedItems) {
+              this.unhighlightAll();
+            }
+
+            this.containerOuter.removeFocusState();
+            this.hideDropdown(true);
+          }
+        };
+
+        _proto._onFocus = function _onFocus(_ref11) {
+          var _this19 = this;
+
+          var target = _ref11.target;
+          var focusWasWithinContainer = this.containerOuter.element.contains(target);
+
+          if (!focusWasWithinContainer) {
+            return;
+          }
+
+          var focusActions = {
+            text: function text() {
+              if (target === _this19.input.element) {
+                _this19.containerOuter.addFocusState();
+              }
+            },
+            'select-one': function selectOne() {
+              _this19.containerOuter.addFocusState();
+
+              if (target === _this19.input.element) {
+                _this19.showDropdown(true);
+              }
+            },
+            'select-multiple': function selectMultiple() {
+              if (target === _this19.input.element) {
+                _this19.showDropdown(true); // If element is a select box, the focused element is the container and the dropdown
+                // isn't already open, focus and show dropdown
+
+
+                _this19.containerOuter.addFocusState();
+              }
+            }
+          };
+          focusActions[this.passedElement.element.type]();
+        };
+
+        _proto._onBlur = function _onBlur(_ref12) {
+          var _this20 = this;
+
+          var target = _ref12.target;
+          var blurWasWithinContainer = this.containerOuter.element.contains(target);
+
+          if (blurWasWithinContainer && !this._isScrollingOnIe) {
+            var activeItems = this._store.activeItems;
+            var hasHighlightedItems = activeItems.some(function (item) {
+              return item.highlighted;
+            });
+            var blurActions = {
+              text: function text() {
+                if (target === _this20.input.element) {
+                  _this20.containerOuter.removeFocusState();
+
+                  if (hasHighlightedItems) {
+                    _this20.unhighlightAll();
+                  }
+
+                  _this20.hideDropdown(true);
+                }
+              },
+              'select-one': function selectOne() {
+                _this20.containerOuter.removeFocusState();
+
+                if (target === _this20.input.element || target === _this20.containerOuter.element && !_this20._canSearch) {
+                  _this20.hideDropdown(true);
+                }
+              },
+              'select-multiple': function selectMultiple() {
+                if (target === _this20.input.element) {
+                  _this20.containerOuter.removeFocusState();
+
+                  _this20.hideDropdown(true);
+
+                  if (hasHighlightedItems) {
+                    _this20.unhighlightAll();
+                  }
+                }
+              }
+            };
+            blurActions[this.passedElement.element.type]();
+          } else {
+            // On IE11, clicking the scollbar blurs our input and thus
+            // closes the dropdown. To stop this, we refocus our input
+            // if we know we are on IE *and* are scrolling.
+            this._isScrollingOnIe = false;
+            this.input.element.focus();
+          }
+        };
+
+        _proto._onFormReset = function _onFormReset() {
+          this._store.dispatch(resetTo(this._initialState));
+        };
+
+        _proto._highlightChoice = function _highlightChoice(el) {
+          var _this21 = this;
+
+          if (el === void 0) {
+            el = null;
+          }
+
+          var choices = Array.from(this.dropdown.element.querySelectorAll('[data-choice-selectable]'));
+
+          if (!choices.length) {
+            return;
+          }
+
+          var passedEl = el;
+          var highlightedChoices = Array.from(this.dropdown.element.querySelectorAll("." + this.config.classNames.highlightedState)); // Remove any highlighted choices
+
+          highlightedChoices.forEach(function (choice) {
+            choice.classList.remove(_this21.config.classNames.highlightedState);
+            choice.setAttribute('aria-selected', 'false');
+          });
+
+          if (passedEl) {
+            this._highlightPosition = choices.indexOf(passedEl);
+          } else {
+            // Highlight choice based on last known highlight location
+            if (choices.length > this._highlightPosition) {
+              // If we have an option to highlight
+              passedEl = choices[this._highlightPosition];
+            } else {
+              // Otherwise highlight the option before
+              passedEl = choices[choices.length - 1];
+            }
+
+            if (!passedEl) {
+              passedEl = choices[0];
+            }
+          }
+
+          passedEl.classList.add(this.config.classNames.highlightedState);
+          passedEl.setAttribute('aria-selected', 'true');
+          this.passedElement.triggerEvent(EVENTS.highlightChoice, {
+            el: passedEl
+          });
+
+          if (this.dropdown.isActive) {
+            // IE11 ignores aria-label and blocks virtual keyboard
+            // if aria-activedescendant is set without a dropdown
+            this.input.setActiveDescendant(passedEl.id);
+            this.containerOuter.setActiveDescendant(passedEl.id);
+          }
+        };
+
+        _proto._addItem = function _addItem(_ref13) {
+          var value = _ref13.value,
+              _ref13$label = _ref13.label,
+              label = _ref13$label === void 0 ? null : _ref13$label,
+              _ref13$choiceId = _ref13.choiceId,
+              choiceId = _ref13$choiceId === void 0 ? -1 : _ref13$choiceId,
+              _ref13$groupId = _ref13.groupId,
+              groupId = _ref13$groupId === void 0 ? -1 : _ref13$groupId,
+              _ref13$customProperti = _ref13.customProperties,
+              customProperties = _ref13$customProperti === void 0 ? null : _ref13$customProperti,
+              _ref13$placeholder = _ref13.placeholder,
+              placeholder = _ref13$placeholder === void 0 ? false : _ref13$placeholder,
+              _ref13$keyCode = _ref13.keyCode,
+              keyCode = _ref13$keyCode === void 0 ? null : _ref13$keyCode;
+          var passedValue = isType('String', value) ? value.trim() : value;
+          var passedKeyCode = keyCode;
+          var passedCustomProperties = customProperties;
+          var items = this._store.items;
+          var passedLabel = label || passedValue;
+          var passedOptionId = parseInt(choiceId, 10) || -1;
+          var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
+          var id = items ? items.length + 1 : 1; // If a prepended value has been passed, prepend it
+
+          if (this.config.prependValue) {
+            passedValue = this.config.prependValue + passedValue.toString();
+          } // If an appended value has been passed, append it
+
+
+          if (this.config.appendValue) {
+            passedValue += this.config.appendValue.toString();
+          }
+
+          this._store.dispatch(items_addItem({
+            value: passedValue,
+            label: passedLabel,
+            id: id,
+            choiceId: passedOptionId,
+            groupId: groupId,
+            customProperties: customProperties,
+            placeholder: placeholder,
+            keyCode: passedKeyCode
+          }));
+
+          if (this._isSelectOneElement) {
+            this.removeActiveItems(id);
+          } // Trigger change event
+
+
+          this.passedElement.triggerEvent(EVENTS.addItem, {
+            id: id,
+            value: passedValue,
+            label: passedLabel,
+            customProperties: passedCustomProperties,
+            groupValue: group && group.value ? group.value : undefined,
+            keyCode: passedKeyCode
+          });
+          return this;
+        };
+
+        _proto._removeItem = function _removeItem(item) {
+          if (!item || !isType('Object', item)) {
+            return this;
+          }
+
+          var id = item.id,
+              value = item.value,
+              label = item.label,
+              choiceId = item.choiceId,
+              groupId = item.groupId;
+          var group = groupId >= 0 ? this._store.getGroupById(groupId) : null;
+
+          this._store.dispatch(items_removeItem(id, choiceId));
+
+          if (group && group.value) {
+            this.passedElement.triggerEvent(EVENTS.removeItem, {
+              id: id,
+              value: value,
+              label: label,
+              groupValue: group.value
+            });
+          } else {
+            this.passedElement.triggerEvent(EVENTS.removeItem, {
+              id: id,
+              value: value,
+              label: label
+            });
+          }
+
+          return this;
+        };
+
+        _proto._addChoice = function _addChoice(_ref14) {
+          var value = _ref14.value,
+              _ref14$label = _ref14.label,
+              label = _ref14$label === void 0 ? null : _ref14$label,
+              _ref14$isSelected = _ref14.isSelected,
+              isSelected = _ref14$isSelected === void 0 ? false : _ref14$isSelected,
+              _ref14$isDisabled = _ref14.isDisabled,
+              isDisabled = _ref14$isDisabled === void 0 ? false : _ref14$isDisabled,
+              _ref14$groupId = _ref14.groupId,
+              groupId = _ref14$groupId === void 0 ? -1 : _ref14$groupId,
+              _ref14$customProperti = _ref14.customProperties,
+              customProperties = _ref14$customProperti === void 0 ? null : _ref14$customProperti,
+              _ref14$placeholder = _ref14.placeholder,
+              placeholder = _ref14$placeholder === void 0 ? false : _ref14$placeholder,
+              _ref14$keyCode = _ref14.keyCode,
+              keyCode = _ref14$keyCode === void 0 ? null : _ref14$keyCode;
+
+          if (typeof value === 'undefined' || value === null) {
+            return;
+          } // Generate unique id
+
+
+          var choices = this._store.choices;
+          var choiceLabel = label || value;
+          var choiceId = choices ? choices.length + 1 : 1;
+          var choiceElementId = this._baseId + "-" + this._idNames.itemChoice + "-" + choiceId;
+
+          this._store.dispatch(choices_addChoice({
+            value: value,
+            label: choiceLabel,
+            id: choiceId,
+            groupId: groupId,
+            disabled: isDisabled,
+            elementId: choiceElementId,
+            customProperties: customProperties,
+            placeholder: placeholder,
+            keyCode: keyCode
+          }));
+
+          if (isSelected) {
+            this._addItem({
+              value: value,
+              label: choiceLabel,
+              choiceId: choiceId,
+              customProperties: customProperties,
+              placeholder: placeholder,
+              keyCode: keyCode
+            });
+          }
+        };
+
+        _proto._addGroup = function _addGroup(_ref15) {
+          var _this22 = this;
+
+          var group = _ref15.group,
+              id = _ref15.id,
+              _ref15$valueKey = _ref15.valueKey,
+              valueKey = _ref15$valueKey === void 0 ? 'value' : _ref15$valueKey,
+              _ref15$labelKey = _ref15.labelKey,
+              labelKey = _ref15$labelKey === void 0 ? 'label' : _ref15$labelKey;
+          var groupChoices = isType('Object', group) ? group.choices : Array.from(group.getElementsByTagName('OPTION'));
+          var groupId = id || Math.floor(new Date().valueOf() * Math.random());
+          var isDisabled = group.disabled ? group.disabled : false;
+
+          if (groupChoices) {
+            this._store.dispatch(groups_addGroup(group.label, groupId, true, isDisabled));
+
+            var addGroupChoices = function addGroupChoices(choice) {
+              var isOptDisabled = choice.disabled || choice.parentNode && choice.parentNode.disabled;
+
+              _this22._addChoice({
+                value: choice[valueKey],
+                label: isType('Object', choice) ? choice[labelKey] : choice.innerHTML,
+                isSelected: choice.selected,
+                isDisabled: isOptDisabled,
+                groupId: groupId,
+                customProperties: choice.customProperties,
+                placeholder: choice.placeholder
+              });
+            };
+
+            groupChoices.forEach(addGroupChoices);
+          } else {
+            this._store.dispatch(groups_addGroup(group.label, group.id, false, group.disabled));
+          }
+        };
+
+        _proto._getTemplate = function _getTemplate(template) {
+          var _templates$template;
+
+          if (!template) {
+            return null;
+          }
+
+          var _this$config4 = this.config,
+              templates = _this$config4.templates,
+              classNames = _this$config4.classNames;
+
+          for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+            args[_key - 1] = arguments[_key];
+          }
+
+          return (_templates$template = templates[template]).call.apply(_templates$template, [this, classNames].concat(args));
+        };
+
+        _proto._createTemplates = function _createTemplates() {
+          var callbackOnCreateTemplates = this.config.callbackOnCreateTemplates;
+          var userTemplates = {};
+
+          if (callbackOnCreateTemplates && isType('Function', callbackOnCreateTemplates)) {
+            userTemplates = callbackOnCreateTemplates.call(this, strToEl);
+          }
+
+          this.config.templates = cjs_default()(TEMPLATES, userTemplates);
+        };
+
+        _proto._createElements = function _createElements() {
+          this.containerOuter = new container_Container({
+            element: this._getTemplate('containerOuter', this._direction, this._isSelectElement, this._isSelectOneElement, this.config.searchEnabled, this.passedElement.element.type),
+            classNames: this.config.classNames,
+            type: this.passedElement.element.type,
+            position: this.config.position
+          });
+          this.containerInner = new container_Container({
+            element: this._getTemplate('containerInner'),
+            classNames: this.config.classNames,
+            type: this.passedElement.element.type,
+            position: this.config.position
+          });
+          this.input = new input_Input({
+            element: this._getTemplate('input', this._placeholderValue),
+            classNames: this.config.classNames,
+            type: this.passedElement.element.type
+          });
+          this.choiceList = new list_List({
+            element: this._getTemplate('choiceList', this._isSelectOneElement)
+          });
+          this.itemList = new list_List({
+            element: this._getTemplate('itemList', this._isSelectOneElement)
+          });
+          this.dropdown = new Dropdown({
+            element: this._getTemplate('dropdown'),
+            classNames: this.config.classNames,
+            type: this.passedElement.element.type
+          });
+        };
+
+        _proto._createStructure = function _createStructure() {
+          // Hide original element
+          this.passedElement.conceal(); // Wrap input in container preserving DOM ordering
+
+          this.containerInner.wrap(this.passedElement.element); // Wrapper inner container with outer container
+
+          this.containerOuter.wrap(this.containerInner.element);
+
+          if (this._isSelectOneElement) {
+            this.input.placeholder = this.config.searchPlaceholderValue || '';
+          } else if (this._placeholderValue) {
+            this.input.placeholder = this._placeholderValue;
+            this.input.setWidth(true);
+          }
+
+          this.containerOuter.element.appendChild(this.containerInner.element);
+          this.containerOuter.element.appendChild(this.dropdown.element);
+          this.containerInner.element.appendChild(this.itemList.element);
+
+          if (!this._isTextElement) {
+            this.dropdown.element.appendChild(this.choiceList.element);
+          }
+
+          if (!this._isSelectOneElement) {
+            this.containerInner.element.appendChild(this.input.element);
+          } else if (this.config.searchEnabled) {
+            this.dropdown.element.insertBefore(this.input.element, this.dropdown.element.firstChild);
+          }
+
+          if (this._isSelectElement) {
+            this._addPredefinedChoices();
+          } else if (this._isTextElement) {
+            this._addPredefinedItems();
+          }
+        };
+
+        _proto._addPredefinedChoices = function _addPredefinedChoices() {
+          var _this23 = this;
+
+          var passedGroups = this.passedElement.optionGroups;
+          this._highlightPosition = 0;
+          this._isSearching = false;
+
+          this._setLoading(true);
+
+          if (passedGroups && passedGroups.length) {
+            // If we have a placeholder option
+            var placeholderChoice = this.passedElement.placeholderOption;
+
+            if (placeholderChoice && placeholderChoice.parentNode.tagName === 'SELECT') {
+              this._addChoice({
+                value: placeholderChoice.value,
+                label: placeholderChoice.innerHTML,
+                isSelected: placeholderChoice.selected,
+                isDisabled: placeholderChoice.disabled,
+                placeholder: true
+              });
+            }
+
+            passedGroups.forEach(function (group) {
+              return _this23._addGroup({
+                group: group,
+                id: group.id || null
+              });
+            });
+          } else {
+            var passedOptions = this.passedElement.options;
+            var filter = this.config.sortFn;
+            var allChoices = this._presetChoices; // Create array of options from option elements
+
+            passedOptions.forEach(function (o) {
+              allChoices.push({
+                value: o.value,
+                label: o.innerHTML,
+                selected: o.selected,
+                disabled: o.disabled || o.parentNode.disabled,
+                placeholder: o.hasAttribute('placeholder'),
+                customProperties: o.getAttribute('data-custom-properties')
+              });
+            }); // If sorting is enabled or the user is searching, filter choices
+
+            if (this.config.shouldSort) allChoices.sort(filter); // Determine whether there is a selected choice
+
+            var hasSelectedChoice = allChoices.some(function (choice) {
+              return choice.selected;
+            });
+
+            var handleChoice = function handleChoice(choice, index) {
+              var value = choice.value,
+                  label = choice.label,
+                  customProperties = choice.customProperties,
+                  placeholder = choice.placeholder;
+
+              if (_this23._isSelectElement) {
+                // If the choice is actually a group
+                if (choice.choices) {
+                  _this23._addGroup({
+                    group: choice,
+                    id: choice.id || null
+                  });
+                } else {
+                  // If there is a selected choice already or the choice is not
+                  // the first in the array, add each choice normally
+                  // Otherwise pre-select the first choice in the array if it's a single select
+                  var shouldPreselect = _this23._isSelectOneElement && !hasSelectedChoice && index === 0;
+                  var isSelected = shouldPreselect ? true : choice.selected;
+                  var isDisabled = shouldPreselect ? false : choice.disabled;
+
+                  _this23._addChoice({
+                    value: value,
+                    label: label,
+                    isSelected: isSelected,
+                    isDisabled: isDisabled,
+                    customProperties: customProperties,
+                    placeholder: placeholder
+                  });
+                }
+              } else {
+                _this23._addChoice({
+                  value: value,
+                  label: label,
+                  isSelected: choice.selected,
+                  isDisabled: choice.disabled,
+                  customProperties: customProperties,
+                  placeholder: placeholder
+                });
+              }
+            }; // Add each choice
+
+
+            allChoices.forEach(function (choice, index) {
+              return handleChoice(choice, index);
+            });
+          }
+
+          this._setLoading(false);
+        };
+
+        _proto._addPredefinedItems = function _addPredefinedItems() {
+          var _this24 = this;
+
+          var handlePresetItem = function handlePresetItem(item) {
+            var itemType = getType(item);
+
+            if (itemType === 'Object' && item.value) {
+              _this24._addItem({
+                value: item.value,
+                label: item.label,
+                choiceId: item.id,
+                customProperties: item.customProperties,
+                placeholder: item.placeholder
+              });
+            } else if (itemType === 'String') {
+              _this24._addItem({
+                value: item
+              });
+            }
+          };
+
+          this._presetItems.forEach(function (item) {
+            return handlePresetItem(item);
+          });
+        };
+
+        _proto._setChoiceOrItem = function _setChoiceOrItem(item) {
+          var _this25 = this;
+
+          var itemType = getType(item).toLowerCase();
+          var handleType = {
+            object: function object() {
+              if (!item.value) {
+                return;
+              } // If we are dealing with a select input, we need to create an option first
+              // that is then selected. For text inputs we can just add items normally.
+
+
+              if (!_this25._isTextElement) {
+                _this25._addChoice({
+                  value: item.value,
+                  label: item.label,
+                  isSelected: true,
+                  isDisabled: false,
+                  customProperties: item.customProperties,
+                  placeholder: item.placeholder
+                });
+              } else {
+                _this25._addItem({
+                  value: item.value,
+                  label: item.label,
+                  choiceId: item.id,
+                  customProperties: item.customProperties,
+                  placeholder: item.placeholder
+                });
+              }
+            },
+            string: function string() {
+              if (!_this25._isTextElement) {
+                _this25._addChoice({
+                  value: item,
+                  label: item,
+                  isSelected: true,
+                  isDisabled: false
+                });
+              } else {
+                _this25._addItem({
+                  value: item
+                });
+              }
+            }
+          };
+          handleType[itemType]();
+        };
+
+        _proto._findAndSelectChoiceByValue = function _findAndSelectChoiceByValue(val) {
+          var _this26 = this;
+
+          var choices = this._store.choices; // Check 'value' property exists and the choice isn't already selected
+
+          var foundChoice = choices.find(function (choice) {
+            return _this26.config.itemComparer(choice.value, val);
+          });
+
+          if (foundChoice && !foundChoice.selected) {
+            this._addItem({
+              value: foundChoice.value,
+              label: foundChoice.label,
+              choiceId: foundChoice.id,
+              groupId: foundChoice.groupId,
+              customProperties: foundChoice.customProperties,
+              placeholder: foundChoice.placeholder,
+              keyCode: foundChoice.keyCode
+            });
+          }
+        };
+
+        _proto._generateInstances = function _generateInstances(elements, config) {
+          return elements.reduce(function (instances, element) {
+            instances.push(new Choices(element, config));
+            return instances;
+          }, [this]);
+        };
+
+        _proto._generatePlaceholderValue = function _generatePlaceholderValue() {
+          if (this._isSelectOneElement) {
+            return false;
+          }
+
+          return this.config.placeholder ? this.config.placeholderValue || this.passedElement.element.getAttribute('placeholder') : false;
+        }
+        /* =====  End of Private functions  ====== */
+        ;
+
+        return Choices;
+      }();
+
+      choices_Choices.userDefaults = {};
+      /* harmony default export */
+
+      var scripts_choices = __webpack_exports__["default"] = choices_Choices;
       /***/
-    }])
+    }
+    /******/
+    ])["default"]
   );
 });
 //# sourceMappingURL=pwtimage.js.map

@@ -11,14 +11,12 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-require_once(DISCUSS_ROOT . '/views/views.php');
-
 class EasyDiscussViewDashboard extends EasyDiscussView
 {
 	/**
-	 * Displays Holiday management page
+	 * Displays dashboard for admins and moderators
 	 *
-	 * @since	4.0
+	 * @since	5.0.0
 	 * @access	public
 	 */
 	public function display($tmpl = null)
@@ -28,23 +26,30 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 		// Set the meta for the page
 		ED::setMeta();
 
-		$user =	ED::post();
+		$user =	ED::profile();
 
 		if (!$user->canAccessDashboard()) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect(EDR::_('view=index', false));
+			return ED::redirect(EDR::_('view=index', false));
 		}
 
-		$model = ED::model('holidays');
-		$holidays = $model->getHolidays();
+		$holidays = [];
 
-		$posts = false;
+		if ($this->config->get('main_work_schedule') && $this->acl->allowed('manage_holiday')) {
+			$holidaysModel = ED::model('holidays');
+			$holidays = $holidaysModel->getHolidays();
+		}
+
+		$posts = [];
 
 		// Only retrieve pending post when site admin viewing the dashboard
 		if (ED::isSiteAdmin() || $this->acl->allowed('manage_pending')) { 
-			// Get pending posts
 			$model = ED::model("Threaded");
-			$options = array('stateKey' => 'pending', 'pending' => true);
+			$options = [
+				'stateKey' => 'pending',
+				'pending' => true
+			];
+
 			$result = $model->getPosts($options);
 			$pagination = $model->getPagination();
 			$posts = array();
@@ -62,9 +67,10 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 			}
 		}
 
-		$this->set('pendingPosts', $posts);		
+		$this->set('posts', $posts);
 		$this->set('holidays', $holidays);
-		parent::display('dashboard/default');
+		
+		return parent::display('dashboard/default');
 	}
 
 	/**
@@ -73,13 +79,13 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 	 * @since	4.0
 	 * @access	public
 	 */
-	public function form($tmpl = null)
+	public function holidayForm($tmpl = null)
 	{
 		ED::setPageTitle(JText::_('COM_EASYDISCUSS_EDIT_HOLIDAYS_TITLE'));
 
 		if (!$this->acl->allowed('manage_holiday')) {
 			ED::setMessage(JText::_('COM_EASYDISCUSS_YOU_ARE_NOT_ALLOWED_HERE'), 'error');
-			return $this->app->redirect('index.php?option=com_easydiscuss');
+			return ED::redirect('index.php?option=com_easydiscuss');
 		}
 
 		$id = $this->input->get('id', '');
@@ -93,52 +99,6 @@ class EasyDiscussViewDashboard extends EasyDiscussView
 
 		$this->set('holiday', $holiday);
 
-		parent::display('dashboard/form');
-	}
-
-	/**
-	 * Redirect the reply to the frontend
-	 *
-	 * @since	4.0
-	 * @access	public
-	 */
-	public function redirectPost()
-	{
-		$id = $this->input->get('id', 0, 'int');
-		$post = ED::post($id);	
-
-		// If this report someone reported from the question then we can just redirect to that question page without go through any process
-		if ($post->isQuestion()) {
-			$url = 'index.php?option=com_easydiscuss&view=post&id=' . $post->id;
-			$redirection = EDR::getRoutedURL($url, false, true);
-			return $this->app->redirect($redirection);
-		}
-
-		$config = ED::config();
-
-		$hasEnabledReplyPagination = $config->get('layout_replies_pagination');
-		$replyPaginationLimit = $config->get('layout_replies_list_limit');
-
-		// Redirect to the reply directly if the site doesn't enable to show reply pagination
-		if (!$hasEnabledReplyPagination) {
-			$redirection = EDR::_('view=post&id=' . $post->parent_id, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
-			return $this->app->redirect($redirection);
-		}
-
-		// Retrieve a list of reply use to determine that where is this reply position on the page
-		$results = $post->getReplyPosition(true);
-
-		// Process this if the reply located at the first page
-		if ($results < $replyPaginationLimit) {
-			$redirection = EDR::_('view=post&id=' . $post->parent_id, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
-			return $this->app->redirect($redirection);
-		}
-
-		$replyPositionNum = (int) ($results / $replyPaginationLimit);
-		$limitstart = $replyPositionNum * $replyPaginationLimit;
-
-		$redirection = EDR::_('view=post&id=' . $post->parent_id . '&limitstart=' . $limitstart, false) . '#' . JText::_('COM_EASYDISCUSS_REPLY_PERMALINK') . '-' . $post->id;
-
-		return $this->app->redirect($redirection);		
+		parent::display('dashboard/holidays/form');
 	}	
 }

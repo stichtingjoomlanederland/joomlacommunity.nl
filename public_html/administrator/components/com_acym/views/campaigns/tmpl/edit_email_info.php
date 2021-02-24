@@ -1,12 +1,10 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="cell large-6">
+<div class="cell large-6">
 	<label>
         <?php echo acym_translation('ACYM_CAMPAIGN_NAME'); ?>
 		<input name="mail[name]" type="text" value="<?php echo acym_escape($data['mailInformation']->name); ?>">
 	</label>
 </div>
-<div class="cell large-6 margin-bottom-1">
+<div class="cell large-6">
 	<label>
         <?php
         echo acym_translation('ACYM_TAGS');
@@ -29,5 +27,10 @@ defined('_JEXEC') or die('Restricted access');
 if (empty($data['multilingual'])) {
     $preheaderSize = 'large-6';
     include acym_getView('campaigns', 'edit_email_info_content');
-}
+} ?>
 
+<div class="cell grid-x">
+    <?php
+    echo acym_switch('visible', $data['mailInformation']->visible, acym_translation('ACYM_VISIBLE').acym_info('ACYM_VISIBLE_CAMPAIGN_DESC'), [], 'shrink')
+    ?>
+</div>

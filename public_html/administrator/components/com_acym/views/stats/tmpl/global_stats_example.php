@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="cell grid-x acym__stats__empty acym__content">
+<div class="cell grid-x acym__stats__empty acym__content">
 	<input type="hidden" name="time_linechart" id="acym__time__linechart__input">
 	<h2 class="acym__listing__empty__title text-center cell">
         <?php echo acym_translation('ACYM_DONT_HAVE_STATS_CAMPAIGN'); ?>

@@ -249,8 +249,6 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string	The relative path to the file
-	 * @return
 	 */
 	public function download($targetFile, $relativePath)
 	{
@@ -271,8 +269,6 @@ class EasyDiscussStorageAmazon implements EasyDiscussStorageInterface
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function delete($path)
 	{

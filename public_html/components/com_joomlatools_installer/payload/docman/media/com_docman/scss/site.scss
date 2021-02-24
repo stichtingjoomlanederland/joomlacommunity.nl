@@ -1,0 +1,45 @@
+// Core variables and mixins without output available outside .k-ui-namespace scope
+@import "../../../../../kodekit-ui/src/scss/sass-twitter-bootstrap/variables";
+@import "../../../../../kodekit-ui/src/scss/sass-twitter-bootstrap/mixins";
+
+// Custom variables and mixins
+@import "generic/variables";
+@import "generic/mixins";
+
+// Import koowa
+@import "../../../../../kodekit-ui/src/scss/site";
+
+// Photoswipe
+@import "photoswipe/main";
+@import "photoswipe/default-skin/default-skin";
+
+// Namespacing with Koowa
+.k-ui-namespace {
+
+  // Generic
+  @import "generic/dropdowngrid";
+  @import "generic/iconpicker";
+  @import "generic/oldie";
+  @import "generic/select2";
+  @import "generic/textarea";
+  @import "generic/tooltip";
+  @import "generic/validator";
+
+  // Front
+  @import "site/block";
+  @import "site/categories";
+  @import "site/document";
+  @import "site/download";
+  @import "site/filters";
+  @import "site/gallery";
+  @import "site/labels";
+  @import "site/pane_toggler";
+  @import "site/sidebar";
+  @import "site/thumbnail";
+  @import "site/tree";
+  @import "site/utilities";
+
+  // Shame
+  @import "generic/shame";
+
+}

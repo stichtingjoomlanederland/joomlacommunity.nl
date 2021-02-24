@@ -1,6 +1,4 @@
-<?php
-defined('_JEXEC') or die('Restricted access');
-?><div class="cell medium-6">
+<div class="cell medium-6">
 	<label>
         <?php echo acym_translation('ACYM_NAME'); ?>
 		<input name="mail[name]" type="text" class="acy_required_field" value="<?php echo acym_escape($data['mail']->name); ?>" required>

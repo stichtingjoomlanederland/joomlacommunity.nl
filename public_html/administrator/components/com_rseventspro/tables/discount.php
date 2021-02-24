@@ -43,6 +43,7 @@ class RseventsproTableDiscount extends JTable
 		if (empty($this->same_tickets)) $this->same_tickets = 0;
 		if (empty($this->different_tickets)) $this->different_tickets = 0;
 		if (empty($this->totalvalue)) $this->totalvalue = 0;
+		if (empty($this->cart_tickets)) $this->cart_tickets = 0;
 		
 		if (!empty($this->from) && $this->from != $db->getNullDate()) {
 			$this->from = JFactory::getDate($this->from, $tzoffset)->toSql();

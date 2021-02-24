@@ -12,8 +12,8 @@
                default="1"
                class="btn-group btn-group-yesno"
                labelclass="config">
-            <option value="1">JYES</option>
             <option value="0">JNO</option>
+            <option value="1">JYES</option>
         </field>
 
         <field name="storeName"
@@ -38,7 +38,7 @@
                description="COM_ROPAYMENTS_WAIT_TIME_DESC"
                required="true"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="payment"
@@ -49,7 +49,7 @@
                default="all"
                multiple="false"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="all">COM_ROPAYMENTS_ALL</option>
             <option value="M">COM_JDIDEALGATWAY_PAYMENT_METHOD_MASTERCARD</option>
@@ -73,7 +73,7 @@
                default="Europe/Amsterdam"
                multiple="false"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="Africa/Johannesburg">COM_ROPAYMENTS_TIMEZONE_JOHANNESBURG</option>
             <option value="America/New_York">COM_ROPAYMENTS_TIMEZONE_NEWYORK</option>
@@ -95,7 +95,7 @@
                default="978"
                multiple="false"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="AUD">COM_ROPAYMENTS_CURRENCY_AUD</option>
             <option value="BRL">COM_ROPAYMENTS_CURRENCY_BRL</option>
@@ -139,7 +139,7 @@
                default=""
                multiple="false"
                size="1"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config">
             <option value="">COM_ROPAYMENTS_BROWSER</option>
             <option value="zh_CN">COM_ROPAYMENTS_LANG_CHINESE_CN</option>
@@ -165,7 +165,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="verifiedStatus"
@@ -175,7 +175,7 @@
                required="false"
                size="1"
                default="C"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="cancelledStatus"
@@ -185,7 +185,7 @@
                required="false"
                size="1"
                default="X"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="openStatus"
@@ -195,7 +195,7 @@
                required="false"
                size="1"
                default="P"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="ordernumber-spacer" type="spacer" label="COM_ROPAYMENTS_SPACER_ORDERNUMBERS"/>
@@ -207,7 +207,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
 
         <field name="orderNumber"
@@ -217,7 +217,7 @@
                required="false"
                size="1"
                default="order_number"
-               class="advancedSelect"
+               class="advancedSelect custom-select"
                labelclass="config"/>
     </fieldset>
 </form>

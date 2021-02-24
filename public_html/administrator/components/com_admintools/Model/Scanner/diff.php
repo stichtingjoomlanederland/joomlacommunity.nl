@@ -1,7 +1,7 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
@@ -52,7 +52,7 @@ namespace Akeeba\AdminTools\Admin\Model\Scanner;
  */
 
 // Protect from unauthorized access
-defined('_JEXEC') or die();
+defined('_JEXEC') || die();
 
 class Diff
 {
@@ -472,8 +472,8 @@ class Diff_SequenceMatcher
 			return $this->matchingBlocks;
 		}
 
-		$aLength = count($this->a);
-		$bLength = count($this->b);
+		$aLength = is_array($this->a) || $this->a instanceof \Countable ? count($this->a) : 0;
+		$bLength = is_array($this->b) || $this->b instanceof \Countable ? count($this->b) : 0;
 
 		$queue = [
 			[
@@ -755,7 +755,7 @@ class Diff_SequenceMatcher
 	{
 		$matches = array_reduce($this->getMatchingBlocks(), [$this, 'ratioReduce'], 0);
 
-		return $this->calculateRatio($matches, count($this->a) + count($this->b));
+		return $this->calculateRatio($matches, (is_array($this->a) || $this->a instanceof \Countable ? count($this->a) : 0) + (is_array($this->b) || $this->b instanceof \Countable ? count($this->b) : 0));
 	}
 
 	/**
@@ -764,7 +764,7 @@ class Diff_SequenceMatcher
 	 */
 	private function chainB()
 	{
-		$length      = count($this->b);
+		$length      = is_array($this->b) || $this->b instanceof \Countable ? count($this->b) : 0;
 		$this->b2j   = [];
 		$popularDict = [];
 
@@ -847,63 +847,6 @@ class Diff_SequenceMatcher
 	private function ratioReduce($sum, $triple)
 	{
 		return $sum + ($triple[count($triple) - 1]);
-	}
-
-	/**
-	 * Quickly return an upper bound ratio for the similarity of the strings.
-	 * This is quicker to compute than Ratio().
-	 *
-	 * @return float The calculated ratio.
-	 */
-	private function quickRatio()
-	{
-		if ($this->fullBCount === null)
-		{
-			$this->fullBCount = [];
-			$bLength          = count($b);
-			for ($i = 0; $i < $bLength; ++$i)
-			{
-				$char                    = $this->b[$i];
-				$this->fullBCount[$char] = $this->arrayGetDefault($this->fullBCount, $char, 0) + 1;
-			}
-		}
-
-		$avail   = [];
-		$matches = 0;
-		$aLength = count($this->a);
-		for ($i = 0; $i < $aLength; ++$i)
-		{
-			$char = $this->a[$i];
-			if (isset($avail[$char]))
-			{
-				$numb = $avail[$char];
-			}
-			else
-			{
-				$numb = $this->arrayGetDefault($this->fullBCount, $char, 0);
-			}
-			$avail[$char] = $numb - 1;
-			if ($numb > 0)
-			{
-				++$matches;
-			}
-		}
-
-		$this->calculateRatio($matches, count($this->a) + count($this->b));
-	}
-
-	/**
-	 * Return an upper bound ratio really quickly for the similarity of the strings.
-	 * This is quicker to compute than Ratio() and quickRatio().
-	 *
-	 * @return float The calculated ratio.
-	 */
-	private function realquickRatio()
-	{
-		$aLength = count($this->a);
-		$bLength = count($this->b);
-
-		return $this->calculateRatio(min($aLength, $bLength), $aLength + $bLength);
 	}
 
 	/**
@@ -1048,7 +991,7 @@ class Diff_Renderer_Text_Unified extends Diff_Renderer_Abstract
 		$opCodes = $this->diff->getGroupedOpcodes();
 		foreach ($opCodes as $group)
 		{
-			$lastItem = count($group) - 1;
+			$lastItem = (is_array($group) || $group instanceof \Countable ? count($group) : 0) - 1;
 			$i1       = $group[0][1];
 			$i2       = $group[$lastItem][2];
 			$j1       = $group[0][3];

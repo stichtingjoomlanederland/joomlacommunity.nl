@@ -1,7 +1,8 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
-include ACYM_CONTROLLER.'dynamics.php';
+
+namespace AcyMailing\FrontControllers;
+
+use AcyMailing\Controllers\DynamicsController;
 
 class FrontdynamicsController extends DynamicsController
 {

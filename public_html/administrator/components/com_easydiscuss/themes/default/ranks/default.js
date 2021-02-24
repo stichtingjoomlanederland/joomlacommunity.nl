@@ -7,12 +7,6 @@ var COM_EASYDISCUSS_RANKING_ERR_END_CANNOT_SMALLER_THAN_START = '<?php echo JTex
 var COM_EASYDISCUSS_RANKING_ERR_CANNOT_HAVE_GAPS = '<?php echo JText::_('COM_EASYDISCUSS_RANKING_ERR_CANNOT_HAVE_GAPS'); ?>';
 var COM_EASYDISCUSS_RANKING_ERR_ALL_VALUE_IS_CORRECT = '<?php echo JText::_('COM_EASYDISCUSS_RANKING_ERR_ALL_VALUE_IS_CORRECT'); ?>';
 
-function showDescription( id )
-{
-	EasyDiscuss.$( '.rule-description' ).hide();
-	EasyDiscuss.$( '#rule-' + id ).show();
-}
-
 ed.require(['edq'], function($) {
 
 	$.Joomla( 'submitbutton' , function(action){
@@ -182,10 +176,10 @@ ed.require(['edq'], function($) {
 
 		var input = '<tr id="rank-' + itemCnt + '">';
 			input += '  <td>' + (items.length + 1) + '<input type="hidden" name="id[]" value="0" /></td>';
-			input += '  <td style="text-align: center;"><input data-title-text type="text" name="title[]" value="' + newtitle + '" class="input-full inputbox"/></td>';
-			input += '  <td style="text-align: center;"><input data-start-text style="text-align: center;" type="text" name="start[]" value="' + newStartValue + '" class="input-full inputbox"/></td>';
-			input += '  <td style="text-align: center;"><input data-end-text style="text-align: center;" type="text" name="end[]" value="" class="input-full inputbox"/></td>';
-			input += '  <td style="text-align: center;"><a href="javascript:void(0);" class="btn btn-danger" data-remove-button data-id="' + itemCnt + '">' + COM_EASYDISCUSS_RANKING_DELETE + '</a></td>';
+			input += '  <td class="center"><input data-title-text type="text" name="title[]" value="' + newtitle + '" class="o-form-control"/></td>';
+			input += '  <td class="center"><input data-start-text type="text" name="start[]" value="' + newStartValue + '" class="o-form-control text-center"/></td>';
+			input += '  <td class="center"><input data-end-text type="text" name="end[]" value="" class="o-form-control text-center"/></td>';
+			input += '  <td class="center"><a href="javascript:void(0);" class="o-btn o-btn--default-o t-text--danger" data-remove-button data-id="' + itemCnt + '"><i class="fa fa-times"></i></a></td>';
 			input += '</tr>';
 
 			$('#rank-list')

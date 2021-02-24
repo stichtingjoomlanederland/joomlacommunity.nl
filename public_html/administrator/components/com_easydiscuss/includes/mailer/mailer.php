@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -266,17 +266,15 @@ class EasyDiscussMailer extends EasyDiscuss
 			}
 
 			$catModel = ED::model('Category');
+			$category = ED::category($catId);
 
 			// retrieve a list of participant user id
 			foreach ($participants as $participant) {
-
 				$userId = (int) $participant->id;
 
-				// this will return a list of disallowed category id which this user id doesn't have permission to access post reply
-				$disallowed = $catModel->getDisallowedCategories($userId, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
+				$allowed = $category->getAccess($userId, DISCUSS_CATEGORY_ACL_ACTION_VIEWREPLY);
 
-				// assign to this excludes variable if those participant user doesn't have permission to access post reply
-				if (in_array($catId, $disallowed)) {
+				if (!$allowed) {
 					$excludes[] = $participant->email;
 				}
 			}
@@ -291,7 +289,7 @@ class EasyDiscussMailer extends EasyDiscuss
 
 	public static function notifyMention($emails, $data)
 	{
-		if (! $emails) {
+		if (!$emails) {
 			return;
 		}
 
@@ -303,20 +301,18 @@ class EasyDiscussMailer extends EasyDiscuss
 	}
 
 
-
 	/**
-	 * Notify all subscribers except admins and mods.
-	 * Store notification emails in mailqueue.
+	 * Notify all subscribers except admins and moderators
 	 *
-	 * @param	array	$data		data
-	 * @param	array	$except		extra emails to be excluded
+	 * @since	5.0.0
+	 * @access	public
 	 */
 	public static function notifyAllMembers($data, $excludes = array())
 	{
 		$db = ED::db();
-		$query	= 'SELECT DISTINCT(`email`) FROM ' . $db->nameQuote('#__users') . ' AS a';
-
 		$config = ED::config();
+
+		$query	= 'SELECT DISTINCT(`email`) FROM ' . $db->nameQuote('#__users') . ' AS a';
 
 		if (isset($data['cat_id']) && $config->get('notify_all_respect_category')) {
 			$query .= ' INNER JOIN `#__user_usergroup_map` AS b';
@@ -358,7 +354,7 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		if (!empty($emails)) {
 			foreach ($emails as $email) {
-				self::_storeQueue( $email, $data );
+				self::_storeQueue($email, $data);
 			}
 		}
 	}
@@ -431,7 +427,7 @@ class EasyDiscussMailer extends EasyDiscuss
 		$mailq->created = ED::date()->toSql();
 		$mailq->ashtml = ED::config()->get('notify_html_format');
 
-		$mailq->mailfrom = ($mailfrom) ? $mailform : self::getMailFrom();
+		$mailq->mailfrom = ($mailfrom) ? $mailfrom : self::getMailFrom();
 		$mailq->fromname = ($fromname) ? $fromname : self::getFromName();
 		$mailq->status = 0;
 
@@ -536,10 +532,12 @@ class EasyDiscussMailer extends EasyDiscuss
 	{
 		$db = ED::db();
 
-		$query	= 'SELECT `content_id` FROM `#__discuss_category_acl_map`';
-		$query	.= ' WHERE `category_id` = ' . $db->Quote($categoryId);
-		$query	.= ' AND `acl_id` = ' . $db->Quote($aclType);
-		$query	.= ' AND `type` = ' . $db->Quote('group');
+		$excludeInterval = ED::normalize($params, 'excludeInterval', false);
+
+		$query = 'SELECT `content_id` FROM `#__discuss_category_acl_map`';
+		$query .= ' WHERE `category_id` = ' . $db->Quote($categoryId);
+		$query .= ' AND `acl_id` = ' . $db->Quote($aclType);
+		$query .= ' AND `type` = ' . $db->Quote('group');
 
 		$db->setQuery($query);
 		$categoryGrps = $db->loadResultArray();
@@ -555,13 +553,17 @@ class EasyDiscussMailer extends EasyDiscuss
 			// Site members
 			$queryCatIds = implode(',', $categoryGrps);
 
+			$query = 'SELECT ds.* FROM `#__discuss_subscription` AS ds';
+			$query .= ' INNER JOIN `#__user_usergroup_map` as um on um.`user_id` = ds.`userid`';
+			$query .= ' WHERE ds.`state` = ' . $db->Quote('1');
+			$query .= ' AND ds.`type` = ' . $db->Quote($type);
+			$query .= ' AND ds.`cid` = ' . $db->Quote( $cid );
 
-			$query	= 'SELECT ds.* FROM `#__discuss_subscription` AS ds';
-			$query	.= ' INNER JOIN `#__user_usergroup_map` as um on um.`user_id` = ds.`userid`';
-			$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
-			$query	.= ' AND ds.`type` = ' . $db->Quote($type);
-			$query	.= ' AND ds.`cid` = ' . $db->Quote( $cid );
-			$query	.= ' AND um.`group_id` IN (' . $queryCatIds. ')';
+			if (!$excludeInterval) {
+				$query	.= ' AND ds.`interval` = ' . $db->Quote('instant');
+			}
+
+			$query .= ' AND um.`group_id` IN (' . $queryCatIds. ')';
 
 
 			$db->setQuery($query);
@@ -572,9 +574,12 @@ class EasyDiscussMailer extends EasyDiscuss
 			// Now get the guest subscribers
 			if (in_array('1', $categoryGrps) || in_array($guestGroupId, $categoryGrps)) {
 				$query	= 'SELECT * FROM `#__discuss_subscription` AS ds';
-				$query	.= ' WHERE ds.`interval` = ' . $db->Quote('instant');
+				$query	.= ' WHERE ds.`state` = ' . $db->Quote('1');
 				$query	.= ' AND ds.`type` = ' . $db->Quote($type);
 				$query	.= ' AND ds.`cid` = ' . $db->Quote( $cid );
+				if (!$excludeInterval) {
+					$query	.= ' AND ds.`interval` = ' . $db->Quote('instant');
+				}
 				$query	.= ' AND ds.`userid` = ' . $db->Quote('0');
 
 				$db->setQuery($query);
@@ -584,16 +589,21 @@ class EasyDiscussMailer extends EasyDiscuss
 			$result = array_merge($aclItems, $nonAclItems);
 
 		} else {
-			$query	= 'SELECT * FROM `#__discuss_subscription` '
-					. ' WHERE `type` = ' . $db->Quote( $type )
-					. ' AND `cid` = ' . $db->Quote( $cid )
-					. ' AND `interval` = ' . $db->Quote( 'instant' );
+
+			$query = "SELECT * FROM `#__discuss_subscription`";
+			$query .= " WHERE `state` = " . $db->Quote('1');
+			$query .= " AND `type` = " . $db->Quote($type);
+			$query .= " AND `cid` = " . $db->Quote($cid);
+
+			if (!$excludeInterval) {
+				$query .= " AND `interval` = " . $db->Quote('instant');
+			}
 
 			// Add email exclusions if there are any exclusions
 			if (!empty($excludes)) {
 				$excludes = !is_array($excludes) ? array($excludes) : $excludes;
 
-				$query 	.= 'AND ' . $db->nameQuote( 'email' ) . ' NOT IN(';
+				$query 	.= ' AND ' . $db->nameQuote( 'email' ) . ' NOT IN(';
 
 				for ($i = 0; $i < count($excludes); $i++) {
 
@@ -653,7 +663,7 @@ class EasyDiscussMailer extends EasyDiscuss
 
 		// Modify the from name to the user that generated this activity
 		if ($config->get('notify_modify_from') && isset($data['senderObject']) && $data['senderObject']) {
-			return $data['senderObject']->user->email;
+			return $data['senderObject']->getEmail();
 		}
 
 		static $mailfrom = null;
@@ -696,8 +706,7 @@ class EasyDiscussMailer extends EasyDiscuss
 		static $sitename = null;
 
 		if (!$sitename) {
-			$jConfig = ED::jconfig();
-			$sitename = $jConfig->getValue('sitename');
+			$sitename = ED::getSiteName();
 		}
 
 		return $sitename;
@@ -731,30 +740,22 @@ class EasyDiscussMailer extends EasyDiscuss
 		$config = ED::config();
 		$app = JFactory::getApplication();
 
-		$type = $config->get('notify_html_format') ? 'html' : 'text';
-
 		// Set the logo for the generic email template
-		$logo = ED::getLogo();
+		$logo = ED::getLogo('emails');
 
 		$template = $data['emailTemplate'];
-		$replyBreaker = false;
+
+		$replySeparator = false;
 
 		// We only want to show reply breaker for reply email.
 		if ($template == 'email.post.reply.new.php') {
-			$replyBreaker = self::getReplyBreaker();
+			$replySeparator = self::getReplyBreaker();
 		}
 
+		// Legay fix to remove the php prefix if there are anyone using such prefixes
 		$template = str_ireplace('.php', '', $template);
-		// If this uses html, we need to switch the template file
-		if ($type == 'html') {
-			$template = $template . '.html';
-		}
 
-		$theme	= ED::themes();
-
-		$theme->set('logo', $logo);
-
-
+		$theme = ED::themes();
 		foreach ($data as $key => $val) {
 			$theme->set($key, $val);
 		}
@@ -766,19 +767,17 @@ class EasyDiscussMailer extends EasyDiscuss
 		$unsubscribeLink = isset($data['unsubscribeLink']) ? $data['unsubscribeLink'] : '';
 		$subscriptionsLink = self::getSubscriptionsManagerLink();
 
+		$theme->set('logo', $logo);
 		$theme->set('contents', $contents);
 		$theme->set('unsubscribeLink', $unsubscribeLink);
 		$theme->set('subscriptionsLink', $subscriptionsLink);
-		$theme->set('replyBreakText', $replyBreaker);
+		$theme->set('replySeparator', $replySeparator);
 
-		$template = "email.template.{$type}";
+		$output = $theme->output('site/emails/structure', [
+			'emails' => true
+		]);
 
-		$file = 'site/emails/' . $template;
-		$output = $theme->output($file, array('emails'=> true));
-
-		if ($type != 'html') {
-			$output = strip_tags($output);
-		}
+		// echo $output;exit;
 
 		return $output;
 	}
@@ -827,7 +826,7 @@ class EasyDiscussMailer extends EasyDiscuss
 		// $content = html_entity_decode($content);
 
 		if ($this->config->get('main_notification_max_length') > '0') {
-			
+
 			$content = strip_tags($content);
 			$content = substr($content, 0, $this->config->get('main_notification_max_length'));
 			$content = $content . '...';

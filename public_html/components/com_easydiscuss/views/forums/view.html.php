@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2017 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -10,8 +10,6 @@
 * See COPYRIGHT.php for copyright notices and details.
 */
 defined('_JEXEC') or die('Unauthorized Access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
 
 class EasyDiscussViewForums extends EasyDiscussView
 {
@@ -40,7 +38,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 
 		// If there is an active menu, render the params
 		if ($activeMenu && !$categoryId) {
-			$registry->loadString($activeMenu->params);
+			$registry->loadString($activeMenu->getParams());
 
 			if ($registry->get('category_id') && ($activeMenu->link == $activeMenuLink)) {
 				$categoryId	= $registry->get('category_id');
@@ -76,12 +74,12 @@ class EasyDiscussViewForums extends EasyDiscussView
 		}
 
 		$catLimits = $this->config->get('layout_categories_limit', $limit);
-		$options = array(
-					'id_only' => true,
-					'pagination' => true,
-					'withNoPosts' => $this->config->get('layout_categories_with_nopost', 0),
-					'limit' => $catLimits
-					);
+		$options = [
+			'id_only' => true,
+			'pagination' => true,
+			'withNoPosts' => (int) $registry->get('show_empty', 0),
+			'limit' => (int) $registry->get('categories_limit', 5)
+		];
 
 		// Get a list of parent categories
 		$parents = $model->getParentCategoriesOnly($categoryId, $options);
@@ -97,7 +95,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 						'sort' => $registry->get('sort'),
 						'filter' => $registry->get('filter'),
 						'pagination' => true,
-						'limit' => $this->config->get('layout_post_category_limit', $limit),
+						'limit' => $registry->get('posts_limit', 10),
 						'includeFeatured' => true,
 						'featuredSticky' => true,
 						'includeChilds' => $categoryId ? false : true
@@ -132,22 +130,13 @@ class EasyDiscussViewForums extends EasyDiscussView
 
 			// Grouping the posts based on categories.
 			foreach ($lists as $post) {
-
-				// if (!isset($threads[$post->cat_parent_id])) {
-				// 	$thread = new stdClass();
-				// 	$thread->category = ED::category($post->cat_parent_id);
-				// 	$thread->posts = array();
-
-				// 	$threads[$post->cat_parent_id] = $thread;
-				// }
-
 				$temps[$post->cat_parent_id][] = $post;
 			}
 		}
 
 		// now we have gather the posts. lets put them into the parents array so that the ordering of the categories will be
 		// remain.
-		foreach($parents as $parent) {
+		foreach ($parents as $parent) {
 
 			$thread = new stdClass();
 			$thread->category = ED::category($parent);
@@ -159,7 +148,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 			}
 
 			if ($isLandingPage) {
-				$childs = ED::category()->getChildCategories($parent, true, false);
+				$childs = $model->getChildCategories($parent, true, false);
 				if ($childs) {
 					foreach($childs as $item) {
 						$c = ED::category($item);
@@ -179,6 +168,11 @@ class EasyDiscussViewForums extends EasyDiscussView
 			$activeCategory = ED::category($categoryId);
 			$breadcrumbs = $activeCategory->getBreadcrumbs();
 
+			// If user trying to access this category page but he didn't get allowed, show error.
+			if (!$activeCategory->canAccess()) {
+				throw ED::exception('COM_ED_CATEGORY_NOT_ALLOWED', ED_MSG_ERROR);
+			}
+			
 			if (! EDR::isCurrentActiveMenu('forums', $activeCategory->id, 'category_id') && $breadcrumbs) {
 				foreach ($breadcrumbs as $bdc) {
 					$link = $bdc->link;
@@ -200,7 +194,7 @@ class EasyDiscussViewForums extends EasyDiscussView
 		}
 
 		// get cats immediate childs
-		$childs = ED::category()->getChildCategories($categoryId, true, false);
+		$childs = $model->getChildCategories($categoryId, true, false);
 
 
 		$subcategories = array();
@@ -221,10 +215,5 @@ class EasyDiscussViewForums extends EasyDiscussView
 		$this->set('isLandingPage', $isLandingPage);
 
 		parent::display('forums/default');
-	}
-
-	public function getBreadcrumbs()
-	{
-
 	}
 }

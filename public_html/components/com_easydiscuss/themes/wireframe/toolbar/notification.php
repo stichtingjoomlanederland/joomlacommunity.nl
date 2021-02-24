@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<a data-foundry-toggle="dropdown" class="dropdown-toggle_ notificationLink" href="javascript:void(0);" rel="ed-tooltip" data-placement="top" data-original-title="<?php echo JText::_('COM_EASYDISCUSS_NOTIFICATIONS');?>">
 		<i class="icon-bell"></i>
 		<span class="visible-phone"><?php echo JText::_( 'COM_EASYDISCUSS_NOTIFICATIONS' );?></span>
-		<span class="label label-notification" id="notification-count" style="display: <?php echo $totalNotifications > 0 ? 'inline-block' : 'none';?>"><?php echo $totalNotifications; ?></span>
+		<span class="label label-notification" id="notification-count" style="display: <?php echo $totalNotifications > 0 ? 't-d--inline-block' : 'none';?>"><?php echo $totalNotifications; ?></span>
 	</a>
 
 	<ul class="dropdown-menu dropdown-menu-large notificationDropDown" style="display: none;">

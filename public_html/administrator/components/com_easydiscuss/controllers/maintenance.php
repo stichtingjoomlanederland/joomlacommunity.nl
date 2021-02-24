@@ -101,7 +101,7 @@ class EasyDiscussControllerMaintenance extends EasyDiscussController
 			$db = EB::db();
 
 			foreach ($files as $file) {
-				$contents = JFile::read($file);
+				$contents = file_get_contents($file);
 
 				$queries = JInstallerHelper::splitSql($contents);
 
@@ -125,7 +125,7 @@ class EasyDiscussControllerMaintenance extends EasyDiscussController
 		$result = array();
 
 		foreach ($files as $file) {
-			$contents = json_decode(JFile::read($file));
+			$contents = json_decode(file_get_contents($file));
 
 			if (!is_array($contents)) {
 				// @TODO: Error handling

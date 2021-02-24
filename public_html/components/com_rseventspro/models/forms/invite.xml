@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<field name="from" type="text" label="COM_RSEVENTSPRO_INVITE_FROM" />
+	<field name="from_name" type="text" label="COM_RSEVENTSPRO_INVITE_FROM_NAME" />
+	<field name="emails" type="textarea" label="COM_RSEVENTSPRO_INVITE_INFO_EMAILS" cols="60" rows="10" />
+	<field name="message" type="textarea" label="COM_RSEVENTSPRO_INVITE_MESSAGE" cols="60" rows="5" />
+</form>

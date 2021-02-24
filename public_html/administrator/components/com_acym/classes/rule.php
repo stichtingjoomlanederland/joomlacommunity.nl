@@ -1,8 +1,10 @@
 <?php
-defined('_JEXEC') or die('Restricted access');
-?><?php
 
-class acymruleClass extends acymClass
+namespace AcyMailing\Classes;
+
+use AcyMailing\Libraries\acymClass;
+
+class RuleClass extends acymClass
 {
     var $table = 'rule';
     var $pkey = 'id';
@@ -47,11 +49,6 @@ class acymruleClass extends acymClass
         return parent::save($rule);
     }
 
-    public function delete($ids)
-    {
-        return parent::delete($ids);
-    }
-
     public function getOrderingNumber()
     {
         $query = 'SELECT COUNT(id) FROM #__acym_rule';
@@ -64,4 +61,3 @@ class acymruleClass extends acymClass
         acym_query('TRUNCATE TABLE `#__acym_rule`');
     }
 }
-

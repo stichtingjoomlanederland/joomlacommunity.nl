@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,49 +11,26 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-
-<div class="ed-btn-counter-group t-mb--lg <?php echo $button->total ? 'has-counter' : ''; ?> <?php echo $fav ? 'is-active' : ''; ?>" data-ed-post-favourite>
-
-	<span class="ed-favourite-loader t-hidden" data-ed-fav-loader>
-  		<a href="javascript:void(0)" class="btn btn-ed-favor btn-xs"><i class="fa fa-spinner fa-spin ed-favourite__loading"></i> <?php echo JText::_('COM_EASYDISCUSS_LOADING');?></a>
-	</span>
-
-	<a class="btn btn-ed-favor ed-fav btn-xs"
-		style="<?php echo $fav ? 'display:none;' : ''; ?>"
-		href="javascript:void(0);"
-		data-ed-fav-button
-		data-id="<?php echo $post->id;?>"
-		data-task="favourite"
-		rel="ed-tooltip"
-		data-placement="top"
+<div class="ed-favourites <?php echo $fav ? 'is-active' : ''; ?>" data-ed-favourites-wrapper data-id="<?php echo $post->id;?>">
+	<a href="javascript:void(0);"
+		data-ed-favourites
+		data-task="<?php echo $fav ? 'unfavourite' : 'favourite';?>"
+		data-ed-provide="tooltip"
+		data-original-title="<?php echo $fav ? JText::_('COM_ED_UNFAVOURITE_TOOLTIP_TITLE') : JText::_('COM_ED_FAVOURITE_TOOLTIP_TITLE');?>"
 	>
-		<i data-ed-fav-icon class="ed-btn-counter-group__icon fa fa-heart"></i>
-
-		<span class="favStatus" data-ed-fav-status><?php echo JText::_('COM_EASYDISCUSS_FAVOURITE_BUTTON_FAVOURITE');?></span>
+		<i class="ed-favourites__icon fas fa-heart"></i>
 	</a>
 
-	<a class="btn btn-ed-favor ed-unfav btn-xs"
-	   style="<?php echo !$fav ? 'display:none;' : ''; ?>"
-	   data-ed-fav-button
-	   data-id="<?php echo $post->id;?>"
-	   data-task="unfavourite"
-	   href="javascript:void(0);"
-	   rel="ed-tooltip"
-	   data-placement="top"
+	<a href="javascript:void(0);" class="t-mx--xs"
+		data-ed-popbox="ajax://site/views/popbox/favourite"
+		data-ed-popbox-position="top-center"
+		data-ed-popbox-toggle="click"
+		data-ed-popbox-offset="5"
+		data-ed-popbox-type="ed-favourites"
+		data-ed-popbox-component="o-popbox--avatar-list"
+		data-ed-popbox-cache="1"
+		data-args-id="<?php echo $post->id; ?>"
 	>
-		<i data-ed-fav-icon class="ed-btn-counter-group__icon fa fa-heart"></i>
-
-		<span class="favStatus" data-ed-fav-status><?php echo JText::_('COM_EASYDISCUSS_FAVOURITE_BUTTON_UNFAVOURITE');?></span>
-	</a>
-
-	<a class="ed-btn-counter-group__counter"
-		data-ed-counter-fav
-		data-id="<?php echo $post->id; ?>"
-		data-task="popbox"
-		href="javascript:void(0);"
-		rel="ed-tooltip"
-		data-placement="top"
-	>
-	    <span class="ed-btn-counter-group__" data-ed-fav-count><?php echo $button->total; ?></span>
+		<span class="ed-favourites__counter" data-counter><?php echo $total; ?></span>
 	</a>
 </div>

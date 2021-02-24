@@ -8,31 +8,30 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 JText::script('COM_RSEVENTSPRO_SUBSCRIBER_CONFIRMED'); ?>
 
 <script type="text/javascript">
-jQuery(document).ready(function() {
+document.addEventListener('DOMContentLoaded', function() {
 	jQuery('#ticket').focus();
 });
 </script>
 
 <form method="post" action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=subscriptions&layout=scan'); ?>" name="adminForm" id="adminForm" class="form-horizontal">
-<div class="row-fluid">
-	<div class="span2">
-		<?php echo JHtmlSidebar::render(); ?>
-	</div>
-	<div class="span10">
-		<?php echo JHtml::_('rsfieldset.start', 'adminform', JText::_('COM_RSEVENTSPRO_SCAN_TITLE')); ?>
-		<?php echo JHtml::_('rsfieldset.element', '<label for="ticket">'.JText::_('COM_RSEVENTSPRO_SCAN_LABEL').'</label>', '<input type="text" name="ticket" id="ticket" tabindex="1" />'); ?>
-		<?php echo JHtml::_('rsfieldset.end'); ?>
-		<p><?php echo JText::_('COM_RSEVENTSPRO_SCAN_DESCRIPTION'); ?></p>
+	
+	<?php echo RSEventsproAdapterGrid::sidebar(); ?>
+		<fieldset class="options-form">
+			<legend><?php echo JText::_('COM_RSEVENTSPRO_SCAN_TITLE'); ?></legend>
+			<?php echo RSEventsproAdapterGrid::renderField(JText::_('COM_RSEVENTSPRO_SCAN_LABEL'), '<input type="text" name="ticket" id="ticket" class="form-control" tabindex="1" />'); ?>
+			<p><?php echo JText::_('COM_RSEVENTSPRO_SCAN_DESCRIPTION'); ?></p>
+		</fieldset>
 		
 		<?php if ($this->scan) { ?>
-			<div class="subscriber_container well">
-			<?php if (is_array($this->scan)) { ?>
-			<?php $subscriber	= $this->scan['subscriber']; ?>
-			<?php $ticket		= $this->scan['ticket']; ?>
-			<?php $total		= $this->scan['total']; ?>
-			<?php $event		= $this->scan['event']; ?>
-			<?php $code			= $this->scan['code']; ?>
-			<?php $confirmed	= $this->scan['confirmed']; ?>
+		<div class="subscriber_container <?php echo RSEventsproAdapterGrid::card(); ?>">
+			<div class="card-body">
+				<?php if (is_array($this->scan)) { ?>
+				<?php $subscriber	= $this->scan['subscriber']; ?>
+				<?php $ticket		= $this->scan['ticket']; ?>
+				<?php $total		= $this->scan['total']; ?>
+				<?php $event		= $this->scan['event']; ?>
+				<?php $code			= $this->scan['code']; ?>
+				<?php $confirmed	= $this->scan['confirmed']; ?>
 				<div class="subscriber_event">
 					<h3><?php echo $event->name; ?> <small>(<?php echo $event->allday ? rseventsproHelper::showdate($event->start) : rseventsproHelper::showdate($event->start).' - '.rseventsproHelper::showdate($event->end); ?>)</small></h3>
 				</div>
@@ -101,6 +100,7 @@ jQuery(document).ready(function() {
 				<b><?php echo $this->scan; ?></b>
 				<?php } ?>
 			</div>
+		</div>
 		<?php } ?>
 	</div>
 	

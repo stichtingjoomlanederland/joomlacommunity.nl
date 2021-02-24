@@ -707,7 +707,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		if ($model->getCanreport()) {
 			$model->report();
 			echo '<div class="rs_message_info">'.JText::_('COM_RSEVENTSPRO_REPORT_ADDED').'</div>';
-			echo '<script type="text/javascript">window.top.setTimeout(\''.rseventsproHelper::modalClose(false,true).'\',1200);</script>';
+			echo '<script type="text/javascript">window.top.setTimeout(\''.addslashes(rseventsproHelper::modalClose(false,true)).'\',1200);</script>';
 		} else {
 			echo '<script type="text/javascript">'."\n";
 			echo rseventsproHelper::modalClose(false,true)."\n";
@@ -954,7 +954,9 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 		$event = $model->getEvent();
 		
 		if (!rseventsproHelper::hasWaitingList($event->id)) {
-			return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_WAITING_ERROR'));
+			echo rseventsproHelper::redirect(true,JText::_('COM_RSEVENTSPRO_WAITING_ERROR'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)),true);
+			
+			return false;
 		}
 		
 		try {
@@ -964,7 +966,7 @@ class RseventsproControllerRseventspro extends JControllerLegacy
 			$app->redirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=waiting&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)));
 		}
 		
-		return $this->setRedirect(rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)), JText::_('COM_RSEVENTSPRO_WAITING_ADDED'));
+		echo rseventsproHelper::redirect(true,JText::_('COM_RSEVENTSPRO_WAITING_ADDED'),rseventsproHelper::route('index.php?option=com_rseventspro&layout=show&id='.rseventsproHelper::sef($event->id,$event->name),false,rseventsproHelper::itemid($event->id)),true);
 	}
 	
 	public function approvewaiting() {

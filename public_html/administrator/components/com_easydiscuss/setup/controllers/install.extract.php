@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -31,7 +31,7 @@ class EasyDiscussControllerInstallExtract extends EasyDiscussSetupController
 		}
 
 		// Construct storage path
-		$storage = ED_PACKAGES . '/' . ED_PACKAGE;
+		$storage = SI_PACKAGES . '/' . SI_PACKAGE;
 		$exists = JFile::exists($storage);
 
 		// Test if package really exists
@@ -41,12 +41,12 @@ class EasyDiscussControllerInstallExtract extends EasyDiscussSetupController
 		}
 
 		// Check if the temporary folder exists
-		if (!JFolder::exists(ED_TMP)) {
-			JFolder::create(ED_TMP);
+		if (!JFolder::exists(SI_TMP)) {
+			JFolder::create(SI_TMP);
 		}
 
 		// Extract files to a temporary location
-		$tmp = ED_TMP . '/com_easydiscuss_' . uniqid();
+		$tmp = SI_TMP . '/com_easydiscuss_' . uniqid();
 
 		// Delete any folders that already exists
 		if (JFolder::exists($tmp)) {

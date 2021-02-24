@@ -8,45 +8,38 @@ defined( '_JEXEC' ) or die( 'Restricted access' );
 JHtml::_('behavior.formvalidator');
 JHtml::_('behavior.keepalive'); ?>
 
-<script type="text/javascript">
-	Joomla.submitbutton = function(task) {
-		if (task == 'category.cancel' || document.formvalidator.isValid(document.getElementById('adminForm'))) {
-			Joomla.submitform(task, document.getElementById('adminForm'));
-		}
-	}
-</script>
-
 <form action="<?php echo JRoute::_('index.php?option=com_rseventspro&view=category&id=' . (int) $this->item->id); ?>" method="post" name="adminForm" id="adminForm" class="form-validate">
 	
-	<div class="form-inline form-inline-header">
-		<?php echo JHtml::_('rsfieldset.start', 'adminform'); ?>
-		<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('title'), $this->form->getInput('title')); ?>
-		<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('alias'), $this->form->getInput('alias')); ?>
-		<?php echo JHtml::_('rsfieldset.end'); ?>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?> mb-3">
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->form->renderField('title'); ?>
+		</div>
+		<div class="<?php echo RSEventsproAdapterGrid::column(6); ?>">
+			<?php echo $this->form->renderField('alias'); ?>
+		</div>
 	</div>
 	
-	<div class="row-fluid">
-		<div class="span9 rswidth-50 rsfltlft">
-			<?php echo $this->form->getLabel('description'); ?>
+	<div class="<?php echo RSEventsproAdapterGrid::row(); ?>">
+		<div class="<?php echo RSEventsproAdapterGrid::column(9); ?>">
 			<?php echo $this->form->getInput('description'); ?>
 		</div>
-		<div class="span3 rsfltrgt rswidth-50">
-			<?php echo JHtml::_('rsfieldset.start', 'adminform form-vertical', JText::_('COM_RSEVENTSPRO_CATEGORY_TAB_GENERAL')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('parent_id'), $this->form->getInput('parent_id')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('published'), $this->form->getInput('published')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('access'), $this->form->getInput('access')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('language'), $this->form->getInput('language')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('image','params'), $this->form->getInput('image','params')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('color','params'), $this->form->getInput('color','params')); ?>
-			<?php echo JHtml::_('rsfieldset.end'); ?>
+		<div class="<?php echo RSEventsproAdapterGrid::column(3); ?>">
+			<fieldset class="options-form">
+				<legend><?php echo JText::_('COM_RSEVENTSPRO_CATEGORY_TAB_GENERAL'); ?></legend>
+				<?php echo $this->form->renderField('parent_id'); ?>
+				<?php echo $this->form->renderField('published'); ?>
+				<?php echo $this->form->renderField('access'); ?>
+				<?php echo $this->form->renderField('language'); ?>
+				<?php echo $this->form->renderField('image','params'); ?>
+				<?php echo $this->form->renderField('color','params'); ?>
+			</fieldset>
 			
-			<?php echo JHtml::_('rsfieldset.start', 'adminform form-vertical',JText::_('COM_RSEVENTSPRO_CATEGORY_TAB_METADATA')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('metadesc'), $this->form->getInput('metadesc')); ?>
-			<?php echo JHtml::_('rsfieldset.element', $this->form->getLabel('metakey'), $this->form->getInput('metakey')); ?>
-			<?php foreach ($this->form->getFieldset('jmetadata') as $field) { ?>
-			<?php echo JHtml::_('rsfieldset.element', $field->label, $field->input); ?>
-			<?php } ?>
-			<?php echo JHtml::_('rsfieldset.end'); ?>
+			<fieldset class="options-form">
+				<legend><?php echo JText::_('COM_RSEVENTSPRO_CATEGORY_TAB_METADATA'); ?></legend>
+				<?php echo $this->form->renderField('metadesc'); ?>
+				<?php echo $this->form->renderField('metakey'); ?>
+				<?php  foreach ($this->form->getFieldset('jmetadata') as $field) echo $field->renderField(); ?>
+			</fieldset>
 		</div>
 	</div>
 		

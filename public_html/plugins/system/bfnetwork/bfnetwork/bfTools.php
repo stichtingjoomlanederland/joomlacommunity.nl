@@ -165,6 +165,10 @@ final class bfTools
         119 => 'setHasrootuser',
         120 => 'getDebuglanguage',
         121 => 'setDebuglanguage',
+        122 => 'setPostInstallMessages',
+        123 => 'getSkipped',
+        124 => 'getSendcopytosubmitter',
+        125 => 'setSendcopytosubmitter',
         999 => 'getDebugLog',
         998 => 'setRealtimeActivate',
     );
@@ -285,6 +289,38 @@ final class bfTools
     public function getDebugLog()
     {
         bfEncrypt::reply('success', array('data' => bfLog::getLog()));
+    }
+
+    public function setSendcopytosubmitter()
+    {
+        // saving params to database
+        $component = \Joomla\CMS\Component\ComponentHelper::getComponent('com_contact');
+        $params    = $component->getParams();
+        $params->set('show_email_copy', 'true' == $this->_dataObj->s ? 0 : 1);
+        $table = \Joomla\CMS\Table\Table::getInstance('extension');
+        $table->load($component->id);
+        $table->bind(array('params' => $params->toString()));
+        $table->store();
+        bfEncrypt::reply('success', $this->getSendcopytosubmitter());
+    }
+
+    public function getSendcopytosubmitter()
+    {
+        $params = \Joomla\CMS\Component\ComponentHelper::getComponent('com_contact')->getParams();
+
+        return (int) $params->get('show_email_copy', 0);
+    }
+
+    public function setPostInstallMessages()
+    {
+        $db  = JFactory::getDbo();
+
+        $query = $db->getQuery(true)
+            ->update($db->quoteName('#__postinstall_messages'))
+            ->set($db->quoteName('enabled').' = 0');
+        $db->setQuery($query);
+        $db->execute();
+        bfEncrypt::reply('success', $this->getPostInstallMessages());
     }
 
     /**
@@ -2282,6 +2318,39 @@ final class bfTools
     /**
      * @param bool $internal
      *
+     * @return array|mixed
+     */
+    private function getSkipped($internal = false)
+    {
+        $limitstart = (int) $this->_dataObj->ls;
+        $limit      = (int) $this->_dataObj->limit;
+        if (!$limitstart) {
+            $limitstart = 0;
+        }
+        if (!$limit) {
+            $limit = '9999999999999999';
+        }
+
+        $sql = 'SELECT * FROM bf_files WHERE skipped = 1 ORDER BY filemtime DESC LIMIT '.(int) $limitstart.', '.$limit;
+        $this->_db->setQuery($sql);
+        $files = $this->_db->LoadObjectList();
+
+        if (true === $internal) {
+            return $files;
+        }
+
+        $this->_db->setQuery('SELECT count(*) FROM bf_files WHERE skipped = 1');
+        $count = $this->_db->loadResult();
+
+        bfEncrypt::reply('success', array(
+            'files' => $files,
+            'total' => $count,
+        ));
+    }
+
+    /**
+     * @param bool $internal
+     *
      * @return JUser|mixed|object
      */
     private function getUser($internal = false)
@@ -3474,12 +3543,17 @@ final class bfTools
         $result['messages'] = array();
 
         // which row in the _updates table should we use
-        $this->_db->setQuery('SELECT update_id from #__updates WHERE extension_id = "'.$this->_dataObj->eid.'"');
-        $extension_row_id = $this->_db->loadResult();
+        $this->_db->setQuery('SELECT * from #__updates WHERE extension_id = "'.$this->_dataObj->eid.'"');
+        $update = $this->_db->loadObject();
+
+        if ('fabrik_element' === $update->folder && file_exists(JPATH_BASE.'/plugins/system/fabrik/defines.php')) {
+            require_once JPATH_BASE.'/plugins/system/fabrik/defines.php';
+            JModelLegacy::addIncludePath(JPATH_BASE.'/components/com_fabrik/models');
+        }
 
         // Do the update
         $ext              = new bfExtensions();
-        $result['result'] = $ext->doUpdate($extension_row_id);
+        $result['result'] = $ext->doUpdate($update->update_id);
 
         // Grab any error messages
 

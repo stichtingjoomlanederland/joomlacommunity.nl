@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,9 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
-
-require_once(DISCUSS_ROOT . '/views/views.php');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussViewVotes extends EasyDiscussView
 {
@@ -229,72 +227,6 @@ class EasyDiscussViewVotes extends EasyDiscussView
 		$totalVotes = $voteModel->getTotalVotes($post->id);
 
 		$this->ajax->resolve($totalVotes);
-
-		return $this->ajax->send();
-	}
-
-	/**
-	 * Displays a list of voters on the site.
-	 *
-	 * @since	3.0
-	 * @access	public	 
-	 */
-	public function showVoters()
-	{
-		$id = $this->input->get('id', 0, 'int');
-
-		// Allow users to see who voted on the discussion
-		// If main_allowguestview_whovoted is lock
-		if (!$this->config->get('main_allowguestview_whovoted') && !$this->my->id) {
-			$this->ajax->reject(JText::_('COM_EASYDISCUSS_NOT_ALLOWED_HERE'));
-			return $this->ajax->send();
-		}
-
-		$voteModel = ED::model('Votes');
-		$voters = $voteModel->getVoters($id);
-		$guests = 0;
-		$users = array();
-
-		if ($voters) {
-			$ids = array();
-
-			foreach ($voters as $voter) {
-				if (!$voter->user_id) {
-					$guests += 1;
-				} else {
-					$ids[] = $voter->user_id;
-				}
-			}
-
-			if ($ids) {
-				// preload users
-				ED::user($ids);
-
-				foreach ($ids as $id) {
-					$users[] = ED::user($id);
-				}
-			}
-		}
-
-		$theme = ED::themes();
-		$theme->set('users', $users);
-		$theme->set('guests', $guests);
-		$contents = $theme->output('site/dialogs/voters');
-
-		return $this->ajax->resolve($contents);
-	}
-
-
-	/**
-	 * Ajax call for sum votes
-	 *
-	 * @since	3.0
-	 * @access	public	 
-	 */
-	public function ajaxSumVote($postId = null)
-	{
-		$voteModel = ED::model('votes');
-		$total = $voteModel->sumPostVotes($postId);
 
 		return $this->ajax->send();
 	}

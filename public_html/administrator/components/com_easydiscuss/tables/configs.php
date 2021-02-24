@@ -25,7 +25,7 @@ class DiscussConfigs extends EasyDiscussTable
 
 	public function store($key = 'config')
 	{
-		$db = ED::getDBO();
+		$db = ED::db();
 
 		$query	= 'SELECT COUNT(*) FROM ' . $db->nameQuote( '#__discuss_configs') . ' '
 				. 'WHERE ' . $db->nameQuote( 'name' ) . '=' . $db->Quote( $key );

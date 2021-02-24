@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -11,45 +11,30 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<div class="discuss-list" data-posts data-view="index" data-category="0">
+<div class="ed-recent-wrapper">
+	<div class="l-stack" data-posts>
+		<?php echo ED::renderModule('easydiscuss-recent-start'); ?>
 
-	<?php if ($featured) { ?>
-		<h3 class="ed-page-title"><?php echo JText::_('COM_EASYDISCUSS_FEATURED_POSTS'); ?></h3>
-		<div class="ed-posts-list t-lg-mb--lg" itemscope itemtype="http://schema.org/ItemList">
-			<?php foreach ($featured as $featuredPost) { ?>
-				<?php echo $this->output('site/posts/item', array('post' => $featuredPost)); ?>
-			<?php } ?>
-		</div>
-	<?php } ?>
+		<?php echo $this->html('post.filters', $baseUrl, $filter, $activeCategory, $activeSort, [
+			'selectedLabels' => $postLabels, 
+			'selectedTypes' => $postTypes, 
+			'selectedPriorities' => $postPriorities
+		]); ?>
 
-	<div class="ed-filters" data-filters-wrapper>
-		<?php echo $this->output('site/frontpage/filters', array('baseUrl' => 'view=index', 'activeFilter' => $activeFilter, 'activeStatus' => $activeStatus, 'activeSort' => $activeSort, 'menuCatId' => $menuCatId, 'view' => $view)); ?>
-	</div>
-
-	<div class="ed-posts-list <?php echo !$posts ? 'is-empty' : '';?>" data-list-item itemscope itemtype="http://schema.org/ItemList">
-		<?php if ($posts) { ?>
-			<?php foreach ($posts as $post) { ?>
-				<?php echo $this->output('site/posts/item', array('post' => $post)); ?>
-			<?php } ?>
-		<?php } ?>
-
-		<div class="o-loading">
-			<div class="o-loading__content">
-				<i class="fa fa-spinner fa-spin"></i>
+		<div class="<?php echo !$posts && !$featured ? 'is-empty' : '';?>" data-ed-list-wrapper>
+			<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">
+				<?php echo $this->output('site/posts/list', [
+					'featured' => $featured,
+					'posts' => $posts,
+					'pagination' => $pagination
+				]); ?>
 			</div>
+
+			<?php echo $this->html('loading.block'); ?>
+			
+			<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 		</div>
 
-		<div class="o-empty o-empty--bordered">
-			<div class="o-empty__content">
-				<i class="o-empty__icon fa fa-flash"></i><br /><br />
-				<div class="o-empty__text"><?php echo JText::_('COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST');?></div>
-			</div>
-		</div>
+		<?php echo ED::renderModule('easydiscuss-recent-end'); ?>
 	</div>
-
-	<div class="" data-frontpage-pagination>
-		<?php echo $pagination->getPagesLinks();?>
-	</div>
-
-	<?php echo $this->html('forums.stats'); ?>
 </div>

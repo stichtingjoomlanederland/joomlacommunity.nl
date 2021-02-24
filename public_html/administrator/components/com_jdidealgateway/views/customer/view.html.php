@@ -3,10 +3,12 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
@@ -15,8 +17,6 @@ use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\View\HtmlView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 use Joomla\Registry\Registry;
-
-defined('_JEXEC') or die;
 
 /**
  * Customer view.
@@ -48,7 +48,7 @@ class JdidealgatewayViewCustomer extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	protected $mandates = array();
+	protected $mandates = [];
 
 	/**
 	 * List of subscriptions
@@ -56,7 +56,7 @@ class JdidealgatewayViewCustomer extends HtmlView
 	 * @var    array
 	 * @since  5.0.0
 	 */
-	protected $subscriptions = array();
+	protected $subscriptions = [];
 
 	/**
 	 * Get the state
@@ -91,28 +91,26 @@ class JdidealgatewayViewCustomer extends HtmlView
 		$model               = $this->getModel();
 		$this->form          = $model->getForm();
 		$this->item          = $model->getItem();
-		$this->mandates      = $model->getMandates($this->item->email);
-		$this->subscriptions = $model->getSubscriptions($this->item->email);
+		$this->mandates      = $this->item->email ? $model->getMandates($this->item->email, (int) $this->item->profileId) : [];
+		$this->subscriptions = $this->item->email ? $model->getSubscriptions($this->item->email, (int) $this->item->profileId) : [];
 		$this->state         = $model->getState();
 		$this->canDo         = ContentHelper::getActions('com_jdidealgateway');
 
-		// Add the toolbar
 		$this->addToolbar();
 
-		// Display it all
 		parent::display($tpl);
 	}
 
 	/**
 	 * Displays a toolbar for a specific page.
 	 *
-	 * @return  void.
+	 * @return  void
 	 *
 	 * @throws  Exception
 	 *
 	 * @since   5.0.0
 	 */
-	private function addToolbar()
+	private function addToolbar(): void
 	{
 		Factory::getApplication()->input->set('hidemainmenu', true);
 

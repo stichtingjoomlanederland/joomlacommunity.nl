@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -35,7 +35,7 @@ class EasyDiscussThemesHelperPanel
 	 * @since	4.0
 	 * @access	public
 	 */
-	public static function heading($header, $desc = '')
+	public static function heading($header, $desc = '', $helpLink = '')
 	{
 		if (!$desc) {
 			$desc = $header . '_DESC';
@@ -43,8 +43,13 @@ class EasyDiscussThemesHelperPanel
 		}
 
 		$header = JText::_($header);
+
+		if ($helpLink) {
+			$helpLink = 'https://stackideas.com' . $helpLink;
+		}
 		
 		$theme = ED::themes();
+		$theme->set('helpLink', $helpLink);
 		$theme->set('header', $header);
 		$theme->set('desc', $desc);
 
@@ -57,9 +62,9 @@ class EasyDiscussThemesHelperPanel
 	 * @since	4.0.14
 	 * @access	public
 	 */
-	public static function head($header, $desc = '')
+	public static function head($header, $desc = '', $helpLink = '')
 	{
-		return self::heading($header, $desc);
+		return self::heading($header, $desc, $helpLink);
 	}
 
 	/**

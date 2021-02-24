@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2018 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_POLLS'); ?>
 
 			<div class="panel-body">
-				<div class="form-horizontal">
+				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_polls', 'COM_EASYDISCUSS_ENABLE_POLLS'); ?>
 					<?php echo $this->html('settings.toggle', 'main_polls_replies', 'COM_EASYDISCUSS_ENABLE_POLLS_REPLIES'); ?>
 					<?php echo $this->html('settings.toggle', 'main_polls_multiple', 'COM_EASYDISCUSS_ENABLE_POLLS_MULTIPLE_VOTES'); ?>

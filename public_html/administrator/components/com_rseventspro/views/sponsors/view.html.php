@@ -25,7 +25,5 @@ class RseventsproViewSponsors extends JViewLegacy
 		JToolBarHelper::deleteList('','sponsors.delete');
 		JToolBarHelper::publishList('sponsors.publish');
 		JToolBarHelper::unpublishList('sponsors.unpublish');
-		
-		JHtml::_('rseventspro.chosen','select');
 	}
 }

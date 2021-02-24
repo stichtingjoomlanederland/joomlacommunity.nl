@@ -3,19 +3,21 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
+
+defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Router\Route;
 
-defined('_JEXEC') or die;
+/** @var JdidealgatewayViewPay $this */
 
-HTMLHelper::_('behavior.formvalidation');
+HTMLHelper::_('behavior.formvalidator');
 
 $input  = Factory::getApplication()->input;
 $silent = $input->getBool('silent', false);
@@ -28,16 +30,13 @@ $silent = $input->getBool('silent', false);
 	<fieldset>
 		<legend><?php echo Text::_('COM_ROPAYMENTS_PAYMENT_FORM'); ?></legend>
 			<div>
-				<?php echo $this->form->getLabel('user_email'); ?>
-				<?php echo $this->form->getInput('user_email'); ?>
+				<?php echo $this->form->renderField('user_email'); ?>
 			</div>
 			<div>
-				<?php echo $this->form->getLabel('amount'); ?>
-				<?php echo $this->form->getInput('amount'); ?>
+				<?php echo $this->form->renderField('amount'); ?>
 			</div>
 			<div>
-				<?php echo $this->form->getLabel('remark'); ?>
-				<?php echo $this->form->getInput('remark'); ?>
+				<?php echo $this->form->renderField('remark'); ?>
 			</div>
 
 			<?php if ($input->getString('order_number', false)): ?>
@@ -61,6 +60,7 @@ $silent = $input->getBool('silent', false);
 			</script>
 		<?php endif; ?>
 	</fieldset>
+	<input type="hidden" name="task" value="pay.sendmoney" />
 </form>
 <?php if ($silent) : ?>
 	</div>

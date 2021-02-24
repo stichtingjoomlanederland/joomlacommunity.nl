@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 class EasyDiscussControllerPoints extends EasyDiscussController
 {
@@ -20,93 +20,104 @@ class EasyDiscussControllerPoints extends EasyDiscussController
 		$this->checkAccess('discuss.manage.points');
 
 		// Need to explicitly define this in Joomla 3.0
-		$this->registerTask('unpublish', 'unpublish');
-		$this->registerTask('publish', 'unpublish');
+		$this->registerTask('unpublish', 'togglePublish');
+		$this->registerTask('publish', 'togglePublish');
 		$this->registerTask('saveNew', 'save');
 	}
 
 	public function add()
 	{
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=points&layout=form');
+		return ED::redirect('index.php?option=com_easydiscuss&view=points&layout=form');
 	}
 
 	public function remove()
 	{
 		ED::checkToken();
-		$ids = $this->input->get('cid', '', 'var');
+		$ids = $this->input->get('cid', '', 'array');
+
+		$point = ED::table('Points');
 
 		foreach ($ids as $id) {
-			$point	= ED::table('Points');
 			$point->load($id);
 			$point->delete();
 		}
 
-		ED::setMessage(JText::_('COM_EASYDISCUSS_BADGES_DELETED'), 'success');
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=points');
+		ED::setMessage(JText::_('COM_EASYDISCUSS_POINTS_DELETED'), 'success');
+		return ED::redirect('index.php?option=com_easydiscuss&view=points');
 	}
 
-	public function unpublish()
+	public function togglePublish()
 	{
 		ED::checkToken();
 
-		$point = ED::table('Points');
-		$ids = $this->input->get('cid', '', 'var');
-		$task = $this->input->get('task', '', 'var');
+		// Get the current task
+		$task = $this->getTask();
+		$ids = $this->input->get('cid', '', 'array');
 		$state = $task == 'publish' ? 1 : 0;
 
+		$point = ED::table('Points');
+
 		foreach ($ids as $id) {
-			$id	= (int) $id;
-			$point->load($id);
-			$point->set('published', $state);
-			$point->store();
+			$point->load((int) $id);
+			$point->$task();
 		}
 
-		$message = $state ? JText::_( 'COM_EASYDISCUSS_POINTS_PUBLISHED' ) : JText::_( 'COM_EASYDISCUSS_POINTS_UNPUBLISHED' );
+		$message = $task == 'publish' ? JText::_('COM_EASYDISCUSS_POINTS_PUBLISHED') : JText::_('COM_EASYDISCUSS_POINTS_UNPUBLISHED');
 
 		ED::setMessage($message, 'success');
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=points');
+		return ED::redirect('index.php?option=com_easydiscuss&view=points');
 	}
 
 	public function cancel()
 	{
-		return $this->app->redirect('index.php?option=com_easydiscuss&view=points');
+		return ED::redirect('index.php?option=com_easydiscuss&view=points');
 	}
 
 	public function rules()
 	{
-		return $this->app->redirect( 'index.php?option=com_easydiscuss&view=rules&from=points');
+		return ED::redirect( 'index.php?option=com_easydiscuss&view=rules&from=points');
 	}
 
 	public function save()
 	{
 		ED::checkToken();
 
-		$point = ED::table('Points');
 		$id = $this->input->get('id', 0, 'int');
-		$task = $this->input->get('task', '', 'var');
+		$isNew = $id ? false : true;
+		$url = 'index.php?option=com_easydiscuss&view=points';
 
+		// Get the current task
+		$task = $this->getTask();
+
+		$point = ED::table('Points');
 		$point->load($id);
 
-		$post = JRequest::get('post');
-		
+		$post = $this->input->post->getArray();
 		$point->bind($post);
 
 		if (empty($point->created)) {
 			$point->created = ED::date()->toSql();
 		}
 
-		// Store the badge
+		// Store the point
 		$point->store();
 
-		$message = !empty($id) ? JText::_('COM_EASYDISCUSS_POINTS_UPDATED') : JText::_('COM_EASYDISCUSS_POINTS_CREATED');
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogMsg = $isNew ? 'COM_ED_ACTIONLOGS_POINTRULES_CREATED' : 'COM_ED_ACTIONLOGS_POINTRULES_UPDATED';
 
-		$url = 'index.php?option=com_easydiscuss&view=points';
+		$actionlog->log($actionlogMsg, 'points', array(
+			'link' => $url . '&layout=form&id=' . $point->id,
+			'pointRuleTitle' => JText::_($point->title)
+		));
+
+		$message = $isNew ? JText::_('COM_EASYDISCUSS_POINTS_CREATED') : JText::_('COM_EASYDISCUSS_POINTS_UPDATED');
 
 		if ($task == 'saveNew') {
 			$url = 'index.php?option=com_easydiscuss&view=points&layout=form';
 		}
 
 		ED::setMessage($message, 'success');
-		return $this->app->redirect($url);
+		return ED::redirect($url);
 	}
 }

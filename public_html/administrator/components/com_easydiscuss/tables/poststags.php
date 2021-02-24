@@ -54,11 +54,11 @@ class DiscussPostsTags extends EasyDiscussTable
 // 			return parent::load( $id );
 // 		}
 //
-// 		$db		= DiscussHelper::getDBO();
+// 		$db		= ED::db();
 // 		$query	= 'SELECT *';
 // 		$query	.= ' FROM ' 	. $db->nameQuote('#__discuss_posts_tags');
-// 		$query	.= ' WHERE (' 	. $db->nameQuote('title') . ' = ' .  $db->Quote( JString::str_ireplace( ':' , '-' , $id ) );
-// 		$query	.= ' OR ' 	. $db->nameQuote('alias') . ' = ' .  $db->Quote( JString::str_ireplace( ':' , '-' , $id ) ) . ')';
+// 		$query	.= ' WHERE (' 	. $db->nameQuote('title') . ' = ' .  $db->Quote( EDJString::str_ireplace( ':' , '-' , $id ) );
+// 		$query	.= ' OR ' 	. $db->nameQuote('alias') . ' = ' .  $db->Quote( EDJString::str_ireplace( ':' , '-' , $id ) ) . ')';
 // 		$query	.= ' LIMIT 1';
 //
 // 		$db->setQuery($query);
@@ -76,7 +76,7 @@ class DiscussPostsTags extends EasyDiscussTable
 
 // 	function aliasExists()
 // 	{
-// 		$db		= DiscussHelper::getDBO();
+// 		$db		= ED::db();
 //
 // 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_tags' ) . ' '
 // 				. 'WHERE ' . $db->nameQuote( 'alias' ) . '=' . $db->Quote( $this->alias );
@@ -92,7 +92,7 @@ class DiscussPostsTags extends EasyDiscussTable
 
 	public function exists( $title )
 	{
-		$db	= DiscussHelper::getDBO();
+		$db	= ED::db();
 
 		$query	= 'SELECT COUNT(1) '
 				. 'FROM ' 	. $db->nameQuote('#__discuss_tags') . ' '
@@ -113,7 +113,7 @@ class DiscussPostsTags extends EasyDiscussTable
 	 */
 	public function delete( $pk = null )
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'SELECT COUNT(1) FROM ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'tag_id' ) . '=' . $db->Quote( $this->id );
@@ -132,7 +132,7 @@ class DiscussPostsTags extends EasyDiscussTable
 	// method to delete all the blog post that associated with the current tag
 	public function deletePostTag()
 	{
-		$db		= DiscussHelper::getDBO();
+		$db		= ED::db();
 
 		$query	= 'DELETE FROM ' . $db->nameQuote( '#__discuss_posts_tags' ) . ' '
 				. 'WHERE ' . $db->nameQuote( 'tag_id' ) . '=' . $db->Quote( $this->id );

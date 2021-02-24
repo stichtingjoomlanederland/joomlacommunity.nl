@@ -3,7 +3,7 @@
  * @package    JDiDEAL
  *
  * @author     Roland Dalmulder <contact@rolandd.com>
- * @copyright  Copyright (C) 2009 - 2020 RolandD Cyber Produksi. All rights reserved.
+ * @copyright  Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://rolandd.com
  */
@@ -98,9 +98,9 @@ class JdidealgatewayViewProfile extends HtmlView
 	 *
 	 * @return  mixed  A string if successful, otherwise a JError object.
 	 *
+	 * @since   4.0.0
 	 * @throws  Exception
 	 *
-	 * @since   4.0.0
 	 */
 	public function display($tpl = null)
 	{
@@ -111,30 +111,27 @@ class JdidealgatewayViewProfile extends HtmlView
 		$this->state = $model->getState();
 		$this->canDo = ContentHelper::getActions('com_jdidealgateway');
 
-		// Load the PSP form
-		$this->pspForm = $model->getPspForm($this->item->psp);
-
-		if ($this->pspForm)
+		if ($this->item->psp)
 		{
-			$this->pspForm->bind($this->item->paymentInfo);
+			$this->pspForm = $model->getPspForm($this->item->psp);
+
+			if ($this->pspForm)
+			{
+				$this->pspForm->bind($this->item->paymentInfo);
+			}
 		}
 
-		// Set the active provider
 		$this->activeProvider = $this->item->psp;
 
-		// Clear the user state
 		Factory::getApplication()->setUserState('profile.psp', false);
 
-		// Check if the security files exist for advanced
 		if ($this->item->psp === 'advanced')
 		{
 			$this->filesExist = $model->getFilesExist();
 		}
 
-		// Add the toolbar
 		$this->addToolbar();
 
-		// Display it all
 		return parent::display($tpl);
 	}
 
@@ -143,11 +140,10 @@ class JdidealgatewayViewProfile extends HtmlView
 	 *
 	 * @return  void
 	 *
-	 * @throws  Exception
-	 *
 	 * @since   4.0.0
+	 * @throws  Exception
 	 */
-	private function addToolbar()
+	private function addToolbar(): void
 	{
 		Factory::getApplication()->input->set('hidemainmenu', true);
 
@@ -159,7 +155,10 @@ class JdidealgatewayViewProfile extends HtmlView
 			ToolbarHelper::save('profile.save');
 		}
 
-		if ($this->canDo->get('core.create') && $this->canDo->get('core.manage'))
+		if ($this->canDo->get('core.create')
+			&& $this->canDo->get(
+				'core.manage'
+			))
 		{
 			ToolbarHelper::save2new('profile.save2new');
 		}

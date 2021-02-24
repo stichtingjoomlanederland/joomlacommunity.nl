@@ -1,11 +1,11 @@
 <?php
 /**
  * @package   admintools
- * @copyright Copyright (c)2010-2020 Nicholas K. Dionysopoulos / Akeeba Ltd
+ * @copyright Copyright (c)2010-2021 Nicholas K. Dionysopoulos / Akeeba Ltd
  * @license   GNU General Public License version 3, or later
  */
 
-defined('_JEXEC') or die;
+defined('_JEXEC') || die;
 
 /** @var $this Html */
 
@@ -90,7 +90,7 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 		</tr>
 		</tfoot>
 		<tbody>
-		<?php if (!count($this->items)): ?>
+		<?php if (!(is_array($this->items) || $this->items instanceof \Countable ? count($this->items) : 0)): ?>
 			<tr>
 				<td colspan="6">
 					<?php echo Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_NOITEMS') ?>
@@ -102,9 +102,9 @@ echo $this->loadAnyTemplate('admin:com_admintools/ControlPanel/plugin_warning');
 			$i = 0;
 			foreach ($this->items as $row):
 				$edit = 'index.php?option=com_admintools&view=ExceptionsFromWAF&task=edit&id=' . $row->id;
-				$option = $row->option ? $row->option : Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION_ALL');
-				$view = $row->view ? $row->view : Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW_ALL');
-				$query = $row->query ? $row->query : Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY_ALL');
+				$option = $row->option ?: Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_OPTION_ALL');
+				$view = $row->view ?: Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_VIEW_ALL');
+				$query = $row->query ?: Text::_('COM_ADMINTOOLS_LBL_EXCEPTIONSFROMWAF_QUERY_ALL');
 
 				$keepParams = $row->keepurlparams == 0 ? 'OFF' : ($row->keepurlparams == 1 ? 'ALL' : 'ADD');
 				$enabled    = $this->container->platform->getUser()->authorise('core.edit.state', 'com_admintools')

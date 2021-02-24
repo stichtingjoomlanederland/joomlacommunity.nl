@@ -21,7 +21,7 @@ class JElementCategories extends JElement
 	function fetchElement($name, $value, &$node, $control_name)
 	{
 		$mainframe	= JFactory::getApplication();
-		$db			= DiscussHelper::getDBO();
+		$db			= ED::db();
 		$doc		= JFactory::getDocument();
 
 		require_once DISCUSS_ADMIN_ROOT . '/models/categories.php';

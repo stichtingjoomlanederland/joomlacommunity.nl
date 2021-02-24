@@ -97,6 +97,7 @@ class WFImageEditor extends JObject
             switch ($ext) {
                 case 'jpg':
                 case 'jpeg':
+                case 'webp':
                     $quality = intval($quality);
                     if ($this->get('ftp', 0)) {
                         @JFile::write($dest, $image->toString($ext, array('quality' => $quality)));
@@ -146,6 +147,7 @@ class WFImageEditor extends JObject
             switch ($ext) {
                 case 'jpg':
                 case 'jpeg':
+                case 'webp':
                     if ($this->get('ftp', 0)) {
                         @JFile::write($file, $image->toString($ext, array('quality' => 100)));
                     } else {
@@ -177,6 +179,7 @@ class WFImageEditor extends JObject
         switch ($ext) {
             case 'jpg':
             case 'jpeg':
+            case 'webp':
                 $quality = intval($quality);
 
                 if ($this->get('ftp', 0)) {

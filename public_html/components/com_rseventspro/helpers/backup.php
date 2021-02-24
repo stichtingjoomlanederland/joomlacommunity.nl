@@ -444,7 +444,7 @@ class RSEBackup {
 									}
 								}
 								
-								$app->triggerEvent('rsepro_restoreProcess', array(array('hash' => $hash, 'table' => $table, 'column' => $column, 'value' => &$value)));
+								$app->triggerEvent('onrsepro_restoreProcess', array(array('hash' => $hash, 'table' => $table, 'column' => $column, 'value' => &$value)));
 								
 								$values[] = $this->db->qn($column). ' = '.$this->db->q($value);
 							}

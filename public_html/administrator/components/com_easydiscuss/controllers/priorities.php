@@ -1,7 +1,7 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
 * EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
@@ -9,7 +9,7 @@
 * other free or open source software licenses.
 * See COPYRIGHT.php for copyright notices and details.
 */
-defined('_JEXEC') or die('Restricted access');
+defined('_JEXEC') or die('Unauthorized Access');
 
 jimport('joomla.application.component.controller');
 
@@ -24,7 +24,6 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 		$this->registerTask('save2new', 'save');
 	}
 
-
 	/**
 	 * remove priorities
 	 *
@@ -36,12 +35,12 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 		// Check for request forgeries
 		ED::checkToken();
 
-		$ids = $this->input->get('cid', '', 'POST');
+		$ids = $this->input->get('cid', '', 'array');
 		$redirect = 'index.php?option=com_easydiscuss&view=priorities';
 
 		if (empty($ids)) {
-			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID'), 'error');
-			return $this->app->redirect($redirect);
+			ED::setMessage(JText::_('COM_EASYDISCUSS_INVALID'), ED_MSG_ERROR);
+			return ED::redirect($redirect);
 		}
 
 		foreach ($ids as $id) {
@@ -51,16 +50,17 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 
 			$state = $table->delete();
 
-			if (! $state) {
+			if (!$state) {
 				$message = JText::sprintf('COM_EASYDISCUSS_PRIORITIES_DELETE_FAILED', $table->title);
-				ED::setMessage($message, 'error');
-				return $this->app->redirect($redirect);
+				ED::setMessage($message, ED_MSG_ERROR);
+				
+				return ED::redirect($redirect);
 			}
 		}
 
 		// Display message
 		ED::setMessage('COM_EASYDISCUSS_PRIORITY_DELETE_SUCCESSFULLY', 'success');
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 
 	/**
@@ -68,8 +68,6 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function save()
 	{
@@ -77,6 +75,7 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 		ED::checkToken();
 
 		$id = $this->input->get('id', 0, 'int');
+		$isNew = $id ? false : true;		
 
 		$priority = ED::table('Priority');
 		$priority->load($id);
@@ -87,23 +86,21 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 		$task = $this->getTask();
 
 		// Bind the data from post
-		$post = JRequest::get('post');
-		$post = $this->input->getArray('post');
-
-		// var_dump($post);exit;
+		$post = $this->input->post->getArray();
 
 		// validation
-		if (! isset($post['title']) || trim($post['title']) == "") {
+		if (!isset($post['title']) || trim($post['title']) == "") {
 
 			$message = JText::_('COM_EASYDISCUSS_PRIORITY_TITLE_CANNOT_BE_EMPTY');
-			ED::setMessage($message, 'error');
+			ED::setMessage($message, ED_MSG_ERROR);
 
 			$redirect = 'index.php?option=com_easydiscuss&view=priorities&layout=form';
+			
 			if ($priority->id) {
 				$redirect .= '&id=' . $priority->id;
 			}
 
-			return $this->app->redirect($redirect);
+			return ED::redirect($redirect);
 		}
 
 		$priority->bind($post);
@@ -115,19 +112,26 @@ class EasyDiscussControllerPriorities extends EasyDiscussController
 		// Save the priority
 		$priority->store();
 
+		// log the current action into database.
+		$actionlog = ED::actionlog();
+		$actionlogMsg = $isNew ? 'COM_ED_ACTIONLOGS_CREATED_PRIORITIES' : 'COM_ED_ACTIONLOGS_UPDATED_PRIORITIES';
+
+		$actionlog->log($actionlogMsg, 'priority', array(
+			'link' => 'index.php?option=com_easydiscuss&view=priorities&layout=form&id=' . $priority->id,
+			'priorityTitle' => $priority->title
+		));
+
 		if ($task == 'save2new') {
 			$redirect = 'index.php?option=com_easydiscuss&view=priorities&layout=form';
 		}
-
 
 		if ($task == 'apply') {
 			$redirect = 'index.php?option=com_easydiscuss&view=priorities&layout=form&id=' . $priority->id;
 		}
 
-
 		// Display message
 		ED::setMessage('COM_EASYDISCUSS_PRIORITY_SAVED_SUCCESSFULLY', 'success');
 
-		return $this->app->redirect($redirect);
+		return ED::redirect($redirect);
 	}
 }

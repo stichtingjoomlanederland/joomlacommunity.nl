@@ -1,9 +1,9 @@
 <?php
 /**
 * @package		EasyDiscuss
-* @copyright	Copyright (C) 2010 - 2015 Stack Ideas Sdn Bhd. All rights reserved.
+* @copyright	Copyright (C) Stack Ideas Sdn Bhd. All rights reserved.
 * @license		GNU/GPL, see LICENSE.php
-* EasyBlog is free software. This version may have been modified pursuant
+* EasyDiscuss is free software. This version may have been modified pursuant
 * to the GNU General Public License, and as distributed it includes or
 * is derivative of works licensed under the GNU General Public License or
 * other free or open source software licenses.
@@ -11,12 +11,10 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 
-class EasyDiscussPostAccess extends EasyDiscuss
+class EasyDiscussPostAccess
 {
 	public function __construct($opts = array())
 	{
-		parent::__construct();
-
 		$post = $opts[0];
 		$category = $opts[1];
 
@@ -36,11 +34,15 @@ class EasyDiscussPostAccess extends EasyDiscuss
 
 		$this->category = $category;
 		$this->isModerator = ED::moderator()->isModerator($this->post->category_id);
+
+		$this->acl = ED::acl();
+		$this->config = ED::config();
+		$this->isSiteAdmin = ED::isSiteAdmin();
 	}
 
 	public function isMine()
 	{
-		return DiscussHelper::isMine( $this->post->user_id );
+		return ED::isMine($this->post->user_id);
 	}
 
 	public function isModerate()
@@ -112,8 +114,6 @@ class EasyDiscussPostAccess extends EasyDiscuss
 	 *
 	 * @since	1.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function canBranch()
 	{
@@ -347,11 +347,12 @@ class EasyDiscussPostAccess extends EasyDiscuss
 			return true;
 		}
 
-		if(! is_null( $this->parent ) )
-		{
+		if (!is_null($this->parent)) {
 			//check if the parent post is belong to current user or not.
-			if( DiscussHelper::isMine( $this->parent->user_id ) )
+			
+			if (ED::isMine($this->parent->user_id)) {
 				return true;
+			}
 		}
 
 		if( $this->acl->allowed('mark_answered') )
@@ -375,15 +376,14 @@ class EasyDiscussPostAccess extends EasyDiscuss
 			return true;
 		}
 
-		if(! is_null( $this->parent ) )
-		{
+		if (!is_null($this->parent)) {
 			//check if the parent post is belong to current user or not.
-			if( DiscussHelper::isMine( $this->parent->user_id ) )
+			if (ED::isMine($this->parent->user_id)) {
 				return true;
+			}
 		}
 
-		if( $this->acl->allowed('mark_answered') )
-		{
+		if ($this->acl->allowed('mark_answered')) {
 			return true;
 		}
 
@@ -486,13 +486,11 @@ class EasyDiscussPostAccess extends EasyDiscuss
 
 	public function canNoStatus()
 	{
-		if( $this->isSiteAdmin || $this->isModerator )
-		{
+		if ($this->isSiteAdmin || $this->isModerator) {
 			return true;
 		}
 
-		if( $this->acl->allowed( 'mark_no_status' ) )
-		{
+		if ($this->acl->allowed('mark_no_status')) {
 			return true;
 		}
 
