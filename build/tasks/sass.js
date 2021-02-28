@@ -12,10 +12,17 @@ module.exports = options => {
 
     const file = options.file;
 
-    sass({
-        src: `${src}/style.scss`,
-        dest: `${dest}/style.css`
-    });
+	if (file === 'user.scss') {
+		sass({
+			src: `${src}/user.scss`,
+			dest: `${dest}/user.css`
+		});
+	}
+
+	sass({
+		src: `${src}/style.scss`,
+		dest: `${dest}/style.css`
+	});
 
     if (file === 'dev.scss' || file === '_styleguide-adjustments.scss') {
         sass({

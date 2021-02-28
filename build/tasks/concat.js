@@ -17,7 +17,7 @@ module.exports = options => {
         `${src}/flying-focus.js`,
         `${src}/main.js`
       ],
-      dest: `${dest}/scripts.concat.js`
+      dest: `${dest}/scripts.js`
     });
   }
 

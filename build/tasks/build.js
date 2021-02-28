@@ -69,7 +69,7 @@ setTimeout(() => {
 // js
 concat({file: 'main.js'});
 setTimeout(() => {
-	babel({file: 'scripts.concat.js'});
+	babel({file: 'scripts.js'});
 }, 2000);
 copy({
   src: `node_modules/jquery/dist/jquery.min.js`,

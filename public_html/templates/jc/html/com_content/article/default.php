@@ -9,15 +9,12 @@
 
 defined('_JEXEC') or die;
 
+$layout = 'article';
+
 // Check if category is Bedrijvengids then set layout manually
 if ((int) $this->item->catid === 374)
 {
 	$layout = 'bedrijf';
-}
-else
-{
-	// Set article layout
-	$layout = 'article';
 }
 
 echo $this->loadTemplate($layout);

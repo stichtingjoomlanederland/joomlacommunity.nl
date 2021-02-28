@@ -16,9 +16,9 @@ module.exports = options => {
         dir: `${dest}/icons`
     });
 
-    // clean({
-    //     dir: `${dest}/js`
-    // });
+    clean({
+        dir: `${dest}/js`
+    });
 
 };
 
