@@ -1,6 +1,6 @@
 {
   "name": "perfectsite",
-  "version": "2.1.0",
+  "version": "3.0.0",
   "license": "GPL-3.0",
   "description": "Perfect Site for JoomlaCommunity",
   "repository": {
@@ -12,42 +12,90 @@
     "url": "https://github.com/stichtingjoomlanederland/joomlacommunity.nl/issues"
   },
   "homepage": "https://github.com/stichtingjoomlanederland/joomlacommunity.nl#readme",
+  "config": {
+    "src": "public_html/templates/jc/assets",
+    "dist": "public_html/templates/jc",
+    "port": "5666",
+    "proxy": "local.joomlacommunity.nl",
+    "styleguide": "public_html/media/com_pwtstyleguide"
+  },
   "browserslist": [
     "> 2% in NL",
     "not dead",
     "not ie <= 11",
     "not op_mini all"
   ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "entry",
+          "corejs": 2,
+          "modules": false
+        }
+      ],
+      [
+        "minify",
+        {
+          "builtIns": false
+        }
+      ]
+    ],
+    "comments": false
+  },
+  "engines": {
+    "node": ">=12"
+  },
+  "scripts": {
+    "reinstall": "rimraf ./node_modules && ncu -u && npm install",
+    "prestart": "node ./build/tasks/build.js",
+    "start": "node ./build/tasks/browser-sync.js"
+  },
   "devDependencies": {
-    "apollo.js": "toddmotto/apollo",
-    "diff": "^4.0.2",
-    "font-face": "^2.3.2",
-    "fstream": "^1.0.12",
-    "grunt": "^1.1.0",
-    "grunt-autoprefixer": "^3.0.4",
-    "grunt-browser-sync": "^2.2.0",
-    "grunt-contrib-concat": "^1.0.1",
-    "grunt-contrib-copy": "^1.0.0",
-    "grunt-contrib-cssmin": "^3.0.0",
-    "grunt-contrib-less": "^2.0.0",
-    "grunt-contrib-uglify": "^4.0.1",
-    "grunt-contrib-watch": "^1.1.0",
-    "grunt-modernizr": "^3.0.0",
-    "grunt-sass": "^3.1.0",
-    "grunt-shell": "^3.0.1",
-    "grunt-svgstore": "^2.0.0",
-    "grunt-version-check": "^0.3.8",
-    "grunt-webfont": "^1.7.2",
-    "illusion": "timble/illusion",
-    "jit-grunt": "^0.10.0",
+    "@babel/cli": "^7.13.0",
+    "@babel/core": "^7.13.8",
+    "@babel/preset-env": "^7.13.8",
+    "@khanacademy/tota11y": "^0.2.0",
+    "autoprefixer": "^10.2.4",
+    "babel-eslint": "^10.1.0",
+    "babel-preset-minify": "^0.5.1",
+    "browser-sync": "^2.26.14",
+    "concat": "^3.0.0",
+    "core-js": "^3.9.0",
+    "dotenv": "^8.2.0",
+    "eslint": "^7.21.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^4.1.0",
+    "font-face": "^2.3.4",
+    "illusion": "github:marsvaardig/illusion#v6.2.1",
+    "less": "^4.1",
+    "lsof": "^0.1.0",
+    "mocha": "^8.3.0",
+    "modernizr": "^3.11.4",
+    "node-sass": "^5.0.0",
+    "postcss": "^8.2.6",
+    "postcss-clean": "^1.2.2",
+    "postcss-cli": "^8.3.1",
+    "ps-node": "^0.1.6",
+    "rimraf": "^3.0.2",
+    "stylelint": "^13.11.0",
+    "stylelint-config-recommended-scss": "^4.2.0",
+    "stylelint-config-standard": "^20.0.0",
+    "stylelint-order": "^4.1.0",
+    "stylelint-scss": "^3.19.0",
+    "svgo": "^2.1.0",
+    "svgstore-cli": "^2.0.0",
+    "uninstall": "0.0.0"
+  },
+  "dependencies": {
+    "apollo.js": "github:toddmotto/apollo",
+    "details-element-polyfill": "^2.4.0",
     "jquery": "^3.5.1",
-    "js-yaml": "^3.14.0",
-    "load-grunt-configs": "^1.0.0",
-    "minimist": ">=1.2.5",
-    "node-normalize-scss": "^8.0.1",
-    "node-sass": "^4.14.1",
-    "tar": "^6.0.2",
-    "time-grunt": "^2.0.0",
-    "vanilla-js-responsive-menu": "robinpoort/vanilla-js-responsive-menu"
+    "lazysizes": "^5.3.0",
+    "optimised-svgs": "github:perfectwebteam/optimised-svgs",
+    "scss-resets": "^0.5.2",
+    "vanilla-js-responsive-menu": "github:robinpoort/vanilla-js-responsive-menu"
   }
 }

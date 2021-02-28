@@ -18,16 +18,14 @@ defined('_JEXEC') or die;
 HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers');
 
 // Create shortcuts to some parameters.
-$params  = $this->item->params;
-$images  = json_decode($this->item->images);
-$urls    = json_decode($this->item->urls);
+$params = $this->item->params;
+$images = json_decode($this->item->images);
+$urls = json_decode($this->item->urls);
 $canEdit = $params->get('access-edit');
-$user    = Factory::getUser();
+$user = Factory::getUser();
 
-foreach ($this->item->jcfields as $field)
-{
-	switch ($field->name)
-	{
+foreach ($this->item->jcfields as $field) {
+	switch ($field->name) {
 		case 'certified':
 		case 'portfolio':
 			$this->item->customfields[$field->name] = json_decode($field->rawvalue);
@@ -43,12 +41,11 @@ foreach ($this->item->jcfields as $field)
 	}
 }
 
-$src   = 'templates/' . Factory::getApplication()->getTemplate() . '/images/jc-pattern.png';
+$src = 'templates/' . Factory::getApplication()->getTemplate() . '/images/jc-pattern.png';
 $class = ' photobox--empty';
 
-if ($this->item->customfields['foto'])
-{
-	$src   = $this->item->customfields['foto'];
+if ($this->item->customfields['foto']) {
+	$src = $this->item->customfields['foto'];
 	$class = null;
 }
 ?>
@@ -63,7 +60,8 @@ if ($this->item->customfields['foto'])
 			<div class="col-md-3">
 
 				<div class="company-logo">
-					<img src="<?php echo $this->item->customfields['logo']; ?>" alt="<?php echo $this->item->title; ?>"/>
+					<img src="<?php echo $this->item->customfields['logo']; ?>"
+						 alt="<?php echo $this->item->title; ?>"/>
 				</div>
 
 				<div class="item-meta">
@@ -90,18 +88,20 @@ if ($this->item->customfields['foto'])
 						<p class="article-meta-label">contact</p>
 						<p>
 							<?php if ($this->item->customfields['contactpersoon']): ?>
-								<i class="fa fa-user"></i> <?php echo $this->item->customfields['contactpersoon']; ?>
+								<i class="fa fa-user" aria-hidden="true"></i>
+								<?php echo $this->item->customfields['contactpersoon']; ?>
 								<br>
 							<?php endif; ?>
 							<?php if ($this->item->customfields['telefoon']): ?>
-								<i class="fa fa-phone"></i> <?php echo $this->item->customfields['telefoon']; ?><br>
+								<i class="fa fa-phone" aria-hidden="true"></i>
+								<?php echo $this->item->customfields['telefoon']; ?><br>
 							<?php endif; ?>
 							<?php if ($this->item->customfields['email']): ?>
-								<i class="fa fa-envelope"></i>
+								<i class="fa fa-envelope" aria-hidden="true"></i>
 								<a href="mailto:<?php echo $this->item->customfields['email']; ?>"><?php echo $this->item->customfields['email']; ?></a>
 								<br>
 							<?php endif; ?>
-							<i class="fa fa-globe"></i>
+							<i class="fa fa-globe" aria-hidden="true"></i>
 							<a href="<?php echo $this->item->customfields['website']; ?>"><?php echo $this->item->customfields['website']; ?></a>
 						</p>
 					</div>
@@ -113,12 +113,10 @@ if ($this->item->customfields['foto'])
 				<div class="item">
 					<div class="page-header">
 						<?php if ($canEdit) : ?>
-							<?php echo JHtml::_('icon.edit', $this->item, $params, ['class' => 'btn btn-aan-de-slag pull-right']); ?>
+							<?php echo HTMLHelper::_('icon.edit', $this->item, $params, ['class' => 'btn btn-aan-de-slag pull-right']); ?>
 						<?php endif; ?>
 
-						<h1>
-							Over <?php echo $this->item->title; ?>
-						</h1>
+						<h1>Over <?php echo $this->item->title; ?></h1>
 
 						<?php if ($this->item->state == 0) : ?>
 							<span class="label label-warning"><?php echo Text::_('JUNPUBLISHED'); ?></span>
@@ -130,21 +128,33 @@ if ($this->item->customfields['foto'])
 						<h3>Specialisaties van <?php echo $this->item->title; ?></h3>
 						<div class="bedrijvengids__specialisaties">
 							<?php foreach ($this->item->customfields['specialiteiten'] as $item): ?>
-								<a href="<?php echo Route::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '#specialisms=' . rawurlencode($item) . '&'; ?>" class="btn btn-default"><?php echo $item; ?></a>
+								<?php echo HTMLHelper::_('link',
+									Route::_(ContentHelperRoute::getCategoryRoute($this->item->catslug)) . '#specialisms=' . rawurlencode($item) . '&',
+									$item,
+									[
+										'class' => 'btn btn-default'
+									]
+								); ?>
 							<?php endforeach; ?>
 						</div>
 
 						<?php if ($this->item->customfields['certified']): ?>
 							<h3>Gecertificeerde Joomla-gebruikers</h3>
 							<p>
-								<img src="https://exam.joomla.org/images/badge.png" class="certified"/>Bij <?php echo $this->item->title; ?> werken de volgende
-								<a href="https://certification.joomla.org" target="_blank">gecertificeerde</a> Joomla-gebruikers:
+								<img src="https://exam.joomla.org/images/badge.png"
+									 class="certified"/>Bij <?php echo $this->item->title; ?> werken de volgende
+								<a href="https://certification.joomla.org" target="_blank">gecertificeerde</a>
+								Joomla-gebruikers:
 							</p>
 							<ul>
 								<?php foreach ($this->item->customfields['certified'] as $item): ?>
-									<li>
-										<a href="<?php echo $item->{'Link naar profiel op Certified User Directory'}; ?>" target="_blank"><?php echo $item->{'Naam'}; ?></a>
-									</li>
+									<li><?php echo HTMLHelper::_('link',
+											$item->{'Link naar profiel op Certified User Directory'},
+											$item->{'Naam'},
+											[
+												'target' => '_blank'
+											]
+										); ?></li>
 								<?php endforeach; ?>
 							</ul>
 						<?php endif; ?>
@@ -159,14 +169,30 @@ if ($this->item->customfields['foto'])
 	<div class="row">
 		<?php foreach ($this->item->customfields['portfolio'] as $item): ?>
 			<div class=" col-md-4">
-				<div class="panel panel-home">
-					<a href="<?php echo $item->{'URL van website'}; ?>" target="_blank">
-						<img src="https://image.thum.io/get/<?php echo $item->{'URL van website'}; ?>" class="img-rounded img-responsive"/>
-					</a>
+				<div class="panel panel-home"><?php
+					echo HTMLHelper::_('link',
+						$item->{'URL van website'},
+						HTMLHelper::_('image',
+							'https://image.thum.io/get/' . $item->{'URL van website'},
+							'',
+							[
+								'class' => 'img-rounded img-responsive'
+							]
+						),
+						[
+							'target' => '_blank'
+						]
+					);
+					?>
 					<div class="panel-footer">
 						<h3 class="panel-title"><?php echo $item->{'Naam van site'}; ?></h3>
-						<a href="<?php echo $item->{'URL van website'}; ?>" target="_blank"><?php echo $item->{'URL van website'}; ?></a>
-					</div>
+						<?php echo HTMLHelper::_('link',
+							$item->{'URL van website'},
+							$item->{'URL van website'},
+							[
+								'target' => '_blank'
+							]
+						); ?></div>
 				</div>
 			</div>
 		<?php endforeach; ?>
