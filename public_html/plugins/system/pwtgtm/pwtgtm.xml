@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="1.6" group="system" method="upgrade">
+    <name>System - PWT GTM</name>
+    <author>Perfect Web Team</author>
+    <creationDate>7 June 2019</creationDate>
+    <copyright>Copyright (C) 2011 - 2019 Perfect Web Team</copyright>
+    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>extensions@perfectwebteam.com</authorEmail>
+    <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+    <version>1.0.0</version>
+    <description>PWT GTM - System plugin</description>
+
+    <files>
+        <filename plugin="pwtgtm">pwtgtm.php</filename>
+    </files>
+
+    <config>
+        <fields name="params" addfieldpath="/plugins/system">
+            <fieldset name="basic">
+                <field name="pwtgtm_id" type="text" default="" label="Container ID"
+                       description="Enter your GTM Container Public ID(GTM-XXXX)"/>
+            </fieldset>
+        </fields>
+    </config>
+</extension>
