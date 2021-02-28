@@ -826,7 +826,7 @@ RSComments = {
 			dataType: 'json',
 			success: function(response) {
 				if (response.success) {
-					jQuery('#report-message').removeClass('alert-danger');
+					jQuery('#report-message').removeClass('alert-danger').addClass('alert-success');
 					jQuery('#report-reason').val('');
 					setTimeout(function() {
 						if (window.parent.jQuery('#rscomments-report').length) {

@@ -1,0 +1,19 @@
+{
+  "minify": true,
+  "options": [
+    "html5shiv",
+    "prefixedCSS",
+    "setClasses"
+  ],
+  "feature-detects": [
+    "css/appearance",
+    "css/calc",
+    "css/transforms",
+    "css/checked",
+    "css/flexbox",
+    "css/flexboxlegacy",
+    "css/flexwrap",
+    "storage/localstorage",
+    "svg"
+  ]
+}

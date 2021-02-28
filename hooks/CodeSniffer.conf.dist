@@ -1,0 +1,8 @@
+<?php
+ $phpCodeSnifferConfig = array (
+  'installed_paths' => __DIR__ . '/coding-standards-3.x-dev/Joomla/',
+  'show_progress' => '0',
+  'encoding' => 'utf-8',
+  'default_standard' => 'Joomla',
+)
+?>

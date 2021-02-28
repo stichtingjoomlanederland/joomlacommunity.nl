@@ -378,13 +378,9 @@ class com_rscommentsInstallerScript
 		
 		// Process each query in the $queries array (split out of sql file).
 		foreach ($queries as $query) {
-			$query = trim($query);
-			if ($query != '' && $query{0} != '#') {
-				$db->setQuery($query);
-				if (!$db->execute()) {
-					throw new Exception(JText::_('JLIB_INSTALLER_ERROR_SQL_ERROR'), 1);
-					return false;
-				}
+			$db->setQuery($db->convertUtf8mb4QueryToUtf8($query));
+			if (!$db->execute()) {
+				return false;
 			}
 		}
 	}

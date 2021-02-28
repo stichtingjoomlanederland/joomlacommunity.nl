@@ -1,0 +1,124 @@
+#!/bin/bash
+
+PHPCS_BIN=$(dirname $0)/../../hooks/phpcs.phar
+PHPCBF_BIN=$(dirname $0)/../../hooks/phpcbf.phar
+PHPCS_CODING_STANDARD=Joomla
+PHPCS_IGNORE="templates\/|styleguide\/|views\/.*?\/tmpl\/|modules\/.*?\/tmpl\/"
+PHPCS_SNIFFS=
+PHPCS_IGNORE_WARNINGS=
+PHPCS_FILE_PATTERN="\.(php)$"
+
+# Parse config file
+CONFIG_FILE=$(dirname $0)/config
+if [ -e $CONFIG_FILE ]; then
+    . $CONFIG_FILE
+fi
+
+# Check if we have the CodeSniffer installed
+if [ ! -x $PHPCS_BIN ]; then
+    echo "PHP CodeSniffer bin not found or executable -> $PHPCS_BIN"
+    exit 1
+fi
+
+# Check if we have the CodeBeautifier installed
+if [ ! -x $PHPCBF_BIN ]; then
+    echo "PHP CodeBeautifier bin not found or executable -> $PHPCBF_BIN"
+    exit 1
+fi
+
+# In the case of initial commit
+if git rev-parse --verify HEAD
+then
+    against=HEAD
+else
+    # Initial commit: diff against an empty tree object
+    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+
+# Check only the staged files
+FILES=$(git diff-index --name-only --cached --diff-filter=ACMR $against -- )
+
+# Check if we have any files to check
+if [ "$FILES" == "" ]; then
+    exit 0
+fi
+
+# Match files against whitelist
+FILES_TO_CHECK=""
+for FILE in $FILES
+do
+    echo "$FILE" | egrep -q "$PHPCS_FILE_PATTERN"
+    RETVAL=$?
+    if [ "$RETVAL" -eq "0" ]
+    then
+		if [ "$PHPCS_IGNORE" != "" ]; then
+		    # Allow to ignore some files
+			echo "$FILE" | egrep -q "$PHPCS_IGNORE"
+			RETVAL=$?
+			if [ "$RETVAL" -eq "1" ]
+			then
+				FILES_TO_CHECK="$FILES_TO_CHECK $FILE"
+			fi
+		else
+			FILES_TO_CHECK="$FILES_TO_CHECK $FILE"
+		fi
+    fi
+done
+
+# Allow to run only certain sniffs
+if [ "$PHPCS_SNIFFS" != "" ]; then
+    SNIFFS="--sniffs=$PHPCS_SNIFFS"
+else
+    SNIFFS=""
+fi
+
+if [ "$PHPCS_IGNORE_WARNINGS" == "1" ]; then
+    IGNORE_WARNINGS="-n"
+else
+    IGNORE_WARNINGS=""
+fi
+
+# Check again after the whitelist
+if [ "$FILES_TO_CHECK" == "" ]; then
+    exit 0
+fi
+
+# Get our base directory
+PROJECT=`php -r "echo dirname(dirname(realpath('$0')));"`
+
+# Reset our files array
+FILES=""
+
+for FILE in $FILES_TO_CHECK
+do
+	php -l -d display_errors=1 $PROJECT/$FILE
+	if [ $? != 0 ]
+	then
+		exit 1
+	fi
+	FILES="$FILES $PROJECT/$FILE"
+done
+
+if [ "$FILES" != "" ]
+then
+	echo "Running Code Sniffer..."
+	$PHPCS_BIN -s $IGNORE_WARNINGS --standard=Joomla --encoding=utf-8 -n -p $SNIFFS $FILES
+	if [ $? != 0 ]
+	then
+		echo "Running phpcbf..."
+		$PHPCBF_BIN --standard=Joomla --encoding=utf-8 $FILES
+		git add $FILES
+
+		echo "Running Code Sniffer again..."
+		$PHPCS_BIN -s $IGNORE_WARNINGS --standard=Joomla --encoding=utf-8 -n -p $SNIFFS $FILES
+
+		if [ $? != 0 ]
+		then
+			echo "Errors found, cannot commit."
+			exit 1
+		fi
+	fi
+fi
+
+exit $?

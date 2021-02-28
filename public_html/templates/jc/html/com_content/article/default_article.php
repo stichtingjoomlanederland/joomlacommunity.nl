@@ -17,11 +17,6 @@ defined('_JEXEC') or die;
 
 HTMLHelper::addIncludePath(JPATH_COMPONENT . '/helpers');
 
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
-
-$profile = DiscussHelper::getTable('Profile');
-$profile->load($this->item->created_by);
-
 // Create shortcuts to some parameters.
 $params  = $this->item->params;
 $images  = json_decode($this->item->images);
@@ -110,16 +105,13 @@ foreach ($this->item->tags->itemTags as $tag)
 					<?php if ($params->get('show_author')) : ?>
 						<div class="article-meta auteur-info">
 							<p class="article-meta-label">door</p>
-							<?php if (!empty($this->item->created_by_alias)) : ?>
-								<p>
-									<?php echo $this->item->created_by_alias; ?>
-								</p>
-							<?php else: ?>
-								<p>
-									<?php echo HTMLHelper::_('link', $profile->getLink(), $profile->user->get('name')); ?>
-								</p>
-							<?php endif; ?>
-
+							<p><?php
+                                if (!empty($this->item->created_by_alias)) :
+                                    echo $this->item->created_by_alias;
+                                else:
+                                    echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $this->item->created_by]);
+                                endif;
+                                ?></p>
 						</div>
 					<?php endif; ?>
 

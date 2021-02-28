@@ -757,8 +757,11 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$params		= rseventsproHelper::getParams();
 		$past		= (int) $params->get('past',1);
 		$archived	= (int) $params->get('archived',1);
+		$unpublished= (int) $params->get('unpublished',1);
+		$canceled	= (int) $params->get('canceled',1);
 		$code		= JFactory::getApplication()->input->getString('code');
 		$showform	= $this->getShowForm();
+		$tzoffset	= rseventsproHelper::getTimezone();
 		
 		$subscriptions = array();
 		
@@ -777,12 +780,26 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$query->where($this->_db->qn('u.email').' = '.$this->_db->q($this->_user->get('email')));
 		}
 		
-		if (!$archived) {
-			$query->where($this->_db->qn('e.published').' = 1');
+		if (!$archived || !$unpublished || !$canceled) {
+			$estates = array(0,1,2,3);
+			
+			if (!$archived) unset($estates[2]);
+			if (!$unpublished) unset($estates[0]);
+			if (!$canceled) unset($estates[3]);
+			
+			$query->where($this->_db->qn('e.published').' IN ('.implode(',', $estates).')');
 		}
 		
 		if (!$past) {
-			$query->where($this->_db->qn('e.end').' > '.$this->_db->q(JFactory::getDate()->toSql()));
+			$today = JFactory::getDate();
+			$today->setTimezone(new DateTimezone($tzoffset));
+			$today->setTime(0,0,0);
+			$today = $today->toSql();
+			
+			$p1 = '('.$this->_db->qn('e.end').' <> '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.end').' > '.$this->_db->q(JFactory::getDate()->toSql()).')';
+			$p2 = '('.$this->_db->qn('e.end').' = '.$this->_db->q($this->_db->getNullDate()).' AND '.$this->_db->qn('e.start').' >= '.$this->_db->q($today).')';
+			
+			$query->where('( '.$p1.' OR  '.$p2.' )');
 		}
 		
 		$this->_db->setQuery($query);
@@ -3891,6 +3908,11 @@ class RseventsproModelRseventspro extends JModelLegacy
 			
 			return false;
 		} else {
+			if (empty($this->permissions['can_unsubscribe'])) {
+				$this->setError(JText::_('COM_RSEVENTSPRO_ERROR_SUBSCRIBER_DELETE'));
+				return false;
+			}
+			
 			$table	= JTable::getInstance('Subscription','RseventsproTable');
 			$table->load($id);
 			

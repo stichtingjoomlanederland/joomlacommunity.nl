@@ -8,11 +8,19 @@
 	
 	<fields name="params">
 		<fieldset name="basic">
-			<field name="archived" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS_DESC" default="1">
+			<field name="archived" type="radio" class="btn-group btn-group-yesno" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_ARCHIVED_EVENTS_DESC" default="1">
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>
-			<field name="past" type="radio" class="btn-group" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS_DESC" default="1">
+			<field name="unpublished" type="radio" class="btn-group btn-group-yesno" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_UNPUBLISHED_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_UNPUBLISHED_EVENTS_DESC" default="1">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="canceled" type="radio" class="btn-group btn-group-yesno" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_CANCELED_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_CANCELED_EVENTS_DESC" default="1">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
+			<field name="past" type="radio" class="btn-group btn-group-yesno" label="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS" description="COM_RSEVENTSPRO_MY_SUBSCRIPTIONS_PAST_EVENTS_DESC" default="1">
 				<option value="1">JYES</option>
 				<option value="0">JNO</option>
 			</field>

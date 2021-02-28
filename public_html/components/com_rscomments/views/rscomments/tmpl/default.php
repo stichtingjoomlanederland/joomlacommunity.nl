@@ -20,7 +20,7 @@ defined('_JEXEC') or die('Restricted access'); ?>
 			<?php if ($this->config->modal == 2) { ?>
 			<a class="mycomments-modal <?php echo RSTooltip::tooltipClass(); ?>" href="<?php echo JRoute::_('index.php?option=com_rscomments&task=mycomments&tmpl=component', false); ?>" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_MY_COMMENTS_DESC')); ?>">
 			<?php } else { ?>
-			<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_MY_COMMENTS_DESC')); ?>" data-toggle="modal" data-target="#rscomments-mycomments">
+			<a class="<?php echo RSTooltip::tooltipClass(); ?>" href="javascript:void(0);" title="<?php echo RSTooltip::tooltipText(JText::_('COM_RSCOMMENTS_MY_COMMENTS_DESC')); ?>" data-toggle="modal" data-target="#rscomments-mycomments" data-bs-toggle="modal" data-bs-target="#rscomments-mycomments">
 			<?php } ?>
 				<i class="fa fa-comments"></i> <?php echo JText::_('COM_RSCOMMENTS_MY_COMMENTS'); ?>
 			</a>

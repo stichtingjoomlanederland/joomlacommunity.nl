@@ -10,12 +10,9 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\Helper\ModuleHelper;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Layout\LayoutHelper;
 
 defined('_JEXEC') or die('Restricted access');
-
-// Get organizers of event, JC custom
-require_once(JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.php');
-$profile = DiscussHelper::getTable('Profile');
 
 JLoader::register('ContentHelperRoute', JPATH_SITE . '/components/com_content/helpers/route.php');
 
@@ -156,20 +153,14 @@ $organisers = Access::getUsersByGroup($usergroup);
                     <!-- Show organizers -->
                     <div class="panel panel-agenda">
                         <div class="panel-heading">Organisatoren</div>
-                        <div class="list-group list-group-flush panel-agenda">
-							<?php foreach ($organisers as $organiser) : ?>
-								<?php $profile->load($organiser); ?>
-                                <a class="list-group-item" href="<?php echo $profile->getLink(); ?>">
-                                    <img class="img-circle" src="<?php echo $profile->getAvatar(); ?>" width="50px"
-                                         height="50px"/>
-									<?php if ($profile->nickname): ?>
-										<?php echo $profile->nickname; ?>
-									<?php else: ?>
-										<?php echo $profile->user->username; ?>
-									<?php endif; ?>
-                                </a>
-							<?php endforeach; ?>
-                        </div>
+                        <ul class="list-group list-group-flush panel-agenda"><?php
+                            foreach ($organisers as $organiser) :
+                                echo '<li class="list-group-item list-group-item--inline">';
+                                echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $organiser, 'type' => 'avatar']);
+                                echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $organiser]);
+                                echo '</li>';
+                            endforeach;
+                            ?></ul>
                     </div>
                     <!--//end Show organizers -->
                 </div>

@@ -9,7 +9,7 @@ defined('_JEXEC') or die('Restricted access');
 
 class RscommentsControllerGroup extends JControllerForm
 {	
-	protected function postSaveHook(&$model, $validData) {
+	protected function postSaveHook($model, $validData = []) {
 		$task = $this->getTask();
 		
 		if ($task == 'apply') {
