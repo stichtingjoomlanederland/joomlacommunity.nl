@@ -27,6 +27,7 @@ class ComDocmanViewJson extends KViewJson
         'links',
         'storage_type',
         'storage_path',
+        'tags'
     );
 
     protected static $_public_category_properties = array(
@@ -112,6 +113,7 @@ class ComDocmanViewJson extends KViewJson
         $data['access_title'] = $document->access_title;
         $data['icon']  = $document->icon;
         $data['image'] = $document->image;
+        $data['tags']  = $document->tag_list;
         $data['links'] = array(
             'file' => array(
                 'href'  => (string)$document->download_link,

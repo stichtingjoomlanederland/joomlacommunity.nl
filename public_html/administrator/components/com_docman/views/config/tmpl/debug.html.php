@@ -73,6 +73,46 @@ defined('KOOWA') or die; ?>
                                 <fieldset class="k-form-block">
 
                                     <div class="k-form-block__header">
+                                        <?= translate('License'); ?>
+                                    </div>
+                                    <div class="k-form-block__content">
+
+                                        <div class="k-form-group">
+                                            <label>Site key</label>
+                                            <input type="text"
+                                                   class="k-form-control"
+                                                   name="site_key"
+                                                   value="<?= $license->getSiteKey() ?>" />
+                                        </div>
+
+                                        <div class="k-form-group">
+                                            <label>API key</label>
+                                            <input type="text"
+                                                   class="k-form-control"
+                                                   name="api_key"
+                                                   value="<?= $license->getApiKey() ?>" />
+                                        </div>
+
+                                        <div class="k-form-group">
+                                            <label>Public key</label>
+                                            <input type="text"
+                                                   class="k-form-control"
+                                                   name="public_key"
+                                                   value="<?= $license->getPublicKey() ?>" />
+                                        </div>
+
+                                        <div class="k-form-group">
+                                            <label>License</label>
+                                            <input type="text"
+                                                   class="k-form-control"
+                                                   name="license"
+                                                   value="<?= $license->getLicense() ?>" />
+                                            <li><strong>Load error:</strong> <pre><?= $license_error ?: 'none' ?></pre></li>
+                                            <li><strong>License decoded:</strong> <pre><?= $license_claims ?></pre></li>
+                                        </div>
+                                    </div>
+
+                                    <div class="k-form-block__header">
                                         <?= translate('Connect'); ?>
                                     </div>
 

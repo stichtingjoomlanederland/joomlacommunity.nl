@@ -77,6 +77,30 @@ class com_EasyDiscussInstallerScript
 	}
 
 	/**
+	 * Convert utf8mb4 to utf8
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function convertUtf8mb4QueryToUtf8($query)
+	{
+		if ($this->hasUTF8mb4Support()) {
+			return $query;
+		}
+
+		// If it's not an ALTER TABLE or CREATE TABLE command there's nothing to convert
+		$beginningOfQuery = substr($query, 0, 12);
+		$beginningOfQuery = strtoupper($beginningOfQuery);
+
+		if (!in_array($beginningOfQuery, array('ALTER TABLE ', 'CREATE TABLE'))) {
+			return $query;
+		}
+
+		// Replace utf8mb4 with utf8
+		return str_replace('utf8mb4', 'utf8', $query);
+	}
+
+	/**
 	 * Determines if the file is an install.mysql.sql file
 	 *
 	 * @since	4.2.0
@@ -103,6 +127,36 @@ class com_EasyDiscussInstallerScript
 		$dbType = $jConfig->get('dbtype');
 
 		return $dbType == 'mysql' || $dbType == 'mysqli';
+	}
+
+	/**
+	 * Determine if mysql can support utf8mb4 or not.
+	 *
+	 * @since	5.0
+	 * @access	public
+	 */
+	public function hasUTF8mb4Support()
+	{
+		static $_cache = null;
+
+		if (is_null($_cache)) {
+			$client_version = '5.0.0';
+
+			if (function_exists('mysqli_get_client_info')) {
+				$client_version = mysqli_get_client_info();
+			} else if (function_exists('mysql_get_client_info')) {
+				$client_version = mysql_get_client_info();
+			}
+
+			if (strpos($client_version, 'mysqlnd') !== false) {
+				$client_version = preg_replace('/^\D+([\d.]+).*/', '$1', $client_version);
+				$_cache = version_compare($client_version, '5.0.9', '>=');
+			} else {
+				$_cache = version_compare($client_version, '5.5.3', '>=');
+			}
+		}
+
+		return $_cache;
 	}
 
 	/**
@@ -338,23 +392,20 @@ class com_EasyDiscussInstallerScript
 				continue;
 			}
 
+			$folder = dirname($dest);
+
+			if (!JFolder::exists($folder)) {
+				JFolder::create($folder);
+			}
+
 			// For query files, we need to execute them
 			if ($this->isQueries($file)) {
 
-				$folder = dirname($dest);
-
-				if (!JFolder::exists($folder)) {
-					JFolder::create($folder);
-				}
-
 				JFile::copy($source, $dest);
-
 				$this->runQueries($dest);
 
 				continue;
 			}
-
-			$folder = dirname($dest);
 
 			if (!$isNew) {
 				if (JFile::exists($dest)) {
@@ -366,9 +417,6 @@ class com_EasyDiscussInstallerScript
 			}
 
 			// new files.
-			if (!JFolder::exists($folder)) {
-				JFolder::create($folder);
-			}
 			JFile::copy($source, $dest);
 		}
 
@@ -614,6 +662,10 @@ class com_EasyDiscussInstallerScript
 
 		foreach ($queries as $query) {
 			$query = trim($query);
+
+			if ($this->isMySQL() && !$this->hasUTF8mb4Support()) {
+				$query = $this->convertUtf8mb4QueryToUtf8($query);
+			}
 
 			if (!empty($query)) {
 				$db->setQuery($query);

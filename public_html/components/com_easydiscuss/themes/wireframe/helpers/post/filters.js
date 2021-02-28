@@ -203,8 +203,11 @@ $('body').on('click.ed.filter.category.navigation', '[data-category-filter] [dat
 	.done(function(contents) {
 		self.hideParents();
 		self.hideSiblingsAndSelf();
-		
+
 		parent.append(contents);
+
+		// Make sure to scroll back to the top
+		categoryContainer[0].scrollTop = 0;
 	})
 	.always(function() {
 		self.doneLoading();

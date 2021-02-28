@@ -37,7 +37,9 @@ class ComDocmanControllerConfig extends ComKoowaControllerModel
         {
             $url = $response->getHeaders()->get('Location');
             if (preg_match('#view=(configs|export|import)#', $url, $matches)) {
-                $response->setRedirect(str_replace('view='.$matches[1], 'view=documents', $url));
+                $toUrl = str_replace('view='.$matches[1], 'view=documents', $url);
+                $toUrl = str_replace('layout=debug', 'layout=default', $toUrl);
+                $response->setRedirect($toUrl);
             }
         }
     }
@@ -55,4 +57,15 @@ class ComDocmanControllerConfig extends ComKoowaControllerModel
             $this->getResponse()->addMessage($message, 'warning');
         }
     }
+
+    protected function _actionRefresh_license(KControllerContextInterface $context)
+    {
+        $this->getObject('license')->refresh();
+
+        return new KObjectConfigJson([
+            'success' => true
+        ]);
+    }
+
+
 }

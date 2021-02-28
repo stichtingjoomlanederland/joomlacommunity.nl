@@ -2,6 +2,15 @@ html {
     font-size: calc(1em + .1vw);
 }
 
+#ed div:empty {
+    display: none;
+}
+
+#ed hr {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 #ed.si-theme--light {
     --si-primary: hsl(194, 62%, 48%);
 }

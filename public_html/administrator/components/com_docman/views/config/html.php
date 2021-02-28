@@ -81,6 +81,24 @@ class ComDocmanViewConfigHtml extends ComDocmanViewHtml
 
         }
 
+        try {
+            $context->data->license = $this->getObject('license');
+
+            if ($context->data->license->load()) {
+                $context->data->has_connect = $context->data->license->hasFeature('connect');
+                $context->data->license_error = null;
+                $context->data->license_claims = $context->data->license->getToken() ? json_encode($context->data->license->getToken()->getClaims(), JSON_PRETTY_PRINT) : 'error';
+            } else {
+                $context->data->has_connect = false;
+                $context->data->license_error = $context->data->license->getError();
+                $context->data->license_claims = 'error';
+            }
+
+        } catch (Exception $e) {
+            $context->data->license_error = $e->getMessage();
+            $context->data->license_claims = 'error';
+        }
+
         parent::_fetchData($context);
     }
 }

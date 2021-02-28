@@ -86,9 +86,15 @@ class EasyDiscussThemesHelperPost extends EasyDiscussHelperAbstract
 			return;
 		}
 
+		// Non logged in users will never have badge
+		if (is_null($author->id)) {
+			return;
+		}
+
 		static $data = [];
 
 		if (!isset($data[$author->id])) {
+
 			$badges = $author->getBadges();
 
 			$theme = ED::themes();
@@ -159,7 +165,7 @@ class EasyDiscussThemesHelperPost extends EasyDiscussHelperAbstract
 		$showCategories = ED::normalize($options, 'showCategories', true);
 		$showSorting = ED::normalize($options, 'showSorting', true);
 		$search = ED::normalize($options, 'search', '');
-
+		
 		$config = ED::config();
 
 		if (is_null($categories) && $showCategories) {
@@ -191,7 +197,7 @@ class EasyDiscussThemesHelperPost extends EasyDiscussHelperAbstract
 
 			if ($config->get('layout_post_types')) {
 				$model = ED::model('PostTypes');
-				$types = $model->getTypes(true);
+				$types = $model->getPostTypesOnListings($activeCategory);
 
 				foreach ($types as $type) {
 					ED::cache()->set($type, 'posttypes', 'alias');
@@ -768,10 +774,13 @@ class EasyDiscussThemesHelperPost extends EasyDiscussHelperAbstract
 			return;
 		}
 
+		$typeSuffix = $post->getPostTypeSuffix();
+
 		$theme = ED::themes();
 		$theme->set('post', $post);
 		$theme->set('type', $type);
-
+		$theme->set('typeSuffix', $typeSuffix);
+		
 		$output = $theme->output('site/helpers/post/type');
 
 		return $output;

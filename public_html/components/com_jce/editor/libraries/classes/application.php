@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright     Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
+ * @copyright     Copyright (c) 2009-2021 Ryan Demmer. All rights reserved
  * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -92,15 +92,6 @@ class WFApplication extends JObject
 
     public function getContext()
     {
-        /*if ($this->profile) {
-        // get token
-        $token = JSession::getFormToken();
-        // create context hash
-        $this->context = md5($token . serialize($this->profile));
-        // assign profile id to user session
-        $app->setUserState($this->context, $this->profile->id);
-        }*/
-
         $option = JFactory::getApplication()->input->getCmd('option');
         $extension = $this->getComponent(null, $option);
 
@@ -135,8 +126,13 @@ class WFApplication extends JObject
             $context = $app->input->getInt('context');
 
             if ($context) {
-                $component = $this->getComponent($context);
-                $settings['option'] = $component->element;
+                
+                if ($context === 'mediafield') {
+                    $settings['option'] = 'mediafield';
+                } else {
+                    $component = $this->getComponent($context);
+                    $settings['option'] = $component->element;
+                }
             }
 
             $profile_id = $app->input->getInt('profile_id');
@@ -148,11 +144,6 @@ class WFApplication extends JObject
 
         // get the Joomla! area, default to "site"
         $settings['area'] = $app->getClientId() === 0 ? 1 : 2;
-
-        if (!class_exists('Wf_Mobile_Detect')) {
-            // load mobile detect class
-            require_once __DIR__ . '/mobile.php';
-        }
 
         $mobile = new Wf_Mobile_Detect();
 

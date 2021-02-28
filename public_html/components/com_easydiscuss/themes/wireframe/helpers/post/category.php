@@ -21,7 +21,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		data-ed-popbox-component="o-popbox--category"
 		data-ed-popbox-cache="1"
 		data-args-id="<?php echo $category->id; ?>"
-		class="t-d--flex t-align-items--c"
+		class="t-d--flex t-align-items--c si-link"
 	>
 		<?php echo $this->html('category.identifier', $category, 'sm'); ?>
 		&nbsp;

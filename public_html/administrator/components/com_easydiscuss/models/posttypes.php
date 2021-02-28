@@ -69,7 +69,7 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		// This is for frontend
 		if ($frontend) {
 			$where[] = $db->nameQuote('a.published') . '=' . $db->Quote('1');
-			$where[] = '(' . $db->qn('a.type') . '=' . $db->Quote('global') . ' OR ' . $db->qn('a.type') . '="")';
+            $where[] = '(' . $db->qn('a.type') . '=' . $db->Quote('global') . ' OR ' . $db->qn('a.type') . '="")';
 		}
 
 		if ($filter_state) {
@@ -140,6 +140,25 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		return $this->_data;
 	}
 
+	/**
+	 * Determine if the current view is single category page then we need only show those post types only available this category
+	 *
+	 * @since	5.0.2
+	 * @access	public
+	 */
+	public function isSingleCatView()
+	{
+		$component = $this->input->get('option', '', 'cmd');
+		$view = $this->input->get('view', '', 'cmd');
+		$layout = $this->input->get('layout', '', 'cmd');
+		$catId = $this->input->get('category_id', 0, 'int');
+
+		if ($component != 'com_easydiscuss' && $view != 'categories' && $layout != 'listings' && !$catId) {
+			return false;
+		}
+
+		return true;
+	}
 
 	/**
 	 * Total type
@@ -193,6 +212,54 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		}
 
 		return $this->_total;
+	}
+
+	/**
+	 * Retrieves the post types available on the listing pages
+	 *
+	 * @since	5.0.2
+	 * @access	public
+	 */
+	public function getPostTypesOnListings($categoryId = null, $order = 'ASC', $searchBar = false)
+	{
+		$db = ED::db();
+		$query = array();
+
+		if (!is_null($categoryId)) {
+			$categoryId = (int) $categoryId;
+		}
+
+		$isSingleCatView = $this->isSingleCatView();
+
+		$query[] = 'SELECT a.* FROM ' . $db->qn('#__discuss_post_types') . ' AS a';
+
+		// Single category view
+		if ($isSingleCatView && $categoryId) {
+
+			$query[] = 'LEFT JOIN ' . $db->qn('#__discuss_post_types_category') . ' AS b';
+			$query[] = 'ON a.' . $db->qn('id') . ' = b.' . $db->qn('type_id');
+			$query[] = 'WHERE';
+			$query[] = 'a.' . $db->qn('published') . '=' . $db->Quote(1);
+			$query[] = 'AND';
+			$query[] = 'b.' . $db->qn('category_id') . ' = ' . $db->Quote($categoryId);
+
+		// index and tag view	
+		} else {
+			$query[] = 'WHERE';
+			$query[] = 'a.' . $db->qn('published') . '=' . $db->Quote(1);			
+		}
+
+		$query[] = 'ORDER BY `lft` ' . $order;
+
+		$query = implode(' ', $query);
+
+		// echo str_ireplace('#__', 'jos_', $query);
+		// exit;
+
+		$db->setQuery($query);
+		$types = $db->loadObjectList();
+
+		return $types;
 	}
 
 	/**
@@ -397,10 +464,6 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 	 */
 	public function createAssociation($postType, $categories = array())
 	{
-		if (!$categories) {
-			return;
-		}
-
 		// Delete existing items first
 		$db = ED::db();
 		$query = array();
@@ -410,6 +473,10 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 		$query = implode(' ', $query);
 		$db->setQuery($query);
 		$db->Query();
+
+		if (!$categories) {
+			return;
+		}
 
 		foreach ($categories as $categoryId) {
 			$id = (int) $categoryId;

@@ -188,6 +188,40 @@ defined('KOOWA') or die; ?>
                             <fieldset class="k-form-block">
 
                                 <div class="k-form-block__header">
+                                    <?= translate('License');?>
+                                </div>
+
+                                <div class="k-form-block__content">
+
+                                    <div class="k-form-group">
+                                        <? if ($license_error): ?>
+                                            <p class="k-alert--danger">Invalid license: <?= $license_error ?></p>
+                                        <? else: ?>
+                                            <p>Licensed to <a href="https://dashboard.joomlatools.com/my-account" target="_blank">
+                                                    <?= $license->getToken()->getClaim('sub')['name']; ?></a></p>
+                                            <? foreach ($license->getSubscriptions() as $subscription): ?>
+                                                <p><?= $subscription['title'] ?>
+                                                    <? if (isset($subscription['end'])): ?>
+                                                        valid until <?= helper('date.format', ['date' => $subscription['end']]); ?>
+                                                    <? endif ?>
+                                                </p>
+                                            <? endforeach; ?>
+                                            <? if (false && $has_connect): ?>
+                                                <p><?= translate('Joomlatools Connect is active') ?></p>
+                                            <? endif; ?>
+                                        <? endif; ?>
+
+                                        <p>
+                                            <a class="k-button k-button--default k-js-refresh-license">
+                                                <?= translate('Refresh support license')?>
+                                            </a>
+                                        </p>
+                                    </div>
+
+                            </fieldset>
+                            <fieldset class="k-form-block">
+
+                                <div class="k-form-block__header">
                                     <?= translate('Global permissions') ?>
                                 </div>
 

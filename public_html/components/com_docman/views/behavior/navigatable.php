@@ -35,12 +35,27 @@ class ComDocmanViewBehaviorNavigatable extends KViewBehaviorAbstract
                 }
                 else
                 {
+                    $first      = null;
+                    $model      = $this->getObject('com://site/docman.model.categories');
+                    $categories = $model->setState($data['state'])->fetch();
+
                     // Exclude subcategories of an unpublished parent category
-                    $result = $this->getModel()->getHierachicalCategories(null, 1);
-                    $first  = $this->getModel()->create((array) array_pop($result));
+                    $result = $model->getHierachicalCategories();
+                    $published_categories = array_map(function ($value) {
+                        return $value->id;
+                    }, $result);
+
+                    foreach ($categories as $category)
+                    {
+                        // Get the first succeeding published category
+                        if (in_array($category->id, $published_categories)) {
+                            $first = $category;
+                            break;
+                        }
+                    }
 
                     // Ensure there is a category
-                    if ($first->id)
+                    if ($first && !$first->isNew())
                     {
                         $category_link = $this->getTemplate()->createHelper('com://admin/docman.template.helper.route')
                             ->category(array('entity' => $first, 'view' => 'tree'), true, false);

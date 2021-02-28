@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @copyright     Copyright (c) 2009-2020 Ryan Demmer. All rights reserved
+ * @copyright     Copyright (c) 2009-2021 Ryan Demmer. All rights reserved
  * @license       GNU/GPL 2 or later - http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  * JCE is free software. This version may have been modified pursuant
  * to the GNU General Public License, and as distributed it includes or
@@ -323,13 +323,13 @@ class WFMediaManager extends WFMediaManagerBase
         return $exif;
     }
 
-    private function cleanExifString($string)
+    protected function cleanExifString($string)
     {
         $string = (string) filter_var($string, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES | FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_BACKTICK);
         return htmlspecialchars($string);
     }
 
-    private function getImageDescription($image)
+    protected function getImageDescription($image)
     {
         $description = '';
 

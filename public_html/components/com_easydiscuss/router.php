@@ -39,7 +39,7 @@ class EasyDiscussRouterBase extends EasyDiscuss
 		$config = ED::config();
 
 		// Get the current query menu
-		$menu = JFactory::getApplication()->getMenu();
+		$menu = JFactory::getApplication()->getMenu('site');
 		$active = isset($query['Itemid']) ? $menu->getItem($query['Itemid']) : $menu->getActive();
 
 		$lang = null;

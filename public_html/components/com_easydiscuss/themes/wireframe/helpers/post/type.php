@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<a href="<?php echo EDR::_('view=index&types[0]=' . $type->alias);?>" class="o-label t-bg--300 t-text--600 t-flex-shrink--0"
+<a href="<?php echo EDR::_('view=index&types[0]=' . $type->alias);?>" class="o-label t-bg--300 t-text--600 t-flex-shrink--0 <?php echo $typeSuffix; ?>"
 	style="max-width:180px;"
 	data-ed-type-item
 	data-ed-filter-api="type"

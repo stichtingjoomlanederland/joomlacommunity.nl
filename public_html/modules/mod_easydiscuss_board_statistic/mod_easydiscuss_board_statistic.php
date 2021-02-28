@@ -33,6 +33,7 @@ if (!$canViewStatistic) {
 
 // load eadydiscuss styling.
 ED::init();
+JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
 $lib = ED::modules($module);
 $helper = $lib->getHelper(false);

@@ -26,6 +26,11 @@ defined('_JEXEC') or die('Unauthorized Access');
 			
 			<div class="dropdown-menu"></div>
 		</div>
+
+		<button type="button" class="o-btn o-btn--default-o t-text--danger <?php echo $value == '' ? 't-hidden' : '';?>" data-icon-remove>
+			<i class="fa fa-times"></i>
+		</button>
+
 		<input type="hidden" id="<?php echo $name;?>" name="<?php echo $name;?>" data-icon-input value="<?php echo $value;?>" />
 	</div>
 </div>
