@@ -21,10 +21,10 @@ if (!JFile::exists($engine)) {
 
 require_once($engine);
 
-JFactory::getLanguage()->load('mod_easydiscuss_most_hit', JPATH_ROOT);
-$config = ED::config();
-
 ED::init();
+JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
+
+$config = ED::config();
 $lib = ED::modules($module);
 
 $options = array(

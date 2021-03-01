@@ -1629,6 +1629,11 @@ mmenu_oncanvas.prototype.setPage = function (page) {
 		var pages = typeof configs.page.selector == 'string'
 			? find(document.body, configs.page.selector)
 			: dom_children(document.body, configs.page.nodetype);
+
+		// If site uses nav on the top levelthere could be an issue
+		var items = $(document.body).children().get();
+		pages = pages.concat(items);
+
 		//	Filter out elements that are absolutely not "the page".
 		pages = pages.filter(function (page) { return !page.matches('.mm-menu, .mm-wrapper__blocker'); });
 		//	Filter out elements that are configured to not be "the page".

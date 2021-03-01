@@ -28,7 +28,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<div class="o-media">
 							<div class="o-media__body">
 								<div class="o-title">
-									<a href="<?php echo EDR::getForumsRoute($thread->category->id); ?>">
+									<a href="<?php echo EDR::getForumsRoute($thread->category->id); ?>" class="si-link">
 										<?php echo $thread->category->getTitle(); ?>
 									</a>
 								</div>

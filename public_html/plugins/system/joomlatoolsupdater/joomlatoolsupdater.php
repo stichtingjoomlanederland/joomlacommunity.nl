@@ -1,7 +1,7 @@
 <?php
 /**
- * @package     DOCman
- * @copyright   Copyright (C) 2011 - 2014 Timble CVBA. (http://www.timble.net)
+ * @package     JoomlatoolsUpdater
+ * @copyright   Copyright (C) 2021 Timble CVBA. (http://www.timble.net)
  * @license     GNU GPLv3 <http://www.gnu.org/licenses/gpl.html>
  * @link        http://www.joomlatools.com
  */
@@ -29,19 +29,28 @@ class PlgSystemJoomlatoolsupdater extends JPlugin
             return;
         }
 
-        $headers['Referer'] = JURI::root();
-        $extension = $matches[1];
         $error = false;
+        $headers['Referer'] = JURI::root();
 
-        if (array_key_exists($extension, static::$_extensions)) {
-            $api_key = $this->_getApiKey(static::$_extensions[$extension]);
+        if ($this->params->get('api_key')) {
+            $api_key = trim($this->params->get('api_key'));
 
-            if ($api_key) {
-                $headers['Authorization'] = 'Bearer '.$api_key;
-            }
-            else {
-                $error = sprintf('API key for %s not found.', ucfirst($extension));
+            $headers['Authorization'] = 'Bearer '.$api_key;
+        } else {
+            // Legacy handling: try to get api key from the extension itself
 
+            $extension = $matches[1];
+
+            if (array_key_exists($extension, static::$_extensions)) {
+                $api_key = $this->_getApiKey(static::$_extensions[$extension]);
+
+                if ($api_key) {
+                    $headers['Authorization'] = 'Bearer '.$api_key;
+                }
+                else {
+                    $error = sprintf('API key for %s not found.', ucfirst($extension));
+
+                }
             }
         }
 
@@ -292,4 +301,40 @@ JS;
         return $version;
     }
 
+    public function onAfterInitialise()
+    {
+        try {
+            if (class_exists('Koowa')) {
+                $manager = KObjectManager::getInstance();
+                $identifier = $manager->getIdentifier('com:scheduler.controller.dispatcher');
+                $config = $identifier->getConfig();
+                $config->append(['jobs' => [
+                    'plg:system.joomlatoolsupdater.job.license',
+                ]]);
+
+                $manager->registerAlias('plg:system.joomlatoolsupdater.license', 'license');
+                $manager->getObject('event.subscriber.factory')->registerSubscriber('plg:system.joomlatoolsupdater.event.subscriber.license');
+            }
+        } catch (\Exception $e) {
+            if (JDEBUG) JFactory::getApplication()->enqueueMessage($e->getMessage(), 'error');
+        }
+
+    }
+
+    public function onAfterRoute()
+    {
+        try {
+            $app   = JFactory::getApplication();
+            $input = $app->input;
+
+            if ($app->isClient('site') && $input->get('option') === 'com_joomlatools' && $input->get('controller') === 'license')
+            {
+                $dispatcher = KObjectManager::getInstance()->getObject('plg:system.joomlatoolsupdater.dispatcher.http');
+                $dispatcher->dispatch();
+            }
+        } catch (\Exception $e) {
+            if (JDEBUG) throw $e;
+        }
+
+    }
 }

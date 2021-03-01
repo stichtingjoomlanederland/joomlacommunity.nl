@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<extension version="2.5" type="plugin" group="system" method="upgrade">
+<extension version="3.0" type="plugin" group="system" method="upgrade">
 	<identifier>plg:system.joomlatoolsupdater</identifier>
     <name>plg_system_joomlatoolsupdater</name>
     <author>Joomlatools</author>
@@ -8,12 +8,30 @@
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>info@joomlatools.com</authorEmail>
     <authorUrl>www.joomlatools.com</authorUrl>
-	<version>1.0.5</version>
+	<version>1.1.0</version>
 	<description />
-	
-	<files>
-		<filename plugin="joomlatoolsupdater">joomlatoolsupdater.php</filename>
+
+    <scriptfile>script.php</scriptfile>
+
+    <files folder="plugins/system/joomlatoolsupdater">
+        <folder>controller</folder>
+        <folder>crypto</folder>
+        <folder>dispatcher</folder>
+        <folder>event</folder>
+        <folder>installer</folder>
+        <folder>job</folder>
         <folder>language</folder>
+        <folder>license</folder>
+        <filename plugin="joomlatoolsupdater">joomlatoolsupdater.php</filename>
 	</files>
-	<config />
+    <config>
+        <fields name="params">
+            <fieldset name="advanced" label=" ">
+                <field name="api_key" label="api key" type="text" size="50" class="col-lg-6" />
+                <field name="license" label="support license" type="text" size="50" class="col-lg-6" />
+                <field name="site_key" label="site key" type="text" size="50" class="col-lg-6" />
+                <field name="public_key" label="public key" type="text" size="50" class="col-lg-6" />
+            </fieldset>
+        </fields>
+    </config>
 </extension>

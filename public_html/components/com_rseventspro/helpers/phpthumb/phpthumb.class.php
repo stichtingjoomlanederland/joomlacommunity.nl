@@ -427,7 +427,7 @@ class phpthumb {
 
 	// public:
 	function RenderOutput() {
-		if (!$this->useRawIMoutput && !is_resource($this->gdimg_output)) {
+		if (!$this->useRawIMoutput && !is_resource($this->gdimg_output) && ! $this->gdimg_output instanceof \GdImage) {
 			$this->DebugMessage('RenderOutput() failed because !is_resource($this->gdimg_output)', __FILE__, __LINE__);
 			return false;
 		}

@@ -210,6 +210,8 @@ class EasyDiscussThemesHelperUser
 
 		// show Easysocial verification icon from the user name
 		if (ED::easysocial()->exists() && $config->get('layout_avatarIntegration', 'default') == 'easysocial') {
+			// Make sure that easysocial has been initialized
+			ED::easysocial()->init();
 
 			// Only execute this if that is register user
 			if ($user->id) {

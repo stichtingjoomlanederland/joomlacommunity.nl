@@ -78,7 +78,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 						<div class="o-form-group">
 							<div class="col-md-12">
-								<?php echo $editor->display('description' , $category->description , '100%' , '300' , 10 , 10 , array( 'zemanta' , 'readmore' , 'pagebreak' , 'article' , 'image' ) ); ?>
+								<?php echo $editor->display('description' , $category->description , '100%' , '300' , 10 , 10 , false); ?>
 							</div>
 						</div>
 

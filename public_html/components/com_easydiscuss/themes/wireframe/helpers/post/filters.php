@@ -179,7 +179,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 					</div>
 
-					<?php if ($this->config->get('main_labels') || $this->config->get('layout_post_types') || $this->config->get('post_priority')) { ?>
+					<?php if (($this->config->get('main_labels') && $labels) || ($this->config->get('layout_post_types') && $types) || ($this->config->get('post_priority') && $priorities)) { ?>
 					<div class="lg:t-mr--sm" data-insert-filter>
 						<div class="t-text--right o-dropdown">
 							<a href="javascript:void(0);" class="o-btn o-btn--default-o sm:t-d--block sm:t-mb--md t-text--nowrap" 
@@ -229,7 +229,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 															data-ed-filter="type"
 															data-id="<?php echo $type->alias;?>"
 														>
-															<?php echo $type->getTitle();?>
+															<?php echo JText::_($type->title);?>
 														</a>
 													</div>
 													
@@ -351,7 +351,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php echo $this->output('site/helpers/post/filters/active', [
 							'type' => 'type',
 							'id' => $activePostType->alias,
-							'title' => $activePostType->getTitle()
+							'title' => JText::_($activePostType->title)
 						]); ?>
 					<?php } ?>
 				<?php } ?>

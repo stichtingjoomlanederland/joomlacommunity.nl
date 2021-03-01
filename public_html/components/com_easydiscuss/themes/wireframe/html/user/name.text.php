@@ -25,4 +25,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 >
 	<?php echo $this->html('string.escape', $username);?>
 </span>
-<?php if ($isESVerified) { ?><i class="es-verified" data-es-provide="tooltip" data-original-title="<?php echo JText::_('COM_ES_VERIFIED_USER');?>"></i><?php } ?>
+
+<?php if ($isESVerified) { ?>
+<div id="es" style="display: inline-block;">
+	<i class="es-verified"></i>
+</div>
+<?php } ?>

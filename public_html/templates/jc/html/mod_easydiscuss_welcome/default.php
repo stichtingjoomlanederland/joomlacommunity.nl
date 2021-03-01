@@ -15,20 +15,21 @@ defined('_JEXEC') or die('Restricted access');
 
 <ul class="nav navbar-nav navbar-right navbar-user">
     <li class="dropdown">
-        <a data-toggle="dropdown" class="dropdown-toggle profile" href="#">
+		<button id="dLabel" class="btn btn-link profile" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 			<?php if ($isLoggedIn) : ?>
-                Welkom!
+				Welkom!
 			<?php else: ?>
-                Login
+				Login
 			<?php endif; ?>
-            <img src="<?php echo $my->getAvatar(); ?>" class="avatar">
+			<img src="<?php echo $my->getAvatar(); ?>" class="avatar">
 			<?php if ($isLoggedIn) : ?>
-                <span class="dropdown-toggle-text"><?php echo $my->getName(); ?></span>
+				<span class="dropdown-toggle-text"><?php echo $my->getName(); ?></span>
 			<?php else: ?>
-                <span class="dropdown-toggle-text">Welkom!</span>
+				<span class="dropdown-toggle-text">Welkom!</span>
 			<?php endif; ?>
-        </a>
-        <ul class="dropdown-menu">
+		</button>
+
+		<ul class="dropdown-menu" aria-labelledby="dLabel">
 			<?php if ($isLoggedIn) : ?>
                 <li>
                     <a class="user-discussions" href="<?php echo $my->getLink(); ?>">

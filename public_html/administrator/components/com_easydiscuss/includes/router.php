@@ -267,6 +267,7 @@ class EDR
 		$category_id = isset($query['category_id']) ? $query['category_id'] : null;
 		$postStatus = isset($query['status']) ? $query['status'] : null;
 		$groupId = isset($query['group_id']) ? $query['group_id'] : null;
+		$ackCategory = isset($query['category']) ? $query['category'] : null;
 
 		if (!empty($Itemid)) {
 			if (self::isEasyDiscussMenuItem($Itemid)) {
@@ -480,6 +481,18 @@ class EDR
 				}
 
 				if (!$groupId && $tmpId) {
+					$dropSegment = true;
+				}
+			}
+
+			if ($view == 'ask') {
+				$menu = self::getMenus($view, null, $ackCategory, $lang);
+
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if (!$id && $tmpId) {
 					$dropSegment = true;
 				}
 			}
@@ -1456,6 +1469,7 @@ class EDR
 				$menu->view = $segments->view;
 				$menu->layout = isset($segments->layout) ? $segments->layout : 0;
 				$menu->category_id = isset($segments->category_id) ? $segments->category_id : 0;
+				$menu->category = isset($segments->category) ? $segments->category : 0;
 				$menu->id = $row->id;
 
 				// check for forum category container
@@ -1463,6 +1477,11 @@ class EDR
 					// this is forum container
 					$_cache['forumcategory'][$menu->category_id]['menu'] = $menu;
 					$_cache['forumcategory'][$menu->category_id]['tree'] = $model->getCategoryTreeIds($menu->category_id);
+
+				} else if ($menu->view == 'ask') {
+
+					$_cache[$menu->view][$menu->category]['*'][] = $menu;
+					$_cache[$menu->view][$menu->category][$row->language][] = $menu;
 
 				} else {
 					// this is the safe step to ensure later we will have atlest one menu item to retrive.
@@ -1530,6 +1549,23 @@ class EDR
 
 					if (! $tmp) {
 						$tmp = self::getItemViewLayoutId($_cache, $view, null, 0, $languageTag);
+					}
+				}
+			}
+
+			if ($view == 'ask') {
+
+				if ($id) {
+					if (isset($_cache[$view][$id][$languageTag])) {
+						$tmp = $_cache[$view][$id][$languageTag];
+					} else if (isset($_cache[$view][$id])) {
+						$tmp = $_cache[$view][$id]['*'];
+					}
+				} else {
+					if (isset($_cache[$view][0][$languageTag])) {
+						$tmp = $_cache[$view][0][$languageTag];
+					} else if (isset($_cache[$view][0])) {
+						$tmp = $_cache[$view][0]['*'];
 					}
 				}
 			}

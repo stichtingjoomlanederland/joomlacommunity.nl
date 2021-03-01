@@ -300,7 +300,8 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
                             $new_folder = $parent->id ? $this->_getRelation($parent->id)->folder : '';
                         }
 
-                        if ($new_name !== null || $new_folder !== null)
+                        // $entity->folder check ensure we don't try moving empty folder to empty folder
+                        if ($entity->folder && ($new_name !== null || $new_folder !== null))
                         {
                             list($folder, $name) = $this->_splitPath($entity->folder);
 
@@ -313,20 +314,25 @@ class ComDocmanControllerBehaviorOrganizable extends KControllerBehaviorAbstract
                             }
 
                             if (isset($new_folder) && $new_folder != $folder) {
-                                $move['destination_folder'] = $new_folder;
+                                // This check ensure we don't try to move a folder into one of its subfolders
+                                if (!$entity->folder || stripos($new_folder.'/', $entity->folder.'/') !== 0) {
+                                    $move['destination_folder'] = $new_folder;
+                                }
+
                             }
 
-                            try {
-                                $controller
-                                    ->container('docman-files')->folder($folder)->name($name)
-                                    ->move($move);
-                            }
-                            catch (Exception $e) {
-                                if (JDEBUG) {
-                                    $this->getObject('response')->addMessage($e->getMessage(), 'error');
+                            if (!empty($move)) {
+                                try {
+                                    $controller
+                                        ->container('docman-files')->folder($folder)->name($name)
+                                        ->move($move);
+                                }
+                                catch (Exception $e) {
+                                    if (JDEBUG) {
+                                        $this->getObject('response')->addMessage($e->getMessage(), 'error');
+                                    }
                                 }
                             }
-
                         }
                     }
                     /*

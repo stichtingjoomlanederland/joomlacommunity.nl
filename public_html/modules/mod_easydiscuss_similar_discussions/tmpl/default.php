@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							$title = (EDJString::strlen($post->title) > $maxLength) ? substr($post->title, 0, $maxLength) . '...' : $post->title;
 							?>
 
-							<a href="<?php $post->permalink; ?>" class="o-title si-link t-d--inline-block l-spaces--sm"><?php echo $title; ?></a>
+							<a href="<?php echo $post->permalink; ?>" class="o-title si-link t-d--inline-block l-spaces--sm"><?php echo $title; ?></a>
 							
 							<div class="o-meta t-flex-grow--1 l-cluster">
 								<div class="">

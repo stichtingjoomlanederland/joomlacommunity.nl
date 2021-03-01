@@ -17,7 +17,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<?php foreach ($filters as $filter) { ?>
 			<div class="es-mod-filters__item <?php echo $filter->active ? 'is-active' : '';?>" data-module-filter="type" data-id="<?php echo $filter->alias;?>">
 				<a href="javascript:void(0);" class="si-link">
-					<?php echo $filter->title;?>
+					<?php echo JText::_($filter->title);?>
 				</a>
 			</div>
 			<?php } ?>

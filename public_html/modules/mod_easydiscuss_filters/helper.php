@@ -76,8 +76,11 @@ class EasyDiscussModFiltersHelper extends EasyDiscuss
 		static $types = array();
 
 		if (empty($types) && ED::config()->get('layout_post_types')) {
+
+			$catId = $this->input->get('category_id', 0, 'int');
+
 			$model = ED::model('PostTypes');
-			$types = $model->getTypes(true);
+			$types = $model->getPostTypesOnListings($catId);
 
 			$activeTypes = $this->input->get('types', [], 'word');
 

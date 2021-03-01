@@ -34,6 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						)
 					);?>
 
+					<?php echo $this->html('settings.toggle', 'layout_avatarLinking', 'COM_ED_AVATAR_LINK_INTEGRATION'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_text_avatar', 'COM_ED_USE_TEXT_AVATARS'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_badges_in_post', 'COM_ED_BADGES_IN_POST'); ?>
 					<?php echo $this->html('settings.textbox', 'layout_avatarwidth', 'COM_EASYDISCUSS_AVATARS_SIZE_PIXELS', '', array('size' => 6, 'postfix' => 'px'), '', '', 'text-center'); ?>

@@ -27,7 +27,7 @@ PWTTemplateHelper::setFavicon($favicolorSVG);
 PWTTemplateHelper::unloadCss(['com_finder', 'foundry', 'com_rseventspro', 'com_rscomments']);
 PWTTemplateHelper::unloadJs();
 PWTTemplateHelper::loadCss();
-PWTTemplateHelper::loadJs(true, false);
+PWTTemplateHelper::loadJs(true, false, true);
 PWTTemplateHelper::localstorageFont();
 PWTTemplateHelper::setMetadataTwitter('joomlacommunity', 'joomlacommunity');
 ?>

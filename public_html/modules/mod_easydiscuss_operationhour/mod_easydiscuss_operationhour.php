@@ -22,6 +22,7 @@ if (!JFile::exists($engine)) {
 require_once ($engine);
 
 ED::init();
+JFactory::getLanguage()->load('com_easydiscuss', JPATH_ROOT);
 
 $lib = ED::modules($module);
 

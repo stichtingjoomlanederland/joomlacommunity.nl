@@ -186,7 +186,7 @@ class DiscussProfile extends EasyDiscussTable
 	 */
 	public function getPermalink($anchor = '', $external = false, $xhtml = false)
 	{
-		static $items = array();
+		static $items = [];
 
 		$key = $this->id . $anchor . (int) $external;
 
@@ -196,11 +196,11 @@ class DiscussProfile extends EasyDiscussTable
 
 			$field = $integration->getField($this);
 
-			if ($this->id && $field['integration'] == 'easydiscuss') {
+			if ($this->id && (!$config->get('layout_avatarLinking') || $field['integration'] == 'easydiscuss')) {
 				$items[$key] = EDR::_('view=profile&id=' . $this->id, $xhtml) . $anchor;
 
 				return $items[$key];
-			} 
+			}
 
 			$items[$key] = $field['profileLink'];
 		}
@@ -215,7 +215,7 @@ class DiscussProfile extends EasyDiscussTable
 	 */
 	public function getEditProfileLink($anchor = '')
 	{
-		static $items = array();
+		static $items = [];
 
 		$key = $this->id . $anchor;
 
@@ -226,7 +226,7 @@ class DiscussProfile extends EasyDiscussTable
 
 			$items[$key] = EDR::_('view=profile&layout=edit');
 
-			if ((isset($field['editProfileLink']) && $field['editProfileLink']))  {
+			if (isset($field['editProfileLink']) && $field['editProfileLink'] && $config->get('layout_avatarLinking')) {
 				$items[$key] = $field['editProfileLink'];
 			}
 		}

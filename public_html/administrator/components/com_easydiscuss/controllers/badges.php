@@ -100,7 +100,7 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		$redirect = 'index.php?option=com_easydiscuss&view=badges';
 
 		// Load the badge.
-		$badge = ED::table('Badges');		
+		$badge = ED::table('Badges');
 		$badge->load($id);
 
 		$oldTitle = $badge->title;
@@ -109,7 +109,7 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 		$badge->bind($post);
 
 		// Description might contain html codes
-		$description = $this->input->get('description', '', 'string');
+		$description = $this->input->get('description', '', 'raw');
 		$badge->description = $description;
 
 		if (!$badge->created || $badge->created == '0000-00-00 00:00:00') {
