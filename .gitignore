@@ -50,10 +50,6 @@ Desktop.ini
 /public_html/administrator/components/com_joomlaupdate/restoration.php
 
 # MyJoomla
-/pulic_html/.myjoomla.configuration.php.md5
-public_html/\.myjoomla\.configuration\.php\.md5
-
-# MyJoomla BFNetwork #
 /public_html/plugins/system/bfnetwork/*
 !/public_html/plugins/system/bfnetwork/index.html
 /public_html/.myjoomla.configuration.php.md5
@@ -110,3 +106,6 @@ public_html/\.myjoomla\.configuration\.php\.md5
 .vagrant
 Vagrantfile
 puphpet/
+
+# Dev Tools
+/public_html/templates/jc/bootstrap*
