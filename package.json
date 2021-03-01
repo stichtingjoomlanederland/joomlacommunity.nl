@@ -62,7 +62,7 @@
     "babel-preset-minify": "^0.5.1",
     "browser-sync": "^2.26.14",
     "concat": "^3.0.0",
-    "core-js": "^3.9.0",
+    "core-js": "^3.9.1",
     "dotenv": "^8.2.0",
     "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
