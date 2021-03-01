@@ -1,0 +1,22 @@
+/* ==========================================================================
+   Page feedback
+   ========================================================================== */
+
+.feedback {
+  padding: ms(1) 0;
+
+  @media print {
+    display: none;
+  }
+
+  & > .inner {
+    @include contain();
+  }
+}
+
+.feedback__form {
+  margin-top: ms(1);
+  border-top: px(2) solid $goud-light;
+  @include ms(padding-top, 0);
+  @include ms(padding-bottom, 0);
+}

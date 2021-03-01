@@ -1,0 +1,20 @@
+@media print {
+  @page {
+    size: auto;
+    margin: .5cm;
+  }
+
+  html,
+  body {
+    background: transparent;
+  }
+
+  a::after {
+    font-size: smaller;
+    content: " (" attr(href) ")";
+  }
+
+  .print\:hide.print\:hide {
+    display: none;
+  }
+}

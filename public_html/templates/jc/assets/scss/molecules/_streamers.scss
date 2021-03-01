@@ -1,0 +1,112 @@
+/* ==========================================================================
+   Streamers
+   ========================================================================== */
+
+@mixin label() {
+  overflow: visible;
+
+  @include pseudo(after) {
+    bottom: -1em;
+    left: calc(50% - .5em);
+    width: 1em;
+    height: 1em;
+    overflow: hidden;
+    @include svg-background($i--oc1882-label, $width: .75, $height: .75, $color: transparent, $unit: em, $background-position: center -.5rem);
+    @include font-size("xxl");
+  }
+}
+
+[class*=" streamer\:"] {
+  position: relative;
+  z-index: 0;
+  overflow: hidden;
+
+  @media print {
+    color: inherit;
+    background: transparent;
+  }
+
+  @include breakpoint($page-header-breakpoint) {
+    display: flex;
+  }
+
+  & + *,
+  & + * + * {
+    position: relative;
+    z-index: 2;
+  }
+
+  .streamer__content {
+    flex: 1;
+  }
+
+  .streamer__content--with-image {
+    @include coverall;
+    @include cluster($justify-content: center);
+  }
+
+  .center {
+    border-radius: $radius-small;
+  }
+
+  .streamer__image {
+    flex: 1 0 100%;
+
+    img {
+      object-fit: cover;
+      min-height: 11rem;
+    }
+  }
+}
+
+.streamer\:dark-goud {
+  background-color: $dark;
+
+  .center {
+    color: $wit;
+    background-color: $goud;
+    @include label;
+  }
+}
+
+.streamer\:light-rood {
+  background-color: $goud-lightest;
+
+  .center {
+    color: $wit;
+    background-color: $rood;
+    @include label;
+  }
+}
+
+.streamer\:light-dark {
+  background-color: $goud-lightest;
+
+  .center {
+    color: $wit;
+    background-color: $dark;
+    @include label;
+  }
+}
+
+.streamer\:transparent-transparent {
+  background-color: transparent;
+
+  .center {
+    font-size: 1.25rem;
+    font-weight: $weight-bold;
+    color: $wit;
+    text-shadow: 0 0 .25em hsla(0, 0%, 0%, 1);
+    background-color: transparent;
+  }
+}
+
+.streamer\:transparent-goud {
+  background-color: transparent;
+
+  .center {
+    color: $wit;
+    background-color: $goud;
+    @include label;
+  }
+}

@@ -1,0 +1,33 @@
+.details--faq {
+  $unit: .75em;
+
+  summary {
+    //padding: $unit;
+  }
+
+  .summary__content {
+    padding-top: 0;
+  }
+
+  .summary__chevron-down {
+    //top: .5 * $unit;
+    top: 0;
+    right: $unit;
+  }
+
+  &.togglePosition--left {
+    .summary__content {
+      padding-left: 2em;
+    }
+  }
+
+  svg {
+    @include transition(transform 200ms ease-in-out);
+  }
+
+  &[open] {
+    svg {
+      transform: scale(-1, -1);
+    }
+  }
+}

@@ -1,0 +1,17 @@
+/* ==========================================================================
+   Margin
+   ========================================================================== */
+
+/* Twice since some elemnts might have set margin already */
+
+.margin-top\:1.margin-top\:1 {
+  @include ms(margin-top, 1);
+}
+
+.margin-top\:2.margin-top\:2 {
+  @include ms(margin-top, 2);
+}
+
+.margin-top\:no.margin-top\:no {
+  margin-top: 0;
+}

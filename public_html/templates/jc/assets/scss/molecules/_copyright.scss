@@ -1,0 +1,23 @@
+/* ==========================================================================
+   Copyright
+   ========================================================================== */
+
+.copyright {
+  color: $type-inverse;
+  background: $dark;
+  @include font-size("s");
+  padding-top: ms(0);
+  padding-bottom: ms(0);
+
+  & > .inner {
+    @include contain();
+  }
+
+  svg {
+    color: $type;
+  }
+
+  @media print {
+    display: none;
+  }
+}

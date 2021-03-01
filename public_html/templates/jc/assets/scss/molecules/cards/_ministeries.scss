@@ -1,0 +1,27 @@
+.cards--ministeries {
+  @include fallback() {
+    @supports (display: grid) {
+      display: grid;
+      @include ms(grid-column-gap, 0);
+
+      @include breakpoint($content-width) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  }
+
+  > :first-child {
+    grid-column: 1 / -1;
+    max-width: 27rem;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .card__image {
+    flex: 1 0 25%;
+  }
+
+  .card__content {
+    padding: 0 1em
+  }
+}

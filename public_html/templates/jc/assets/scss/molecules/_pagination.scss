@@ -1,0 +1,134 @@
+/**
+ * Proper pagination
+ * =================
+ */
+
+// Variables
+$pwt-pagination-unit: 2.5rem !default;
+$pwt-pagination-max-width: .9 !default;
+$pwt-pagination-content-width: $site-width !default;
+$pwt-pagination-measurement: 1 !default;
+$pwt-pagination-line-height: $pwt-pagination-unit !default;
+$pwt-pagination-text-align: center !default;
+$pwt-pagination-background: transparent !default;
+$pwt-pagination-border-radius: $pwt-pagination-unit / 2 !default;
+$pwt-pagination-active-font-weight: 700 !default;
+$pwt-pagination-active-background: $goud !default;
+$pwt-pagination-active-color: $goud-type !default;
+$pwt-pagination-previous-content: "<" !default;
+$pwt-pagination-next-content: ">" !default;
+$pwt-pagination-displayer: 16 !default;
+
+// Mixins
+@mixin pwtPaginationDisplayer($amount: $pwt-pagination-displayer) {
+  $d: $pwt-pagination-displayer / 2;
+  @for $i from 1 through $amount {
+    $minwidth: (($pwt-pagination-unit * ($d)) * ((1 - $pwt-pagination-max-width) + $pwt-pagination-measurement));
+    @if ($minwidth <= $pwt-pagination-content-width) {
+      @media (min-width: $minwidth) {
+        .pwt-pagination__offset--#{$i} {
+          display: block;
+        }
+        .pwt-pagination__indicator--#{$i} {
+          display: none;
+        }
+      }
+    }
+    $d: $d + 2;
+  }
+}
+
+.pwt-pagination-list {
+  @include reset($margin: 0 auto);
+  display: flex;
+  justify-content: center;
+
+  li {
+    display: none;
+    flex: 0 0 auto;
+    width: $pwt-pagination-unit;
+    height: $pwt-pagination-unit;
+    line-height: $pwt-pagination-line-height;
+    text-align: $pwt-pagination-text-align;
+  }
+
+  .pwt-pagination__element {
+    display: block;
+    width: $pwt-pagination-unit;
+    height: $pwt-pagination-unit;
+    background: $pwt-pagination-background;
+    border-radius: $pwt-pagination-border-radius;
+  }
+
+  .pwt-pagination__indicator {
+    display: block;
+  }
+
+  .pwt-pagination__active {
+    .pwt-pagination__element {
+      font-weight: $pwt-pagination-active-font-weight;
+      color: $pwt-pagination-active-color;
+      background: $pwt-pagination-active-background;
+    }
+  }
+
+  // D 1, max 5 items
+  .pwt-pagination__previous,
+  .pwt-pagination__first,
+  .pwt-pagination__last,
+  .pwt-pagination__next,
+  .pwt-pagination__active,
+  .pwt-pagination__offset-1 {
+    display: block;
+  }
+
+  .pwt-pagination__previous {
+    .pwt-pagination__element {
+      &::after {
+        display: block;
+        content: $pwt-pagination-previous-content;
+      }
+    }
+  }
+
+  .pwt-pagination__next {
+    .pwt-pagination__element {
+      &::after {
+        display: block;
+        content: $pwt-pagination-next-content;
+      }
+    }
+  }
+
+  // Default visibility settings
+  .pwt-pagination__offset--1 {
+    display: block;
+  }
+
+  .pwt-pagination__indicator--1 {
+    display: none;
+  }
+
+  /* Run display classes with breakpoints */
+  @include pwtPaginationDisplayer();
+
+}
+
+/**
+ * Utilities
+ */
+
+.pwt-visually-hidden {
+  @include visually-hidden();
+}
+
+
+/**
+ * When using simplified pagination (outside of Joomla) add this class to make sure the items will wrap
+ */
+
+.pagination--wrap {
+  .pwt-pagination-list {
+    flex-wrap: wrap;
+  }
+}

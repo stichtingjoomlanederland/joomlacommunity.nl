@@ -1,0 +1,17 @@
+.cards--2columns {
+  @include fallback() {
+    @supports (display: grid) {
+      display: grid;
+      @include ms(grid-gap, 0);
+
+      @include breakpoint($content-width) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  }
+
+  /* .cards is a stack in itself */
+  .card + .card {
+    margin-top: 0;
+  }
+}

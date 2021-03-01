@@ -1,0 +1,106 @@
+/* ==========================================================================
+   Flag object
+   ========================================================================== */
+
+.flag-object {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: -(ms(0));
+
+  & > [class*="flag-object__"] {
+    margin: ms(0);
+  }
+
+  &.flag-object--compact {
+    margin: ms(-.5);
+
+    & > [class*="flag-object__"] {
+      margin: ms(.5);
+    }
+  }
+}
+
+.flag-object__aside {
+  flex-basis: auto;
+  flex-grow: 1;
+}
+
+.flag-object__body {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-width: 50%;
+}
+
+.flag-object--inverse {
+  > .flag-object__aside {
+    @include breakpoint($content-width) {
+      order: -1;
+    }
+  }
+}
+
+
+/* Don't wrap lines, keep flag-object on one line always
+   ========================================================================== */
+
+.flag-object--nowrap {
+  flex-wrap: nowrap;
+}
+
+
+/* Top alignment
+   ========================================================================== */
+
+.flag-object--top {
+  align-items: flex-start;
+}
+
+
+/* Bottom alignment
+   ========================================================================== */
+
+.flag-object--bottom {
+  align-items: flex-end;
+}
+
+
+/* Inline flag object
+   ========================================================================== */
+
+.flag-object--inline {
+  display: inline-flex;
+  flex-wrap: nowrap;
+
+  .flag-object__body {
+    flex-basis: auto;
+  }
+}
+
+
+/* Inline flag object
+   ========================================================================== */
+
+.flag-object--space-between {
+  justify-content: space-between;
+}
+
+
+/* Agenda specific styling
+   ========================================================================== */
+
+.flag-object--agenda {
+  > .flag-object__aside {
+    flex-basis: 9rem;
+  }
+
+  @include breakpoint(0, $content-width) {
+    &.flag-object--nowrap {
+      flex-wrap: wrap;
+    }
+
+    > .flag-object__aside {
+      margin: 3em auto;
+    }
+  }
+}

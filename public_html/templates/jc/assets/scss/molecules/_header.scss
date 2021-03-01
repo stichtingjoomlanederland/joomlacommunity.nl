@@ -1,0 +1,347 @@
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+// Variables
+$header-breakpoint: $content-width !default;
+$subnavigation-breakpoint: $wider-width !default;
+
+
+/* Layout
+   1. position relative is needed for full width submenu
+   2. padding is created by de anchor in menu
+   ========================================================================== */
+
+.header {
+  position: relative; /* 1 */
+  z-index: 3;
+
+  @include breakpoint($header-breakpoint) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    background-color: $wit;
+    box-shadow: 0 2px 4px 0 hsla(0, 0%, 0%, .25)
+  }
+
+  &.header--linktree {
+    @include breakpoint($header-breakpoint) {
+      box-shadow: none;
+    }
+  }
+}
+
+.header__top {
+  @include contain();
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  height: 2.5rem;
+
+  @include breakpoint($header-breakpoint) {
+    height: auto;
+  }
+
+  @at-root .header--linktree & {
+    @include breakpoint($header-breakpoint) {
+      height: 3em;
+    }
+  }
+}
+
+.header__topmenu {
+  background-color: $goud-lightest;
+
+  > * {
+    @include contain();
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
+}
+
+/* Logo
+   ========================================================================== */
+
+.logo {
+  position: absolute;
+  top: .5em;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  width: 100%;
+  max-width: 3rem;
+  vertical-align: middle;
+  @include ratio-block(600 to 159, false);
+
+  @at-root .has-opened-menu & {
+    @include breakpoint(0, $header-breakpoint) {
+      z-index: 2000;
+      top: 0;
+      right: 6rem;
+      left: 0;
+      height: 3rem;
+      width: unset;
+      max-width: unset;
+
+      figure {
+        display: none;
+      }
+    }
+  }
+
+  @at-root .path-home.has-opened-menu & {
+    @include breakpoint(0, $header-breakpoint) {
+      max-width: unset;
+    }
+  }
+
+  figure {
+    margin: 0;
+  }
+
+  @at-root .path-home & {
+    max-width: 6rem;
+  }
+
+  @include breakpoint($header-breakpoint) {
+    position: static;
+    top: unset;
+    max-width: 2.5rem;
+    margin-right: 2rem;
+
+    @at-root .path-home & {
+      max-width: 4.5rem;
+      margin-top: -2em;
+      margin-bottom: -2em;
+    }
+
+    @at-root .header--linktree & {
+      max-width: 4.5rem;
+      margin-top: -2em;
+      margin-bottom: -2em;
+    }
+  }
+
+  .logo__text {
+    @include visually-hidden();
+  }
+}
+
+
+/* Navigation
+   ========================================================================== */
+
+.navigation {
+  // see molecules/navigation
+}
+
+.navigation--top {
+  // see molecules/navigation
+}
+
+/* Search
+   ========================================================================== */
+
+.search-container {
+  @include ms(padding, -3);
+  background: $rood;
+
+  @media print {
+    display: none;
+  }
+
+  // Dots pattern
+  @include pseudo(before) {
+    top: 0;
+    right: 0;
+    width: 33%;
+    height: 100%;
+    background: url("#{$image-path}search-container-background.png") right 0 top px(2);
+    background-size: px(12);
+    opacity: .25;
+  }
+
+  // Gradient to red overlay
+  @include pseudo(after, false) {
+    top: 0;
+    right: 0;
+    width: 33%;
+    height: 100%;
+    background: linear-gradient(to right, rgba($rood, 1) 0%, rgba($rood, 0) 100%);
+  }
+
+  @include breakpoint($header-breakpoint) {
+    padding-right: 0;
+    padding-left: 0;
+
+    &::before {
+      background-size: px(16);
+    }
+  }
+}
+
+.search-wrapper {
+  @include breakpoint($header-breakpoint) {
+    @include contain();
+  }
+}
+
+.search {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: $content-width;
+  margin: 0;
+
+  label {
+    @include visually-hidden();
+  }
+
+  [type="search"] {
+    box-sizing: content-box;
+    width: calc(100% - 2em);
+    height: ms(2);
+    padding: .12em 1em;
+    background: #fff;
+    border: none;
+    border-radius: $radius-small;
+    appearance: none;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 px(1) #fff, 0 0 0 px(4) $goud;
+    }
+  }
+
+  button {
+    position: absolute;
+    top: 50%;
+    right: .25em;
+    z-index: 1;
+    box-shadow: none;
+    transform: translateY(-50%);
+
+    /* Do not translateY the button within the search field since it looks weird */
+    &:active {
+      transform: none;
+    }
+
+    svg:nth-child(n) {
+      margin-right: 0;
+    }
+  }
+
+  .button__text {
+    @include visually-hidden();
+
+    @include breakpoint($header-breakpoint) {
+      @include visually-shown();
+      margin-left: .75em;
+    }
+  }
+}
+
+
+/* Subnavigation
+   ========================================================================== */
+
+.subnavigation-wrapper {
+  margin-bottom: ms(-3);
+  overflow: hidden;
+  background-color: $goud-lighter;
+}
+
+.subnavigation {
+  @include contain();
+  @include font-size("xs");
+
+  ul {
+    @include cluster(1em);
+    margin-top: .5em;
+    margin-bottom: .5em;
+  }
+
+  .list li {
+    padding: 0;
+  }
+
+  .active {
+    a {
+      font-weight: 700;
+      text-decoration: none;
+    }
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    border-bottom: 1px solid $goud;
+
+    @include breakpoint($subnavigation-breakpoint) {
+      flex-grow: 1;
+      width: 1px;
+      min-height: 1em;
+      border-right: 1px solid $goud;
+      border-bottom: 0;
+
+      & ~ li {
+        padding-left: .5em;
+        margin-left: auto;
+      }
+    }
+
+    span {
+      display: none;
+    }
+  }
+}
+
+
+/* Breadcrumb
+   ========================================================================== */
+
+.breadcrumb-container {
+  min-height: ms(1);
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  padding: ms(-1) 0;
+  list-style: none;
+  @include contain();
+
+  @media print {
+    display: none;
+  }
+
+  li {
+    display: flex;
+    align-items: center;
+    @include font-size("s");
+
+    @include breakpoint($content-width) {
+      white-space: nowrap;
+    }
+
+    & + li {
+      margin-left: .75em;
+
+      &::before {
+        display: inline-block;
+        margin-right: .75em;
+        content: "»";
+      }
+    }
+  }
+
+  a {
+    display: inline-block;
+    padding: .25em 0;
+    white-space: normal;
+  }
+}

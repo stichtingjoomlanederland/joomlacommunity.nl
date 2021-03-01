@@ -1,0 +1,18 @@
+/* Blockquote
+   ========================================================================== */
+
+blockquote {
+  position: relative;
+  @include reset();
+  @include heading("s");
+  padding-left: ms(2);
+
+  [viewBox] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: ms(1);
+    height: ms(1);
+    fill: $geel;
+  }
+}

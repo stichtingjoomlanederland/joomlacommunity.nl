@@ -1,0 +1,23 @@
+/* Root
+   ========================================================================== */
+
+:root {
+  --spacing: #{ms(1, rem)};
+  font-size: 1em;
+  //font-size: calc(1em + .16vw);
+  line-height: 1.5;
+  scroll-behavior: smooth;
+
+  //@include breakpoint($content-width, $site-width) {
+  //  --spacing: calc(#{ms(1, rem)} + 1vw);
+  //}
+  //
+  //@include breakpoint($site-width) {
+  //  --spacing: #{ms(2, rem)};
+  //}
+
+  // No smooth scroll for people who prefer not to
+  @media screen and (prefers-reduced-motion: reduce) {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,21 @@
+.card--embleem {
+  .card__content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  [class*="heading:"] {
+    margin-top: auto;
+  }
+
+  .button {
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  @include hover {
+    .button {
+      @include buttonHover;
+    }
+  }
+}

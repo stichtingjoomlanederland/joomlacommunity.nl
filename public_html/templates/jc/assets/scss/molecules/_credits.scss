@@ -1,0 +1,29 @@
+/* ==========================================================================
+   Credits
+   ========================================================================== */
+
+// 1. Fix vertical centering
+
+.credits {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  padding-top: .5em; // 1
+  padding-right: ms(0);
+  padding-bottom: .6em; // 1
+  padding-left: ms(0);
+  color: $goud-type;
+  background: rgba($goud, .9);
+  border-radius: 0 0 0 $radius-small;
+  @include font-size("xxs");
+
+  @at-root .figure--embleem & {
+    position: static;
+    display: block;
+    color: $type-alt;
+    background-color: $wit;
+    border-radius: 0;
+  }
+}

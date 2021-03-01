@@ -1,0 +1,12 @@
+
+@mixin fluid-property-em($property, $min-value: $illusion-fluid-property-em-min-value, $max-value: $illusion-fluid-property-em-max-value, $min-screen: $illusion-fluid-property-em-min-screen, $max-screen: $illusion-fluid-property-em-max-screen) {
+  #{$property}: $min-value;
+
+  @media screen and (min-width: $min-screen) {
+    #{$property}: calc-interpolation($min-screen, $min-value, $max-screen, $max-value);
+  }
+
+  @media screen and (min-width: $max-screen) {
+    #{$property}: $max-value;
+  }
+}

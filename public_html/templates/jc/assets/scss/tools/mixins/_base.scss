@@ -1,0 +1,91 @@
+// ==========================================================================
+// Base mixins
+// ==========================================================================
+
+
+// Fallback
+// ==========================================================================
+// When the $fallback variable is set to true you can preview how older
+// browsers behave. Always test on real old browser to be 100% sure
+
+@mixin fallback() {
+  @if ($fallback == false) {
+    @content;
+  }
+}
+
+
+// Modular scale
+// ==========================================================================
+// Responsive spacing items apart with an old browser fallback
+// This is a responsive spacer
+
+@mixin ms($property, $amount, $multiplier: 1, $subtractFrom: false) {
+  // Get default value from map
+  $ms-amount: map-get($sizes, $amount);
+  // Support for non default values
+  @if ($ms-amount == null) {
+    $ms-amount: $amount;
+  }
+  // Apply multiplier if applicable
+  @if ($multiplier != 1 and $multiplier != false) {
+    $ms-amount: map-get($sizes, $amount) * $multiplier;
+  } @else if ($multiplier == false) {
+    $ms-amount: $amount;
+  }
+  // Default
+  @if ($subtractFrom) {
+    #{$property}: calc(#{$subtractFrom} - (#{ms(1, rem)} * #{$ms-amount * $fallback-amount}));
+  } @else {
+    #{$property}: calc(#{ms(1, rem)} * #{$ms-amount * $fallback-amount});
+  }
+  // Fallback
+  @if ($fallback == false) {
+    @supports (--css: variables) {
+      @if ($subtractFrom) {
+        #{$property}: calc(#{$subtractFrom} - (var(--spacing) * #{$ms-amount}));
+      } @else {
+        #{$property}: calc(var(--spacing) * #{$ms-amount});
+      }
+    }
+  }
+}
+
+
+// Stack
+// ==========================================================================
+
+@mixin stack($value) {
+  & > * + * {
+    margin-top: $value;
+  }
+}
+
+
+// Contain
+// ==========================================================================
+// Default $site-width max-width settings for a container.
+
+@mixin contain($width: $site-width) {
+  max-width: $width;
+  margin-right: auto;
+  margin-left: auto;
+  @include ms(padding-right, 0);
+  @include ms(padding-left, 0);
+}
+
+
+// Cluster
+// ==========================================================================
+
+@mixin cluster($margin: 1em, $justify-content: flex-start) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: $justify-content;
+  margin: calc(#{$margin} / 2 * -1);
+
+  > * {
+    margin: calc(#{$margin} / 2);
+  }
+}

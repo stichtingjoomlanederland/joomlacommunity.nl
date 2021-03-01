@@ -1,0 +1,22 @@
+/* ==========================================================================
+   Sidebar
+   ========================================================================== */
+
+.has-sidebar > * {
+  display: flex;
+  flex-wrap: wrap;
+  @include ms(margin, $ms-grid, $ms-grid-multiplier);
+}
+
+.has-sidebar > * > * {
+  @include ms(margin, $ms-grid-item, $ms-grid-item-multiplier);
+  flex-basis: $grid-item-width;
+  flex-grow: 1;
+}
+
+.has-sidebar--left > * > *:last-child,
+.has-sidebar--right > * > *:first-child {
+  flex-basis: 0;
+  flex-grow: 999;
+  min-width: $grid-item-width;
+}

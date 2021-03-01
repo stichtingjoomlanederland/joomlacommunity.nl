@@ -1,0 +1,59 @@
+/* ==========================================================================
+   Tips
+   ========================================================================== */
+
+.tips {
+  @include ms(padding-left, 2);
+  counter-reset: tips;
+  @include stack(ms(1));
+
+  & > ul {
+    padding: 0;
+    list-style: none;
+
+    & + ul {
+      &.is-expanded {
+        margin-top: ms(1);
+      }
+    }
+  }
+
+  & > ul > li {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    @include ms(min-height, 1);
+
+    & + .houdini,
+    & + li {
+      margin-top: ms(1);
+    }
+
+    @include pseudo(before, $content: false, $display: flex) {
+      top: 0;
+      align-items: center;
+      justify-content: center;
+      font-family: $font-family-heading;
+      font-weight: 500;
+      text-align: center;
+      content: counter(tips);
+      counter-increment: tips;
+      background: rgba($goud-light, .5);
+      border: px(1) solid rgba($goud, .5);
+      border-radius: 50%;
+      @include font-size("l");
+      @include ms(left, 2, -1);
+      @include ms(width, 1);
+      @include ms(height, 1);
+      @include ms(font-size, -1);
+    }
+  }
+
+  [class*="heading:"]:not(:only-child) {
+    margin-bottom: ms(-2);
+
+    & + p {
+      margin-top: 0;
+    }
+  }
+}

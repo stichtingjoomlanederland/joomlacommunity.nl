@@ -1,0 +1,94 @@
+// RSForms
+main form {
+  > * {
+    @include stack(ms(1));
+  }
+
+  h1,
+  h2 {
+    @include heading("l", true);
+    color: $type-alt;
+  }
+
+  > fieldset {
+    @include stack(ms(1));
+  }
+}
+
+.rsform-block {
+    @include stack(ms(0));
+}
+
+.formRow {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+
+  @include breakpoint($content-width) {
+    flex-direction: row;
+  }
+
+  > * {
+    flex: 1;
+  }
+
+  $grid-columns: 12;
+
+  @for $i from 1 through $grid-columns {
+    .formSpan#{$i} {
+      flex: $i;
+    }
+  }
+}
+
+[class^="formSpan"] {
+  @include stack(ms(0));
+
+  @include breakpoint(0, $content-width) {
+    & + & {
+      margin-top: ms(0);
+    }
+  }
+}
+
+.formControlLabel {
+  &:empty {
+    display: none;
+  }
+}
+
+.xdsoft_datetimepicker {
+  z-index: 2;
+  font-family: inherit;
+  color: $illusion-form-input-color;
+  border: $illusion-form-input-border $illusion-form-input-border-color;
+  border-radius: $illusion-form-input-border-radius;
+
+  .xdsoft_label {
+    z-index: 2;
+  }
+}
+
+.rsform-submit-button,
+.rsform-reset-button {
+  @include button();
+}
+
+.rsform-submit-button {
+  //@include buttonModifier($goud-type, $goud, $goud-dark);
+}
+
+/* Override front.css styling */
+.formBody.formBody {
+  float: none;
+}
+
+.formDescription.formDescription,
+.formError.formError {
+  font-size: small;
+}
+
+/* Remove label for captcha element */
+.rsform-block-captcha .formControlLabel {
+  display: none;
+}

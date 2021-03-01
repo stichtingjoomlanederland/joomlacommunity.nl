@@ -1,0 +1,259 @@
+/* ==========================================================================
+   Card
+   ========================================================================== */
+
+$default-image-width: 55% !default;
+$small-image-width: 65% !default;
+$smaller-image-width: 75% !default;
+
+.cards {
+  /* Reset default settings when used as <ul class="cards"> for example */
+  padding-left: 0;
+  list-style: none;
+
+  /* .cards is a stack in itself */
+  .card + .card {
+    margin-top: ms(1);
+  }
+}
+
+.is-clickable-card {
+  cursor: pointer;
+
+  *:not(a)[data-card-ignore] {
+    cursor: default;
+  }
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden; // Add overflow to fix IE11 flexbox issues
+  background-color: $wit;
+  background-repeat: no-repeat;
+  background-size: px(4) 100%;
+  border: 1px solid transparent; // Don't use px(1) since chrome has problems subpixel aliasing
+  border-radius: $radius-small;
+  transform: translateZ(0);
+  @include font-size("s");
+  @include transition(background, box-shadow);
+
+  @media print {
+    page-break-inside: avoid;
+  }
+
+  &.card--clean,
+  &.card--gradient {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+
+  &.card--stack {
+    flex-direction: column;
+    flex-wrap: nowrap;
+
+    .card__image {
+      width: 100%;
+    }
+
+    .card__body {
+      flex-basis: auto;
+    }
+  }
+
+  &.card--stack-over {
+    position: relative;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+
+    .card__image {
+      width: 100%;
+    }
+
+    .card__body {
+      position: absolute;
+      right: 0;
+      bottom: 1em;
+      left: 0;
+      flex-basis: auto;
+    }
+
+    .card__image {
+      @include pseudo(after, relative, absolute, "") {
+        @include coverall();
+        background-image: linear-gradient(hsla(0, 0%, 0%, 0) 60%, hsla(0, 0%, 0%, .5) 70%);
+        background-position-y: 50%;
+        background-size: 1px 200%;
+        @include transition(background .2s);
+      }
+    }
+  }
+
+  /* Clickable card
+   ========================================================================== */
+
+  &.is-clickable-card {
+    [data-card-link] {
+      text-decoration: none;
+
+      .link__text {
+        text-decoration: none;
+      }
+    }
+
+    @include hover(true) {
+      &:not(.card--border-top):not(.card--embleem):not(.card--agenda) {
+        background-color: $goud-lightest;
+        border-color: $goud;
+
+        [data-card-link] {
+          text-decoration: none;
+
+          .link__text {
+            text-decoration: none;
+          }
+        }
+
+        .card__image,
+        .card__icon {
+          background-color: $goud-dark;
+        }
+      }
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 px(3) $color-focus;
+    }
+  }
+}
+
+.card__image {
+  position: relative;
+  flex: 1 1 auto;
+  width: $grid-item-width--s;
+  max-width: 100%;
+  overflow: hidden;
+  @include transition(background-color);
+
+  & [class^="ratio:"] {
+    border-radius: $radius-small;
+
+    &:not([class^="ratio:1:1"]) {
+      min-height: 100%;
+    }
+  }
+}
+
+.card__image--size\:xs {
+  width: $grid-item-width--xs;
+
+  & + .card__body {
+    flex-basis: $small-image-width;
+  }
+}
+
+.card__image--size\:xxs {
+  width: $grid-item-width--xxs;
+
+  & + .card__body {
+    flex-basis: $smaller-image-width;
+  }
+}
+
+//.card__image--news {
+//  @include svg-background('<path d="M21.75 21.727H2.25A2.25 2.25 0 010 19.477V4.523a2.25 2.25 0 012.25-2.25h16.617a2.252 2.252 0 011.61.678l2.884 2.955c.41.42.639.985.639 1.571v12a2.25 2.25 0 01-2.25 2.25zM18.867 3.773H2.25a.75.75 0 00-.75.75v14.954c0 .414.336.75.75.75h19.5a.75.75 0 00.75-.75v-12a.75.75 0 00-.213-.523l-2.883-2.955a.75.75 0 00-.537-.226zm-6.833 8.74l1.786-2.557a1.594 1.594 0 012.632.028l4.372 6.555a.75.75 0 01-1.248.832l-4.372-6.555a.094.094 0 00-.131-.025.086.086 0 00-.023.023l-2.245 3.215a.75.75 0 01-1.085.156l-1.39-1.117a.093.093 0 00-.13.014l-.001.003-.004.005-2.865 4.3a.75.75 0 01-1.248-.832l2.865-4.3a1.592 1.592 0 012.322-.36l.765.615zm-3-.372l-.005.005.012-.015-.008.01zM7.08 5.875a2.624 2.624 0 100 5.25 2.624 2.624 0 100-5.25zm0 1.5a1.125 1.125 0 110 2.25 1.125 1.125 0 010-2.25z"/>', $oceaan, 32);
+//}
+
+.card__icon {
+  position: relative;
+  display: flex;
+  flex: 1 1 $grid-item-width--s;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: $grid-item-width--xxs;
+  max-width: 100%;
+  padding: 1rem;
+  color: $dark-type;
+  background-color: $goud-dark;
+  border-radius: $radius-small;
+  @include ms("font-size", 0);
+  @include transition(background-color);
+
+  svg {
+    margin-right: .2em;
+    opacity: .8;
+  }
+}
+
+.card__body {
+  display: flex;
+  flex-basis: $default-image-width;
+  flex-direction: column;
+  flex-shrink: 1;
+  flex-grow: 99;
+}
+
+.card__header {
+  display: inline-block;
+  padding: ms(0) ms(0) 0;
+
+  & + .card__content {
+    margin-top: -(ms(-2));
+  }
+
+  & + .card__footer {
+    margin-top: ms(-2);
+  }
+}
+
+.card__content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  padding: ms(0);
+
+  & > * + * {
+    margin-top: ms(0);
+  }
+
+  & + .card__footer {
+    margin-top: -(ms(-2));
+  }
+
+  // Stack
+  [class*="heading:"] + * {
+    margin-top: ms(0);
+  }
+}
+
+.card__footer {
+  padding: 0 ms(0) ms(0) ms(0);
+}
+
+.card__group-list.list {
+  width: 100%;
+  padding: ms(0);
+  margin-top: 0;
+  background: $goud-lightest;
+  border-top: px(2) solid $goud-lighter;
+}
+
+@import 'cards/agenda';
+@import 'cards/scale3';
+@import 'cards/ministeries';
+@import 'cards/news';
+
+@import 'card/2columns';
+@import 'card/border-top';
+@import 'card/embleem';
+@import 'card/label';

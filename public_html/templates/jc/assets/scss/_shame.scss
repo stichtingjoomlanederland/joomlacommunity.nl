@@ -1,0 +1,16 @@
+// Shame
+
+/**
+ * 1. prevent long words screw up the page
+ */
+main {
+  a:not([class]):not([data-card-link]) {
+    color: $goud;
+  }
+}
+
+body {
+  @include breakpoint($header-breakpoint) {
+    padding-top: 5.5rem;
+  }
+}

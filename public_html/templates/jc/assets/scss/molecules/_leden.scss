@@ -1,0 +1,27 @@
+/* ==========================================================================
+   Leden
+   ========================================================================== */
+
+$leden-size: 10rem !default;
+
+.leden-logo {
+  display: inline-flex;
+  flex: 1 1 $leden-size;
+  align-items: center;
+  justify-content: center;
+  min-width: $leden-size;
+  padding: ms(-2);
+  background: #fff;
+
+  img {
+    width: auto;
+    min-width: 0;
+    max-height: $leden-size * .6;
+    padding: 0;
+  }
+}
+
+.leden-info {
+  display: flex;
+  align-items: center;
+}

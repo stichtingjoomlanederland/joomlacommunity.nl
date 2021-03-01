@@ -1,0 +1,152 @@
+/* ==========================================================================
+   Message
+   ========================================================================== */
+
+.message-container {
+  position: relative;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 9999;
+  overflow: hidden;
+
+  @include js-enabled {
+    position: fixed;
+    height: 0;
+    overflow: initial;
+  }
+
+  /**
+   * Move in screen when there's actually a message
+   */
+
+  &.has-message {
+    .message__body {
+      margin-top: 0;
+
+      /**
+       * Only animate when animations are possible
+       */
+
+      @include js-enabled {
+        animation: slideIn 250ms forwards;
+        animation-delay: 100ms;
+      }
+    }
+  }
+
+
+  /**
+   * The close button
+   */
+
+  .message__close {
+    position: absolute;
+    top: .5em;
+    right: .5em;
+    display: none;
+    width: 2em;
+    height: 0;
+    padding-top: 2em;
+    overflow: hidden;
+    color: $message-color;
+
+    @include js-enabled() {
+      display: block;
+    }
+
+    &::after {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      display: block;
+      margin: -.5em 0 0 -.4em;
+      line-height: 1em;
+      content: "✕";
+    }
+
+    &:focus,
+    &:hover {
+      opacity: .7;
+    }
+
+    /**
+     * Hide text
+     */
+
+    span {
+      @include visually-hidden();
+    }
+  }
+}
+
+/**
+ * Message body styling
+ */
+
+.message__body {
+  position: relative;
+  width: 100%;
+  max-width: $message-maxwidth;
+  margin: -100% auto 0;
+
+  /**
+   * Move out of screen when animations are supported
+   */
+
+  @include js-enabled() {
+    transform: translateY(-100%);
+  }
+}
+
+.messages {
+  max-height: 100vh;
+  overflow-y: auto;
+}
+
+.message {
+  @include transition(height 250ms);
+  overflow: hidden;
+}
+
+.message__type {
+  position: relative;
+  padding: $message-spacing;
+  color: $message-color;
+  background: $message-background;
+  border-bottom: 2px solid #fff;
+}
+
+.message__type--error {
+  background: $message-error-background;
+}
+
+.message__type--notice {
+  background: $message-notice-background;
+}
+
+.message__type--warning {
+  background: $message-warning-background;
+}
+
+/**
+ * Message title
+ */
+
+.message__title {
+  margin-bottom: .25em;
+  font-weight: 700;
+}
+
+/**
+ * Animations
+ */
+
+@keyframes slideIn {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(0%);
+  }
+}

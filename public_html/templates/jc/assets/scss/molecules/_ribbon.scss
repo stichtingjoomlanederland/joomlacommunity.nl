@@ -1,0 +1,132 @@
+/**
+ * Ribbon
+ * https://codepen.io/hans2103/pen/GRqdXdV
+ */
+
+@include breakpoint(0, $page-header-breakpoint) {
+  .ribbon__label {
+    @include visually-hidden;
+  }
+
+  .ribbon__countdown {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5em;
+    font-size: 1rem;
+    line-height: 1;
+    color: $goud;
+
+    @include pseudo(before) {
+      top: -1em;
+      right: 0;
+      left: 0;
+      height: 1em;
+      background-color: $rood;
+      border-radius: $radius-small $radius-small 0 0;
+    }
+
+    @include pseudo(after) {
+      right: 0;
+      bottom: -1em;
+      left: 0;
+      height: 1em;
+      background-color: $geel;
+      border-radius: 0 0 $radius-small $radius-small;
+    }
+
+    > * + * {
+      margin-left: .5em;
+    }
+  }
+
+  .ribbon__days {
+    font-weight: $weight-bold;
+
+    + .ribbon__text {
+      font-weight: $weight-bold;
+    }
+  }
+}
+
+@include breakpoint($page-header-breakpoint) {
+  .ribbon__wrapper {
+    position: relative;
+    display: flex;
+    width: 11rem;
+    pointer-events: none;
+    @include ratio-block(2 by 3, false);
+  }
+
+  .ribbon {
+    position: relative;
+    flex: 1 0 100%;
+    background-image: url("data:image/svg+xml,%3Csvg style='fill: transparent;' xmlns='http://www.w3.org/2000/svg' width='0.75' height='0.75' viewBox='0 0 24 24'%3E%3Cpath fill='%23f6c955' d='M24 24l-8-8V0h8v24z'/%3E%3Cpath fill='%23fff' d='M16 16l-4-4-4 4V0h8v16z'/%3E%3Cpath fill='%23c70000' d='M0 0h8v16l-8 8V0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: contain;
+
+    &::after {
+      display: block;
+      height: 50%;
+      content: "";
+      background-image: linear-gradient(to right, $rood 0%, $rood 33.33%, $wit 0, $wit 66.66%, $geel 0);
+      background-repeat: repeat-y;
+      background-position: center top;
+    }
+  }
+
+  .ribbon__inner {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  }
+
+  .ribbon__label {
+    position: relative;
+    z-index: 1;
+    padding: 1em 1.75em;
+    margin: 1em -.5em 0;
+    font-size: .8em;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $wit;
+    text-align: center;
+    background-color: $goud;
+    clip-path: polygon(50% 0, 100% 20%, 100% 100%, 50% 80%, 0 100%, 0 25%);
+    border-radius: .25em;
+
+    span {
+      max-width: 80%;
+    }
+  }
+
+  .ribbon__countdown {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 7em;
+    height: 7em;
+    margin-top: -1.5em;
+    margin-right: auto;
+    margin-left: auto;
+    color: $goud;
+    background-color: $wit;
+    border: 1px solid $goud-lightest;
+    border-radius: $radius-full;
+  }
+
+  .ribbon__text {
+    font-size: 1em;
+    font-style: italic;
+  }
+
+  .ribbon__days {
+    font-size: 3em;
+    font-weight: 700;
+    line-height: .65;
+  }
+}

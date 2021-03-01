@@ -1,0 +1,31 @@
+// ==========================================================================
+// Base functions
+// ==========================================================================
+
+
+// Modular scale
+// ==========================================================================
+// Function to be used in combination with the modular scale variables.
+// Defaults to em to make sure larger fonts have a larger scale
+// Possible to set to rem if you want to ignore the current element size
+
+@function ms($size: 0, $type: em) {
+  $ms-size: map-get($sizes, $size);
+  // Support for non default values
+  @if ($ms-size == null) {
+    $ms-size: $size;
+  }
+  $value: #{$ms-size}#{$type};
+  @return $value;
+}
+
+// Pixels to rem
+// ==========================================================================
+// Actually only correct on a 0px wide viewport. Based on rem which itself is
+// growing. Makes it possible to add interface components based on a default
+// pixel size
+
+@function px($size, $type: rem) {
+  $value: #{($size / 16)}#{$type};
+  @return $value;
+}

@@ -1,0 +1,76 @@
+/* ==========================================================================
+   Button
+   ========================================================================== */
+
+.button,
+.btn {
+  @include button();
+}
+
+
+/* Modifiers
+   ========================================================================== */
+
+.button--small.button--small {
+  border-color: transparent;
+  @include font-size("xs");
+}
+
+.button--xxs.button--xxs {
+  @include font-size("xxs");
+}
+
+.button--small-with-text.button--small-with-text {
+  border-color: transparent;
+  @include font-size("xs");
+  @include buttonModifier($rood, transparent, transparent);
+
+  svg {
+    width: 2em;
+    height: 2em;
+    padding: .5em;
+    border: 1px solid $geel;
+    border-radius: $radius-full;
+  }
+
+  &:hover {
+    svg {
+      background-color: $color-focus;
+    }
+  }
+
+  &:focus {
+    svg {
+      outline: none;
+      box-shadow: 0 0 0 px(3) $color-focus;
+    }
+  }
+}
+
+
+// Make sure ghost button hovers when hovering entire card
+// http://local.oc1882.nl/over-de-zorg
+.card.is-clickable-card:hover .button--ghost {
+  background: rgba($goud, .1);
+}
+
+.button--cta-end {
+  @at-root .card & {
+    align-self: flex-end;
+    margin-top: auto;
+  }
+}
+
+.button--absolute {
+  position: absolute;
+  right: 1em;
+  bottom: 0;
+}
+
+.button--svg-only {
+  background-color: $wit;
+
+  @include hover {
+    @include buttonHover;
+  }
+}

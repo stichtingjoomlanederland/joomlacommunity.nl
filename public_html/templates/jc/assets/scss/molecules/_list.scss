@@ -1,0 +1,131 @@
+// File variables
+$list-breakpoint: $content-width !default;
+
+
+/* ==========================================================================
+   List
+   ========================================================================== */
+
+/* Vertical */
+.list {
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    padding: ms(-3) 0;
+
+    @media print {
+      display: flex;
+    }
+  }
+
+  ul {
+    padding-left: 1em;
+    margin-top: ms(-3);
+    margin-bottom: -(ms(-3));
+    list-style: none;
+  }
+}
+
+/* Horizontal */
+.horizontal-list {
+  padding-left: 0;
+  list-style: none;
+  @include cluster();
+}
+
+.horizontal-list--right {
+  padding-left: 0;
+  list-style: none;
+  @include cluster($justify-content: flex-end);
+}
+
+.compact-horizontal-list {
+  padding-left: 0;
+  list-style: none;
+  @include cluster(.5em);
+}
+
+/* Switch */
+.switch-list {
+  padding-left: 0;
+  list-style: none;
+
+  li {
+    padding-top: ms(-3);
+    padding-bottom: ms(-3);
+  }
+
+  @include breakpoint($list-breakpoint) {
+    @include cluster();
+
+    li {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+}
+
+
+// Arrow list
+// Used in kennisbank website
+
+.list--arrow {
+  li {
+    padding-left: ms(0);
+  }
+
+  .is-clickable-card {
+    @include hover() {
+      a {
+        text-decoration: none;
+
+        &::before {
+          transform: translateX(px(2));
+        }
+      }
+    }
+  }
+
+  h3 + p {
+    margin-top: .33em;
+  }
+
+  a {
+    display: inline-block;
+
+    @include pseudo(before) {
+      top: ms(-2);
+      left: -(ms(0));
+      margin-left: .15em;
+      @include triangle(right, px(4), $goud);
+      @include transition(transform);
+    }
+
+    @include hover() {
+      &::before {
+        transform: translateX(px(2));
+      }
+    }
+  }
+}
+
+
+.list--dl-inline {
+  display: grid;
+  grid-template-columns: max-content auto;
+  grid-column-gap: ms(0);
+
+  dt {
+    grid-column-start: 1;
+    font-weight: $weight-bold;
+  }
+
+  dd {
+    grid-column-start: 2;
+  }
+
+  @include breakpoint(0, $list-breakpoint) {
+    overflow: hidden;
+  }
+}

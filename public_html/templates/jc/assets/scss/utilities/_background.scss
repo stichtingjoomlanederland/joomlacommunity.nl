@@ -1,0 +1,59 @@
+/* ==========================================================================
+   Background
+   ========================================================================== */
+
+.background\:transparent {
+  color: $type-alt;
+  background: transparent;
+}
+
+.background\:goud {
+  color: $goud-type;
+  background-color: $goud;
+}
+
+.background\:rood {
+  color: $rood-type;
+  background: $rood;
+}
+
+.background\:wit {
+  color: $type;
+  background: $wit;
+}
+
+.background\:geel {
+  color: $type-alt;
+  background: $geel;
+}
+
+.background\:type {
+  color: $goud;
+  background: $wit;
+}
+
+.background\:type-alt {
+  color: $wit;
+  background: $type-alt;
+}
+
+.background\:goud-light {
+  color: $goud;
+  background: $goud-light;
+}
+
+.background\:goud-lighter {
+  color: $goud;
+  background: $goud-lighter;
+}
+
+.background\:goud-lightest {
+  color: $type;
+  background: $goud-lightest;
+}
+
+// Negative margin when last item is a colored background.
+// So the feedback container connects nicely to the colored background for example
+.main > .stack > .full-width[class*="background:"]:last-child {
+  @include ms(margin-bottom, 0, -1);
+}

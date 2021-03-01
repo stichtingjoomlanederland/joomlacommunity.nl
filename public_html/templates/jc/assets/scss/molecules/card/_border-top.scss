@@ -1,0 +1,11 @@
+.card--border-top {
+  padding-top: ms(1);
+
+  @include pseudo(before) {
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    background-color: $goud-lightest;
+  }
+}

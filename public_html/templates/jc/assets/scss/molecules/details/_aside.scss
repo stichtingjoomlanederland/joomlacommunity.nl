@@ -1,0 +1,49 @@
+.details--aside {
+  $unit: 1.5em;
+
+  &:focus {
+    outline: none;
+  }
+
+  & + .details--aside {
+    margin-top: $unit / 2;
+  }
+
+  summary {
+    padding-top: $unit;
+    padding-bottom: $unit / 4;
+    border-bottom: 1px solid rgba(255, 255, 255, .25);
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  .summary__title {
+    display: inline-block;
+    padding-right: $unit;
+    font-weight: $weight-bold;
+    text-transform: uppercase;
+  }
+
+  .summary__chevron-down {
+    top: 1.5em;
+    right: 0;
+  }
+
+  .summary__content {
+    .list--blocks > li a {
+      padding-left: $unit / 2;
+    }
+  }
+
+  svg {
+    @include transition(transform 200ms ease-in-out);
+  }
+
+  &[open] {
+    svg {
+      transform: scale(-1, -1);
+    }
+  }
+}

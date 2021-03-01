@@ -1,0 +1,37 @@
+/* ==========================================================================
+   Color
+   ========================================================================== */
+
+.color\:goud {
+  color: $goud;
+}
+
+.color\:rood {
+  color: $rood;
+}
+
+.color\:wit {
+  color: $wit;
+}
+
+.color\:geel {
+  color: $geel;
+}
+
+.color\:dark {
+  color: $dark;
+}
+
+.color\:type {
+  color: $type;
+}
+
+.color\:type-alt {
+  color: $type-alt;
+}
+
+
+// Lighter color
+.color\:lighter {
+  color: rgba(black, .75);
+}

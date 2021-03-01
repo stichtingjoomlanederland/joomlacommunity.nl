@@ -1,0 +1,14 @@
+// Message
+// ==========================================================================
+
+$message-maxwidth:            100% !default;
+$message-supports:            true !default; // Set to false to test for browsers without @supports
+
+$message-spacing:             16px !default;
+
+$message-color:               rgb(255, 255, 255) !default;
+$message-background:          #27ae60 !default;
+
+$message-error-background:    #c0392b !default;
+$message-warning-background:  #d35400 !default;
+$message-notice-background:   #2980b9 !default;

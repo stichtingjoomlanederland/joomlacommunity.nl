@@ -1,0 +1,91 @@
+/* ==========================================================================
+   Typography
+   ========================================================================== */
+
+/* Font size
+   ========================================================================== */
+
+.font-size\:l {
+  @include font-size("l");
+}
+
+.font-size\:s {
+  @include font-size("s");
+}
+
+.font-size\:xs {
+  @include font-size("xs");
+}
+
+.font-size\:xxs {
+  @include font-size("xxs");
+}
+
+
+/* Font weight
+   ========================================================================== */
+
+.font-weight\:light {
+  font-weight: $weight-light;
+}
+
+.font-weight\:normal {
+  font-weight: $weight-normal;
+}
+
+.font-weight\:medium {
+  font-weight: 500;
+}
+
+.font-weight\:bold {
+  font-weight: $weight-bold;
+}
+
+
+/* Font style
+   ========================================================================== */
+
+.font-style\:normal {
+  font-style: normal;
+}
+
+.font-style\:italic {
+  font-style: italic;
+}
+
+
+/* Wrapping & overflow
+   ========================================================================== */
+
+// Overflow ellipsis
+.overflow\:ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dont-break {
+  @include dont-break();
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+
+/* Alignment
+   ========================================================================== */
+
+.text-align\:center {
+  text-align: center;
+}
+
+.text-align\:right {
+  text-align: right;
+}
+
+/* Empty paragraph
+   ========================================================================== */
+p:empty {
+  display: none;
+}

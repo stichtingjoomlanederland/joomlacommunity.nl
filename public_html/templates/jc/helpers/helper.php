@@ -399,7 +399,7 @@ class PWTTemplateHelper
 		HTMLHelper::_('stylesheet', 'template.css', ['version' => self::getFileMTime(JPATH_THEMES . '/' . self::template() . '/css/template.css'), 'relative' => true]);
 
 		if (self::getPageOption() === 'com_easydiscuss') {
-			HTMLHelper::_('stylesheet', 'easydiscuss.css', ['version' => self::getFileMTime(JPATH_THEMES . '/' . self::template() . '/css/easydiscuss.css'), 'relative' => true]);
+			//HTMLHelper::_('stylesheet', 'easydiscuss.css', ['version' => self::getFileMTime(JPATH_THEMES . '/' . self::template() . '/css/easydiscuss.css'), 'relative' => true]);
 		}
 
 		// Check for a custom CSS file

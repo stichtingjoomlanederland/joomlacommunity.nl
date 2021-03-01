@@ -1,0 +1,21 @@
+/* ==========================================================================
+   Link
+   ========================================================================== */
+
+.link {
+  text-decoration: none;
+
+  @include hover() {
+    .link__text {
+      text-decoration: none;
+    }
+  }
+}
+
+.link__text {
+  text-decoration: underline;
+}
+
+.link__label {
+  margin-left: ms(-2);
+}

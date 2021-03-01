@@ -1,0 +1,37 @@
+/* ==========================================================================
+   Switcher
+   ========================================================================== */
+
+// Variables
+$switcher-breakpoint: $wider-width !default;
+
+.switcher {
+  & > ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  & > * {
+    display: flex;
+    flex-wrap: wrap;
+    @include ms(margin, $ms-grid, $ms-grid-multiplier);
+  }
+
+  & > * > * {
+    flex-basis: calc((#{$content-width} - (100% - 1.5rem)) * 999);
+    flex-grow: 1;
+    @include ms(margin, $ms-grid-item, $ms-grid-item-multiplier);
+  }
+}
+
+.switcher--2\:1 {
+  > * > *:nth-child(1) {
+    flex-grow: 2.12;
+  }
+}
+
+.switcher--1\:2 {
+  > * > *:nth-child(2) {
+    flex-grow: 2.12;
+  }
+}

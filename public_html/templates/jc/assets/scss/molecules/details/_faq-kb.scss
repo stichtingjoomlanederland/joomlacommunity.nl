@@ -1,0 +1,66 @@
+.details--faq-kb {
+  $unit: .75em;
+  $g95: hsl(0, 0%, 95%);
+  $g90: hsl(0, 0%, 90%);
+  font-size: 1rem;
+
+  color: $goud;
+  background-color: $goud-lightest;
+  border: none;
+
+  + .details--faq-kb {
+    margin-top: $unit / 4;
+  }
+
+  .summary__chevron-down {
+    top: 2 * $unit;
+    background-color: transparent;
+
+    svg {
+      opacity: 1;
+      fill: $rood;
+      stroke: none;
+      stroke-width: 0;
+      @include transition(transform 200ms ease-in-out);
+    }
+  }
+
+  summary {
+    padding: 1.5em;
+
+    @include transition(background-color 200ms ease-in-out);
+
+    @include hover {
+      background-color: $goud-light;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: inset 0 0 2px $rood;
+    }
+  }
+
+  .summary__content {
+    h2,
+    h3 {
+      @include heading("l");
+      color: currentColor;
+    }
+
+    p,
+    ul,
+    ol {
+      color: $type;
+    }
+  }
+
+  &[open] {
+    summary {
+      background-color: $goud-light;
+    }
+
+    svg {
+      transform: rotate(45deg);
+    }
+  }
+}

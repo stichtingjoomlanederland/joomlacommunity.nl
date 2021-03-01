@@ -1,0 +1,35 @@
+.cards--news {
+  .card {
+    @include hover {
+      .button {
+        background-color: $color-focus;
+      }
+    }
+  }
+
+  .card__icon {
+    flex: 1 1 auto;
+    width: $grid-item-width--s;
+  }
+
+  .card__content {
+    @include breakpoint($content-width) {
+      padding-right: ms(3);
+    }
+  }
+
+  .button {
+    display: none;
+
+    @include breakpoint($content-width) {
+      display: block;
+      position: absolute;
+      right: ms(-4);
+      bottom: ms(2);
+    }
+  }
+
+  .card--label {
+    display: flex;
+  }
+}

@@ -1,0 +1,117 @@
+.search-togglebutton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: px(16);
+  margin-bottom: px(16);
+  margin-left: auto;
+  color: $type-alt;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  border-radius: $radius-small;
+
+  @include breakpoint(0, $vjsm-menu-width) {
+    position: fixed;
+    top: px(8);
+    right: 3.5rem;
+    z-index: $vjsm-togglebutton-zindex;
+    @include ms(padding, -3);
+    margin: 0;
+    color: $type;
+    background-color: $wit;
+    border: 0;
+    border-radius: $radius-small;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 px(3) $color-focus;
+  }
+
+  * {
+    pointer-events: none;
+  }
+}
+
+.mini-search-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  @include ms(padding, -3);
+  background: $wit;
+  @include transition(transform 100ms ease-in 100ms);
+  transform: scaleY(0);
+  transform-origin: 0 0;
+
+  &.is-active {
+    box-shadow: 0 1px 2px hsla(0, 0%, 0%, .3);
+    transform: scaleY(1);
+  }
+
+  @media print {
+    display: none;
+  }
+}
+
+
+.mini-search-wrapper {
+  @include breakpoint($header-breakpoint) {
+    @include contain($content-width);
+  }
+}
+
+.search {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: $content-width;
+  margin: 0;
+
+  label {
+    @include visually-hidden();
+  }
+
+  [type="search"] {
+    box-sizing: content-box;
+    width: calc(100% - 2em);
+    height: ms(2);
+    padding: .12em 1em;
+    margin: 0;
+    background: #fff;
+    border: none;
+    border-radius: $radius-full;
+    box-shadow: 0 0 0 px(1) #fff, 0 0 0 px(4) $rood;
+    appearance: none;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  button {
+    position: absolute;
+    top: 50%;
+    right: .125em;
+    z-index: 1;
+    margin: 0;
+    box-shadow: none;
+    transform: translateY(-50%);
+    @extend .button;
+
+    svg:nth-child(n) {
+      margin-right: 0;
+    }
+  }
+
+  .button__text {
+    @include visually-hidden();
+
+    @include breakpoint($header-breakpoint) {
+      @include visually-shown();
+      margin-left: .75em;
+    }
+  }
+}

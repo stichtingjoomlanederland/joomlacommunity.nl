@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Stack
+   ========================================================================== */
+
+/**
+ * Stacking children using scale units
+ */
+
+@mixin stackdefaults() {
+  & > * {
+    margin-bottom: 0;
+  }
+
+  & > * + * {
+    margin-top: ms(1);
+  }
+
+  & > h2 + *:not(div),
+  & > h3 + *:not(div),
+  & > h4 + *:not(div) {
+    margin-top: ms(-1);
+  }
+
+  /* Default styling for non-class h3 and h4 headings in stack */
+  h3:not([class]) {
+    @include heading("s", true);
+    color: $type;
+  }
+
+  h4:not([class]) {
+    @include heading("s", true);
+    color: $type;
+  }
+
+  @at-root [class*=" label\:"] & {
+    margin-top: ms(1);
+  }
+}
+
+.stack {
+
+  // Defaults
+  @include stackdefaults();
+
+  // Larger linear margin-top
+  & > * + .cards,
+  & > * + .tips {
+    margin-top: ms(2);
+  }
+
+  // Houdini lists
+  & > .cards + .cards.houdini {
+    margin-top: ms(1);
+  }
+
+  & > .heading\:xl + .heading\:l:not(:first-child) {
+    margin-top: 0;
+
+    &.sub-heading {
+      margin-top: ms(-4);
+    }
+  }
+
+  // Default exponential margin-top
+  & > .margin-top\:1,
+  & > .heading\:l:not(:first-child),
+  & > .quickmenu,
+  & > .section-header,
+  & > .readmore-container,
+  & > *:not([class*="heading"]) + .frame {
+    @include ms(margin-top, 1);
+  }
+
+  // Large exponentiel margin-top
+  & > .margin-top\:2,
+  & > section,
+  & > .cta-container {
+    @include ms(margin-top, 2);
+  }
+
+  // No margins for "invisible" elements
+  & > meta,
+  & > script,
+  & > [hidden],
+  & > .hidden,
+  & > .is-hidden,
+  & > .visually\:hidden {
+    margin-top: 0;
+
+    &:first-child {
+      & + * {
+        margin-top: 0;
+      }
+    }
+  }
+
+  // Switcher
+  .switcher + .switcher {
+    @include ms(margin-top, $ms-grid-item, $ms-grid-item-multiplier);
+  }
+
+  // Houdini
+  .grid + .houdini {
+    @include ms(margin-top, 0);
+  }
+
+  // Large spacing for section headings when used after a colored block
+  [class*="background:"] {
+    & + .heading\:l {
+      @include ms(margin-top, 2);
+    }
+  }
+
+  // @TODO: See if this holds up, we might need to look into something else entirely. Or just use overrides for anything anyways
+  // @TODO: Maybe just still use the check to see if we override or not? Move the stack back to the views (so we have the option to add itemscope etc.)
+  //@at-root main > & > div:first-child {
+  //  @include stackdefaults();
+  //}
+}
+
+/* Small stack */
+.stack--scale\:-2 {
+  & > * + * {
+    @include ms(margin-top, -2);
+  }
+}
+
+/* Small stack */
+.stack--scale\:-3 {
+  & > * + * {
+    @include ms(margin-top, -3);
+  }
+}
+
+/**
+ * Center children within stack element
+ */
+
+.stack--center {
+  & > * {
+    max-width: $content-width;
+    margin-right: auto;
+    margin-left: auto;
+  }
+
+  .wider {
+    max-width: $wider-width;
+  }
+
+  .widest {
+    width: 100%;
+    @include ms(max-width, 0, 2, $site-width); // To account for four times $ms0 * .5
+  }
+
+  .full-width {
+    max-width: none;
+  }
+}
+
+.stack--agenda {
+  & > * + .cards {
+    @include ms(margin-top, 0);
+  }
+
+  .sub-heading {
+    + .cards {
+      border-top: 1px solid $goud;
+    }
+  }
+
+}
+
+.stack--width\:50 {
+  & * {
+    max-width: 40ch;
+  }
+}

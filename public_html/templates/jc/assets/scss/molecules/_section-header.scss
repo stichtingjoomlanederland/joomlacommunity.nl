@@ -1,0 +1,62 @@
+/* ==========================================================================
+   Section header
+   ========================================================================== */
+
+$section-breakpoint: $site-width !default;
+
+.section-header {
+  & + * {
+    @include ms(margin-top, 2);
+
+    &,
+    & + * {
+      position: relative;
+      z-index: 2;
+    }
+  }
+}
+
+.section-header__content {
+  @include ms(margin-bottom, -1, -1);
+
+  @include breakpoint($section-breakpoint) {
+    @include ms(padding-right, 0);
+    @include ms(padding-left, 0);
+    @include ms(margin-bottom, -2, false);
+  }
+
+  @media print {
+    display: none;
+  }
+
+  /* Blue background */
+  @include pseudo(before) {
+    @include coverall();
+    top: ms(3);
+    bottom: ms(3);
+    background: $goud-lighter;
+  }
+}
+
+.section-header__inner {
+  z-index: 1;
+  overflow: hidden;
+
+  @include breakpoint($section-breakpoint) {
+    border-radius: $radius-large;
+
+    @include pseudo(before) {
+      right: auto;
+      bottom: -1px;
+      left: 50%;
+      z-index: 9999;
+      width: 100%;
+      max-width: $wider-width;
+      @include ms(height, 1);
+      background: #fff;
+      border-radius: $radius-large $radius-large 0 0;
+      box-shadow: 0 -4px 4px -2px rgba(0, 0, 0, .2);
+      transform: translateX(-50%);
+    }
+  }
+}

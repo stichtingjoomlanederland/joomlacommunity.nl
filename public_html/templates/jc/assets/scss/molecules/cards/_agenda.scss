@@ -1,0 +1,58 @@
+.cards--agenda {
+  .card {
+    flex-wrap: nowrap;
+    border-bottom: 1px solid $goud-lighter;
+
+    @include hover(true) {
+      .button {
+        background-color: $color-focus;
+      }
+    }
+
+    + .card {
+      margin-top: 0;
+    }
+  }
+
+  .card__icon {
+    flex: 1 0 $grid-item-width--xs;
+    font-size: 2rem;
+    background-color: transparent;
+
+    @include breakpoint(0, $content-width) {
+      display: none;
+    }
+
+    .icon-round {
+      background-color: $wit;
+      border: 1px solid $goud-light;
+    }
+
+    svg {
+      margin: 0;
+    }
+  }
+
+  .button--cta {
+    display: none;
+    align-self: center;
+
+    @include breakpoint($content-width) {
+      display: block;
+    }
+  }
+
+  .card__body {
+    @include breakpoint(0, $content-width) {
+      max-width: 100%;
+    }
+  }
+
+  .card__header,
+  .card__content {
+    @include breakpoint(0, $content-width) {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  }
+}

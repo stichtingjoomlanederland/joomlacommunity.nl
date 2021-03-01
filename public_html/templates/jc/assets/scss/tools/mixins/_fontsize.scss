@@ -1,0 +1,30 @@
+// Font-size
+// ==========================================================================
+
+@mixin font-size($size: "m") {
+  @if $size == "xxs" {
+    font-size: .7rem;
+  }
+  @if $size == "xs" {
+    font-size: .8rem;
+  }
+  @if $size == "s" {
+    font-size: .9rem;
+  }
+  @if $size == "m" {
+    font-size: 1rem;
+  }
+  @if $size == "l" {
+    font-size: 1.1rem;
+  }
+  @if $size == "xl" {
+    font-size: 1.25rem;
+  }
+  @if $size == "xxl" {
+    font-size: 2rem;
+  }
+  @if $size == "xxxl" {
+    font-size: 3rem;
+  }
+  line-height: 1.5;
+}

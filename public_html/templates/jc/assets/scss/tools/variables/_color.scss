@@ -1,0 +1,43 @@
+// Color
+// ==========================================================================
+
+// Primary colors
+$goud:            hsl(47, 74%, 32%) !default;
+$rood:            hsl(0, 100%, 39%) !default;
+$wit:             hsl(0, 0%, 100%) !default;
+$geel:            hsl(43, 90%, 65%) !default;
+$dark:            hsl(240, 13%, 23%) !default;
+
+$goud-dark:       hsl(47, 74%, 24%) !default;
+$rood-dark:       hsl(0, 100%, 31%) !default;
+
+// Type colors
+$type:            $dark !default;
+$type-alt:        $goud !default;
+$type-inverse:    $wit !default;
+
+$dark-type:       $wit !default;
+$goud-type:       $wit !default;
+$rood-type:       $wit !default;
+$wit-type:        $goud !default;
+$geel-type:       $type !default;
+
+// Transparante tinten
+$goud-trans:      hsla(47, 74%, 32%, .15) !default;
+$rood-trans:      hsla(0, 100%, 39%, .15) !default;
+$wit-trans:       hsla(0, 0%, 100%, .15) !default;
+$geel-trans:      hsla(43, 90%, 65%, .15) !default;
+$dark-trans:      hsla(240, 13%, 23%, .15) !default;
+
+// Grijstinten
+$goud-light:      hsl(50, 33%, 86%) !default;
+$goud-lighter:    hsl(48, 33%, 91%) !default;
+$goud-lightest:   hsl(50, 33%, 96%) !default;
+
+// Override Illusion setting
+$color-type:        $dark;
+$color-error:       $rood;
+$color-success:     #27ae60;
+$color-warning:     #e67e22;
+$color-focus:       $geel;
+$color-form-input:  $wit;

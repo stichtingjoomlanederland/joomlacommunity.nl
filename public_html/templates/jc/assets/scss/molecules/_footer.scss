@@ -1,0 +1,58 @@
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.footer {
+  color: $dark-type;
+  background: $dark;
+  @include ms(margin-top, -2);
+  @include ms(padding-top, 2);
+
+  @include font-size("s");
+
+  @media print {
+    color: inherit;
+    background: transparent;
+  }
+
+  & > .inner {
+    @include contain();
+
+    > .switcher--footer {
+      @include ms(padding-bottom, -1);
+      border-bottom: 1px solid $wit;
+
+      .grid:last-child {
+        margin-top: auto;
+      }
+    }
+  }
+
+  [class^="heading:"] {
+    color: $dark-type;
+  }
+}
+
+.feedback + .footer {
+  margin-top: 0;
+}
+
+
+/* Footer grid
+   ========================================================================== */
+
+.switcher.switcher--footer {
+  > * > *:nth-child(2) {
+    flex-grow: 2;
+  }
+}
+
+
+/* Footer menus
+   ========================================================================== */
+
+.footer .list {
+  .button {
+    margin-top: ms(-2);
+  }
+}

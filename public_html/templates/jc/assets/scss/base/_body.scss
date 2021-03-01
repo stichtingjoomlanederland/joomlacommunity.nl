@@ -1,0 +1,12 @@
+/* Body
+   ========================================================================== */
+
+body {
+  position: relative;
+  font-size: inherit;
+  font-weight: $weight-normal;
+  line-height: 1.5;
+  color: $type;
+  background: $wit;
+  @include font-smoothing();
+}

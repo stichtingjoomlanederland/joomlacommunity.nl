@@ -1,0 +1,98 @@
+// Offcanvas container with animated hamburger button
+// ==========================================================================
+//
+// 1. The hamburger bar width, best to use a number dividable by 5
+// 2. The height is automatically calculated
+
+$button-size:         33px !default;
+$button-background:   #fff !default;
+$button-color:        #333 !default;
+$button-radius:       3px !default;
+$bar-width:           15px !default; // 1
+$bar-height:          round($bar-width / 5) !default; // 2
+
+/* ==========================================================================
+   Animated hamburger button
+   ========================================================================== */
+
+/**
+ * 1. Hide when JS is disabled, we don't need a toggle when there's no JS
+ * 2. Show when JS is enabled
+ * 3. Hide when the sidebar is visible
+ */
+
+/**
+<button id="k-toggle-button" class="off-canvas-menu-toggle" type="button">
+    <span class="bar1"></span>
+    <span class="bar2"></span>
+    <span class="bar3"></span>
+</button>
+*/
+
+.hamburger {
+  position: relative;
+  z-index: 3;
+  display: inline-block;
+  width: $button-size;
+  height: $button-size;
+  padding: 0;
+  color: $button-color;
+  vertical-align: middle;
+  border: none;
+
+
+  /**
+   * Styling the hamburger bars
+   */
+
+  .bar1,
+  .bar2,
+  .bar3 {
+    position: absolute;
+    left: round(($button-size - $bar-width) / 2);
+    display: block;
+    width: $bar-width;
+    height: $bar-height;
+    vertical-align: middle;
+    background: $button-color;
+    border-radius: 1px;
+    @include transition(all .2s ease-in-out);
+  }
+
+  .bar1 {
+    top: round(($button-size - $bar-width) / 2);
+  }
+
+  .bar2 {
+    top: round((($button-size - $bar-width) / 2) + ($bar-height * 2));
+  }
+
+  .bar3 {
+    top: round((($button-size - $bar-width) / 2) + ($bar-height * 4));
+  }
+}
+
+
+/**
+ * Transform hamburger into a cross when the sidebar is opened
+ */
+
+.rm-togglebutton--closed,
+.is-active .vertical-menu-heading {
+  .hamburger {
+    .bar1 {
+      top: round(($button-size / 2) - ($bar-height / 2));
+      transform: rotate(135deg);
+    }
+
+    .bar2 {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    .bar3 {
+      top: round(($button-size / 2) - ($bar-height / 2));
+      transform: rotate(-135deg);
+    }
+  }
+}

@@ -1,0 +1,25 @@
+/* ==========================================================================
+   Readmore
+   ========================================================================== */
+
+.readmore-container {
+  ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  li {
+    @include heading("xs");
+    display: flex;
+    padding-left: ms(1);
+
+    @include pseudo(before) {
+      top: ms(-1);
+      left: 0;
+      width: 6px; // Don't use px(6) because that makes the item unround
+      height: 6px; // Don't use px(6) because that makes the item unround
+      background: $goud;
+      border-radius: 50%;
+    }
+  }
+}

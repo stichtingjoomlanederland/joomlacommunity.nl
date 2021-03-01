@@ -1,0 +1,81 @@
+/* ==========================================================================
+   Label
+   ========================================================================== */
+
+.label {
+  display: inline-block;
+  padding: .1em ms(-2) 0;
+  font-family: $font-family;
+  @include font-size("xxs");
+  line-height: ms(1);
+  color: $type;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+  background: $goud-light;
+  border-radius: $radius-tiny;
+
+  svg {
+    position: static;
+    width: ms(-1);
+    height: ms(-1);
+    margin-right: ms(-2);
+    vertical-align: middle;
+    fill: currentColor;
+  }
+}
+
+.label--icon {
+  @include heading("xl", true);
+}
+
+.label\:oc1882 {
+  @include pseudo(before) {
+    top: 0;
+    left: calc(50% - .5em);
+    width: 1em;
+    height: 1em;
+    @include svg-background($i--oc1882-label, $width: 1, $height: 1, $color: transparent,$unit: em);
+    @include font-size("xxl");
+  }
+}
+
+.label\:das,
+.label\:kieltje,
+.label\:maskers,
+.label\:toeter {
+  @include pseudo(after) {
+    top: -.75em;
+    left: calc(50% - .75em);
+    width: 1.5em;
+    height: 1.5em;
+    background-color: $wit;
+    border: 1px solid $goud-lighter;
+    border-radius: $radius-full;
+    @include font-size("xxxl");
+  }
+}
+
+.label\:das {
+  @include pseudo(after) {
+    @include svg-background($i--oc1882-das, $width: 1, $height: 1, $color: transparent, $unit: em);
+  }
+}
+
+.label\:kieltje {
+  @include pseudo(after) {
+    @include svg-background($i--oc1882-kieltje, $width: 1, $height: 1, $color: transparent,$unit: em);
+  }
+}
+
+.label\:maskers {
+  @include pseudo(after) {
+    @include svg-background($i--oc1882-maskers, $width: 1, $height: 1, $color: transparent,$unit: em);
+  }
+}
+
+.label\:toeter {
+  @include pseudo(after) {
+    @include svg-background($i--oc1882-toeter, $width: 1, $height: 1, $color: transparent,$unit: em);
+  }
+}

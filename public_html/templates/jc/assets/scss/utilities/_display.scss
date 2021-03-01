@@ -1,0 +1,15 @@
+/* ==========================================================================
+   Display
+   ========================================================================== */
+
+/* Doesn't do a thing other than making sure you can wrap stuff in a block level element */
+.wrapper {
+  display: block;
+}
+
+/* Makes sure all direct children are block level elements */
+.block-wrapper {
+  & > * {
+    display: block;
+  }
+}

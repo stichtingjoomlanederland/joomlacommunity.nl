@@ -1,0 +1,37 @@
+/* ==========================================================================
+   Quickmenu
+   ========================================================================== */
+
+$quickmenu: $content-width !default;
+
+.quickmenu {
+  padding: ms(0);
+  background: $goud-lightest;
+  border: px(1) solid $goud;
+  border-radius: $radius-small;
+
+  @media print {
+    display: none;
+  }
+
+  a {
+    display: inline-block;
+    padding-top: ms(-4);
+    padding-bottom: ms(-4);
+    color: initial;
+    @include font-size("s");
+  }
+}
+
+.quickmenu__heading {
+  @include font-size("xs");
+  margin-bottom: ms(-1);
+}
+
+.quickmenu__list {
+  @include reset();
+
+  @include breakpoint($quickmenu) {
+    column-count: 2;
+  }
+}

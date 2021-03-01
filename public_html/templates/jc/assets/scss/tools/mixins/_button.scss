@@ -1,0 +1,59 @@
+// Button
+// ==========================================================================
+
+@mixin button() {
+  @include button-structure($display: inline-flex);
+  align-items: center;
+  min-height: ms(2);
+  padding: ms(-1);
+  font-size: 1rem;
+  font-style: italic;
+  line-height: 1;
+  color: $rood;
+  text-decoration: none;
+  background-color: $wit;
+  border: 2px solid $geel;
+  border-radius: $radius-full;
+  @include transition(background 200ms, transform 100ms, box-shadow 100ms);
+
+  span:first-child:not(:only-child) {
+    margin-right: ms(0);
+    margin-left: ms(-1);
+  }
+
+  span:last-child:not(:only-child) {
+    margin-right: ms(0);
+    margin-left: ms(-1);
+  }
+
+  &:hover {
+    background-color: $color-focus;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 px(3) $color-focus;
+  }
+
+  &:active {
+    box-shadow: 0 px(1) 0 0 rgba($rood, .15);
+    transform: translateY(px(2));
+  }
+
+  @media print {
+    flex-wrap: wrap;
+  }
+}
+
+@mixin buttonModifier($color, $background, $hoverBackground) {
+  color: $color;
+  background: $background;
+
+  @include hover() {
+    background: $hoverBackground;
+  }
+}
+
+@mixin buttonHover() {
+  background-color: $color-focus;
+}

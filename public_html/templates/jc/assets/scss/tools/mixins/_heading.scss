@@ -1,0 +1,81 @@
+// Heading
+// ==========================================================================
+
+@mixin heading($size: "m", $defaults: false) {
+  font-family: $font-family-heading;
+  font-weight: $weight-light;
+  font-style: italic;
+  line-height: 1.25em;
+
+  @if $defaults != false {
+    font-style: normal;
+  }
+
+  @if $size == "xs" {
+    font-size: 1rem;
+  }
+
+  @if $size == "s" {
+    font-size: 1.125rem;
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "m" {
+    font-size: 1.25rem;
+  }
+
+  @if $size == "l" {
+    font-size: 1.5rem;
+  }
+
+  @if $size == "xl" {
+    font-size: 2.25rem;
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "xxl" {
+    font-size: 4rem;
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "s-l" {
+    @include fluid-property-em("font-size", 1.125rem, 1.5rem);
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "m-xl" {
+    @include fluid-property-em("font-size", 1.25rem, 2.25rem);
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "l-xl" {
+    @include fluid-property-em("font-size", 1.5rem, 2.25rem);
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "l-xxl" {
+    @include fluid-property-em("font-size", 1.5rem, 4rem);
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+
+  @if $size == "xl-xxl" {
+    @include fluid-property-em("font-size", 2.25rem, 4rem);
+    @if $defaults != false {
+      font-weight: 700;
+    }
+  }
+}

@@ -1,0 +1,76 @@
+// Make sure Illusion is not compiling anything
+$illusion-includes-vars: false !global;
+
+// Import all tools
+@import "tools/tools";
+
+/* A visual grid to show if elements are correctly inside the grid */
+
+html {
+  height: 100%;
+}
+
+body {
+  position: relative;
+  min-height: 100%;
+}
+
+.overlay-grid-container {
+  position: absolute; // Fill complete page
+  top: 0; // Fill complete page
+  right: 0; // Fill complete page
+  bottom: 0; // Fill complete page
+  left: 0; // Fill complete page
+  z-index: 999;
+  box-sizing: border-box;
+  height: 100%; // Fill complete page
+  pointer-events: none; // So we can use devtools on elements behind it when grid is visible
+}
+
+.overlay-grid {
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: $site-width;
+  height: 100%;
+  margin-right: auto;
+  margin-left: auto;
+  @include ms(padding-right, $ms-grid-item, $ms-grid-item-multiplier); // Make these a variable? Need this since we're halving the "grid"
+  @include ms(padding-left, $ms-grid-item, $ms-grid-item-multiplier); // Make these a variable? Need this since we're halving the "grid"
+  overflow: hidden;
+  outline: 1px solid rgb(255, 0, 255); // Use outline not to mess with css positioning
+  @include row();
+}
+
+.overlay-grid__item {
+  box-sizing: border-box;
+  flex-grow: 1;
+  min-width: 8rem;
+  height: 100%; // Fill complete page
+  outline: 1px solid rgb(255, 0, 255); // Use outline not to mess with css positioning
+  @include ms(margin-right, $ms-grid-item, $ms-grid-item-multiplier); // Make these a variable? Need this since we're halving the "grid"
+  @include ms(margin-left, $ms-grid-item, $ms-grid-item-multiplier); // Make these a variable? Need this since we're halving the "grid"
+
+  @include pseudo(before) {
+    top: 0;
+    left: 0;
+    @include ms(width, $ms-grid-item, $ms-grid-item-multiplier, 50%); // Make these a variable? Need this since we're halving the "grid"
+    height: 100%;
+    background: rgba(magenta, .1);
+    outline: 1px solid rgb(255, 0, 255); // Use outline not to mess with css positioning
+  }
+
+  @include pseudo(after, false) {
+    top: 0;
+    right: 0;
+    @include ms(width, $ms-grid-item, $ms-grid-item-multiplier, 50%); // Make these a variable? Need this since we're halving the "grid"
+    height: 100%;
+    background: rgba(magenta, .1);
+    outline: 1px solid rgb(255, 0, 255); // Use outline not to mess with css positioning
+  }
+}
+
+// Template custom styleguide styling
+@import "styleguide-adjustments";

@@ -1,0 +1,78 @@
+/* ==========================================================================
+   Media container
+   ========================================================================== */
+
+.frame {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid $goud-lighter; // Don't use px(1) since chrome has problems subpixel aliasing
+  border-radius: $radius-small;
+
+  @media print {
+    display: none;
+  }
+
+
+  /* Clickable
+   ========================================================================== */
+
+  &.is-clickable-card {
+    @include hover(true) {
+      border-color: $goud-lightest;
+
+      [data-card-link] {
+        text-decoration: none;
+      }
+    }
+
+    &:focus-within {
+      box-shadow: 0 0 0 px(3) $color-focus;
+    }
+  }
+}
+
+.frame__media {
+  @supports (object-fit: cover) {
+    & > img,
+    & > iframe,
+    & > video {
+      display: block;
+      width: 100%;
+      object-fit: cover;
+    }
+  }
+}
+
+.frame__caption {
+  flex: 1 1 auto;
+  padding: 1.5em 2em;
+  background: $goud-lightest;
+}
+
+.frame__caption--with-label {
+  &.frame__caption {
+    padding-top: 6em;
+  }
+
+  @include pseudo(before) {
+    top: 3em;
+    right: 2em;
+    left: 2em;
+    height: 1px;
+    background-color: $goud;
+  }
+
+  &[class*=" label\:"] {
+    @include pseudo(after) {
+      top: .25em;
+    }
+  }
+}
+
+/* Reverse background when used on goud-lighter background */
+.background\:goud-lighter {
+  .frame__caption {
+    background: #fff;
+  }
+}

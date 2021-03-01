@@ -1,0 +1,39 @@
+/* ==========================================================================
+   Houdini
+   ========================================================================== */
+
+[data-houdini="showmore"] {
+  outline: none;
+
+  /* Hide button on print view */
+  & + [data-houdini-toggle] {
+    @media print {
+      display: none;
+    }
+  }
+
+  /* Hide the button when area is expanded */
+  /* stylelint-disable */
+  & + [data-houdini-toggle][aria-expanded="true"] {
+    display: none;
+  }
+  /* stylelint-enable */
+}
+
+/**
+ * 1. Hide houdini be default (class is added by JS, so all will show when JS is disabled)
+ * 2. Display hidden content on print view
+ * 3. Display when expanded
+ */
+
+.houdini {
+  display: none; // 1
+
+  @media print {
+    display: block; // 2
+  }
+
+  &.is-expanded {
+    display: block; // 3
+  }
+}

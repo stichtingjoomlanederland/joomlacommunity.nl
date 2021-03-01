@@ -1,0 +1,70 @@
+// ==========================================================================
+// Base settings
+// ==========================================================================
+
+
+// Fallback settings
+// ==========================================================================
+
+$fallback: false !default; // Set to true to test on older browsers
+$fallback-amount: 1.5 !default; // Amount to calculate with for old browsers
+
+
+// Modular scale
+// ==========================================================================
+
+// Default ratio
+$ratio: 1.5 !default;
+
+// Default scale
+$ms0:                       1 !default;
+$ms-grid:                   0 !default;
+$ms-grid-multiplier:        -.5 !default;
+$ms-grid-item:              0 !default;
+$ms-grid-item-multiplier:   .5 !default;
+
+// Smaller scales
+$ms-1:  $ms0 / $ratio !default;
+$ms-2:  $ms-1 / $ratio !default;
+$ms-3:  $ms-2 / $ratio !default;
+$ms-4:  $ms-3 / $ratio !default;
+
+// Bigger scales
+$ms1:   $ms0 * $ratio !default;
+$ms2:   $ms1 * $ratio !default;
+$ms3:   $ms2 * $ratio !default;
+$ms4:   $ms3 * $ratio !default;
+
+$sizes: (
+  -4: $ms-4,
+  -3: $ms-3,
+  -2: $ms-2,
+  -1: $ms-1,
+  0: $ms0,
+  1: $ms1,
+  2: $ms2,
+  3: $ms3,
+  4: $ms4,
+) !default;
+
+
+// Default settings
+// ==========================================================================
+
+// Widths
+$site-width:            74rem !default;
+$wider-width:           $site-width * .772 !default;
+$content-width:         $site-width * .61 !default;
+$grid-item-width--l:    $site-width / 3 !default;
+$grid-item-width:       $site-width / 4 !default;
+$grid-item-width--m:    $site-width / 5 !default;
+$grid-item-width--s:    $site-width / 6 !default;
+$grid-item-width--xs:   $site-width / 8 !default;
+$grid-item-width--xxs:  $site-width / 10 !default;
+$grid-item-width--xxxs: $site-width / 16 !default;
+
+
+// Image path
+// ==========================================================================
+
+$image-path:  "../images/" !default;

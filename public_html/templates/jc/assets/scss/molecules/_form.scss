@@ -1,0 +1,398 @@
+/* ==========================================================================
+   Form
+   ========================================================================== */
+
+// Form section is used to wrap .form-group
+#{$illusion-form-selector} {
+  // Lighter fields for disabled fields
+  [disabled] {
+    cursor: not-allowed;
+    opacity: .6;
+  }
+}
+
+#{$illusion-form-group-selector} {
+  legend {
+    margin-bottom: ms(-2);
+  }
+}
+
+#{$illusion-form-group-selector} {
+  &:not(:first-child) {
+    margin-top: ms(1);
+  }
+}
+
+#{$illusion-form-label-selector},
+#{$illusion-form-input-selector} {
+  font-size: inherit;
+  line-height: inherit;
+}
+
+#{$illusion-form-label-selector} {
+  display: inline-block;
+  margin-bottom: ms(-3);
+}
+
+#{$illusion-form-input-selector} {
+  width: 100%;
+  min-height: ms(2);
+  padding: $form-spacing-vertical $form-spacing-horizontal;
+  font-family: inherit;
+  color: $illusion-form-input-color;
+  border: $illusion-form-input-border $illusion-form-input-border-color;
+  border-radius: $illusion-form-input-border-radius;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 $form-focus-width $color-focus;
+  }
+}
+
+#{$illusion-form-input-calendar-selector} {
+  width: calc(100% - 2em);
+  border-radius: $illusion-form-input-border-radius 0 0 $illusion-form-input-border-radius;
+}
+
+#{$illusion-form-input-calendar-button-selector} {
+  min-height: ms(2);
+  padding: $form-spacing-vertical $form-spacing-horizontal;
+  font-family: inherit;
+  color: $wit;
+  background: $goud;
+  border: $illusion-form-input-border $illusion-form-input-border-color;
+  border-radius: 0 $illusion-form-input-border-radius $illusion-form-input-border-radius 0;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 $form-focus-width $color-focus;
+  }
+}
+
+#{$illusion-multiple-choice-selector} {
+  & + * {
+    margin-top: ms(-1);
+  }
+}
+
+#{$illusion-multiple-choice-selector} [type="radio"] + label {
+  &::after {
+    position: $illusion-multiple-choice-label-before-position;
+    top: $illusion-multiple-choice-label-before-top;
+    left: $illusion-multiple-choice-label-before-left;
+    width: $illusion-multiple-choice-label-before-width;
+    height: $illusion-multiple-choice-label-before-height;
+    content: $illusion-multiple-choice-label-before-content;
+    background: $illusion-multiple-choice-label-before-background-color;
+    border: none;
+    transform: scale(0);
+  }
+}
+
+#{$illusion-multiple-choice-selector} input[type="radio"]:checked + label::after {
+  transform: scale(.5);
+}
+
+// Absolutely position inputs within label, to allow text to wrap
+#{$illusion-form-radio-selector},
+#{$illusion-form-checkbox-selector} {
+  @include visually-hidden();
+
+  + label {
+    position: $illusion-multiple-choice-label-position;
+    display: $illusion-multiple-choice-label-display;
+    align-items: $illusion-multiple-choice-label-align-items;
+    justify-content: $illusion-multiple-choice-label-justify-content;
+    min-height: $illusion-multiple-choice-label-min-height;
+    padding: $illusion-multiple-choice-label-padding;
+    margin: $illusion-multiple-choice-label-margin;
+    cursor: $illusion-multiple-choice-label-cursor;
+
+    // remove 300ms pause on mobile
+    touch-action: manipulation;
+
+    // Bordered box for radio buttons and checkbox
+    &::before {
+      position: $illusion-multiple-choice-label-before-position;
+      top: $illusion-multiple-choice-label-before-top;
+      left: $illusion-multiple-choice-label-before-left;
+      width: $illusion-multiple-choice-label-before-width;
+      height: $illusion-multiple-choice-label-before-height;
+      content: $illusion-multiple-choice-label-before-content;
+      background: $illusion-multiple-choice-label-before-background;
+      border: $illusion-multiple-choice-label-before-border $illusion-multiple-choice-label-before-border-color;
+    }
+
+    // Dot and checkmark
+    &::after {
+      position: $illusion-multiple-choice-label-after-position;
+      content: $illusion-multiple-choice-label-after-content;
+      border: $illusion-multiple-choice-label-after-border;
+      opacity: $illusion-multiple-choice-label-after-opacity;
+      transform: $illusion-multiple-choice-label-after-transform;
+      @include transition();
+    }
+  }
+
+  // Selected state
+  &:checked + label::after {
+    opacity: $illusion-multiple-choice-label-checked-after-opacity;
+    transform: $illusion-multiple-choice-label-checked-after-transform;
+  }
+
+  // Focused state
+  &:focus + label::before {
+    box-shadow: $illusion-multiple-choice-label-focus-before-box-shadow;
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: $illusion-multiple-choice-input-disabled-opacity;
+
+    + label {
+      cursor: $illusion-multiple-choice-label-disabled-cursor;
+      opacity: $illusion-multiple-choice-label-disabled-opacity;
+    }
+  }
+}
+
+
+#{$illusion-form-radio-selector} {
+  + label {
+    // Rounded box for radio buttons
+    &::before {
+      border-radius: $illusion-multiple-choice-label-radio-before-border-radius;
+    }
+
+    //Dot
+    &::after {
+      top: $illusion-multiple-choice-label-radio-after-top;
+      left: $illusion-multiple-choice-label-radio-after-left;
+      width: $illusion-multiple-choice-label-radio-after-width;
+      height: $illusion-multiple-choice-label-radio-after-height;
+      background-color: $illusion-multiple-choice-label-after-background-color;
+      border-color: $illusion-multiple-choice-label-after-border-color;
+      border-radius: $illusion-multiple-choice-label-radio-after-border-radius;
+    }
+  }
+}
+
+#{$illusion-form-checkbox-selector} {
+  + label {
+    // Checkmark
+    &::after {
+      top: $illusion-multiple-choice-label-checkbox-after-top;
+      left: $illusion-multiple-choice-label-checkbox-after-left;
+      width: $illusion-multiple-choice-label-checkbox-after-width;
+      height: $illusion-multiple-choice-label-checkbox-after-height;
+      background: $illusion-multiple-choice-label-checkbox-after-background;
+      border-color: $illusion-multiple-choice-label-checkbox-after-border-color;
+      border-width: $illusion-multiple-choice-label-checkbox-after-border-width;
+      transform: $illusion-multiple-choice-label-checkbox-after-transform;
+    }
+  }
+}
+
+
+//#{$illusion-form-radio-selector},
+//#{$illusion-form-checkbox-selector} {
+//  $size: 2rem;
+//  $space: .5rem;
+//
+//  @include visually-hidden();
+//
+//  & + label {
+//    margin-left: $size;
+//    margin-right: 24px;
+//    padding-left: 8px;
+//    margin-bottom: 4px;
+//
+//    &:before {
+//      content: $illusion-multiple-choice-label-before-content;
+//      border: $illusion-multiple-choice-label-before-border;
+//      background: $illusion-multiple-choice-label-before-background;
+//      width: $illusion-multiple-choice-label-before-width;
+//      height: $illusion-multiple-choice-label-before-height;
+//      position: $illusion-multiple-choice-label-before-position;
+//      top: $illusion-multiple-choice-label-before-top;
+//      left: $illusion-multiple-choice-label-before-left;
+//
+//
+//      //content: " ";
+//      //border: $illusion-form-input-border $illusion-form-input-border-color;
+//      //background: white;
+//      //width: $size;
+//      //height: $size;
+//      //position: absolute;
+//      //top: 0;
+//      //left: -($size);
+//    }
+//
+//    &:after {
+//      content: $illusion-multiple-choice-label-after-content;
+//      border: $illusion-multiple-choice-label-after-border;
+//      position: $illusion-multiple-choice-label-after-position;
+//      opacity: $illusion-multiple-choice-label-after-opacity;
+//      transform: $illusion-multiple-choice-label-after-transform;
+//      @include transition();
+//
+//      //content: "";
+//      //width: 0;
+//      //height: 0;
+//      //top: $space;
+//      //left: -($size - $space);
+//      //border: (($size - (2 * $space)) / 2) solid $illusion-form-input-border-color;
+//      //position: absolute;
+//      //opacity: 0;
+//      //transform: scale(0.5);
+//      //@include transition;
+//    }
+//  }
+//
+//  &:checked + label:after {
+//    opacity: 1;
+//    transform: scale(1);
+//  }
+//
+//  &:focus + label:before {
+//    box-shadow: 0 0 0 $form-focus-width $color-focus;
+//  }
+//}
+
+
+/* Errors
+   ========================================================================== */
+
+#{$form-group-error-selector} {
+  padding-left: ms(0);
+  border-left: ($form-border-width * 2) solid $color-error;
+
+  #{$illusion-form-input-selector} {
+    border-color: $color-error;
+    box-shadow: 0 0 0 $form-border-width $color-error;
+  }
+}
+
+.form__error {
+  display: block;
+  margin-top: -(ms(-3));
+  @include content-block(1em);
+  @include font-size("s");
+  font-weight: $weight-bold;
+  color: $color-error;
+}
+
+
+/* Form fields
+   ========================================================================== */
+
+#{$illusion-custom-select-selector} {
+  border-radius: $radius-small;
+
+  select {
+    // Override illusion
+    min-height: calc(2.2rem - (#{$form-border-width}));
+    border-radius: $illusion-form-input-border-radius;
+
+    &:focus {
+      box-shadow: 0 0 0 $form-border-width $goud, 0 0 0 ($form-focus-width + $form-border-width) $color-focus;
+    }
+  }
+}
+
+
+/* Form hint
+   ========================================================================== */
+
+.form__hint {
+  display: block;
+  margin-top: -(ms(-3));
+  @include content-block(1em);
+  @include font-size("s");
+  opacity: .8;
+}
+
+
+/* Input group
+   ========================================================================== */
+
+#{$form-group-selector} {
+  @include content-block($spacing-m);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+
+  #{$illusion-form-label-selector},
+  .button {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+  }
+
+  // Styling labels inside group
+  #{$illusion-form-label-selector} {
+    padding: 0 ms(-1);
+    color: rgba($goud, .75);
+    background: rgba($goud, .075);
+    border: $form-border-width solid $goud;
+    @include font-size("s");
+  }
+
+  #{$illusion-form-input-selector} {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  // Re-work button inside group
+  .button {
+    height: auto;
+    margin-right: 0;
+    border: $form-border-width solid $goud;
+    box-shadow: none;
+
+    @include hover() {
+      background: rgba($goud, .1);
+    }
+
+    &:focus {
+      box-shadow: 0 0 0 $form-focus-width $color-focus;
+    }
+
+    &:active {
+      transform: none;
+    }
+  }
+
+  & > * {
+    position: relative;
+
+    &:focus {
+      z-index: 2;
+    }
+
+    // Overlap elements
+    & + * {
+      margin-left: -($form-border-width);
+    }
+
+    // Remove radius for non-only-children
+    &:not(:only-child) {
+      border-radius: 0;
+    }
+
+    // Add radius for first and last children
+    &:first-child {
+      border-top-left-radius: $radius-small;
+      border-bottom-left-radius: $radius-small;
+    }
+
+    &:last-child {
+      border-top-right-radius: $radius-small;
+      border-bottom-right-radius: $radius-small;
+    }
+  }
+}
+
+.formRequired {
+  color: $rood;
+}

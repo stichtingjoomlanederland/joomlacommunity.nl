@@ -1,0 +1,26 @@
+/* Image
+   ========================================================================== */
+
+noscript + img {
+  display: block;
+  width: 100%;
+  min-width: 100%;
+}
+
+.no-js noscript + img {
+  display: none;
+}
+
+.lazyload {
+  filter: blur(32px);
+  @include transition(filter);
+}
+
+.lazyloaded {
+  filter: blur(0);
+}
+
+.logo-image {
+  padding: 1em;
+  background-color: #fff;
+}

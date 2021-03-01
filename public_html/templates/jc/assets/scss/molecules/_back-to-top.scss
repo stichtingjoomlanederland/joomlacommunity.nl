@@ -1,0 +1,47 @@
+/**
+* Back to Top
+* inspired by https://moderncss.dev/pure-css-smooth-scroll-back-to-top/
+*/
+$scrollLength: 100vh;
+$btt-grid-gutter: 1em;
+
+.back-to-top-wrapper {
+  position: absolute;
+  top: calc(#{$scrollLength} + #{$btt-grid-gutter * 10});
+  right: 0;
+  bottom: 0;
+  bottom: 16em;
+  width: 3em;
+  pointer-events: none;
+
+  @include breakpoint($content-width) {
+    right: $btt-grid-gutter;
+  }
+
+  [dir="rtl"] & {
+    right: unset;
+    left: $btt-grid-gutter;
+  }
+
+  a {
+    position: fixed;
+    position: sticky;
+    top: calc(#{$scrollLength} - #{$btt-grid-gutter * 3});
+    z-index: 11;
+    color: $rood;
+    pointer-events: all;
+    background-color: $wit;
+    border: 1px solid $geel;
+    border-radius: $radius-full;
+    @include transition(border-color 200ms ease-in);
+
+    &:hover,
+    &:focus {
+      background: $geel;
+    }
+
+    svg {
+      transform: rotate(90deg);
+    }
+  }
+}

@@ -1,0 +1,117 @@
+/* ==========================================================================
+   Heading
+   ========================================================================== */
+
+[class*="heading:"],
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  display: block;
+}
+
+.card [class*="heading:"] {
+  @include dont-break();
+}
+
+.heading\:xs {
+  @include heading("xs", false);
+}
+
+.heading\:xs-alt {
+  @include heading("xs", true);
+}
+
+.heading\:s {
+  @include heading("s", false);
+}
+
+.heading\:s-alt {
+  @include heading("s", true);
+}
+
+.heading\:m {
+  @include heading("m", false);
+}
+
+.heading\:m-alt {
+  @include heading("m", true);
+}
+
+.heading\:l {
+  @include heading("l", false);
+}
+
+.heading\:xl {
+  @include heading("xl", false);
+}
+
+.heading\:xl-alt {
+  @include heading("xl", true);
+}
+
+.heading\:xxl {
+  @include heading("xxl", false);
+}
+
+
+.heading\:s-to-l {
+  @include heading("s-l", true);
+}
+
+.heading\:m-to-xl {
+  @include heading("m-xl", true);
+}
+
+.heading\:l-to-xl {
+  @include heading("l-xl", true);
+}
+
+.heading\:l-to-xxl {
+  @include heading("l-xxl", false);
+}
+
+.heading\:xl-to-xxl {
+  @include heading("xl-xxl", false);
+}
+
+[class^="heading:"] {
+  & + p {
+    margin-top: ms(1);
+  }
+
+  & + .stack {
+    margin-top: ms(3);
+  }
+}
+
+/**
+ * Pre heading
+ *
+ * Smaller element to be used inside the heading itself
+ */
+
+.heading__pre {
+  @include font-size("m");
+  display: block;
+  font-weight: $weight-normal;
+}
+
+/**
+ * Last word bold
+ * attrite data-text is needed and filled with the last word
+ */
+[data-text] {
+  @include pseudo($content:attr(data-text), $display: inline-block) {
+    font-weight: $weight-bold;
+    color: $type-alt;
+    background-color: $wit;
+    transform: translateX(-100%);
+
+    @at-root .background\:goud-lightest & {
+      background-color: $goud-lightest
+    }
+  }
+}

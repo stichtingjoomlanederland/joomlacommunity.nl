@@ -1,0 +1,156 @@
+/* ==========================================================================
+   Grid
+   ========================================================================== */
+
+.grid {
+  & > ul {
+    padding-left: 0;
+    list-style: none;
+  }
+
+  & > * {
+    display: flex;
+    flex-wrap: wrap;
+    @include ms(margin, $ms-grid, $ms-grid-multiplier);
+
+    @include fallback() {
+      @supports (display: grid) {
+        display: grid;
+        @include ms(grid-gap, 0);
+        grid-template-columns: repeat(auto-fit, minmax($grid-item-width--s, 1fr));
+        margin: 0;
+      }
+    }
+
+    & > * {
+      flex: 1 1 $grid-item-width;
+      max-width: $grid-item-width;
+      @include ms(margin, $ms-grid-item, $ms-grid-item-multiplier);
+
+      @include fallback() {
+        @supports (display: grid) {
+          max-width: none;
+          margin: 0;
+        }
+      }
+    }
+  }
+
+  &.grid--one-block {
+    & > * {
+      justify-content: center;
+      @include fallback() {
+        @supports (display: grid) {
+          grid-gap: 0;
+          grid-template-columns: minmax($grid-item-width--s, $content-width);
+
+          & > * {
+            flex: 1 1 $grid-item-width;
+            max-width: $content-width;
+            margin-right: auto;
+            margin-left: auto;
+          }
+        }
+      }
+    }
+  }
+}
+
+
+/* Modifiers
+   ========================================================================== */
+
+.grid--size\:xs {
+  & > * {
+    @include fallback() {
+      @supports (display: grid) {
+        grid-template-columns: repeat(auto-fill, minmax($grid-item-width--xs, 1fr));
+      }
+    }
+
+    & > * {
+      flex: 1 1 $grid-item-width--xs;
+    }
+  }
+}
+
+.grid--size\:s {
+  & > * {
+    @include fallback() {
+      @supports (display: grid) {
+        grid-template-columns: repeat(auto-fill, minmax($grid-item-width--s, 1fr));
+      }
+    }
+
+    & > * {
+      flex: 1 1 $grid-item-width--s;
+    }
+  }
+}
+
+.grid--size\:m {
+  & > * {
+    @include fallback() {
+      @supports (display: grid) {
+        grid-template-columns: repeat(auto-fill, minmax($grid-item-width--m, 1fr));
+      }
+    }
+
+    & > * {
+      flex: 1 1 $grid-item-width--m;
+    }
+  }
+}
+
+.grid--hoofdrolspelers {
+  & > * {
+    li {
+      @include breakpoint(772px) {
+        &:nth-child(1n+3) {
+          grid-row-start: 2;
+        }
+        &:nth-child(1n+6) {
+          grid-row-start: 3;
+        }
+      }
+      @include breakpoint(1059px) {
+        &:nth-child(1n+5) {
+          grid-row-start: 2;
+        }
+      }
+    }
+  }
+}
+
+.grid--abonnementsvormen {
+  & > * {
+    li {
+      @include breakpoint(578px) {
+        &:nth-child(1n+2) {
+          grid-row: 2;
+        }
+        &:nth-child(1n+4) {
+          grid-row: 3;
+        }
+        &:nth-child(1n+6) {
+          grid-row: 4;
+        }
+      }
+      @include breakpoint(878px) {
+        &:first-child {
+          grid-column: 2 / 3;
+        }
+        &:nth-child(1n+2) {
+          grid-row: 2;
+        }
+        &:nth-child(1n+5) {
+          grid-row: 3;
+        }
+      }
+    }
+  }
+}
+
+.grid__item--centered {
+  grid-column: 1 / -1;
+}

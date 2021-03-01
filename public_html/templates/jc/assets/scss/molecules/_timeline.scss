@@ -1,0 +1,116 @@
+/**
+ * Timeline styling
+ */
+
+$timeline-border-width: .125em;
+$timeline-breakpoint: $content-width;
+$timeline-to-top: .75em;
+$timeline-to-card: 2em;
+$timeline-background: $goud;
+$timeline-dot-size: 1em;
+$timeline-dot-background: $wit;
+$timeline-dot-border-width: $timeline-border-width;
+$timeline-dot-border: $timeline-dot-border-width solid $goud;
+
+.timeline {
+  > ul {
+    position: relative;
+    list-style: none;
+
+    &::before {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: #{-1 * $timeline-border-width};
+      content: "";
+      width: $timeline-border-width;
+      background-color: $timeline-background;
+
+      @media (min-width: $timeline-breakpoint) {
+        left: calc(50% - 0.125em);
+      }
+    }
+
+    &::after {
+      display: table;
+      content: " ";
+      clear: both;
+    }
+
+    > * + * {
+      margin-top: $timeline-to-card;
+    }
+  }
+}
+
+.timeline__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: calc(100% - #{$timeline-to-card});
+  margin-left: auto;
+
+  @media (min-width: $timeline-breakpoint) {
+    margin-left: unset;
+    width: calc(50% - #{$timeline-to-card});
+
+    &:nth-child(odd) {
+      float: left;
+      clear: left;
+
+      &::before {
+        left: unset;
+        right: -1 * $timeline-to-card;
+      }
+
+      &::after {
+        right: #{(-1 * $timeline-to-card) - ($timeline-dot-size / 2) + ($timeline-dot-border-width / 2)};
+        left: unset;
+      }
+    }
+
+    &:nth-child(even) {
+      float: right;
+      clear: right;
+    }
+  }
+
+  &::before {
+    position: absolute;
+    top: $timeline-to-top;
+    left: -1 * $timeline-to-card;
+    content: "";
+    width: $timeline-to-card;
+    height: $timeline-border-width;
+    background-color: $timeline-background;
+  }
+
+  &::after {
+    position: absolute;
+    top: #{-1 * ($timeline-dot-size / 2) + $timeline-to-top};
+    left: #{(-1 * $timeline-to-card) - ($timeline-dot-size / 2) - ($timeline-dot-border-width / 2)};
+    content: "";
+    width: $timeline-dot-size;
+    height: $timeline-dot-size;
+    background-color: $timeline-dot-background;
+    border: $timeline-dot-border;
+    border-radius: 100%;
+  }
+
+  &:focus-within a:focus {
+    text-decoration: none;
+  }
+}
+
+.timeline__heading {
+  @include heading("s", true);
+  font-style: normal;
+  @include ms(padding-left, -1);
+
+  @include breakpoint($timeline-breakpoint) {
+    @at-root .timeline__item:nth-child(odd) & {
+      text-align: right;
+      @include ms(padding-right, -1);
+    }
+  }
+}

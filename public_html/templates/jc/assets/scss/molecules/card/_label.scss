@@ -1,0 +1,15 @@
+.card--label {
+  margin-bottom: 2rem;
+  overflow: visible;
+  border-color: $goud-lighter;
+
+  @include pseudo(after) {
+    bottom: -1em;
+    left: calc(50% - .5em);
+    width: 1em;
+    height: 1em;
+    overflow: hidden;
+    @include svg-background($i--oc1882-label, $width: .75, $height: .75, $color: transparent, $unit: em, $background-position: center -.5rem);
+    @include font-size("xxl");
+  }
+}

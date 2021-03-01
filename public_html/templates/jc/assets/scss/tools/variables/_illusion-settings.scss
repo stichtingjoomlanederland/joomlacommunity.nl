@@ -1,0 +1,111 @@
+// Illusion settings
+// No !default since we're overriding
+// ==========================================================================
+
+// Typography
+$font-family: "Bitter", Georgia, serif;
+$font-family-heading: $font-family;
+$font-size: 1em;
+
+// Color
+$color-error: #A72916;
+
+// Atoms
+$illusion-extendalize-address-margin-top: 0;
+$illusion-extendalize-body-font-size: inherit;
+$illusion-extendalize-body-line-height: inherit;
+$illusion-extendalize-last-children-direction: top;
+
+$illusion-extendalize-address-margin-top: 1.5em;
+$illusion-extendalize-address-margin-bottom: 0;
+$illusion-extendalize-figure-margin-top: 1.5em;
+$illusion-extendalize-figure-margin-bottom: 0;
+$illusion-extendalize-heading-margin-top: 1.5em;
+$illusion-extendalize-heading-margin-bottom: 0;
+$illusion-extendalize-list-margin-top: 1.5em;
+$illusion-extendalize-list-margin-bottom: 0;
+$illusion-extendalize-paragraph-margin-top: 1.5em;
+$illusion-extendalize-paragraph-margin-bottom: 0;
+
+// Fluid type settings
+
+$illusion-fluid-property-em-min-value:   $font-size;
+$illusion-fluid-property-em-max-value:   1.5em;
+$illusion-fluid-property-em-min-screen:  35rem;
+$illusion-fluid-property-em-max-screen:  64rem;
+
+
+// Form
+$illusion-form: false;
+$illusion-form-border-width: $form-border-width;
+$illusion-form-group-margin: 1em;
+$illusion-form-input-border-radius: $radius-small;
+$illusion-form-input-border-color: $goud;
+$illusion-form-input-color: $goud;
+$illusion-form-input-focus-outline: none;
+$illusion-form-input-line-height: 1;
+
+// Custom select
+$illusion-custom-select-height: 2rem;
+$illusion-custom-select-line-height: 1;
+$illusion-custom-select-width: 100%;
+$illusion-custom-select-padding: 0 $form-spacing-horizontal;
+$illusion-custom-select-font-size: 1em;
+$illusion-custom-select-padding-top: $form-spacing-vertical;
+$illusion-custom-select-padding-bottom: $form-spacing-vertical;
+$illusion-custom-select-padding-left: $form-spacing-horizontal;
+$illusion-custom-select-arrow-right: $form-spacing-horizontal;
+$illusion-custom-select-padding-right: 2em !default;
+$illusion-custom-select-arrow-size: .35em;
+
+// Multiple choice
+$illusion-override-multiple-choice-size: 1.5rem;
+$illusion-multiple-choice-label-after-size: .5em;
+
+$illusion-multiple-choice-float: none;
+$illusion-multiple-choice-bravo-float: none;
+$illusion-multiple-choice-input-height: $illusion-override-multiple-choice-size;
+$illusion-multiple-choice-input-width: $illusion-override-multiple-choice-size;
+
+$illusion-multiple-choice-label-after-background-color: $goud;
+$illusion-multiple-choice-label-after-border: $illusion-multiple-choice-label-after-size solid;
+$illusion-multiple-choice-label-after-border-color: $goud;
+
+$illusion-multiple-choice-label-before-background-color: $goud;
+$illusion-multiple-choice-label-before-border-color: $goud;
+$illusion-multiple-choice-label-before-left: -1 * $illusion-override-multiple-choice-size;
+$illusion-multiple-choice-label-before-top: $illusion-override-multiple-choice-size / 6;
+$illusion-multiple-choice-label-before-height: $illusion-override-multiple-choice-size;
+$illusion-multiple-choice-label-before-width: $illusion-override-multiple-choice-size;
+
+$illusion-multiple-choice-label-display: inline-flex;
+$illusion-multiple-choice-label-justify-content: center;
+$illusion-multiple-choice-label-margin: 0 0 0 $illusion-override-multiple-choice-size;
+$illusion-multiple-choice-label-min-height: $illusion-override-multiple-choice-size;
+$illusion-multiple-choice-label-padding: .25em 1em;
+$illusion-multiple-choice-label-position: relative;
+
+$illusion-multiple-choice-label-radio-after-left: -1 * $illusion-override-multiple-choice-size + $illusion-override-multiple-choice-size * .17;
+$illusion-multiple-choice-label-radio-after-top: $illusion-override-multiple-choice-size / 3;
+
+$illusion-multiple-choice-margin-bottom: .75em;
+$illusion-multiple-choice-min-height: $illusion-override-multiple-choice-size;
+$illusion-multiple-choice-padding: 0 0 0 $illusion-override-multiple-choice-size;
+
+$illusion-multiple-choice-label-checkbox-after-border-width: 0 0 ($illusion-override-multiple-choice-size * .135) ($illusion-override-multiple-choice-size * .135);
+$illusion-multiple-choice-label-checkbox-after-border-color: $goud;
+$illusion-multiple-choice-label-checkbox-after-height: $illusion-override-multiple-choice-size * .3;
+$illusion-multiple-choice-label-checkbox-after-left:  -1 * $illusion-override-multiple-choice-size + $illusion-override-multiple-choice-size * .25;
+$illusion-multiple-choice-label-checkbox-after-top: $illusion-override-multiple-choice-size / 2.4;
+$illusion-multiple-choice-label-checkbox-after-width: $illusion-override-multiple-choice-size * .55;
+
+$illusion-form-selector: ".form", ".form-horizontal",".formContainer";
+$illusion-form-group-selector: ".form__group", ".control-group", ".rsform-block";
+$illusion-form-label-selector: ".form__label", ".control-label", ".formControlLabel";
+$illusion-form-input-selector: ".form__input", ".controls input:not([type=radio]):not([type=checkbox])", ".controls textarea", ".rsform-input-box", ".rsform-text-box", ".rsform-calendar-box", '.rsform-select-box';
+$illusion-form-input-calendar-selector: ".rsform-calendar-box";
+$illusion-form-input-calendar-button-selector: ".rsform-calendar-button";
+$illusion-form-radio-selector: ".rsform-radio";
+$illusion-form-checkbox-selector: ".rsform-checkbox";
+
+$illusion-svg-background-size-unit: em !default;
