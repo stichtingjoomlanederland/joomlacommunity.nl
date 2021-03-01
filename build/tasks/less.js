@@ -1,23 +1,20 @@
 /* eslint-disable */
 
-'use strict';
+'use strict'
 
-const less = require("../modules/less");
+const less = require('../modules/less')
 
-const src = process.env.npm_package_config_src + "/less";
-const dest = process.env.npm_package_config_src + "/css";
+const src = process.env.npm_package_config_src + '/less'
+const dest = process.env.npm_package_config_src + '/css'
 
 module.exports = options => {
 
-  const file = options.file;
+	const file = options.file
 
-  //if(file === 'template.less') {
-    less({
-      src: `${src}/template.less`,
-      dest: `${dest}/template.css`
-    });
-  //}
-
-};
+	less({
+		src: `${src}/template.less`,
+		dest: `${dest}/template.css`
+	})
+}
 
 /* eslint-enable */
