@@ -9,26 +9,28 @@
 
 #ed.si-theme--light {
   --si-root-font-size: 1.25rem;
-  --si-font-size--01: calc(var(--si-root-font-size)*0.75);
-  --si-font-size--02: calc(var(--si-root-font-size)*0.875);
-  --si-font-size--03: calc(var(--si-root-font-size)*1);
-  --si-font-size--04: calc(var(--si-root-font-size)*1.125);
-  --si-font-size--05: calc(var(--si-root-font-size)*1.25);
-  --si-font-size--06: calc(var(--si-root-font-size)*1.5);
-  --si-font-size--07: calc(var(--si-root-font-size)*1.75);
-  --si-font-size--08: calc(var(--si-root-font-size)*2);
-  --si-font-size--09: calc(var(--si-root-font-size)*2.25);
-  --si-font-size--10: calc(var(--si-root-font-size)*2.625);
-  --si-line-height--sm: calc(var(--si-root-font-size)*1.25);
-  --si-line-height: calc(var(--si-root-font-size)*1.5);
-  --si-ui-radius: calc(var(--si-root-font-size)*0.25);
-  --si-ui-radius--sm: calc(var(--si-root-font-size)*0.125);
-  --si-ui-radius--lg: calc(var(--si-root-font-size)*0.5);
+  --si-font-size--01: calc(var(--si-root-font-size) * 0.75);
+  --si-font-size--02: calc(var(--si-root-font-size) * 0.875);
+  --si-font-size--03: calc(var(--si-root-font-size) * 1);
+  --si-font-size--04: calc(var(--si-root-font-size) * 1.125);
+  --si-font-size--05: calc(var(--si-root-font-size) * 1.25);
+  --si-font-size--06: calc(var(--si-root-font-size) * 1.5);
+  --si-font-size--07: calc(var(--si-root-font-size) * 1.75);
+  --si-font-size--08: calc(var(--si-root-font-size) * 2);
+  --si-font-size--09: calc(var(--si-root-font-size) * 2.25);
+  --si-font-size--10: calc(var(--si-root-font-size) * 2.625);
+  --si-line-height--sm: calc(var(--si-root-font-size) * 1.25);
+  --si-line-height: calc(var(--si-root-font-size) * 1.5);
+  --si-ui-radius: calc(var(--si-root-font-size) * 0.25);
+  --si-ui-radius--sm: calc(var(--si-root-font-size) * 0.125);
+  --si-ui-radius--lg: calc(var(--si-root-font-size) * 0.5);
   --si-spacing: var(--si-root-font-size);
   --si-primary: hsl(194, 62%, 48%);
 }
 
-#ed .o-meta {
+#ed .o-meta,
+#ed .o-meta a,
+#ed .o-meta a.si-link {
   color: var(--si-basic--700);
 }
 
@@ -61,7 +63,7 @@
   background-color: var(--si-basic--200);
 }
 
-#ed .o-title a {
+#ed .o-title a.si-link, #ed .o-title a.si-link:link {
   color: currentColor;
   text-transform: uppercase;
 }
