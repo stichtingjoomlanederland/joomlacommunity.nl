@@ -54,13 +54,13 @@ mkdirp();
 
 // css
 less({file: 'template.less'});
-less({file: 'easydiscuss.less'});
+//less({file: 'easydiscuss.less'});
 sass({file: 'style.scss'});
 sass({file: 'dev.scss'});
 sass({file: 'font.scss'});
 setTimeout(() => {
 	postcss({file: 'template.css'});
-	postcss({file: 'easydiscuss.css'});
+	//postcss({file: 'easydiscuss.css'});
 	postcss({file: 'style.css'});
 	postcss({file: 'dev.css'});
 	postcss({file: 'font.css'});

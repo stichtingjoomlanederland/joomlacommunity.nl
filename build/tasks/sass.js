@@ -19,10 +19,12 @@ module.exports = options => {
 		});
 	}
 
-	sass({
-		src: `${src}/style.scss`,
-		dest: `${dest}/style.css`
-	});
+	if (file !== 'font.scss' && file !== 'user.scss' && file !== 'dev.scss' && file !== '_styleguide-adjustments.scss') {
+		sass({
+			src: `${src}/style.scss`,
+			dest: `${dest}/style.css`
+		});
+	}
 
     if (file === 'dev.scss' || file === '_styleguide-adjustments.scss') {
         sass({
