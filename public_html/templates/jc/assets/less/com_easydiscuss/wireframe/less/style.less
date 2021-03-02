@@ -1,5 +1,5 @@
 /*------------------------------------*\
-    $Theme - EasyDiscuss Wireframe
+	$Theme - EasyDiscuss Wireframe
 \*------------------------------------*/
 /**
  * SETTINGS
@@ -34,7 +34,7 @@
  */
 
 
-@lib-path: '../../../../../../../media/com_easydiscuss/styles-lib';
+@lib-path: '../../../../media/com_easydiscuss/styles-lib';
 
 
 /**
@@ -57,44 +57,63 @@
 
 #ed {
 
-  /**
-  * #GENERIC
-  */
-  @import "@{lib-path}/generic/default"; /**
+/**
+* #GENERIC
+*/
+@import "@{lib-path}/generic/default";
+
+
+/**
 * #OBJECTS
 */
-  @import "@{lib-path}/objects/default"; /**
+@import "@{lib-path}/objects/default";
+
+
+/**
 * #COMPONENTS
 */
-  // Verndor
-  // Dont
-  @import "default";
+// Verndors
+@import "@{lib-path}/vendors/default";
 
 
-  // Easydiscuss Backend/Frontend
-  @import "@{lib-path}/easydiscuss/default";
+// Easydiscuss Backend/Frontend
+@import "@{lib-path}/easydiscuss/default";
 
 
-  // Pages (modules)
-  @import "@{lib-path}/easydiscuss/ed-modules";
+// Pages (modules)
+@import "@{lib-path}/easydiscuss/ed-modules";
 
 
-  // Easydiscuss Frontend
-  @import "components/buttons";
-  @import "components/navbar";
-  @import "components/searchbar";
-  @import "components/adminbar";
-  @import "components/vote";
-  @import "components/btn-counter-group"; /**
+
+// Easydiscuss Frontend
+@import "components/buttons";
+@import "components/navbar";
+@import "components/searchbar";
+@import "components/adminbar";
+@import "components/vote";
+@import "components/btn-counter-group";
+@import "components/spoiler";
+
+
+/**
 * #STATES
 */
-  @import "@{lib-path}/objects/default-states"; /**
+@import "@{lib-path}/objects/default-states";
+
+
+/**
 * #PATCH
 */
-  @import "../../shame"; /**
+
+
+
+/**
 * #TRUMPS
 */
-  @import "@{lib-path}/trumps/default";
+@import "@{lib-path}/trumps/default";
+
+
+
 
 
 }

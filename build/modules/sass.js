@@ -18,9 +18,8 @@ module.exports = options => {
 
     let style = options.style || 'expanded';
 
-    console.time(' Built ' + dest);
-
     setTimeout(() => {
+		console.time(' Built ' + dest);
         let result;
 
         try {
