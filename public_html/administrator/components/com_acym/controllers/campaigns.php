@@ -1365,7 +1365,7 @@ class CampaignsController extends acymController
         $currentMail->reply_to_email = $senderInformation['reply_to_email'];
         $currentMail->bcc = $senderInformation['bcc'];
         $currentMail->tracking = $senderInformation['tracking'];
-        $currentMail->translation = $senderInformation['translation'];
+        $currentMail->translation = empty($senderInformation['translation']) ? '' : $senderInformation['translation'];
         if (isset($senderInformation['links_language'])) $currentMail->links_language = $senderInformation['links_language'];
 
         $mailClass->save($currentMail);

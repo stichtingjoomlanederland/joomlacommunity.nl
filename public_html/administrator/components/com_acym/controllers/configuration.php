@@ -779,7 +779,7 @@ class ConfigurationController extends acymController
         $level = acym_getVar('string', 'level');
 
         if (empty($message) || empty($level)) {
-            echo json_encode(['error' => acym_translation('ACYM_INFORMATION_MISSING')]);
+            echo json_encode(['error' => acym_translation('ACYM_ERROR')]);
             exit;
         }
 
