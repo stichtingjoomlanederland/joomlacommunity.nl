@@ -634,7 +634,7 @@ class MailerHelper extends acyPHPMailer
             $this->mailHeader = $this->defaultMail[$mailId]->headers;
         }
 
-        $this->setFrom($this->getSendSettings('from_email'), $this->getSendSettings('from_name'));
+        $this->setFrom($this->getSendSettings('from_email', $mailId), $this->getSendSettings('from_name', $mailId));
         $this->_addReplyTo($this->defaultMail[$mailId]->reply_to_email, $this->defaultMail[$mailId]->reply_to_name);
 
         if (!empty($this->defaultMail[$mailId]->bcc)) {
@@ -1144,9 +1144,13 @@ class MailerHelper extends acyPHPMailer
         return $statusSend;
     }
 
-    private function getSendSettings($type)
+    private function getSendSettings($type, $mailId = 0)
     {
         if (!in_array($type, ['from_name', 'from_email', 'replyto_name', 'replyto_email'])) return false;
+
+        $mailType = strpos($type, 'replyto') !== false ? str_replace('replyto', 'reply_to', $type) : $type;
+
+        if (!empty($mailId) && !empty($this->defaultMail[$mailId]) && !empty($this->defaultMail[$mailId]->$mailType)) return $this->defaultMail[$mailId]->$mailType;
 
         $lang = empty($this->userLanguage) ? acym_getLanguageTag() : $this->userLanguage;
 

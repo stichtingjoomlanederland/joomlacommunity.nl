@@ -2,7 +2,7 @@
 <extension version="3.0" method="upgrade" type="plugin" group="system">
 	<name>AcyMailing - Override Joomla emails</name>
 	<creationDate>October 2020</creationDate>
-	<version>7.1.2</version>
+	<version>7.2.1</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acymailing.com</authorUrl>

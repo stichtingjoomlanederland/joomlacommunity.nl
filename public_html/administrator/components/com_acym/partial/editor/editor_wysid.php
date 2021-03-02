@@ -148,10 +148,10 @@
 				<div id="acym__wysid__modal__joomla-image__ui" class="float-center cell">
                     <?php
                     $mediaURL = 'index.php?option=com_media&asset=com_content&author=acymailing&tmpl=component';
-                    if (!ACYM_J40){
-                    	$mediaURL .= '&view=images';
-                    }elseif (!acym_isAdmin()){
-                    	$mediaURL .= '&view=media';
+                    if (!ACYM_J40) {
+                        $mediaURL .= '&view=images';
+                    } elseif (!acym_isAdmin()) {
+                        $mediaURL .= '&view=media';
                     }
                     ?>
 					<iframe id="acym__wysid__modal__joomla-image__ui__iframe" src="<?php echo $mediaURL; ?>" frameborder="0"></iframe>

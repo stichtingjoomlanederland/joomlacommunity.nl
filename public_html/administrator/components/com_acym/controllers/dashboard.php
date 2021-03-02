@@ -231,7 +231,7 @@ class DashboardController extends acymController
             'step' => 'phpmail',
             'userEmail' => acym_currentUserEmail(),
         ];
-        
+
 
         $data['sendingMethods'] = [];
 
@@ -619,6 +619,15 @@ class DashboardController extends acymController
 
             return false;
         }
+
+        $newConfig = [
+            'from_name' => $fromName,
+            'from_email' => $fromAddress,
+            'replyto_name' => $fromName,
+            'replyto_email' => $fromAddress,
+        ];
+
+        $this->config->save($newConfig);
 
         $firstMail->from_name = $fromName;
         $firstMail->from_email = $fromAddress;
