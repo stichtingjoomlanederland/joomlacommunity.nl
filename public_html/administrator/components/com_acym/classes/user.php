@@ -817,7 +817,11 @@ class UserClass extends acymClass
             }
         }
 
+        $fromProfile = acym_getVar('int', 'acyprofile', 0) == 1;
+
         if (empty($formData['listsub'])) {
+            if (!$fromProfile) $this->sendNotification($id, 'acy_notification_subform');
+
             $this->sendNotification(
                 $id,
                 $this->newUser ? 'acy_notification_create' : 'acy_notification_profile'
@@ -844,6 +848,8 @@ class UserClass extends acymClass
         }
 
         $this->subscribed = $this->subscribe($id, $addLists);
+
+        if (!$fromProfile) $this->sendNotification($id, 'acy_notification_subform');
 
         $this->sendNotification(
             $id,

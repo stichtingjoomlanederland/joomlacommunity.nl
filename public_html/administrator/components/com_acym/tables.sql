@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS `#__acym_mail` (
 	`tracking` TINYINT(1) NOT NULL DEFAULT 1,
 	`language` VARCHAR(20) NOT NULL DEFAULT '',
 	`parent_id` INT NULL,
-	`translation` LONGTEXT NULL,
+	`translation` TEXT NULL,
 	PRIMARY KEY (`id`),
 	INDEX `index_#__acym_mail1`(`parent_id` ASC),
 	CONSTRAINT `fk_#__acym_mail1`

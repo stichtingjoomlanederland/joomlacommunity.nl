@@ -284,6 +284,9 @@ class plgSystemAcymtriggers extends JPlugin
             $session = JFactory::getSession();
             $session->set('com_media.return_url', 'index.php?option=com_media&view=images&tmpl=component');
         }
+
+        if (!$this->initAcy()) return true;
+        acym_trigger('onRegacyAfterRoute', []);
     }
 
     function onAfterUserCreate(&$element)

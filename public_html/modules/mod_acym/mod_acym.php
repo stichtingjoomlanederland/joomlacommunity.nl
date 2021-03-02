@@ -34,7 +34,7 @@ acym_arrayToInteger($allfields);
 $listClass = new ListClass();
 $fieldClass = new FieldClass();
 
-$allLists = $listClass->getAllWithoutManagement();
+$allLists = $listClass->getAllWithoutManagement(true);
 $visibleLists = array_intersect($visibleLists, array_keys($allLists));
 $hiddenLists = array_intersect($hiddenLists, array_keys($allLists));
 $allfields = $fieldClass->getFieldsByID($allfields);

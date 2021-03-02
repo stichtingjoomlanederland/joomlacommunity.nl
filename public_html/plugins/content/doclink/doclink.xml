@@ -2,9 +2,9 @@
 <extension type="plugin" version="2.5" group="content" method="upgrade">
 	<identifier>plg:content.doclink</identifier>
 	<name>plg_content_doclink</name>
-	<version>3.5.7</version>
+	<version>3.5.8</version>
     <author>Joomlatools</author>
-    <creationDate>February 2021</creationDate>
+    <creationDate>March 2021</creationDate>
     <copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>
     <license>GNU GPLv3 - http://www.gnu.org/licenses/gpl.html</license>
     <authorEmail>support@joomlatools.com</authorEmail>

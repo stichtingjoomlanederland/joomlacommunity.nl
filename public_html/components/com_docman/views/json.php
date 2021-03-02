@@ -27,7 +27,8 @@ class ComDocmanViewJson extends KViewJson
         'links',
         'storage_type',
         'storage_path',
-        'tags'
+        'tags',
+        'parameters'
     );
 
     protected static $_public_category_properties = array(
