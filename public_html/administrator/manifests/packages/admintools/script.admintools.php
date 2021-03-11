@@ -9,6 +9,7 @@
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Cache\Cache;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filesystem\Folder;
 use Joomla\CMS\Installer\Adapter\ComponentAdapter;
 use Joomla\CMS\Installer\Adapter\PackageAdapter;
 use Joomla\CMS\Installer\Installer;
@@ -73,6 +74,23 @@ class Pkg_AdmintoolsInstallerScript
 	 */
 	protected $extensionsToAlwaysEnable = [
 		['plugin', 'admintools', 1, 'installer'],
+	];
+
+	/**
+	 * We remove some plugins' files. If Joomla fails to update them correctly you'd end up with an inaccessible site.
+	 * These will be updated / installed right after the preflight event so you don't ever lose their functionality.
+	 *
+	 * @var string[]
+	 */
+	protected $preRemoveFolders = [
+		// Current plugins
+		'plugins/actionlog/admintools',
+		'plugins/installer/admintools',
+		'plugins/system/admintools/admintools',
+		// Obsolete plugins
+		'plugins/system/atoolsjupdatecheck',
+		'plugins/system/atoolsupdatecheck',
+		'plugins/system/oneclickaction',
 	];
 
 	/**
@@ -141,6 +159,21 @@ class Pkg_AdmintoolsInstallerScript
 		 * so we have to get a bit tricky.
 		 */
 		$this->installOrUpdateFOF($parent);
+
+		// Remove plugins' files which load outside of the component. If any is not fully updated your site won't crash.
+		@clearstatcache(true);
+
+		foreach ($this->preRemoveFolders as $folder)
+		{
+			$f = JPATH_ROOT . '/' . $folder;
+
+			if (!@file_exists($f) || !is_dir($f) || is_link($f))
+			{
+				continue;
+			}
+
+			Folder::delete($f);
+		}
 
 		return true;
 	}
@@ -238,20 +271,20 @@ class Pkg_AdmintoolsInstallerScript
 	{
 		// Preload FOF classes required for the InstallScript. This is required since we'll be trying to uninstall FOF
 		// before uninstalling the component itself. The component has an uninstallation script which uses FOF, so...
-		@include_once(JPATH_LIBRARIES . '/fof30/include.php');
-		class_exists('FOF30\\Utils\\InstallScript\\BaseInstaller', true);
-		class_exists('FOF30\\Utils\\InstallScript\\Component', true);
-		class_exists('FOF30\\Utils\\InstallScript\\Module', true);
-		class_exists('FOF30\\Utils\\InstallScript\\Plugin', true);
-		class_exists('FOF30\\Utils\\InstallScript', true);
-		class_exists('FOF30\\Database\\Installer', true);
+		@include_once(JPATH_LIBRARIES . '/fof40/include.php');
+		class_exists('FOF40\\Utils\\InstallScript\\BaseInstaller', true);
+		class_exists('FOF40\\Utils\\InstallScript\\Component', true);
+		class_exists('FOF40\\Utils\\InstallScript\\Module', true);
+		class_exists('FOF40\\Utils\\InstallScript\\Plugin', true);
+		class_exists('FOF40\\Utils\\InstallScript', true);
+		class_exists('FOF40\\Database\\Installer', true);
 
 		/**
 		 * uninstall() is called before the component is uninstalled. Therefore there is a dependency to FOF 3 which
 		 * prevents FOF 3 from being removed at this point. Therefore we have to remove the dependency before removing
 		 * the component and hope nothing goes wrong.
 		 */
-		$this->removeDependency('fof30', $this->componentName);
+		$this->removeDependency('fof40', $this->componentName);
 
 		/**
 		 * uninstall() is called before the component is uninstalled. Therefore there is a dependency to FEF which
@@ -283,7 +316,7 @@ class Pkg_AdmintoolsInstallerScript
 	{
 		// Get the path to the FOF package
 		$sourcePath    = $parent->getParent()->getPath('source');
-		$sourcePackage = $sourcePath . '/lib_fof30.zip';
+		$sourcePackage = $sourcePath . '/lib_fof40.zip';
 
 		// Extract and install the package
 		$package      = JInstallerHelper::unpack($sourcePackage);
@@ -303,7 +336,7 @@ class Pkg_AdmintoolsInstallerScript
 		// Try to include FOF. If that fails then the FOF package isn't installed because its installation failed, not
 		// because we had a newer version already installed. As a result we have to abort the entire package's
 		// installation.
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
 			if (empty($error))
 			{
@@ -327,7 +360,7 @@ class Pkg_AdmintoolsInstallerScript
 	private function uninstallFOF($parent)
 	{
 		// Check dependencies on FOF
-		$dependencyCount = count($this->getDependencies('fof30'));
+		$dependencyCount = count($this->getDependencies('fof40'));
 
 		if ($dependencyCount)
 		{
@@ -346,7 +379,7 @@ class Pkg_AdmintoolsInstallerScript
 			->select('extension_id')
 			->from('#__extensions')
 			->where('type = ' . $db->quote('library'))
-			->where('element = ' . $db->quote('lib_fof30'));
+			->where('element = ' . $db->quote('lib_fof40'));
 
 		$db->setQuery($query);
 		$id = $db->loadResult();
@@ -358,7 +391,7 @@ class Pkg_AdmintoolsInstallerScript
 
 		try
 		{
-			$tmpInstaller->uninstall('library', $id, 0);
+			$tmpInstaller->uninstall('library', $id);
 		}
 		catch (Exception $e)
 		{
@@ -434,7 +467,7 @@ class Pkg_AdmintoolsInstallerScript
 
 		try
 		{
-			$tmpInstaller->uninstall('file', $id, 0);
+			$tmpInstaller->uninstall('file', $id);
 		}
 		catch (Exception $e)
 		{

@@ -12,8 +12,8 @@
     <authorUrl>https://www.akeeba.com</authorUrl>
     <copyright>Copyright (c)2010-2019 Nicholas K. Dionysopoulos</copyright>
     <license>GNU General Public License version 3, or later</license>
-    <creationDate>2021-02-05</creationDate>
-    <version>5.9.3</version>
+    <creationDate>2021-03-08</creationDate>
+    <version>6.0.3</version>
     <description>PLG_SYSTEM_ADMINTOOLS_XML_DESCRIPTION</description>
     <files>
         <filename plugin="admintools">admintools.php</filename>
@@ -28,7 +28,7 @@
         <language tag="en-GB">en-GB/en-GB.plg_system_admintools.ini</language>
         <language tag="en-GB">en-GB/en-GB.plg_system_admintools.sys.ini</language>
     </languages>
-    <config>
+    <config addfieldpath="/administrator/components/com_admintools/fields">
         <fields name="params">
             <fieldset name="basic">
                 <field name="language_override"
@@ -57,7 +57,7 @@
                 />
 
                 <field name="rescueurl"
-                       type="radio"
+                       type="fancyradio"
                        default="1"
                        label="ADMINTOOLS_RESCUEURL"
                        description="ADMINTOOLS_RESCUEURL_DESC"
@@ -74,11 +74,11 @@
                        description="ADMINTOOLS_RESCUEDURATION_DESC"
                        min="1"
                        max="3600"
-                       _showon="rescueurl:1"
+                       showon="rescueurl:1"
                 />
 
                 <field name="sesoptimizer"
-                       type="radio"
+                       type="fancyradio"
                        default="0"
                        label="ADMINTOOLS_SESOPT_LBL"
                        description="ADMINTOOLS_SESOPT_DESC"
@@ -95,11 +95,11 @@
                        description="ADMINTOOLS_SESOPT_FREQ_DESC"
                        min="1"
                        max="15552000"
-                       _showon="sesoptimizer:1"
+                       showon="sesoptimizer:1"
                 />
 
                 <field name="sescleaner"
-                       type="radio"
+                       type="fancyradio"
                        default="0"
                        label="ADMINTOOLS_SESCLEANER_LBL"
                        description="ADMINTOOLS_SESCLEANER_DESC"
@@ -116,11 +116,11 @@
                        description="ADMINTOOLS_SES_FREQ_DESC"
                        min="1"
                        max="15552000"
-                       _showon="sescleaner:1"
+                       showon="sescleaner:1"
                 />
 
                 <field name="cachecleaner"
-                       type="radio"
+                       type="fancyradio"
                        default="0"
                        label="ADMINTOOLS_CACHECLEANER_LBL"
                        description="ADMINTOOLS_CACHECLEANER_DESC"
@@ -137,11 +137,11 @@
                        description="ADMINTOOLS_CACHE_FREQ_DESC"
                        min="1"
                        max="15552000"
-                       _showon="cachecleaner:1"
+                       showon="cachecleaner:1"
                 />
 
                 <field name="cacheexpire"
-                       type="radio"
+                       type="fancyradio"
                        default="0"
                        label="ADMINTOOLS_CACHECEXPIRE_LBL"
                        description="ADMINTOOLS_CACHECEXPIRE_DESC"
@@ -158,11 +158,11 @@
                        description="ADMINTOOLS_CACHEEXP_FREQ_DESC"
                        min="1"
                        max="15552000"
-                       _showon="cacheexpire:1"
+                       showon="cacheexpire:1"
                 />
 
                 <field name="cleantemp"
-                       type="radio"
+                       type="fancyradio"
                        default="0"
                        label="ADMINTOOLS_CLEANTEMP_LBL"
                        description="ADMINTOOLS_CLEANTEMP_DESC"
@@ -179,7 +179,7 @@
                        description="ADMINTOOLS_CLEANTEMP_FREQ_DESC"
                        min="1"
                        max="15552000"
-                       _showon="cleantemp:1"
+                       showon="cleantemp:1"
                 />
 
                 <field name="deleteinactive"
@@ -201,7 +201,7 @@
                        description="ADMINTOOLS_DELETEINACTIVE_DAYS_DESC"
                        min="1"
                        max="730"
-                       _showon="deleteinactive!:0"
+                       showon="deleteinactive!:0"
                 />
 
                 <field name="maxlogentries"

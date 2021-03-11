@@ -9,8 +9,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') || die;
 
-use FOF30\Container\Container;
-use FOF30\Model\DataModel;
+use FOF40\Container\Container;
+use FOF40\Model\DataModel;
 
 /**
  * Class WAFEmailTemplates

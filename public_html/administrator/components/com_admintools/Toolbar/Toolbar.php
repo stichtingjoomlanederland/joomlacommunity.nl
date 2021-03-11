@@ -7,7 +7,7 @@
 
 namespace Akeeba\AdminTools\Admin\Toolbar;
 
-use FOF30\Toolbar\Toolbar as FOFToolbar;
+use FOF40\Toolbar\Toolbar as FOFToolbar;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
@@ -597,7 +597,7 @@ HTML;
 	 *
 	 * @return array
 	 */
-	protected function getMyViews()
+	protected function getMyViews(): array
 	{
 		return [];
 	}

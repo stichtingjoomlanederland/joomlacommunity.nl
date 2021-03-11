@@ -16,10 +16,10 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Part;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Date\Date;
-use FOF30\Model\DataModel;
-use FOF30\Timer\Timer;
+use FOF40\Container\Container;
+use FOF40\Date\Date;
+use FOF40\Model\DataModel;
+use FOF40\Timer\Timer;
 
 /**
  * @property    int      $id

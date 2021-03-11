@@ -2,7 +2,7 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see       https://mySites.guru/
@@ -1609,9 +1609,8 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
      */
     public function __wakeup()
     {
-        if ($this->currentPartNumber >= 0 && !empty($this->archiveList[$this->currentPartNumber]))
-        {
-                $this->fp = @fopen($this->archiveList[$this->currentPartNumber], 'rb');
+        if ($this->currentPartNumber >= 0 && !empty($this->archiveList[$this->currentPartNumber])) {
+            $this->fp = @fopen($this->archiveList[$this->currentPartNumber], 'rb');
             if ((is_resource($this->fp)) && ($this->currentPartOffset > 0)) {
                 @fseek($this->fp, $this->currentPartOffset);
             }

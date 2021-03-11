@@ -11,8 +11,8 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Controller\Mixin\PredefinedTaskList;
-use FOF30\Container\Container;
-use FOF30\Controller\DataController;
+use FOF40\Container\Container;
+use FOF40\Controller\DataController;
 use Joomla\CMS\Language\Text;
 
 class ConfigureFixPermissions extends DataController

@@ -11,7 +11,7 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
 use Akeeba\AdminTools\Admin\Model\ControlPanel;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
@@ -57,30 +57,19 @@ class Html extends BaseView
 		$this->longConfig = $this->container->params->get('longconfigpage', 0);
 
 		// Push translations
-		\Joomla\CMS\Language\Text::script('JNO', true);
-		\Joomla\CMS\Language\Text::script('JYES', true);
+		Text::script('JNO', true);
+		Text::script('JYES', true);
 
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/Tooltip.min.js');
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/ConfigureWAF.min.js');
-		$tabsJS = '';
+		$this->container->platform->addScriptOptions('admintools.ConfigureWAF.longConfig', (bool) $this->longConfig);
+
+		\AkeebaFEFHelper::loadScript('Tooltip');
 
 		if (!$this->longConfig)
 		{
-			$tabsJS = 'akeeba.fef.tabs();';
-			$this->addJavascriptFile('media://fef/js/tabs.min.js');
+			\AkeebaFEFHelper::loadScript('Tabs');
 		}
 
-		// Push data to Javascript
-		$script = <<< JS
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/ConfigureWAF.min.js', $this->container->mediaVersion, 'text/javascript', true);
 
-; // Working around broken 3PD plugins
-
-akeeba.jQuery(document).ready(function($){
-	admintools.ConfigureWAF.myIP = '$this->myIP';
-	$tabsJS
-});
-
-JS;
-		$this->addJavascriptInline($script);
 	}
 }

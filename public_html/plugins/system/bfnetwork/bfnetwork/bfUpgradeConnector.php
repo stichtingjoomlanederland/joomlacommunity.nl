@@ -2,7 +2,7 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see       https://mySites.guru/
@@ -64,7 +64,7 @@ try {
 
     // Allow for local development with a local endpoint
     switch ($_POST['APPLICATION_ENV']) { // Switch from insecure $_POST to a known clean value locally
-        case'development':
+        case 'development':
         case 'local':
             // Never used on public servers
             $upgradeFile = 'https://dev.mysites.guru/public/connector';

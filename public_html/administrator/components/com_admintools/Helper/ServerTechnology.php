@@ -7,7 +7,7 @@
 
 namespace Akeeba\AdminTools\Admin\Helper;
 
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 
 defined('_JEXEC') || die;
 

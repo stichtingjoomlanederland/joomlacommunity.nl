@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\View\FixPermissions;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\FixPermissions;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Toolbar\ToolbarHelper;
 
 class Html extends BaseView
@@ -58,7 +58,7 @@ class Html extends BaseView
 
 		$this->setLayout('default');
 
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/FixPermissions.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/FixPermissions.min.js', $this->container->mediaVersion, 'text/javascript', true);
 	}
 
 	protected function onBeforeRun()

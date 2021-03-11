@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\View\ScanAlerts;
 
 defined('_JEXEC') || die;
 
-use FOF30\View\DataView\Csv as BaseView;
+use FOF40\View\DataView\Csv as BaseView;
 
 class Csv extends BaseView
 {

@@ -67,9 +67,9 @@ if (defined('JDEBUG') && JDEBUG)
 }
 
 // Include the standalone FOF 3.0 Date package
-if (!class_exists('FOF30\Date\Date', true))
+if (!class_exists('FOF40\Date\Date', true))
 {
-	include_once JPATH_LIBRARIES . '/fof30/Date/Date.php';
+	include_once JPATH_LIBRARIES . '/fof40/Date/Date.php';
 }
 
 // If Rescue Mode is enabled we MUST NOT load main.php

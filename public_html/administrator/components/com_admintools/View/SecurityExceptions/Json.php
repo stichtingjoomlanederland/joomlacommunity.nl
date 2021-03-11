@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\View\SecurityExceptions;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\SecurityExceptions;
-use FOF30\View\DataView\Json as BaseView;
+use FOF40\View\DataView\Json as BaseView;
 
 class Json extends BaseView
 {

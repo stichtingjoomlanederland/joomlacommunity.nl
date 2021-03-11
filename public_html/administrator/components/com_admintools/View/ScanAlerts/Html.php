@@ -12,9 +12,10 @@ defined('_JEXEC') || die;
 use Akeeba\AdminTools\Admin\Model\ScanAlerts;
 use Akeeba\AdminTools\Admin\Model\Scans;
 use DateTimeZone;
-use FOF30\Date\Date;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\Date\Date;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
+use Joomla\CMS\Toolbar\ToolbarHelper;
 
 class Html extends BaseView
 {
@@ -84,13 +85,13 @@ class Html extends BaseView
 
 ;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
 // due to missing trailing semicolon and/or newline in their code.
-(function($){
-	$(document).ready(function(){
-		if (window.print) {
+akeeba.Loader.add(['akeeba.System'], function () {
+    akeeba.System.documentReady(function() {
+        if (window.print) {
 			window.print();
 		}
-	});
-})(akeeba.jQuery);
+    });
+})
 
 JS;
 		$this->addJavascriptInline($script);
@@ -99,15 +100,18 @@ JS;
 	protected function onBeforeEdit()
 	{
 		// Load highlight.js
-		$this->addJavascriptFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/highlight.min.js');
-		$this->addCssFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.2.0/styles/default.min.css');
+		$this->addJavascriptFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js', $this->container->mediaVersion, 'text/javascript', true);
+		$this->addCssFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/default.min.css', $this->container->mediaVersion);
+		$this->addCssFile('//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/dracula.min.css', $this->container->mediaVersion, 'text/css', 'screen and (prefers-color-scheme: dark)');
 
 		$js = <<< JS
 
-
-
-akeeba.jQuery(document).ready(function($){
-	hljs.initHighlightingOnLoad();
+akeeba.Loader.add(['akeeba.System', 'hljs'], function() {
+    akeeba.System.documentReady(function() {
+        akeeba.System.forEach(document.querySelectorAll('pre.highlightCode'), function(index, block) {
+            hljs.highlightBlock(block);
+        });
+    });
 });
 
 JS;
@@ -191,12 +195,19 @@ JS;
 			$script = <<< JS
 
  // Working around broken 3PD plugins
-akeeba.jQuery(document).ready(function($){
-	akeeba.fef.tabs();
+akeeba.Loader.add(['akeeba.fef.tabs'], function() {
+    akeeba.fef.tabs();
 });
 JS;
 			$this->addJavascriptInline($script);
 		}
+	}
+
+	protected function onAfterEdit()
+	{
+		// Change the page subtitle
+		$subtitle = Text::sprintf('COM_ADMINTOOLS_TITLE_SCANALERT_EDIT', $this->item->scan_id);
+		ToolbarHelper::title(Text::_('COM_ADMINTOOLS') . ' &ndash; <small>' . $subtitle . '</small>', 'admintools');
 	}
 
 	protected function onBeforeBrowse()

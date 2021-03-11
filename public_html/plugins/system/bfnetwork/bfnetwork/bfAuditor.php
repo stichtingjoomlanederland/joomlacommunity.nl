@@ -2,7 +2,7 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see       https://mySites.guru/
@@ -1389,7 +1389,7 @@ final class bfAudit
                 bfLog::log('Found '.count($filesInThisFolder).' files in '.$this->removeJPATHBASE($dirToScan));
 
                 // If there are any files, and we have time left
-                if (count($filesInThisFolder) && $this->_timer->getTimeLeft() > _BF_CONFIG_FILES_TIMER_TWO) {
+                if ($filesInThisFolder && count($filesInThisFolder) && $this->_timer->getTimeLeft() > _BF_CONFIG_FILES_TIMER_TWO) {
                     // for each file then get the info
                     foreach ($filesInThisFolder as $file) {
                         // ok are we getting short of time yet?
@@ -1679,7 +1679,6 @@ final class bfAudit
 
                 if (count($subDirectorys)) {
                     foreach ($subDirectorys as $folder) {
-//                    $folder           = str_replace('////', '/', $folder);
                         $folder           = $this->wp_normalize_path($folder);
                         $addToScanQueue[] = $folder;
                     }
@@ -1691,8 +1690,7 @@ final class bfAudit
 
                 if ((count($deleteFoldersIds) > 1000) || (count($addToScanQueue) > 1000) || $this->_timer->getTimeLeft() <= _BF_CONFIG_FOLDERS_TIMER_TWO) {
                     // remove this current dir form the scan queue;
-//                    $addToScanQueue   = str_replace('////', '/', $addToScanQueue);
-                    $addToScanQueue   = $this->wp_normalize_path($addToScanQueue);
+//                    $addToScanQueue   = $this->wp_normalize_path($addToScanQueue);
                     $addToScanQueue   = $this->addDirToScanQueue($addToScanQueue);
                     $deleteFoldersIds = $this->removeFromQueue('folders', $deleteFoldersIds);
                     $this->saveState(false, __LINE__); // Exits with reply

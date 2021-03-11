@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields name="hidden">
+
+	</fields>
+	<fields name="pwtseo">
+		<fieldset name="structureddata"
+			label="PLG_SYSTEM_PWTSEO_FORM_TAB_LABEL" addfieldpath="/plugins/system/pwtseo/fields">
+			<field name="context" type="hidden"/>
+			<field name="context_id" type="hidden"/>
+
+			<field
+				name="structureddata"
+				label=""
+				type="subform"
+				multiple="true"
+			>
+				<form addfieldpath="/administrator/components/com_pwtseo/models/fields">
+					<field
+						name="data_type"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE"
+					>
+						<option value="article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE</option>
+						<option value="contact">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CONTACT</option>
+						<option value="event">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT</option>
+						<!--<option value="local_business">Local Business</option>-->
+						<option value="product">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT</option>
+					</field>
+
+					<!--region Article-->
+					<!--region Author-->
+					<field
+						name="article_author"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_AUTHOR"
+						showon="data_type:article"
+					>
+						<option value="article.author" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_AUTHOR</option>
+						<option value="custom.user">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_USER</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+
+					<field
+						name="article_custom_author"
+						type="text"
+						showon="article_author:custom"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_AUTHOR"
+					/>
+
+					<field
+						name="article_custom_user"
+						type="user"
+						showon="article_author:custom.user"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_AUTHOR"
+					/>
+					<!--endregion-->
+
+					<!--region Publish up-->
+					<field
+						name="article_date_published"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_DATE_PUBLISHED"
+						showon="data_type:article"
+					>
+						<option value="article.publish_up" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_PUBLISH_UP</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+
+					<field
+						name="article_custom_publish_up"
+						type="calendar"
+						translateformat="true"
+						showtime="true"
+						filter="user_utc"
+						showon="article_date_published:custom"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM_PUBLISH_UP"
+					/>
+					<!--endregion-->
+
+					<!--region Modified-->
+					<field
+						name="article_date_modified"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_DATE_MODIFIED"
+						showon="data_type:article"
+					>
+						<option value="article.modified" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_MODIFIED</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+
+					<field
+						name="article_custom_modified"
+						type="calendar"
+						translateformat="true"
+						showtime="true"
+						filter="user_utc"
+						showon="article_date_modified:custom"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM_MODIFIED"
+					/>
+					<!--endregion-->
+
+					<!--region Headline-->
+					<field
+						name="article_headline"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_HEADLINE"
+						showon="data_type:article"
+					>
+						<option value="article.title" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_TITLE</option>
+						<option value="page.title">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PAGE_TITLE</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+					<!--endregion-->
+
+					<!--region Images-->
+					<field
+						name="article_image"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_IMAGE"
+						showon="data_type:article"
+					>
+						<option value="image_intro" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_INTRO_IMAGE</option>
+						<option value="image_fulltext" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_FULL_IMAGE</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+
+					<field
+						name="article_custom_images"
+						type="subform"
+						multiple="true"
+						showon="article_image:custom"
+						label=""
+					>
+						<form>
+							<field
+								name="custom_image"
+								type="media"
+								label=""
+							/>
+						</form>
+					</field>
+					<!--endregion-->
+
+					<!--region Publisher-->
+					<field
+						name="article_publisher"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PUBLISHER"
+						showon="data_type:article"
+					>
+						<option value="default">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_DEFAULT</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+
+					<field
+						name="article_custom_publishername"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PUBLISHER_NAME"
+						showon="article_publisher:custom"
+					/>
+					<field
+						name="article_custom_publisherlogo"
+						type="media"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PUBLISHER_LOGO"
+						showon="article_publisher:custom"
+					/>
+					<!--endregion-->
+
+					<!--region Description-->
+					<field
+						name="article_description"
+						type="pwtseo.contextlist"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_DESCRIPTION"
+						showon="data_type:article"
+					>
+						<option value="article.meta" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_META</option>
+						<option value="article.intro" context="com_content.article">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ARTICLE_INTRO</option>
+						<option value="menuitem.meta" context="com_menu.item">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_MENU_META</option>
+						<option value="custom">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_CUSTOM</option>
+					</field>
+
+					<field
+						name="article_custom_description"
+						type="textarea"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_DESCRIPTION"
+						showon="article_description:custom"
+					/>
+					<!--endregion-->
+					<!--endregion-->
+
+					<!--region Corporate Contacts-->
+					<field
+						name="contacts"
+						type="subform"
+						multiple="true"
+						showon="data_type:contact"
+						label=""
+					>
+						<form>
+							<field
+								name="type"
+								type="list"
+								label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE"
+								description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_DESC"
+							>
+								<option value="customer support">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_CS</option>
+								<option value="technical support">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_TS</option>
+								<option value="billing support">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_BS</option>
+								<option value="bill payment">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_BP</option>
+								<option value="sales">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_SA</option>
+								<option value="reservations">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_RE</option>
+								<option value="credit card support">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_CCS</option>
+								<option value="emergency">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_EM</option>
+								<option value="baggage tracking">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_BT</option>
+								<option value="roadside assistance">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_RA</option>
+								<option value="package tracking">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TYPE_PT</option>
+							</field>
+							<field
+								name="telephone"
+								type="text"
+								label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TELEPHONE"
+								description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_TELEPHONE_DESC"
+							/>
+						</form>
+					</field>
+					<!--endregion-->
+
+					<!--region Event-->
+					<field
+						name="event_name"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_NAME"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_NAME_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_start"
+						type="calendar"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_STARTDATE"
+						description=""
+						showon="data_type:event"
+						filter="user_utc"
+						translateformat="true"
+						showtime="true"
+					/>
+
+					<field
+						name="event_end"
+						type="calendar"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_ENDDATE"
+						description=""
+						showon="data_type:event"
+						filter="user_utc"
+						translateformat="true"
+						showtime="true"
+					/>
+
+					<field
+						name="event_description"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_DESCRIPTION"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_DESCRIPTION_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_location"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_LOCATION"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_LOCATION_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_streetAddress"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_STREET_ADDRESS"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_STREET_ADDRESS_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_addressLocality"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_ADDRESS_LOCALITY"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_ADDRESS_LOCALITY_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_postalCode"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_POSTAL_CODE"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_POSTAL_CODE_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_addressRegion"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_ADDRESS_REGION"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_ADDRESS_REGION_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_addressCountry"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_ADDRESS_COUNTRY"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_ADDRESS_COUNTRY_DESC"
+						showon="data_type:event"
+					/>
+
+					<field
+						name="event_images"
+						type="subform"
+						multiple="true"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_IMAGES"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_IMAGES_DESC"
+						showon="data_type:event"
+					>
+						<form>
+							<field
+								name="event_image"
+								type="media"
+								label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_IMAGE"
+							/>
+						</form>
+					</field>
+
+					<field
+						name="event_performers"
+						type="subform"
+						multiple="true"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_EVENT_PERFORMERS"
+						showon="data_type:event"
+					>
+						<form>
+							<field
+								name="event_performer_name"
+								type="text"
+								label=""
+							/>
+						</form>
+					</field>
+					<!--endregion-->
+
+					<field
+						name="product_name"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_NAME"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_NAME_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="product_images"
+						type="subform"
+						multiple="true"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_IMAGES"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_IMAGES_DESC"
+						showon="data_type:product"
+					>
+						<form>
+							<field
+								name="product_image"
+								type="media"
+								label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_IMAGE"
+							/>
+						</form>
+					</field>
+
+					<field
+						name="product_description"
+						type="textarea"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_DESCRIPTION"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_DESCRIPTION_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="product_brand"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_BRAND"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_BRAND_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="offerLabel"
+						type="note"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_OFFER_NOTE"
+					/>
+
+					<field
+						name="currency"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_CURRENCY"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_CURRENCY_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="price"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_PRICE"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_PRICE_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="priceValidUntil"
+						type="calendar"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_PRICE_VALID_UNTIL"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_PRICE_VALID_UNTIL_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="url"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_URL"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_URL_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="availability"
+						type="list"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_DESC"
+						showon="data_type:product"
+					>
+						<option value="Discontinued">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_DISCONTINUED</option>
+						<option value="InStock">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_INSTOCK</option>
+						<option value="InStoreOnly">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_INSTOREONLY</option>
+						<option value="LimitedAvailability">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_LIMITED</option>
+						<option value="OnlineOnly">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_ONLINEONLY</option>
+						<option value="OutOfStock">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_OUTOFSTOCK</option>
+						<option value="PreOrder">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_PREORDER</option>
+						<option value="PreSale">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_PRESALE</option>
+						<option value="SoldOut">PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_AVAILABILITY_SOLDOUT</option>
+					</field>
+
+					<field
+						name="reviewLabel"
+						type="note"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEW_NOTE"
+					/>
+
+					<field
+						name="reviewRating"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEW_RATING"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEWS_RATING_DESC"
+						showon="data_type:product"
+					/>
+
+
+					<field
+						name="reviewAuthor"
+						type="text"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEW_AUTHOR"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEW_AUTHOR_DESC"
+						showon="data_type:product"
+					/>
+
+					<field
+						name="aggregated_rating"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEWS_RATING"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEWS_RATING_DESC"
+						type="text"
+					/>
+					<field
+						name="review_count"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEWS_COUNT"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_REVIEWS_COUNT_DESC"
+						type="text"
+					/>
+
+					<field
+						name="product_identification"
+						type="subform"
+						multiple="true"
+						label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_IDENTIFICATION"
+						layout="joomla.form.field.subform.repeatable-table"
+						description="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_IDENTIFICATION_DESC"
+						showon="data_type:product"
+					>
+						<form>
+							<field
+								name="product_identifier"
+								type="list"
+								label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_IDENTIFIER"
+							>
+								<option value="sku">sku</option>
+								<option value="gtin8">gtin8</option>
+								<option value="gtin13">gtin13</option>
+								<option value="gtin14">gtin14</option>
+								<option value="mpn">mpn</option>
+								<option value="isbn">isbn</option>
+							</field>
+							<field
+								name="product_identifier_value"
+								type="text"
+								label="PLG_SYSTEM_PWTSEO_STRUCTUREDDATA_PRODUCT_VALUE"
+							/>
+						</form>
+					</field>
+				</form>
+			</field>
+		</fieldset>
+	</fields>
+</form>

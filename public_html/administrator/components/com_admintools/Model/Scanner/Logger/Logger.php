@@ -12,7 +12,7 @@ defined('_JEXEC') || die;
 use Akeeba\AdminTools\Admin\Model\Scanner\Mixin\Singleton;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Filesystem;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 
 class Logger
 {

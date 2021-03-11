@@ -8,8 +8,8 @@
 namespace Akeeba\AdminTools\Admin\Model\Scanner\Util;
 
 use Akeeba\AdminTools\Admin\Model\Scanner\Mixin\Singleton;
-use FOF30\Container\Container;
-use FOF30\Params\Params;
+use FOF40\Container\Container;
+use FOF40\Params\Params;
 
 defined('_JEXEC') || die;
 

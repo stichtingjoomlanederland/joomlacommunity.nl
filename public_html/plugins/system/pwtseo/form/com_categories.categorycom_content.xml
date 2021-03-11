@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="pwtseo">
+        <fieldset name="seofieldset"
+                  label="PLG_SYSTEM_PWTSEO_FORM_TAB_SCORELESS_LABEL"  addfieldpath="/plugins/system/pwtseo/fields">
+            <!-- Put "fake" versions of all the input fields here, so the regular bind function works. This only works 1 lvl deep -->
+            <field name="datalayers" type="hidden" class="js-remove" />
+            <!-- End fake fields -->
+
+                <field
+                        name="datalayers"
+                        type="pwtseo.datalayers"
+                        label="PLG_SYSTEM_PWTSEO_FORM_DATALAYER_LABEL"
+                        description="PLG_SYSTEM_PWTSEO_FORM_DATALAYER_CATEGORY_DESC"
+                />
+
+        </fieldset>
+    </fields>
+</form>

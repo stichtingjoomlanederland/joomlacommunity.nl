@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<extension version="3.8" type="package" method="upgrade">
+    <name>PWT SEO - Package</name>
+    <packagename>pwtseo</packagename>
+    <author>Perfect Web Team</author>
+    <creationDate>4 March 2021</creationDate>
+    <copyright>Copyright (C) 2016 - 2021 Perfect Web Team</copyright>
+    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>extensions@perfectwebteam.com</authorEmail>
+    <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+    <version>1.5.2</version>
+    <description>PWT SEO Package</description>
+
+    <scriptfile>script.php</scriptfile>
+
+    <files folder="packages">
+        <file type="component" id="com_pwtseo">com_pwtseo-1.5.2.zip</file>
+        <file type="plugin" group="system" id="pwtseo">plg_system_pwtseo-1.5.2.zip</file>
+    </files>
+
+    <updateservers>
+        <server type="extension" priority="1" name="PWT SEO">https://extensions.perfectwebteam.com/pwt-seo/updates</server>
+    </updateservers>
+</extension>

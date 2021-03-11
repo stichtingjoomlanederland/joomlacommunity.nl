@@ -12,12 +12,80 @@ defined('_JEXEC') || die;
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
 use Akeeba\AdminTools\Admin\Model\BlacklistedAddresses;
 use Exception;
-use FOF30\Controller\DataController;
+use FOF40\Controller\DataController;
+use FOF40\Controller\Exception\TaskNotFound;
 use Joomla\CMS\Language\Text;
 
 class SecurityExceptions extends DataController
 {
 	use CustomACL;
+
+	public function execute(string $task)
+	{
+		if ($task == 'default')
+		{
+			$task = $this->getCrudTask();
+		}
+
+		$this->task = $task;
+
+		if (!isset($this->taskMap[$task]) && !isset($this->taskMap['__default']))
+		{
+			throw new TaskNotFound(Text::sprintf('JLIB_APPLICATION_ERROR_TASK_NOT_FOUND', $task), 404);
+		}
+
+		$result = $this->triggerEvent('onBeforeExecute', [&$task]);
+
+		if ($result === false)
+		{
+			return false;
+		}
+
+		$eventName = 'onBefore' . ucfirst($task);
+		$result    = $this->triggerEvent($eventName);
+
+		if ($result === false)
+		{
+			return false;
+		}
+
+		// Do not allow the display task to be directly called
+		if (isset($this->taskMap[$task]))
+		{
+			$doTask = $this->taskMap[$task];
+		}
+		elseif (isset($this->taskMap['__default']))
+		{
+			$doTask = $this->taskMap['__default'];
+		}
+		else
+		{
+			$doTask = null;
+		}
+
+		// Record the actual task being fired
+		$this->doTask = $doTask;
+
+		$ret = $this->$doTask();
+
+		$eventName = 'onAfter' . ucfirst($task);
+		$result    = $this->triggerEvent($eventName);
+
+		if ($result === false)
+		{
+			return false;
+		}
+
+		$result = $this->triggerEvent('onAfterExecute', [$task]);
+
+		if ($result === false)
+		{
+			return false;
+		}
+
+		return $ret;
+	}
+
 
 	public function ban()
 	{

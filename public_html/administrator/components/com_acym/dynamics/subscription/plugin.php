@@ -185,7 +185,10 @@ class plgAcymSubscription extends acymPlugin
     {
         $this->_replacelisttags($email, $user, $send);
 
-        if (empty($user->id) || empty($this->unsubscribeLink[$email->id]) || !empty($this->addedListUnsubscribe[$email->id][$user->id]) || !method_exists($email, 'addCustomHeader')) {
+        if (empty($user->id) || empty($this->unsubscribeLink[$email->id]) || !empty($this->addedListUnsubscribe[$email->id][$user->id]) || !method_exists(
+                $email,
+                'addCustomHeader'
+            )) {
             return;
         }
 
@@ -545,7 +548,7 @@ class plgAcymSubscription extends acymPlugin
             $lists = explode(',', $parameters->lists);
             acym_arrayToInteger($lists);
             $captchaKey = $this->config->get('captcha', '') == 1 ? '&seckey='.$this->config->get('security_key', '') : '';
-            $myLink = acym_frontendLink('frontusers&task=subscribe&hiddenlists='.implode(',', $lists).'&user[email]={subtag:email|urlencode}'.$lang.$captchaKey);
+            $myLink = acym_frontendLink('frontusers&task=subscribe&hiddenlists='.implode(',', $lists).'&id={subscriber:id}&key={subscriber:key|urlencode}'.$lang.$captchaKey);
             if (empty($allresults[2][$i])) {
                 return $myLink;
             }

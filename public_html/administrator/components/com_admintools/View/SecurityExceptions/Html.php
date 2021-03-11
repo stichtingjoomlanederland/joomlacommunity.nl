@@ -9,8 +9,8 @@ namespace Akeeba\AdminTools\Admin\View\SecurityExceptions;
 
 defined('_JEXEC') || die;
 
-use FOF30\Model\DataModel;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\Model\DataModel;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
 
 class Html extends BaseView

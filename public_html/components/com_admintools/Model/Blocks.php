@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Site\Model;
 
 defined('_JEXEC') || die;
 
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 
 class Blocks extends Model
 {

@@ -6,8 +6,8 @@
  */
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
-use FOF30\Container\Container;
-use FOF30\Utils\Ip;
+use FOF40\Container\Container;
+use FOF40\IP\IPHelper as Ip;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Authentication\AuthenticationResponse;
@@ -25,9 +25,9 @@ class AtsystemAdmintoolsMain
 
 }
 
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 {
-	// FOF 3.0 is not installed
+	// This extension requires FOF 4.
 	return;
 }
 
@@ -427,7 +427,7 @@ class plgSystemAdmintools extends CMSPlugin
 			return;
 		}
 
-		if (!class_exists('FOF30\\Utils\\Ip'))
+		if (!class_exists('FOF40\\Utils\\Ip'))
 		{
 			return;
 		}

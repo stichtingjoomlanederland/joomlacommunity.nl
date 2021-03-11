@@ -10,9 +10,9 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
-use FOF30\Container\Container;
-use FOF30\Model\Model;
-use FOF30\Utils\Ip;
+use FOF40\Container\Container;
+use FOF40\Model\Model;
+use FOF40\IP\IPHelper as Ip;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
@@ -331,8 +331,8 @@ class QuickStart extends Model
 		// Is it an HTTPS site?
 		$isHttps = Uri::getInstance()->getScheme() == 'https';
 
-		// Get the new .htaccess Maker configuration values
-		$newConfig = [
+		// Create an object with fine-tuned rules for this site
+		$newConfig = (object) [
 			// == System configuration ==
 			// Host name for HTTPS requests (without https://)
 			'httpshost'           => $hostname,
@@ -344,258 +344,40 @@ class QuickStart extends Model
 			'rewritebase'         => $basePath,
 
 			// == Optimization and utility ==
-			// Force index.php parsing before index.html
-			'fileorder'           => 1,
 			// Set default expiration time to 1 hour
 			'exptime'             => 1,
 			// Automatically compress static resources
 			'autocompress'        => 1,
-			// Force GZip compression for mangled Accept-Encoding headers
-			'forcegzip'           => 1,
 			// Redirect index.php to root
 			'autoroot'            => 0,
 			// Redirect www and non-www addresses
 			'wwwredir'            => $wwwRedir,
 			// HSTS Header (for HTTPS-only sites)
 			'hstsheader'          => $isHttps ? 1 : 0,
-			// Disable HTTP methods TRACE and TRACK (protect against XST)
-			'notracetrack'        => 0,
-			// Cross-Origin Resource Sharing (CORS)
-			'cors'                => 0,
 			// Set UTF-8 charset as default
 			'utf8charset'         => 0,
-			// Send ETag
-			'etagtype'            => 'default',
 
 			// == Basic security ==
 			// Disable directory listings
 			'nodirlists'          => 0,
-			// Protect against common file injection attacks
-			'fileinj'             => 1,
-			// Disable PHP Easter Eggs
-			'phpeaster'           => 1,
 			// Block access from specific user agents
 			'nohoggers'           => 1,
-			// Block access to configuration.php-dist and htaccess.txt
-			'leftovers'           => 1,
 			// Protect against clickjacking
 			'clickjacking'        => 0,
 			// Reduce MIME type security risks
 			'reducemimetyperisks' => 0,
 			// Reflected XSS prevention
 			'reflectedxss'        => 0,
-			// Remove Apache and PHP version signature
-			'noserversignature'   => 1,
 			// Prevent content transformation
 			'notransform'         => 0,
-			// User agents to block (one per line)
-			'hoggeragents'        => [
-				'WebBandit',
-				'webbandit',
-				'Acunetix',
-				'binlar',
-				'BlackWidow',
-				'Bolt 0',
-				'Bot mailto:craftbot@yahoo.com',
-				'BOT for JCE',
-				'casper',
-				'checkprivacy',
-				'ChinaClaw',
-				'clshttp',
-				'cmsworldmap',
-				'comodo',
-				'Custo',
-				'Default Browser 0',
-				'diavol',
-				'DIIbot',
-				'DISCo',
-				'dotbot',
-				'Download Demon',
-				'eCatch',
-				'EirGrabber',
-				'EmailCollector',
-				'EmailSiphon',
-				'EmailWolf',
-				'Express WebPictures',
-				'extract',
-				'ExtractorPro',
-				'EyeNetIE',
-				'feedfinder',
-				'FHscan',
-				'FlashGet',
-				'flicky',
-				'GetRight',
-				'GetWeb!',
-				'Go-Ahead-Got-It',
-				'Go!Zilla',
-				'grab',
-				'GrabNet',
-				'Grafula',
-				'harvest',
-				'HMView',
-				'ia_archiver',
-				'Image Stripper',
-				'Image Sucker',
-				'InterGET',
-				'Internet Ninja',
-				'InternetSeer.com',
-				'jakarta',
-				'Java',
-				'JetCar',
-				'JOC Web Spider',
-				'kmccrew',
-				'larbin',
-				'LeechFTP',
-				'libwww',
-				'Mass Downloader',
-				'Maxthon$',
-				'microsoft.url',
-				'MIDown tool',
-				'miner',
-				'Mister PiX',
-				'NEWT',
-				'MSFrontPage',
-				'Navroad',
-				'NearSite',
-				'Net Vampire',
-				'NetAnts',
-				'NetSpider',
-				'NetZIP',
-				'nutch',
-				'Octopus',
-				'Offline Explorer',
-				'Offline Navigator',
-				'PageGrabber',
-				'Papa Foto',
-				'pavuk',
-				'pcBrowser',
-				'PeoplePal',
-				'planetwork',
-				'psbot',
-				'purebot',
-				'pycurl',
-				'RealDownload',
-				'ReGet',
-				'Rippers 0',
-				'SeaMonkey$',
-				'sitecheck.internetseer.com',
-				'SiteSnagger',
-				'skygrid',
-				'SmartDownload',
-				'sucker',
-				'SuperBot',
-				'SuperHTTP',
-				'Surfbot',
-				'tAkeOut',
-				'Teleport Pro',
-				'Toata dragostea mea pentru diavola',
-				'turnit',
-				'vikspider',
-				'VoidEYE',
-				'Web Image Collector',
-				'Web Sucker',
-				'WebAuto',
-				'WebCopier',
-				'WebFetch',
-				'WebGo IS',
-				'WebLeacher',
-				'WebReaper',
-				'WebSauger',
-				'Website eXtractor',
-				'Website Quester',
-				'WebStripper',
-				'WebWhacker',
-				'WebZIP',
-				'Widow',
-				'WWW-Mechanize',
-				'WWWOFFLE',
-				'Xaldon WebSpider',
-				'Yandex',
-				'Zeus',
-				'zmeu',
-				'CazoodleBot',
-				'discobot',
-				'ecxi',
-				'GT::WWW',
-				'heritrix',
-				'HTTP::Lite',
-				'HTTrack',
-				'ia_archiver',
-				'id-search',
-				'id-search.org',
-				'IDBot',
-				'Indy Library',
-				'IRLbot',
-				'ISC Systems iRc Search 2.1',
-				'LinksManager.com_bot',
-				'linkwalker',
-				'lwp-trivial',
-				'MFC_Tear_Sample',
-				'Microsoft URL Control',
-				'Missigua Locator',
-				'panscient.com',
-				'PECL::HTTP',
-				'PHPCrawl',
-				'PleaseCrawl',
-				'SBIder',
-				'Snoopy',
-				'Steeler',
-				'URI::Fetch',
-				'urllib',
-				'Web Sucker',
-				'webalta',
-				'WebCollage',
-				'Wells Search II',
-				'WEP Search',
-				'zermelo',
-				'ZyBorg',
-				'Indy Library',
-				'libwww-perl',
-				'Go!Zilla',
-				'TurnitinBot',
-			],
-
-			// == Server protection ==
-			// -- Toggle protection
-			// Back-end protection
-			'backendprot'         => 1,
-			// Back-end protection
-			'frontendprot'        => 1,
 			// -- Fine-tuning
-			// Back-end directories where file type exceptions are allowed
-			'bepexdirs'           => ['components', 'modules', 'templates', 'images', 'plugins'],
-			// Back-end file types allowed in selected directories
-			'bepextypes'          => [
-				'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
-				'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
-				'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
-				'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'htm', 'ttf',
-				'woff', 'woff2', 'eot',
-				'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT',
-			],
-			// Front-end directories where file type exceptions are allowed
-			'fepexdirs'           => [
-				'components', 'modules', 'templates', 'images', 'plugins', 'media', 'libraries', 'media/jui/fonts',
-			],
-			// Front-end file types allowed in selected directories
-			'fepextypes'          => [
-				'jpe', 'jpg', 'jpeg', 'jp2', 'jpe2', 'png', 'gif', 'bmp', 'css', 'js',
-				'swf', 'html', 'mpg', 'mp3', 'mpeg', 'mp4', 'avi', 'wav', 'ogg', 'ogv',
-				'xls', 'xlsx', 'doc', 'docx', 'ppt', 'pptx', 'zip', 'rar', 'pdf', 'xps',
-				'txt', '7z', 'svg', 'odt', 'ods', 'odp', 'flv', 'mov', 'ico', 'htm',
-				'ttf', 'woff', 'woff2', 'eot',
-				'JPG', 'JPEG', 'PNG', 'GIF', 'CSS', 'JS', 'TTF', 'WOFF', 'WOFF2', 'EOT',
-			],
 			// Allow direct access, including .php files, to these directories
 			'fullaccessdirs'      => [
 			],
-			// Allow direct access, except .php files, to these directories
-			'exceptiondirs'       => [
-				'.well-known',
-			],
 		];
 
-		$htMakerModel->saveConfiguration($newConfig, true);
+		// Pass everything back to the model, it will merge the new config with the default one
+		$htMakerModel->saveConfiguration($newConfig);
 
 		return $htMakerModel->writeConfigFile();
 	}

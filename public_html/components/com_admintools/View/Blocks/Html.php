@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Site\View\Blocks;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 

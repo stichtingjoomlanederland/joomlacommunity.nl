@@ -15,8 +15,8 @@ use Akeeba\AdminTools\Admin\Model\ControlPanel;
 use Akeeba\AdminTools\Admin\Model\MasterPassword;
 use Akeeba\AdminTools\Admin\Model\Stats;
 use Akeeba\AdminTools\Admin\View\Mixin\SystemPluginExists;
-use FOF30\Date\Date;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\Date\Date;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
@@ -294,15 +294,13 @@ class Html extends BaseView
 			$this->newSecretWord           = $this->container->platform->getSessionVar('newSecretWord', null, 'admintools.cpanel');
 		}
 
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/Modal.min.js');
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/ControlPanel.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/ControlPanel.min.js', $this->container->mediaVersion, 'text/javascript', true);
 
 		// Pro version, control panel graphs (only if we enabled them in config options)
 		if (defined('ADMINTOOLS_PRO') && ADMINTOOLS_PRO && $this->showstats)
 		{
 			// Load JavaScript
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/Chart.bundle.min.js');
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/cpanelgraphs.min.js');
+			$this->addJavascriptFile('admin://components/com_admintools/media/js/Chart.bundle.min.js', $this->container->mediaVersion,'text/javascript', true);
 		}
 
 		// Push translations
@@ -310,15 +308,7 @@ class Html extends BaseView
 
 		// Initialize some Javascript variables used in the view
 		$myIP = $controlPanelModel->getVisitorIP();
-
-		$js = <<< JS
-akeeba.jQuery(document).ready(function(){
-	
-
-	admintools.ControlPanel.myIP = '$myIP';
-})
-JS;
-		$this->addJavascriptInline($js);
+		$this->container->platform->addScriptOptions('admintools.ControlPanel.myIP', $myIP);
 	}
 
 	protected function formatChangelog($onlyLast = false)

@@ -36,7 +36,7 @@ use Akeeba\AdminTools\Admin\Controller\WhitelistedAddresses;
 use Akeeba\AdminTools\Admin\Model\BadWords;
 use Akeeba\AdminTools\Admin\Model\ScanAlerts;
 use Akeeba\AdminTools\Admin\Model\SecurityExceptions;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Plugin\CMSPlugin;
 
@@ -74,7 +74,7 @@ class plgActionlogAdmintools extends CMSPlugin
 		}
 
 		// Load FOF
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
 			return;
 		}

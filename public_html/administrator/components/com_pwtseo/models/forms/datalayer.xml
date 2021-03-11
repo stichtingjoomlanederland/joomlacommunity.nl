@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fields>
+		<fieldset name="default">
+			<field
+				name="id"
+				type="hidden"
+			/>
+		</fieldset>
+
+		<fieldset name="general">
+			<field
+				name="title"
+				type="text"
+				label="COM_PWTSEO_DATALAYERS_TITLE_LABEL"
+				description="COM_PWTSEO_DATALAYERS_TITLE_DESC"
+				class="input-xxlarge input-large-text"
+				default=""
+				required="true"
+			/>
+			<field
+				name="name"
+				type="text"
+				label="COM_PWTSEO_DATALAYERS_NAME_LABEL"
+				description="COM_PWTSEO_DATALAYERS_NAME_DESC"
+				hint="JFIELD_ALIAS_PLACEHOLDER"
+				class=""
+				default=""
+			/>
+
+			<field
+				name="published"
+				type="list"
+				label="JPUBLISHED"
+				class="chzn-color-state"
+				filter="intval"
+				size="1"
+				description=""
+				default="1"
+			>
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+			</field>
+
+			<field
+				name="template"
+				type="templatestyle"
+				label="COM_PWTSEO_DATALAYERS_TEMPLATE_LABEL"
+				description="COM_PWTSEO_DATALAYERS_TEMPLATE_DESC"
+				default="1"
+				multiple="1"
+			>
+				<option value="0">JALL</option>
+			</field>
+
+			<field
+				name="language"
+				type="language"
+				label="COM_PWTSEO_DATALAYERS_LANGUAGE_LABEL"
+				description="COM_PWTSEO_DATALAYERS_LANGUAGE_DESC"
+				default="en-GB"
+			>
+				<option value="*">JALL</option>
+			</field>
+		</fieldset>
+
+		<fieldset name="fields">
+			<field
+				name="fields"
+				type="subform"
+				label="COM_PWTSEO_DATALAYERS_FIELDS_LABEL"
+				description="COM_PWTSEO_DATALAYERS_FIELDS_DESC"
+				layout="joomla.form.field.subform.repeatable"
+				icon="list"
+				multiple="true"
+			>
+				<form hidden="true" name="datafields" repeat="true">
+					<field
+						name="label"
+						type="text"
+						label="COM_PWTSEO_DATALAYERS_LABEL_LABEL"
+						description="COM_PWTSEO_DATALAYERS_LABEL_DESC"
+					/>
+
+					<field
+						name="name"
+						type="text"
+						label="COM_PWTSEO_DATALAYERS_FIELDNAME_LABEL"
+						description="COM_PWTSEO_DATALAYERS_FIELDNAME_DESC"
+					/>
+					<field
+						name="default"
+						type="text"
+						label="COM_PWTSEO_DATALAYERS_DEFAULT_LABEL"
+						description="COM_PWTSEO_DATALAYERS_DEFAULT_DESC"
+					/>
+					<field
+						name="required"
+						type="list"
+						label="COM_PWTSEO_DATALAYERS_REQUIRED_LABEL"
+						description="COM_PWTSEO_DATALAYERS_REQUIRED_DESC"
+						class=""
+						default="0"
+					>
+						<option value="1">JYES</option>
+						<option value="0">JNO</option>
+					</field>
+					<field
+						name="type"
+						type="list"
+						label="COM_PWTSEO_DATALAYERS_TYPE_LABEL"
+						description="COM_PWTSEO_DATALAYERS_TYPE_DESC"
+					>
+						<option value="text">COM_PWTSEO_DATALAYERS_TYPE_TEXT_LABEL</option>
+						<option value="select">COM_PWTSEO_DATALAYERS_TYPE_MULTIPLE_LABEL</option>
+						<option value="radio">COM_PWTSEO_DATALAYERS_TYPE_RADIO_LABEL</option>
+					</field>
+					<field
+						name="options"
+						type="subform"
+						label=""
+						description=""
+						showon="type:select[OR]type:radio"
+						layout="joomla.form.field.subform.repeatable-table"
+						icon="list"
+						multiple="true"
+					>
+						<form hidden="true" name="optionsfields" repeat="true">
+							<field
+								name="label"
+								type="text"
+								label="Label"
+								description=""
+							/>
+							<field
+								name="value"
+								type="text"
+								label="Value"
+								description=""
+							/>
+						</form>
+					</field>
+				</form>
+			</field>
+		</fieldset>
+	</fields>
+</form>

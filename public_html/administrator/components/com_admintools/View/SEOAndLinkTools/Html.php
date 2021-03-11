@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\View\SEOAndLinkTools;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\SEOAndLinkTools;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 
 class Html extends BaseView
 {

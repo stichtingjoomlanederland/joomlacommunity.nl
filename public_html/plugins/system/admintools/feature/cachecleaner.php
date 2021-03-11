@@ -5,7 +5,7 @@
  * @license   GNU General Public License version 3, or later
  */
 
-use FOF30\Date\Date;
+use FOF40\Date\Date;
 use Joomla\CMS\Application\ApplicationHelper;
 use Joomla\CMS\Factory;
 

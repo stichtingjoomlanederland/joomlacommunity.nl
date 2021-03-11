@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="pwtseo">
+        <fieldset name="seofieldset"
+                  label="PLG_SYSTEM_PWTSEO_FORM_TAB_LABEL"  addfieldpath="/plugins/system/pwtseo/fields">
+            <!-- Put "fake" versions of all the input fields here, so the regular bind function works. This only works 1 lvl deep -->
+            <field name="focus_word" type="hidden" class="js-remove" />
+            <field name="facebook_title" type="hidden" class="js-remove" />
+            <field name="facebook_description" type="hidden" class="js-remove" />
+            <field name="facebook_image" type="hidden" class="js-remove" />
+	        <field name="facebook_url" type="hidden" class="js-remove" />
+	        <field name="twitter_title" type="hidden" class="js-remove" />
+            <field name="twitter_description" type="hidden" class="js-remove" />
+            <field name="twitter_image" type="hidden" class="js-remove" />
+            <field name="twitter_card" type="hidden" class="js-remove" />
+            <field name="twitter_site_username" type="hidden" class="js-remove" />
+            <field name="google_title" type="hidden" class="js-remove" />
+            <field name="google_description" type="hidden" class="js-remove" />
+            <field name="google_image" type="hidden" class="js-remove" />
+            <field name="adv_open_graph" type="hidden" class="js-remove" />
+            <field name="override_page_title" type="hidden" class="js-remove" />
+            <field name="expand_og" type="hidden" class="js-remove" />
+            <field name="page_title" type="hidden" class="js-remove" />
+            <field name="override_canonical" type="hidden" class="js-remove" />
+            <field name="canonical" type="hidden" class="js-remove" />
+            <field name="articletitleselector" type="hidden" class="js-remove" />
+            <field name="datalayers" type="hidden" class="js-remove" />
+            <field name="cascade_settings" type="hidden" class="js-remove" />
+            <field name="google_rank" type="hidden" class="js-remove" />
+            <field name="strip_canonical_choice" type="hidden" class="js-remove" />
+            <field name="strip_canonical" type="hidden" class="js-remove" />
+            <!-- End fake fields -->
+
+            <field
+                    name="seo"
+                    type="pwtseo"
+                    class="test"
+            />
+
+            <field type="hidden" name="pwtseo_score" default="0" />
+            <field type="hidden" name="serptitle" value="" />
+            <field type="hidden" name="serpurl" value="" />
+            <field type="hidden" name="serpmetadescription" value="" />
+        </fieldset>
+    </fields>
+</form>

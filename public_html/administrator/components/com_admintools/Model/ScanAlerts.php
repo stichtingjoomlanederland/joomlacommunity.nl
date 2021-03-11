@@ -9,8 +9,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') || die;
 
-use FOF30\Container\Container;
-use FOF30\Model\DataModel;
+use FOF40\Container\Container;
+use FOF40\Model\DataModel;
 use Joomla\CMS\Language\Text;
 
 /**
@@ -127,6 +127,11 @@ class ScanAlerts extends DataModel
 
 	public function getFileSourceForDisplay($highlight = false)
 	{
+		if (!file_exists(JPATH_ROOT . '/' . $this->path))
+		{
+			return null;
+		}
+
 		$filepath = JPATH_ROOT . '/' . $this->path;
 		$filesize = @filesize($filepath);
 
@@ -204,16 +209,20 @@ class ScanAlerts extends DataModel
 			$highlightPrefixSuspicious,
 			$highlightSuffixSuspicious,
 		], [
-			'<span style="background: yellow; font-weight: bold; color: red; padding: 2px 4px">',
-			'</span>',
+			'<mark class="adminToolsSuspicious">',
+			'</mark>',
+//			'<span style="background: yellow; font-weight: bold; color: red; padding: 2px 4px">',
+//			'</span>',
 		], $filedata);
 
 		$filedata = str_replace([
 			$highlightPrefixKnownHack,
 			$highlightSuffixKnownHack,
 		], [
-			'<span style="background: red; font-weight: bold; color: white; padding: 2px 4px">',
-			'</span>',
+			'<mark class="adminToolsKnownHack">',
+			'</mark>',
+//			'<span style="background: red; font-weight: bold; color: white; padding: 2px 4px">',
+//			'</span>',
 		], $filedata);
 
 		return $filedata;

@@ -13,10 +13,10 @@ defined('_JEXEC') || die();
 use Akeeba\AdminTools\Admin\Model\TempSuperUsers as TempSuperUsersModel;
 use DateInterval;
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Controller\DataController;
-use FOF30\Controller\Mixin\PredefinedTaskList;
-use FOF30\Date\Date;
+use FOF40\Container\Container;
+use FOF40\Controller\DataController;
+use FOF40\Controller\Mixin\PredefinedTaskList;
+use FOF40\Date\Date;
 use Joomla\CMS\Language\Text;
 use RuntimeException;
 

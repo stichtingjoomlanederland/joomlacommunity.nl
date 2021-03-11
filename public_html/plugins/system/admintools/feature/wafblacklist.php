@@ -5,8 +5,8 @@
  * @license   GNU General Public License version 3, or later
  */
 
-use FOF30\Container\Container;
-use FOF30\Input\Input;
+use FOF40\Container\Container;
+use FOF40\Input\Input;
 
 defined('_JEXEC') || die;
 
@@ -102,9 +102,9 @@ class AtsystemFeatureWafblacklist extends AtsystemFeatureAbstract
 		}
 
 		// We need FOF 3 loaded for this feature to work
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
-			// FOF 3.0 is not installed
+			// This extension requires FOF 4.
 			return;
 		}
 

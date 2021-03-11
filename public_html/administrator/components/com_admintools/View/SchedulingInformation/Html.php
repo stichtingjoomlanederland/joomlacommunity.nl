@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\View\SchedulingInformation;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\SchedulingInformation;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 
 class Html extends BaseView
 {
@@ -28,18 +28,5 @@ class Html extends BaseView
 
 		// Get the CRON paths
 		$this->croninfo = $model->getPaths();
-
-		$js = <<<JS
-
-	;// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-	// due to missing trailing semicolon and/or newline in their code.
-	(function($) {
-		$(document).ready(function(){
-			$('#abschedulingTabs a:first').tab('show');
-		});
-	})(akeeba.jQuery);
-
-JS;
-		$this->addJavascriptInline($js);
 	}
 }

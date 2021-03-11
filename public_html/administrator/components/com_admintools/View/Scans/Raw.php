@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\View\Scans;
 
 defined('_JEXEC') || die;
 
-use FOF30\View\DataView\Raw as BaseView;
+use FOF40\View\DataView\Raw as BaseView;
 
 class Raw extends BaseView
 {

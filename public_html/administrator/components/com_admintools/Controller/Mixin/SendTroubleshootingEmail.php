@@ -11,8 +11,8 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Factory\Exception\ModelNotFound;
+use FOF40\Container\Container;
+use FOF40\Factory\Exception\ModelNotFound;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 

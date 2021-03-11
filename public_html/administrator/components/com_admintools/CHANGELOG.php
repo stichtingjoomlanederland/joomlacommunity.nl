@@ -1,15 +1,25 @@
 <?php die() ?>
-Admin Tools 5.9.3
+Admin Tools 6.0.3
 ================================================================================
-~ Releasing the previous version without changes, due to server and CDN issues which resulted in inconsistent updates
-+ WAF Exceptions and Deny List will consider the URL parameter 'controller' as an alias for 'view' on Joomla 4
-+ Multiple selection fields in Configure WAF now use Chosen (J3) or Choices.js (J4) for easier selections.
-~ All tables now have a PRIMARY KEY
-~ Improve the layout in the Unblock an IP page
-~ Improved CHANGELOG layout in the Control Panel page
-# [MEDIUM] Delete Inactive users feature was deleting users waiting for activation
-# [LOW] ActionLog and Installer plugins showed the wrong version in Extensions, Manage
-# [LOW] Htaccess Maker: Blocking malicious user agents is now case insensitive
+~ Rewritten installer plugin
+# [LOW] Marking a file as safe/unsafe redirects you to an empty scan results page
+# [LOW] Master Password causes Javascript message box while loading graphs (gh-240)
+
+Admin Tools 6.0.2
+================================================================================
+# [MEDIUM] Could not delete records using an IP as their primary key
+# [LOW] Joomla was printing out a lot of warnings when installing the extension
+
+Admin Tools 6.0.1
+================================================================================
+! Update could fail on sites with old plugins we have removed years ago still installed
+
+Admin Tools 6.0.0
+================================================================================
++ Rewritten with FOF 4
++ Renamed ViewTemplates to tmpl (Joomla 4 convention, with fallback code for Joomla 3)
++ Yes/No options in the component and plugin options now work correctly under Joomla 4.0 beta 7 and later
+# [LOW] QuickStart Wizard: Inherit default configuration before applying per-site optimizations
 
 Admin Tools 5.9.2
 ================================================================================

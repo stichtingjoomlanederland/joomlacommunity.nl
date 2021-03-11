@@ -1,0 +1,75 @@
+.seoscore {
+	box-sizing: border-box;
+	display: inline-block;
+	padding: 3px 8px;
+	line-height: 1em;
+	font-size: 12px;
+	border-radius: 2px;
+	background: #888;
+	text-align: center;
+	color: white;
+}
+.seoscore-0 {
+	background-color: #e33f2d;
+}
+.seoscore-1 {
+	background-color: #f09200;
+}
+.seoscore-2 {
+	background-color: #1fa74f;
+}
+.com_pwtseo header.header {
+	background-image: url('../images/pwt-bg.jpg');
+	background-size: cover;
+}
+.com_pwtseo header.header .icon-pwtseo {
+	background-image: url('../images/pwt-seo.png');
+	background-size: contain;
+	background-repeat: no-repeat;
+	width: 105px;
+	height: 35px;
+	position: relative;
+	margin-bottom: -10px;
+	margin-right: 5px !important;
+}
+.com_pwtseo .pwt-extensions {
+	font-size: 1.05em;
+	line-height: 130%;
+}
+.com_pwtseo .pwt-extensions p:last-child {
+	margin-bottom: 0;
+}
+.com_pwtseo .pwt-extensions .pwt-heading {
+	margin: 20px 0 8px;
+	font-size: 1.2em;
+	font-weight: 700;
+}
+.com_pwtseo .pwt-extensions .pwt-section {
+	margin-bottom: 16px;
+}
+.com_pwtseo .pwt-extensions .pwt-section:last-child {
+	margin-bottom: 0;
+}
+.com_pwtseo .pwt-extensions .pwt-section--border-top {
+	border-top: 1px solid #CCC;
+	padding-top: 16px;
+}
+.com_pwtseo .pwt-extensions .pwt-extension-logo {
+	max-height: 75px;
+}
+.com_pwtseo .pwt-extensions .btn-group-justified {
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: separate;
+}
+.com_pwtseo .pwt-extensions .btn-group-justified > .btn,
+.com_pwtseo .pwt-extensions .btn-group-justified > .btn-group {
+	display: table-cell;
+	float: none;
+	width: 1%;
+}
+.com_pwtseo .pwt-extensions .btn-group-justified > .btn .btn,
+.com_pwtseo .pwt-extensions .btn-group-justified > .btn-group .btn {
+	width: 100%;
+}

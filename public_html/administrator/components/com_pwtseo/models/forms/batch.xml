@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+	<fieldset name="meta">
+		<field
+			name="metadesc"
+			type="textarea"
+			label="COM_PWTSEO_BATCH_SET_METADESC_LABEL"
+		/>
+		<field
+			name="override_metadesc"
+			type="radio"
+			label="COM_PWTSEO_BATCH_OVERRIDE_METADESC_LABEL"
+			default="0"
+		>
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+	</fieldset>
+
+	<fieldset name="advfields"
+		label="PLG_SYSTEM_PWTSEO_FORM_TAB_LABEL">
+
+		<field name="adv_open_graph"
+			type="subform"
+			icon="list"
+			layout="joomla.form.field.subform.repeatable-table"
+			label="COM_PWTSEO_BATCH_ADV_CREATE_LABEL"
+			multiple="true"
+		>
+			<form>
+				<fieldset name="adv_open_graph_modal" repeat="true">
+					<field
+						name="key"
+						label="COM_PWTSEO_BATCH_CUSTOM_KEY_LABEL"
+						type="text"
+						hint="og:"
+						default=""/>
+
+					<field
+						name="value"
+						label="COM_PWTSEO_BATCH_CUSTOM_VALUE_LABEL"
+						type="text"/>
+				</fieldset>
+			</form>
+		</field>
+		<field
+			name="override_adv_open_graph"
+			type="list"
+			label="COM_PWTSEO_BATCH_OVERRIDE_LABEL"
+			description="COM_PWTSEO_BATCH_OVERRIDE_DESC"
+			default="0"
+			class="chzn-color-state"
+			filter="intval"
+			size="1"
+		>
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
+	</fieldset>
+	<fieldset
+		name="structured"
+		label="PLG_SYSTEM_PWTSEO_FORM_STRUCTURED_LABEL">
+		<field name="structured_data"
+			label=""
+			type="subform"
+			formsource="administrator/components/com_pwtseo/models/forms/structureddata.xml"
+		/>
+	</fieldset>
+</form>
