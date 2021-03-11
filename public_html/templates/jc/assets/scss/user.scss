@@ -86,6 +86,14 @@
   }
 }
 
+.ed-signature {
+  padding-top: 1em;
+
+  + hr {
+    display: none;
+  }
+}
+
 .o-avatar {
   display: inline-block;
   border-radius: 2px;

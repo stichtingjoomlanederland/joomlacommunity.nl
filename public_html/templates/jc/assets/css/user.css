@@ -73,6 +73,14 @@
   content: unset;
 }
 
+.ed-signature {
+  padding-top: 1em;
+}
+
+.ed-signature + hr {
+  display: none;
+}
+
 .o-avatar {
   display: inline-block;
   border-radius: 2px;
