@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\View\Scans;
 
 defined('_JEXEC') || die;
 
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
 
 class Html extends BaseView
@@ -27,27 +27,21 @@ class Html extends BaseView
 
 	protected function onBeforeBrowse()
 	{
+		$platform        = $this->container->platform;
+
 		$msg      = Text::_('COM_ADMINTOOLS_MSG_SCAN_LASTSERVERRESPONSE');
 		$urlStart = 'index.php?option=com_admintools&view=Scans&task=startscan&format=raw';
 		$urlStep  = 'index.php?option=com_admintools&view=Scans&task=stepscan&format=raw';
 
-		$script = <<<JS
-
-// This comment is intentionally put here to prevent badly written plugins from causing a Javascript error
-// due to missing trailing semicolon and/or newline in their code.
-admintools_scan_msg_ago = '$msg';
-admintools_scan_ajax_url_start='$urlStart';
-admintools_scan_ajax_url_step='$urlStep';
-
-JS;
-		$this->addJavascriptInline($script);
+		$platform->addScriptOptions('admintools.Scan.lastResponseMessage', $msg);
+		$platform->addScriptOptions('admintools.Scan.urlStart', $urlStart);
+		$platform->addScriptOptions('admintools.Scan.urlStep', $urlStep);
 
 		parent::onBeforeBrowse();
 
 		$hash = 'admintools' . $this->getName();
 
 		// ...ordering
-		$platform        = $this->container->platform;
 		$input           = $this->input;
 		$this->order     = $platform->getUserStateFromRequest($hash . 'filter_order', 'filter_order', $input, 'id');
 		$this->order_Dir = $platform->getUserStateFromRequest($hash . 'filter_order_Dir', 'filter_order_Dir', $input, 'DESC');
@@ -58,7 +52,6 @@ JS;
 			'scanstart' => Text::_('COM_ADMINTOOLS_LBL_SCAN_START'),
 		];
 
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/Modal.min.js');
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/scan.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/scan.min.js', $this->container->mediaVersion, 'text/javascript', true);
 	}
 }

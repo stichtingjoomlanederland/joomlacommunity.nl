@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use Exception;
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use Joomla\CMS\Application\CMSApplication;
 use Joomla\CMS\Factory;
 use Joomla\Session\SessionInterface;

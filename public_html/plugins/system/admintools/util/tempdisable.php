@@ -6,7 +6,7 @@
  */
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 
 defined('_JEXEC') || die;
 

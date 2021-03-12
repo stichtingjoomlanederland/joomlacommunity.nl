@@ -2,7 +2,7 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see       https://mySites.guru/
@@ -51,7 +51,7 @@ require './bfWorkarounds.php';
  * An UNIQUE_REQUEST_ID can only be used once!
  */
 switch ($_POST['APPLICATION_ENV']) { // Switch from insecure $_POST to a known clean value locally
-    case'development':
+    case 'development':
     case 'local':
         $APPLICATION_ENV = 'development';
         $urlPattern      = 'https://dev.mysites.guru/validate/?%s=%s';

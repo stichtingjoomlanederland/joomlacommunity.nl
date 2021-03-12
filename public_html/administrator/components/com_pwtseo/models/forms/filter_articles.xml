@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="filter">
+        <field
+                name="search"
+                type="text"
+                label=""
+                hint="JSEARCH_FILTER"
+        />
+        <field
+                name="published"
+                type="status"
+                label="COM_CONTENT_FILTER_PUBLISHED"
+                description="COM_CONTENT_FILTER_PUBLISHED_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_PUBLISHED</option>
+        </field>
+        <field
+                name="category_id"
+                type="category"
+                label="JOPTION_FILTER_CATEGORY"
+                extension="com_content"
+                description="JOPTION_FILTER_CATEGORY_DESC"
+                onchange="this.form.submit();"
+                published="0,1,2"
+        >
+            <option value="">JOPTION_SELECT_CATEGORY</option>
+        </field>
+        <field
+                name="access"
+                type="accesslevel"
+                label="JOPTION_FILTER_ACCESS"
+                description="JOPTION_FILTER_ACCESS_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_ACCESS</option>
+        </field>
+        <field
+                name="author_id"
+                type="author"
+                label="COM_CONTENT_FILTER_AUTHOR"
+                description="COM_CONTENT_FILTER_AUTHOR_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_AUTHOR</option>
+        </field>
+        <field
+                name="language"
+                type="contentlanguage"
+                label="JOPTION_FILTER_LANGUAGE"
+                description="JOPTION_FILTER_LANGUAGE_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_LANGUAGE</option>
+            <option value="*">JALL</option>
+        </field>
+        <field
+                name="tag"
+                type="tag"
+                mode="nested"
+                label="JOPTION_FILTER_TAG"
+                description="JOPTION_FILTER_TAG_DESC"
+                onchange="this.form.submit();"
+        >
+            <option value="">JOPTION_SELECT_TAG</option>
+        </field>
+    </fields>
+    <fields name="list">
+        <field
+                name="fullordering"
+                type="list"
+                label="COM_CONTENT_LIST_FULL_ORDERING"
+                description="COM_CONTENT_LIST_FULL_ORDERING_DESC"
+                onchange="this.form.submit();"
+                default="a.id DESC"
+        >
+            <option value="">JGLOBAL_SORT_BY</option>
+            <option value="seo.pwtseo_score ASC">COM_PWTSEO_SEOSCORE_ASC</option>
+            <option value="seo.pwtseo_score DESC">COM_PWTSEO_SEOSCORE_DESC</option>
+            <option value="seo.focus_word ASC">COM_PWTSEO_FOCUSWORD_ASC</option>
+            <option value="seo.focus_word DESC">COM_PWTSEO_FOCUSWORD_DESC</option>
+            <option value="article.ordering ASC">JGRID_HEADING_ORDERING_ASC</option>
+            <option value="article.ordering DESC">JGRID_HEADING_ORDERING_DESC</option>
+            <option value="article.state ASC">JSTATUS_ASC</option>
+            <option value="article.state DESC">JSTATUS_DESC</option>
+            <option value="article.featured ASC">JFEATURED_ASC</option>
+            <option value="article.featured DESC">JFEATURED_DESC</option>
+            <option value="article.title ASC">JGLOBAL_TITLE_ASC</option>
+            <option value="article.title DESC">JGLOBAL_TITLE_DESC</option>
+            <option value="article.access ASC">JGRID_HEADING_ACCESS_ASC</option>
+            <option value="article.access DESC">JGRID_HEADING_ACCESS_DESC</option>
+            <option value="article.created_by ASC">JAUTHOR_ASC</option>
+            <option value="article.created_by DESC">JAUTHOR_DESC</option>
+            <option value="article.created ASC">JDATE_ASC</option>
+            <option value="article.created DESC">JDATE_DESC</option>
+            <option value="article.publish_up ASC">COM_PWTSEO_PUBLISH_UP_ASC</option>
+            <option value="article.publish_up DESC">COM_PWTSEO_PUBLISH_UP_DESC</option>
+            <option value="article.publish_down ASC">COM_PWTSEO_PUBLISH_DOWN_ASC</option>
+            <option value="article.publish_down DESC">COM_PWTSEO_PUBLISH_DOWN_DESC</option>
+            <option value="article.hits ASC">JGLOBAL_HITS_ASC</option>
+            <option value="article.hits DESC">JGLOBAL_HITS_DESC</option>
+            <option value="article.id ASC">JGRID_HEADING_ID_ASC</option>
+            <option value="article.id DESC">JGRID_HEADING_ID_DESC</option>
+        </field>
+        <field
+                name="limit"
+                type="limitbox"
+                class="input-mini"
+                default="25"
+                label="COM_CONTENT_LIST_LIMIT"
+                description="COM_CONTENT_LIST_LIMIT_DESC"
+                onchange="this.form.submit();"
+        />
+    </fields>
+</form>

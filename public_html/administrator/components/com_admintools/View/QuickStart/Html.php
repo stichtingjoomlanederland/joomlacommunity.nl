@@ -13,7 +13,7 @@ use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
 use Akeeba\AdminTools\Admin\Model\ControlPanel;
 use Akeeba\AdminTools\Admin\Model\QuickStart;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Crypt\Crypt;
 use Joomla\CMS\Language\Text;
 
@@ -96,22 +96,10 @@ class Html extends BaseView
 
 		$this->hasHtaccess = ServerTechnology::isHtaccessSupported();
 
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/Tooltip.min.js');
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/QuickStart.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/QuickStart.min.js', $this->container->mediaVersion, 'text/javascript', true);
 
 		Text::script('JNO', true);
 		Text::script('JYES', true);
-
-		$js = <<< JS
-
-
-
-akeeba.jQuery(document).ready(function ($){
-	admintools.QuickStart.myIP = '{$this->myIp}';
-});
-JS;
-
-		$this->addJavascriptInline($js);
 	}
 
 	/**
@@ -134,7 +122,7 @@ JS;
 		 * distribution is even, and randomize the start shift so it's not
 		 * predictable.
 		 */
-		$random = Crypt::genRandomBytes($length + 1);
+		$random = random_bytes($length + 1);
 		$shift  = ord($random[0]);
 
 		for ($i = 1; $i <= $length; ++$i)

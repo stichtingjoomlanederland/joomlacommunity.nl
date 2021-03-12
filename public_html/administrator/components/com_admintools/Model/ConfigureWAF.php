@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 
 class ConfigureWAF extends Model
 {

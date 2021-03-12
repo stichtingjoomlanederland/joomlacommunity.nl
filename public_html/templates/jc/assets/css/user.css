@@ -73,6 +73,14 @@
   content: unset;
 }
 
+.ed-signature {
+  padding-top: 1em;
+}
+
+.ed-signature + hr {
+  display: none;
+}
+
 .o-avatar {
   display: inline-block;
   border-radius: 2px;
@@ -109,16 +117,39 @@
   border-radius: 50%;
 }
 
+.o-avatar--xs {
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  font-size: .5em;
+}
+
 .o-avatar--sm {
   width: 1.5em;
   height: 1.5em;
   line-height: 1.5em;
+  font-size: .75em;
 }
 
 .o-avatar--md {
   width: 2em;
   height: 2em;
   line-height: 2em;
+  font-size: 1em;
+}
+
+.o-avatar--lg {
+  width: 4em;
+  height: 4em;
+  line-height: 4em;
+  font-size: 2em;
+}
+
+.o-avatar--xl {
+  width: 7.5em;
+  height: 7.5em;
+  line-height: 7.5em;
+  font-size: 3.75em;
 }
 
 .list-group-item--inline > * {

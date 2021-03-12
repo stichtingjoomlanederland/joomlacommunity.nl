@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+    <fieldset name="update">
+        <field name="downloadid" type="text" default="" size="50" label="COM_PWTSEO_DOWNLOAD_LABEL"
+               description="COM_PWTSEO_DOWNLOAD_DESC"/>
+    </fieldset>
+    <fieldset name="plugin">
+        <field
+            name="autofillmeta"
+            label="COM_PWTSEO_CONFIG_PLUGIN_AUTOFILL_META"
+            description="COM_PWTSEO_CONFIG_PLUGIN_AUTOFILL_META_DESC"
+            default="0"
+            type="list"
+            >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field
+            name="oghasdefaults"
+            label="COM_PWTSEO_CONFIG_PLUGIN_OG_HAS_DEFAULTS"
+            description="COM_PWTSEO_CONFIG_PLUGIN_OG_HAS_DEFAULTS_DESC"
+            default="0"
+            type="list"
+            >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field
+            name="ogdefaultstitle"
+            label="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_TITLE"
+            description="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_TITLE_DESC"
+            hint="{pagetitle}"
+            type="text"
+	        showon="oghasdefaults:1"
+        />
+        <field
+            name="ogdefaultsdescription"
+            label="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_DESCRIPTION"
+            description="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_DESCRIPTION_DESC"
+            hint="{description}"
+            type="text"
+	        showon="oghasdefaults:1"
+        />
+        <field
+            name="ogdefaultsurl"
+            label="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_URL"
+            description="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_URL_DESC"
+            hint="{url}"
+            type="text"
+	        showon="oghasdefaults:1"
+        />
+        <field
+            name="ogdefaultsimage"
+            label="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_IMAGE"
+            description="COM_PWTSEO_CONFIG_PLUGIN_OG_DEFAULTS_IMAGE_DESC"
+            type="text"
+	        showon="oghasdefaults:1"
+        />
+        <field
+            name="openog"
+            label="COM_PWTSEO_CONFIG_PLUGIN_OPEN_OG"
+            description="COM_PWTSEO_CONFIG_PLUGIN_OPEN_OG_DESC"
+            default="0"
+            type="list"
+            >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+	    <field
+		    name="strip_canonical_choice"
+		    label="COM_PWTSEO_CONFIG_PLUGIN_IGNORE_CANONICAL_LABEL"
+		    description="COM_PWTSEO_CONFIG_PLUGIN_IGNORE_CANONICAL_DESC"
+		    type="list"
+	    >
+		    <option value="0">JNONE</option>
+		    <option value="1">JALL</option>
+		    <option value="2">COM_PWTSEO_CUSTOM</option>
+	    </field>
+	    <field
+		    name="strip_canonical"
+		    label="COM_PWTSEO_CONFIG_PLUGIN_IGNORE_PARAMS_LABEL"
+		    description="COM_PWTSEO_CONFIG_PLUGIN_IGNORE_PARAMS_DESC"
+		    type="text"
+		    showon="strip_canonical_choice:2"
+	    />
+	    <field
+		    name="disable_robots_check"
+		    label="COM_PWTSEO_CONFIG_PLUGIN_DISABLE_ROBOTS_CHECK_LABEL"
+		    description="COM_PWTSEO_CONFIG_PLUGIN_DISABLE_ROBOTS_CHECK_DESC"
+		    type="list"
+		    default="0"
+	    >
+		    <option value="1">JYES</option>
+		    <option value="0">JNO</option>
+	    </field>
+    </fieldset>
+    <fieldset name="oauth">
+        <fields>
+            <field name="oauth_note_1" type="note" label="COM_PWTSEO_CONFIG_FIELDSET_OAUTH" description="COM_PWTSEO_CONFIG_OAUTH_HEADER" />
+            <field
+                    name="clientid"
+                    type="text"
+                    label="COM_PWTSEO_CONFIG_CLIENT_ID_LABEL"
+                    class="input-xxlarge"
+            />
+            <field
+                    name="clientsecret"
+                    type="text"
+                    label="COM_PWTSEO_CONFIG_CLIENT_SECRET_LABEL"
+                    description="COM_PWTSEO_CONFIG_CLIENT_SECRET_DESC"
+            />
+            <field
+                    name="domain"
+                    type="url"
+                    label="COM_PWTSEO_CONFIG_OAUTH_DOMAIN_LABEL"
+                    description="COM_PWTSEO_CONFIG_OAUTH_DOMAIN_DESC"
+            />
+            <field name="oauth_note_2" type="note" label="COM_PWTSEO_CONFIG_FIELDSET_GOOGLE" description="COM_PWTSEO_CONFIG_FIELDSET_GOOGLE_DESC" />
+            <field
+                    name="ranking_enabled"
+                    type="list"
+                    label="COM_PWTSEO_CONFIG_RANKING_ENABLED"
+                    description="COM_PWTSEO_CONFIG_RANKING_ENABLED_DESC"
+                    default="0">
+                <option value="1">JYES</option>
+                <option value="0">JNO</option>
+            </field>
+            <field
+                name="google_domain"
+                type="list"
+                label="COM_PWTSEO_CONFIG_GOOGLE_LOCALE"
+                default="www.google.com"
+                showon="ranking_enabled:1"
+                >
+                <option value="www.google.com">www.google.com</option>
+                <option value="www.google.ac">www.google.ac</option>
+                <option value="www.google.ad">www.google.ad</option>
+                <option value="www.google.ae">www.google.ae</option>
+                <option value="www.google.com.af">www.google.com.af</option>
+                <option value="www.google.com.ag">www.google.com.ag</option>
+	            <option value="www.google.al">www.google.al</option>
+	            <option value="www.google.am">www.google.am</option>
+	            <option value="www.google.as">www.google.as</option>
+	            <option value="www.google.at">www.google.at</option>
+	            <option value="www.google.az">www.google.az</option>
+	            <option value="www.google.ba">www.google.ba</option>
+	            <option value="www.google.be">www.google.be</option>
+	            <option value="www.google.bf">www.google.bf</option>
+	            <option value="www.google.bg">www.google.bg</option>
+	            <option value="www.google.bi">www.google.bi</option>
+	            <option value="www.google.bj">www.google.bj</option>
+	            <option value="www.google.com.bo">www.google.com.bo</option>
+	            <option value="www.google.bs">www.google.bs</option>
+	            <option value="www.google.bt">www.google.bt</option>
+	            <option value="www.google.bw">www.google.bw</option>
+	            <option value="www.google.by">www.google.by</option>
+	            <option value="www.google.ca">www.google.ca</option>
+	            <option value="www.google.cd">www.google.cd</option>
+	            <option value="www.google.cf">www.google.cf</option>
+	            <option value="www.google.cat">www.google.cat</option>
+	            <option value="www.google.cg">www.google.cg</option>
+	            <option value="www.google.ch">www.google.ch</option>
+	            <option value="www.google.ci">www.google.ci</option>
+	            <option value="www.google.cl">www.google.cl</option>
+	            <option value="www.google.cm">www.google.cm</option>
+	            <option value="www.google.cn">www.google.cn</option>
+	            <option value="www.google.cv">www.google.cv</option>
+	            <option value="www.google.cz">www.google.cz</option>
+	            <option value="www.google.de">www.google.de</option>
+	            <option value="www.google.dj">www.google.dj</option>
+	            <option value="www.google.dk">www.google.dk</option>
+	            <option value="www.google.dm">www.google.dm</option>
+	            <option value="www.google.dz">www.google.dz</option>
+	            <option value="www.google.ec">www.google.ec</option>
+	            <option value="www.google.eg">www.google.eg</option>
+	            <option value="www.google.es">www.google.es</option>
+	            <option value="www.google.fm">www.google.fm</option>
+	            <option value="www.google.fr">www.google.fr</option>
+	            <option value="www.google.ga">www.google.ga</option>
+	            <option value="www.google.ge">www.google.ge</option>
+	            <option value="www.google.gg">www.google.gg</option>
+	            <option value="www.google.gl">www.google.gl</option>
+	            <option value="www.google.gm">www.google.gm</option>
+	            <option value="www.google.gp">www.google.gp</option>
+	            <option value="www.google.gr">www.google.gr</option>
+	            <option value="www.google.gy">www.google.gy</option>
+	            <option value="www.google.com.hk">www.google.com.hk</option>
+	            <option value="www.google.hn">www.google.hn</option>
+	            <option value="www.google.hr">www.google.hr</option>
+	            <option value="www.google.ht">www.google.ht</option>
+	            <option value="www.google.hu">www.google.hu</option>
+	            <option value="www.google.iq">www.google.iq</option>
+	            <option value="www.google.ie">www.google.ie</option>
+	            <option value="www.google.im">www.google.im</option>
+	            <option value="www.google.co.in">www.google.co.in</option>
+	            <option value="www.google.is">www.google.is</option>
+	            <option value="www.google.it">www.google.it</option>
+	            <option value="www.google.je">www.google.je</option>
+	            <option value="www.google.jm">www.google.jm</option>
+	            <option value="www.google.co.jp">www.google.co.jp</option>
+	            <option value="www.google.ki">www.google.ki</option>
+	            <option value="www.google.kg">www.google.kg</option>
+	            <option value="www.google.kz">www.google.kz</option>
+	            <option value="www.google.la">www.google.la</option>
+	            <option value="www.google.li">www.google.li</option>
+	            <option value="www.google.lk">www.google.lk</option>
+	            <option value="www.google.lt">www.google.lt</option>
+	            <option value="www.google.lu">www.google.lu</option>
+	            <option value="www.google.lv">www.google.lv</option>
+	            <option value="www.google.ma">www.google.ma</option>
+	            <option value="www.google.me">www.google.me</option>
+	            <option value="www.google.mg">www.google.mg</option>
+	            <option value="www.google.mk">www.google.mk</option>
+	            <option value="www.google.ml">www.google.ml</option>
+	            <option value="www.google.mn">www.google.mn</option>
+	            <option value="www.google.ms">www.google.ms</option>
+	            <option value="www.google.mu">www.google.mu</option>
+	            <option value="www.google.mv">www.google.mv</option>
+	            <option value="www.google.mw">www.google.mw</option>
+	            <option value="www.google.com.mx">www.google.com.mx</option>
+	            <option value="www.google.ne">www.google.ne</option>
+	            <option value="www.google.ng">www.google.ng</option>
+	            <option value="www.google.nl">www.google.nl</option>
+	            <option value="www.google.no">www.google.no</option>
+	            <option value="www.google.nu">www.google.nu</option>
+	            <option value="www.google.com.pk">www.google.com.pk</option>
+	            <option value="www.google.pl">www.google.pl</option>
+	            <option value="www.google.pn">www.google.pn</option>
+	            <option value="www.google.ps">www.google.ps</option>
+	            <option value="www.google.pt">www.google.pt</option>
+	            <option value="www.google.ro">www.google.ro</option>
+	            <option value="www.google.rs">www.google.rs</option>
+	            <option value="www.google.ru">www.google.ru</option>
+	            <option value="www.google.rw">www.google.rw</option>
+	            <option value="www.google.sc">www.google.sc</option>
+	            <option value="www.google.se">www.google.se</option>
+	            <option value="www.google.sh">www.google.sh</option>
+	            <option value="www.google.si">www.google.si</option>
+	            <option value="www.google.sk">www.google.sk</option>
+	            <option value="www.google.sl">www.google.sl</option>
+	            <option value="www.google.so">www.google.so</option>
+	            <option value="www.google.st">www.google.st</option>
+	            <option value="www.google.sr">www.google.sr</option>
+	            <option value="www.google.td">www.google.td</option>
+	            <option value="www.google.tg">www.google.tg</option>
+	            <option value="www.google.tk">www.google.tk</option>
+	            <option value="www.google.tl">www.google.tl</option>
+	            <option value="www.google.tm">www.google.tm</option>
+	            <option value="www.google.to">www.google.to</option>
+	            <option value="www.google.tn">www.google.tn</option>
+	            <option value="www.google.tt">www.google.tt</option>
+	            <option value="www.google.ua">www.google.ua</option>
+	            <option value="www.google.co.uk">www.google.co.uk</option>
+	            <option value="www.google.uy">www.google.uy</option>
+	            <option value="www.google.co.uz">www.google.co.uz</option>
+	            <option value="www.google.vg">www.google.vg</option>
+	            <option value="www.google.vu">www.google.vu</option>
+	            <option value="www.google.ws">www.google.ws</option>
+            </field>
+        </fields>
+    </fieldset>
+    <fieldset name="structureddata">
+        <field
+                name="enable_breadcrumbs"
+                type="list"
+                label="COM_PWTSEO_CONFIG_STRUCTUREDDATA_ENABLE_BREADCRUMBS"
+                description="COM_PWTSEO_CONFIG_STRUCTUREDDATA_ENABLE_BREADCRUMBS_DESC"
+                default="0"
+        >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+        </field>
+        <field
+                name="show_home"
+                type="list"
+                label="COM_PWTSEO_CONFIG_STRUCTUREDDATA_SHOW_HOME"
+                description="COM_PWTSEO_CONFIG_STRUCTUREDDATA_SHOW_HOME_DESC"
+                default="1"
+                showon="enable_breadcrumbs:1"
+        >
+            <option value="1">JYES</option>
+            <option value="0">JNO</option>
+            <option value="2">COM_PWTSEO_CUSTOM</option>
+        </field>
+        <field
+                name="breadcrumbs_home"
+                type="text"
+                label="COM_PWTSEO_CONFIG_STRUCTUREDDATA_CUSTOM_HOME"
+                description="COM_PWTSEO_CONFIG_STRUCTUREDDATA_CUSTOM_HOME_DESC"
+                showon="show_home:2"
+        />
+        <field
+                type="spacer"
+                name="spacer_02"
+                hr="true"
+        />
+        <field
+                name="publisher_name"
+                type="text"
+                label="COM_PWTSEO_CONFIG_STRUCTUREDDATA_PUBLISHER_NAME"
+                description="COM_PWTSEO_CONFIG_STRUCTUREDDATA_PUBLISHER_NAME_DESC"
+        />
+        <field
+                name="publisher_logo"
+                type="media"
+                label="COM_PWTSEO_CONFIG_STRUCTUREDDATA_PUBLISHER_LOGO"
+                description="COM_PWTSEO_CONFIG_STRUCTUREDDATA_PUBLISHER_LOGO_DESC"
+        />
+    </fieldset>
+    <fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
+        <field name="rules"
+               type="rules"
+               label="JCONFIG_PERMISSIONS_LABEL"
+               filter="rules"
+               component="com_pwtseo"
+               section="component">
+        </field>
+    </fieldset>
+</config>

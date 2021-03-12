@@ -11,8 +11,8 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Dispatcher\Dispatcher as AdminDispatcher;
 use Akeeba\AdminTools\Admin\Model\ConfigureWAF;
-use FOF30\Container\Container;
-use FOF30\Utils\Ip;
+use FOF40\Container\Container;
+use FOF40\IP\IPHelper as Ip;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use RuntimeException;
@@ -53,8 +53,8 @@ class Dispatcher extends AdminDispatcher
 
 		// Load the FOF language
 		$lang = $this->container->platform->getLanguage();
-		$lang->load('lib_fof30', JPATH_SITE, 'en-GB', true, true);
-		$lang->load('lib_fof30', JPATH_SITE, null, true, false);
+		$lang->load('lib_fof40', JPATH_SITE, 'en-GB', true, true);
+		$lang->load('lib_fof40', JPATH_SITE, null, true, false);
 
 		// Load the version file
 		@include_once($this->container->backEndPath . '/version.php');

@@ -6,8 +6,8 @@
  */
 
 use Akeeba\AdminTools\Admin\Model\ImportAndExport;
-use FOF30\Date\Date;
-use FOF30\Download\Download;
+use FOF40\Date\Date;
+use FOF40\Download\Download;
 
 defined('_JEXEC') || die;
 
@@ -66,7 +66,7 @@ class AtsystemFeatureImportsettings extends AtsystemFeatureAbstract
 		$settings = $download->getFromURL($this->remote_url);
 
 		// Something happened during the download, simply ignore it to avoid the site to crash
-		if (!$settings)
+		if (empty($settings))
 		{
 			return;
 		}

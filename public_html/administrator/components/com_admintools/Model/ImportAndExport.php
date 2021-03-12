@@ -10,8 +10,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use Exception;
-use FOF30\Input\Input;
-use FOF30\Model\Model;
+use FOF40\Input\Input;
+use FOF40\Model\Model;
 use Joomla\CMS\Language\Text;
 
 class ImportAndExport extends Model

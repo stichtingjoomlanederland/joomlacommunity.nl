@@ -10,8 +10,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 // Protect from unauthorized access
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use Akeeba\AdminTools\Admin\Helper\Storage;
-use FOF30\Container\Container;
-use FOF30\Model\Model;
+use FOF40\Container\Container;
+use FOF40\Model\Model;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Uri\Uri;
 

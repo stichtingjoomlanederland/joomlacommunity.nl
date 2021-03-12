@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\Model\Scanner;
 
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Filesystem;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 
 defined('_JEXEC') || die;
 

@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\View\CleanTempDirectory;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\CleanTempDirectory;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 
 class Html extends BaseView
 {
@@ -54,6 +54,6 @@ class Html extends BaseView
 
 		$this->setLayout('default');
 
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/CleanTempDirectory.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/CleanTempDirectory.min.js', $this->container->mediaVersion, 'text/javascript', true);
 	}
 }

@@ -9,13 +9,13 @@ namespace Akeeba\AdminTools\Admin\View\ImportAndExport;
 
 defined('_JEXEC') || die;
 
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 
 class Html extends BaseView
 {
 	protected function onBeforeExport()
 	{
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/ImportExport.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/ImportExport.min.js', $this->container->mediaVersion, 'text/javascript', true);
 	}
 
 }

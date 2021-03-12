@@ -14,9 +14,10 @@ use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use Akeeba\AdminTools\Admin\Model\MasterPassword;
 use Akeeba\AdminTools\Admin\Model\Updates;
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Controller\Controller;
-use FOF30\Encrypt\Randval;
+use FOF40\Container\Container;
+use FOF40\Controller\Controller;
+use FOF40\Encrypt\Randval;
+use FOF40\Utils\ViewManifestMigration;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
 use RuntimeException;
@@ -72,6 +73,10 @@ class ControlPanel extends Controller
 
 		// Delete the old log files if logging is disabled
 		$model->deleteOldLogs();
+
+		// Migrate view manifest XML
+		ViewManifestMigration::migrateJoomla4MenuXMLFiles($this->container);
+		ViewManifestMigration::removeJoomla3LegacyViews($this->container);
 
 		// Refresh the update site definitions if required. Also takes into account any change of the Download ID
 		// in the Options.

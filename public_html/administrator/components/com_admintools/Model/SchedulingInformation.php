@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') || die;
 
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 
 class SchedulingInformation extends Model
 {

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="params">
+        <fieldset name="lang">
+            <field
+                    type="spacer"
+                    name="spacer"
+                    label=""
+                    class="spacer"
+            />
+            <field
+                    name="blacklist"
+                    type="textarea"
+                    label="PLG_SYSTEM_PWTSEO_PARAMS_LANG_BLACKLIST_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_PARAMS_LANG_BLACKLIST_DESC"
+                    cols="50"
+                    rows="5"
+            />
+        </fieldset>
+    </fields>
+</form>

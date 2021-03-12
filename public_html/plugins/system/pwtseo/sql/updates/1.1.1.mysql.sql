@@ -1,0 +1,1 @@
+ALTER TABLE `#__plg_pwtseo` ADD `articletitleselector` VARCHAR(255) DEFAULT '' NOT NULL;

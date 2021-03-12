@@ -10,8 +10,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Model\DataModel;
+use FOF40\Container\Container;
+use FOF40\Model\DataModel;
 use Joomla\CMS\Language\Text;
 use RuntimeException;
 

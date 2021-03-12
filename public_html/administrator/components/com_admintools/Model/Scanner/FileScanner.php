@@ -13,7 +13,7 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Filesystem;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
 use Exception;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use JDatabaseDriver;
 use ReflectionClass;
 use ReflectionException;

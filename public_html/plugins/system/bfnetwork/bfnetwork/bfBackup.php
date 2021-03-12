@@ -2,7 +2,7 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see       https://mySites.guru/
@@ -177,7 +177,11 @@ final class bfBackup
 
                     define('AKEEBAENGINE', 1);
 
-                    require JPATH_BASE.'/libraries/fof30/Autoloader/Autoloader.php';
+                    if (file_exists(JPATH_BASE.'/libraries/fof40/Autoloader/Autoloader.php')) {
+                        require JPATH_BASE.'/libraries/fof40/Autoloader/Autoloader.php';
+                    } elseif (file_exists(JPATH_BASE.'/libraries/fof30/Autoloader/Autoloader.php')) {
+                        require JPATH_BASE.'/libraries/fof30/Autoloader/Autoloader.php';
+                    }
                     require JPATH_ADMINISTRATOR.'/components/com_akeeba/BackupEngine/Autoloader.php';
 
                     \Akeeba\Engine\Platform::addPlatform('joomla3x', JPATH_ADMINISTRATOR.'/components/com_akeeba/BackupPlatform/Joomla3x');

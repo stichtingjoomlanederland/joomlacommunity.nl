@@ -948,7 +948,13 @@ class UserClass extends acymClass
             $return[$value] = $value;
         }
 
-        $customFields = acym_loadObjectList('SELECT * FROM #__acym_field WHERE id NOT IN (1, 2) '.($inAction ? 'AND type != "phone"' : ''), 'id');
+        $fieldClass = new FieldClass();
+        $languageFieldId = $this->config->get($fieldClass::LANGUAGE_FIELD_ID_KEY, 0);
+
+        $customFields = acym_loadObjectList(
+            'SELECT * FROM #__acym_field WHERE id NOT IN (1, 2, '.intval($languageFieldId).') '.($inAction ? 'AND type != "phone"' : ''),
+            'id'
+        );
         if (!empty($customFields)) {
             foreach ($customFields as $key => $value) {
                 $return[$key] = $value->name;

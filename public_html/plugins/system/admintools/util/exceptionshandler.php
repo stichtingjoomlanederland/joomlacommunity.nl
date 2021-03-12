@@ -8,9 +8,9 @@
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
-use FOF30\Container\Container;
-use FOF30\Date\Date;
-use FOF30\Utils\TimezoneWrangler;
+use FOF40\Container\Container;
+use FOF40\Date\Date;
+use FOF40\Date\TimezoneWrangler;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Uri\Uri;
@@ -789,7 +789,7 @@ HTML;
 	private function flagPrivateNetworkIPs()
 	{
 		// Make sure FOF 3 can be loaded, or fail gracefuly
-		if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+		if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 		{
 			return;
 		}

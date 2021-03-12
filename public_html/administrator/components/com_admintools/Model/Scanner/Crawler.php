@@ -16,7 +16,7 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Util\Filesystem;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
 use DirectoryIterator;
 use Exception;
-use FOF30\Timer\Timer;
+use FOF40\Timer\Timer;
 use RuntimeException;
 
 /**

@@ -223,7 +223,7 @@ $tmpl = $links == 0 ? '' : '&tmpl=component';
 				<ul class="list-group list-group-flush panel-agenda"><?php
 					foreach ($organisers as $organiser) :
 						echo '<li class="list-group-item list-group-item--inline">';
-						echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $organiser, 'type' => 'avatar']);
+						echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $organiser, 'type' => 'user.avatar']);
 						echo LayoutHelper::render('template.easydiscuss.profile', ['id' => $organiser]);
 						echo '</li>';
 					endforeach;

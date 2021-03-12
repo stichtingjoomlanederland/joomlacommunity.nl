@@ -1,0 +1,1 @@
+ALTER TABLE `#__plg_pwtseo`DEFAULT CHARSET=utf8mb4 DEFAULT COLLATE=utf8mb4_unicode_ci;

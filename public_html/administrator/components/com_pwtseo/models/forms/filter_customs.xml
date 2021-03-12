@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="filter">
+        <field
+                name="search"
+                type="text"
+                label=""
+                hint="JSEARCH_FILTER"
+        />
+    </fields>
+    <fields name="list">
+        <field
+                name="fullordering"
+                type="list"
+                label="COM_CONTENT_LIST_FULL_ORDERING"
+                description="COM_CONTENT_LIST_FULL_ORDERING_DESC"
+                onchange="this.form.submit();"
+                default="item.id DESC"
+        >
+            <option value="">JGLOBAL_SORT_BY</option>
+            <option value="item.pwtseo_score ASC">COM_PWTSEO_SEOSCORE_ASC</option>
+            <option value="item.pwtseo_score DESC">COM_PWTSEO_SEOSCORE_DESC</option>
+            <option value="item.focus_word ASC">COM_PWTSEO_FOCUSWORD_ASC</option>
+            <option value="item.focus_word DESC">COM_PWTSEO_FOCUSWORD_DESC</option>
+            <option value="item.url ASC">COM_PWTSEO_URL_ASC</option>
+            <option value="item.url DESC">COM_PWTSEO_URL_DESC</option>
+            <option value="item.id ASC">JGRID_HEADING_ID_ASC</option>
+            <option value="item.id DESC">JGRID_HEADING_ID_DESC</option>
+        </field>
+        <field
+                name="limit"
+                type="limitbox"
+                class="input-mini"
+                default="25"
+                label="COM_CONTENT_LIST_LIMIT"
+                description="COM_CONTENT_LIST_LIMIT_DESC"
+                onchange="this.form.submit();"
+        />
+    </fields>
+</form>

@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\Controller;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
-use FOF30\Controller\Controller;
+use FOF40\Controller\Controller;
 
 class SchedulingInformation extends Controller
 {

@@ -11,7 +11,7 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\ServerTechnology;
 use DateTimeZone;
-use FOF30\Date\Date;
+use FOF40\Date\Date;
 
 class HtaccessMaker extends ServerConfigMaker
 {

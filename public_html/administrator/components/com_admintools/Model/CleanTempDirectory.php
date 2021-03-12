@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\Model;
 
 defined('_JEXEC') || die;
 
-use FOF30\Model\Model;
+use FOF40\Model\Model;
 use Joomla\CMS\Client\ClientHelper;
 use Joomla\CMS\Client\FtpClient;
 use Joomla\CMS\Filesystem\Folder;

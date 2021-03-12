@@ -10,7 +10,7 @@ namespace Akeeba\AdminTools\Admin\Model\Scanner\Util;
 defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\Scanner\Mixin\Singleton;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 
 /**
  * Temporary session data management.

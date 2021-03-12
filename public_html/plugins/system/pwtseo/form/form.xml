@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="pwtseo" addfieldpath="plugins/system/pwtseo/models/fields">
+
+        <fieldset name="advanced_og">
+            <field type="spacer" name="canonical_word_spacer" hr="true" />
+
+            <field
+                    name="override_canonical"
+                    type="list"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OVERRIDE_CANONICAL_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_OVERRIDE_CANONICAL_DESC"
+                    class=""
+                    filter="intval"
+                    size="1"
+                    default="1" >
+                <option value="1">
+                    PLG_SYSTEM_PWTSEO_FORM_PLUGIN_SETTINGS_LABEL
+                </option>
+                <option value="4">
+                    JNONE
+                </option>
+                <option value="2">
+                    PLG_SYSTEM_PWTSEO_FORM_CANONICAL_SELF_LABEL
+                </option>
+                <option value="3">
+                    PLG_SYSTEM_PWTSEO_FORM_CANONICAL_CUSTOM_LABEL
+                </option>
+            </field>
+
+            <field
+                    type="url"
+                    name="canonical"
+                    label="PLG_SYSTEM_PWTSEO_FORM_CANONICAL_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_CANONICAL_DESC"
+                    showon="override_canonical:3"
+            />
+
+	        <field
+		        name="strip_canonical_choice"
+		        label="PLG_SYSTEM_CONFIG_PLUGIN_IGNORE_CANONICAL_LABEL"
+		        description="PLG_SYSTEM_CONFIG_PLUGIN_IGNORE_CANONICAL_DESC"
+		        type="list"
+		        default="4"
+	        >
+		        <option value="4">PLG_SYSTEM_PWTSEO_FORM_PLUGIN_SETTINGS_LABEL</option>
+		        <!-- 1 is none, because 0 would be stripped as a value -->
+		        <option value="1">JNONE</option>
+		        <option value="2">JALL</option>
+		        <option value="3">PLG_SYSTEM_CUSTOM</option>
+	        </field>
+
+	        <field
+		        name="strip_canonical"
+		        label="PLG_SYSTEM_CONFIG_PLUGIN_IGNORE_PARAMS_LABEL"
+		        description="PLG_SYSTEM_CONFIG_PLUGIN_IGNORE_PARAMS_DESC"
+		        type="text"
+		        showon="strip_canonical_choice:2"
+	        />
+
+            <field
+                    type="text"
+                    name="articletitleselector"
+                    label="PLG_SYSTEM_PWTSEO_FORM_ARTICLE_TITLE_SELECTOR_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_ARTICLE_TITLE_SELECTOR_DESC"
+            />
+
+            <field type="spacer" name="adv_open_graph_spacer" class="pwtseo__opengraph" label="PLG_SYSTEM_PWTSEO_FORM_SPACER_OPENGRAPH" />
+
+            <field name="adv_open_graph"
+                   type="repeatable"
+                   icon="list"
+                   select="PLG_SYSTEM_PWTSEO_FORM_ADV_CREATE_LABEL"
+                   label=""
+            >
+                <fieldset hidden="true" name="adv_open_graph_modal" repeat="true">
+                    <field
+                            name="og_title"
+                            label="PLG_SYSTEM_PWTSEO_FORM_ADV_OPEN_GRAPH_TITLE_LABEL"
+                            type="text"
+                            default="" />
+
+                    <field
+                            name="og_content"
+                            label="PLG_SYSTEM_PWTSEO_FORM_ADV_OPEN_GRAPH_CONTENT_LABEL"
+                            type="text" />
+                </fieldset>
+            </field>
+        </fieldset>
+
+        <fieldset name="basic_og">
+            <!-- todo: extend this with images and defaults which should come from the article -->
+            <!-- todo: this should be JS'd so only 1 of the 3 is visible to not overload the user -->
+            <field
+                    name="expand_og"
+                    type="list"
+                    label="PLG_SYSTEM_PWTSEO_FORM_EXPAND_OG_LABEL"
+                    class=""
+                    filter="intval"
+                    size="1"
+                    default="0" >
+                <option value="1">
+                    JYES
+                </option>
+                <option value="0">
+                    JNO
+                </option>
+            </field>
+
+            <field name="facebook_spacer" type="spacer" class="pwtseo__facebook" label="PLG_SYSTEM_PWTSEO_FORM_SPACER_FACEBOOK" showon="expand_og:1" />
+
+            <field
+                    name="facebook_title"
+                    type="text"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_FACEBOOK_TITLE_LABEL"
+                    showon="expand_og:1"
+            />
+
+            <field
+                    name="facebook_description"
+                    type="textarea"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_FACEBOOK_DESCRIPTION_LABEL"
+                    showon="expand_og:1"
+            />
+
+            <field
+                    name="facebook_image"
+                    type="media"
+                    preview="tooltip"
+                    directory="/"
+                    label="PLG_SYSTEM_PWTSEO_FORM_IMAGE_LABEL"
+                    description=""
+                    ratio="16/9"
+                    width="600|1200"
+                    showon="expand_og:1"/>
+
+	        <field
+		        name="facebook_url"
+		        type="text"
+		        label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_FACEBOOK_URL_LABEL"
+		        showon="expand_og:1"
+	        />
+
+            <field name="twitter_spacer" type="spacer" class="pwtseo__twitter" label="PLG_SYSTEM_PWTSEO_FORM_SPACER_TWITTER"  showon="expand_og:1" />
+
+            <field
+                    name="twitter_title"
+                    type="text"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_TITLE_LABEL"
+                    showon="expand_og:1"
+            />
+
+            <field
+                    name="twitter_description"
+                    type="textarea"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_DESCRIPTION_LABEL"
+                    showon="expand_og:1"
+            />
+
+            <field
+                    name="twitter_image"
+                    type="media"
+                    preview="tooltip"
+                    directory="/"
+                    label="PLG_SYSTEM_PWTSEO_FORM_IMAGE_LABEL"
+                    showon="expand_og:1"
+                    ratio="2/1"
+                    width="1024"
+            />
+
+            <field
+                    name="twitter_card"
+                    type="list"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_CARD_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_CARD_DESC"
+                    showon="expand_og:1"
+            >
+                    <option value="0">JNONE</option>
+                    <option value="summary">PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_CARD_SUMMARY_LABEL</option>
+                    <option value="summary_large_image">PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_CARD_SUMMARY_LARGE_LABEL</option>
+                    <option value="app">PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_CARD_APP_LABEL</option>
+                    <option value="player">PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_CARD_PLAYER_LABEL</option>
+            </field>
+
+            <field
+                    name="twitter_site_username"
+                    type="text"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_USERNAME_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_TWITTER_USERNAME_DESC"
+                    showon="twitter_card!:0[AND]expand_og:1"
+            />
+
+            <field name="google_spacer" type="spacer" class="pwtseo__google" label="PLG_SYSTEM_PWTSEO_FORM_SPACER_GOOGLE" showon="expand_og:1" />
+
+            <field
+                    name="google_title"
+                    type="text"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_GOOGLE_TITLE_LABEL"
+                    showon="expand_og:1"
+            />
+
+            <field
+                    name="google_description"
+                    type="textarea"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OPEN_GRAPH_GOOGLE_DESCRIPTION_LABEL"
+                    showon="expand_og:1"
+            />
+
+            <field
+                    name="google_image"
+                    type="media"
+                    preview="tooltip"
+                    directory="/"
+                    label="PLG_SYSTEM_PWTSEO_FORM_IMAGE_LABEL"
+                    description=""
+                    showon="expand_og:1"
+                    ratio="4/3"
+                    width="968"
+            />
+        </fieldset>
+
+        <fieldset name="datalayers">
+            <field name="datalayers_spacer" type="spacer" class="pwtseo__datalayers" hr="true" />
+            <field
+                    name="datalayers"
+                    type="pwtseo.datalayers"
+                    label="PLG_SYSTEM_PWTSEO_FORM_DATALAYER_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_DATALAYER_DESC"
+            />
+
+        </fieldset>
+
+        <fieldset name="structureddata">
+            <field name="structureddata_spacer" type="spacer" class="pwtseo__structureddata" hr="true" />
+
+            <field
+                    name="structureddata"
+                    type="pwtseo.structureddata"
+                    label="PLG_SYSTEM_PWTSEO_FORM_STRUCTUREDDATA_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_STRUCTUREDDATA_DESC"
+            />
+
+        </fieldset>
+
+        <fieldset name="left-side">
+            <field
+                    name="focus_word"
+                    type="text"
+                    label="PLG_SYSTEM_PWTSEO_FORM_FOCUS_WORD_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_FOCUS_WORD_DESC"
+                    class="input-xxlarge input-large-text"
+                    hint="PLG_SYSTEM_PWTSEO_FORM_FOCUS_WORD_HINT"
+                    onchange="" />
+
+
+
+            <field type="spacer" name="focus_word_spacer" hr="true" />
+
+            <field
+                    name="override_page_title"
+                    type="list"
+                    label="PLG_SYSTEM_PWTSEO_FORM_OVERRIDE_PAGE_TITLE_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_OVERRIDE_PAGE_TITLE_DESC"
+                    class=""
+                    filter="intval"
+                    size="1"
+                    default="0" >
+                <option value="1">
+                    JYES
+                </option>
+                <option value="0">
+                    JNO
+                </option>
+            </field>
+
+            <field
+                    type="text"
+                    name="page_title"
+                    class="pseo-override-title"
+                    label="PLG_SYSTEM_PWTSEO_FORM_TITLE_LABEL"
+                    showon="override_page_title:1"
+            />
+
+            <field
+                    name="cascade_settings"
+                    type="list"
+                    label="PLG_SYSTEM_PWTSEO_FORM_CASCADE_SETTINGS_LABEL"
+                    description="PLG_SYSTEM_PWTSEO_FORM_CASCADE_SETTINGS_DESC"
+                    class=""
+                    filter="intval"
+                    size="1"
+                    default="0" >
+                <option value="1">
+                    JYES
+                </option>
+                <option value="0">
+                    JNO
+                </option>
+            </field>
+
+            <field type="hidden" name="flag_outdated" value="0" />
+            <field type="hidden" name="google_rank" value="0" />
+        </fieldset>
+    </fields>
+</form>

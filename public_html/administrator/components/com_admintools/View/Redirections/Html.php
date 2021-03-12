@@ -11,7 +11,7 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Model\Redirections;
 use Akeeba\AdminTools\Admin\View\Mixin\SystemPluginExists;
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
 
 class Html extends BaseView

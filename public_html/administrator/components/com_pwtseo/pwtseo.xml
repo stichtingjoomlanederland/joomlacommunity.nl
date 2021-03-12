@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<extension version="3.8" type="component" method="upgrade">
+    <name>COM_PWTSEO</name>
+    <author>Perfect Web Team</author>
+    <creationDate>4 March 2021</creationDate>
+    <copyright>Copyright (C) 2016 - 2021 Perfect Web Team</copyright>
+    <license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+    <authorEmail>extensions@perfectwebteam.com</authorEmail>
+    <authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+    <version>1.5.2</version>
+    <description>COM_PWTSEO_XML_DESCRIPTION</description>
+
+    <!-- Runs on install -->
+    <install>
+        <sql>
+            <file driver="mysql" charset="utf8">sql/install/mysql.sql</file>
+        </sql>
+    </install>
+
+    <!-- Runs on update -->
+    <update>
+        <schemas>
+            <schemapath type="mysql">sql/updates</schemapath>
+        </schemas>
+    </update>
+
+    <!-- Media files -->
+    <media folder="media/com_pwtseo" destination="com_pwtseo">
+        <folder>css</folder>
+        <folder>images</folder>
+    </media>
+
+    <!-- CLI Script -->
+    <site>
+        <files folder="cli">
+            <filename>pwt_rsseo2pwtseo.php</filename>
+        </files>
+    </site>
+
+    <!-- Back-end files -->
+    <administration>
+        <menu view="pwtseo" link="option=com_pwtseo">COM_PWTSEO_MENU_LABEL</menu>
+        <submenu>
+            <!--
+             Note that all & must be escaped to &amp; for the file to be valid
+             XML and be parsed by the installer
+            -->
+            <menu view="articles" link="option=com_pwtseo&amp;view=articles">COM_PWTSEO_MENU_ARTICLES_LABEL</menu>
+            <menu view="customs" link="option=com_pwtseo&amp;view=customs">COM_PWTSEO_MENU_CUSTOMS_LABEL</menu>
+            <menu view="customs" link="option=com_pwtseo&amp;view=menus">COM_PWTSEO_MENU_MENUS_LABEL</menu>
+            <menu view="customs" link="option=com_pwtseo&amp;view=datalayers">COM_PWTSEO_MENU_DATALAYERS_LABEL</menu>
+        </submenu>
+
+        <!-- Core files -->
+        <files folder="administrator/components/com_pwtseo">
+            <filename>pwtseo.php</filename>
+            <filename>access.xml</filename>
+            <filename>config.xml</filename>
+            <filename>controller.php</filename>
+            <folder>helpers</folder>
+            <folder>language</folder>
+            <folder>models</folder>
+            <folder>sql</folder>
+            <folder>tables</folder>
+            <folder>views</folder>
+            <folder>controllers</folder>
+        </files>
+    </administration>
+</extension>

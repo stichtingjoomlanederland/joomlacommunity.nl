@@ -22,7 +22,7 @@ $path = JPATH_ADMINISTRATOR . '/components/com_easydiscuss/includes/easydiscuss.
 jimport('joomla.filesystem.file');
 
 if (!JFile::exists($path)) {
-    return;
+	return;
 }
 
 require_once($path);
@@ -30,16 +30,24 @@ require_once($path);
 ED::init();
 
 if (isset($id)) {
-    $my = ED::user($id);
-    $type = isset($type) ? $type : 'username';
-    switch ($type) {
-        case 'avatar':
-            $options = ['rank' => true, 'status' => true, 'size' => 'md'];
-            break;
+	$my = ED::user($id);
+	$type = isset($type) ? $type : 'user.username';
+	$size = isset($size) ? $size : 'md';
 
-        default:
-            $options = [];
-    }
+	switch ($type) {
+		case 'user.avatar':
+			$options = ['rank' => true, 'status' => true, 'size' => $size];
+			break;
 
-    echo ED::themes()->html('user.' . $type, $my, $options);
+		default:
+			$options = [];
+	}
+
+	if ($type === 'custom') {
+		if (isset($field)) {
+			echo $my->{$field};
+		}
+	} else {
+		echo ED::themes()->html($type, $my, $options);
+	}
 }

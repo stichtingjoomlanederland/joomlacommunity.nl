@@ -12,11 +12,11 @@ defined('_JEXEC') || die;
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use Akeeba\AdminTools\Admin\Model\Scanner\Complexify;
 use Exception;
-use FOF30\Database\Installer;
-use FOF30\Encrypt\Randval;
-use FOF30\Model\Model;
-use FOF30\Utils\CacheCleaner;
-use FOF30\Utils\Ip;
+use FOF40\Database\Installer;
+use FOF40\Encrypt\Randval;
+use FOF40\Model\Model;
+use FOF40\JoomlaAbstraction\CacheCleaner;
+use FOF40\IP\IPHelper as Ip;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\Language\Text;
@@ -198,6 +198,13 @@ class ControlPanel extends Model
 	 */
 	public function isMyIPBlocked($externalIp = null)
 	{
+		$isPro = (defined('ADMINTOOLS_PRO') ? ADMINTOOLS_PRO : 0) == 1;
+
+		if (!$isPro)
+		{
+			return false;
+		}
+
 		// First let's get the current IP of the user
 		$ipList = [];
 		$ipList[] = $this->getVisitorIP();

@@ -11,7 +11,7 @@ namespace Akeeba\AdminTools\Admin\Helper;
 defined('_JEXEC') || die();
 
 use Exception;
-use FOF30\Container\Container;
+use FOF40\Container\Container;
 use Joomla\Registry\Registry;
 
 /**

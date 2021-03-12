@@ -2,7 +2,7 @@
 
 /*
  * @package   bfNetwork
- * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020 Blue Flame Digital Solutions Ltd. All rights reserved.
+ * @copyright Copyright (C) 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021 Blue Flame Digital Solutions Ltd. All rights reserved.
  * @license   GNU General Public License version 3 or later
  *
  * @see       https://mySites.guru/
@@ -418,7 +418,7 @@ final class bfExtensions
             $shortName = str_replace($prefixes, '', strtolower($ext->option));
         }
 
-        $try = array(); // need to support PHP 5.3 :-(
+        $try  = array(); // need to support PHP 5.3 :-(
         $last = array(); // need to support PHP 5.3 :-(
 
         // Let the UGLY code begin

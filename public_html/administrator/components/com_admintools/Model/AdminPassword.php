@@ -10,8 +10,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use DateTimeZone;
-use FOF30\Date\Date;
-use FOF30\Model\Model;
+use FOF40\Date\Date;
+use FOF40\Model\Model;
 use Joomla\CMS\Filesystem\File;
 use Joomla\CMS\User\UserHelper;
 

@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Site\Controller;
 
 defined('_JEXEC') || die;
 
-use FOF30\Controller\Controller;
+use FOF40\Controller\Controller;
 
 class Blocks extends Controller
 {

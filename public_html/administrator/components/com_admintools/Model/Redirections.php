@@ -11,8 +11,8 @@ defined('_JEXEC') || die;
 
 use Akeeba\AdminTools\Admin\Helper\Storage;
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Model\DataModel;
+use FOF40\Container\Container;
+use FOF40\Model\DataModel;
 use Joomla\CMS\Language\Text;
 
 /**

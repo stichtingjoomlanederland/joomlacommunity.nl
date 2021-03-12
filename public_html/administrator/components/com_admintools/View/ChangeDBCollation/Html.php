@@ -9,12 +9,12 @@ namespace Akeeba\AdminTools\Admin\View\ChangeDBCollation;
 
 defined('_JEXEC') || die;
 
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 
 class Html extends BaseView
 {
 	protected function onBeforeMain()
 	{
-		$this->addJavascriptFile('admin://components/com_admintools/media/js/ChangeDBCollation.min.js');
+		$this->addJavascriptFile('admin://components/com_admintools/media/js/ChangeDBCollation.min.js', $this->container->mediaVersion, 'text/javascript', true);
 	}
 }

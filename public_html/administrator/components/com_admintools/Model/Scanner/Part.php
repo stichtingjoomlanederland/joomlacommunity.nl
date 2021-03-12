@@ -14,7 +14,7 @@ use Akeeba\AdminTools\Admin\Model\Scanner\Logger\LogLevel;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Configuration;
 use Akeeba\AdminTools\Admin\Model\Scanner\Util\Session;
 use Exception;
-use FOF30\Timer\Timer;
+use FOF40\Timer\Timer;
 use Throwable;
 
 defined('_JEXEC') || die;

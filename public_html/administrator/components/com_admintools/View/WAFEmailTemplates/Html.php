@@ -9,7 +9,7 @@ namespace Akeeba\AdminTools\Admin\View\WAFEmailTemplates;
 
 defined('_JEXEC') || die;
 
-use FOF30\View\DataView\Html as BaseView;
+use FOF40\View\DataView\Html as BaseView;
 use Joomla\CMS\Language\Text;
 
 class Html extends BaseView

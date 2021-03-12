@@ -15,7 +15,7 @@ $recommendedPHPVersion = '7.4';
 $softwareName          = 'Admin Tools';
 $silentResults         = true;
 
-if (!require_once(JPATH_COMPONENT_ADMINISTRATOR . '/View/wrongphp.php'))
+if (!require_once(JPATH_COMPONENT_ADMINISTRATOR . '/tmpl/ErrorPages/wrongphp.php'))
 {
 	// Minimum PHP requirement not met; pretend this component does not exist
 	throw new RuntimeException(\Joomla\CMS\Language\Text::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
@@ -27,9 +27,9 @@ if (version_compare(PHP_VERSION, '7.2.0', 'lt'))
 	throw new RuntimeException(\Joomla\CMS\Language\Text::_('JLIB_APPLICATION_ERROR_COMPONENT_NOT_FOUND'), 404);
 }
 
-if (!defined('FOF30_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof30/include.php'))
+if (!defined('FOF40_INCLUDED') && !@include_once(JPATH_LIBRARIES . '/fof40/include.php'))
 {
-	throw new RuntimeException('FOF 3.0 is not installed', 500);
+	throw new RuntimeException('This extension requires FOF 4.', 500);
 }
 
-FOF30\Container\Container::getInstance('com_admintools')->dispatcher->dispatch();
+FOF40\Container\Container::getInstance('com_admintools')->dispatcher->dispatch();

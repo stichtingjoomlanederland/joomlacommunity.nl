@@ -31,7 +31,7 @@ foreach ([__DIR__, getcwd()] as $curdir)
 
 defined('JPATH_LIBRARIES') || die ('This script must be placed in or run from the cli folder of your site.');
 
-require_once JPATH_LIBRARIES . '/fof30/Cli/Application.php';
+require_once JPATH_LIBRARIES . '/fof40/Cli/Application.php';
 // Boilerplate -- END
 
 // Load the version file
@@ -150,7 +150,7 @@ ENDBLOCK;
 			$oldLevel = error_reporting(0);
 		}
 
-		$container = \FOF30\Container\Container::getInstance('com_admintools', [], 'admin');
+		$container = \FOF40\Container\Container::getInstance('com_admintools', [], 'admin');
 
 		if (function_exists('error_reporting'))
 		{

@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension version="3.8" type="plugin" group="system" method="upgrade">
+	<name>PLG_PWTSEO</name>
+	<author>Perfect Web Team</author>
+	<creationDate>4 March 2021</creationDate>
+	<copyright>Copyright (C) 2016 - 2021 Perfect Web Team</copyright>
+	<license>GPLv3 http://www.gnu.org/licenses/gpl.html</license>
+	<authorEmail>extensions@perfectwebteam.com</authorEmail>
+	<authorUrl>https://extensions.perfectwebteam.com</authorUrl>
+	<version>1.5.2</version>
+	<description>PLG_PWTSEO_XML_DESCRIPTION</description>
+
+	<files>
+		<folder>fields</folder>
+		<folder>form</folder>
+		<folder>language</folder>
+		<folder>sql</folder>
+		<folder>tmpl</folder>
+		<filename plugin="pwtseo">pwtseo.php</filename>
+	</files>
+
+	<administration>
+		<languages folder="language">
+			<language tag="en-GB">en-GB/en-GB.plg_system_pwtseo.ini</language>
+			<language tag="en-GB">en-GB/en-GB.plg_system_pwtseo.sys.ini</language>
+		</languages>
+	</administration>
+
+	<media folder="media/plg_system_pwtseo" destination="plg_system_pwtseo">
+		<folder>css</folder>
+		<folder>js</folder>
+	</media>
+
+	<install>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/install.mysql.sql</file>
+		</sql>
+	</install>
+	<uninstall>
+		<sql>
+			<file charset="utf8" driver="mysql">sql/uninstall.mysql.sql</file>
+		</sql>
+	</uninstall>
+	<update>
+		<schemas>
+			<schemapath type="mysql">sql/updates/</schemapath>
+		</schemas>
+	</update>
+
+	<config>
+		<fields name="params">
+
+			<fieldset name="basic">
+				<field
+					type="hidden"
+					name="plg_system_pwtseo"
+				/>
+				<field
+					name="advanced_mode"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_ADVANCED_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_ADVANCED_DESC"
+					filter="intval"
+					size="1"
+					default="0">
+					<option value="1">
+						JYES
+					</option>
+					<option value="0">
+						JNO
+					</option>
+				</field>
+
+				<!--<field
+					name="show_mobile_serp"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_MOBILE_SERP_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_MOBILE_SERP_DESC"
+					filter="intval"
+					size="1"
+					default="0" >
+					<option value="1">
+						JYES
+					</option>
+					<option value="0">
+						JNO
+					</option>
+				</field>-->
+
+				<field
+					name="show_counters"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_COUNTERS_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_COUNTERS_DESC"
+					filter="intval"
+					size="1"
+					default="1">
+					<option value="1">
+						JYES
+					</option>
+					<option value="0">
+						JNO
+					</option>
+				</field>
+
+				<field
+					name="show_datalayers"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_DATALAYERS_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_DATALAYERS_DESC"
+					filter="intval"
+					size="1"
+					default="0">
+					<option value="1">
+						JYES
+					</option>
+					<option value="0">
+						JNO
+					</option>
+				</field>
+
+				<field
+					name="show_structureddata"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_STRUCTUREDDATA_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_SHOW_STRUCTUREDDATA_DESC"
+					filter="intval"
+					size="1"
+					default="0">
+					<option value="1">
+						JYES
+					</option>
+					<option value="0">
+						JNO
+					</option>
+				</field>
+
+				<field
+					name="set_canonical"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_SET_CANONICAL_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_SET_CANONICAL_DESC"
+					filter="intval"
+					size="1"
+					default="1">
+					<option value="1">
+						JYES
+					</option>
+					<option value="0">
+						JNO
+					</option>
+				</field>
+
+				<field name="basic_spacer_1" type="spacer" hr="true"/>
+
+			</fieldset>
+			<fieldset name="advanced">
+				<field name="spacer_1" type="spacer" label="PLG_SYSTEM_PWTSEO_PARAMS_SPACER_COUNT_TITLE_LABEL"/>
+
+				<field
+					name="count_min_title"
+					type="number"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MIN_TITLE_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MIN_TITLE_DESC"
+					filter="intval"
+					default="50"/>
+
+				<field
+					name="count_max_title"
+					type="number"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MAX_TITLE_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MAX_TITLE_DESC"
+					filter="intval"
+					default="70"/>
+
+				<field name="spacer_2" type="spacer" label="PLG_SYSTEM_PWTSEO_PARAMS_SPACER_COUNT_METADESC_LABEL"/>
+
+				<field
+					name="count_min_metadesc"
+					type="number"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MIN_METADESC_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MIN_METADESC_DESC"
+					filter="intval"
+					default="150"
+				/>
+
+				<field
+					name="count_max_metadesc"
+					type="number"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MAX_METADESC_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_COUNT_MAX_METADESC_DESC"
+					filter="intval"
+					default="160"
+				/>
+
+				<field name="spacer_3" type="spacer"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_SPACER_ARTICLETITLESELECTOR_LABEL"/>
+
+				<field
+					name="articletitleselector"
+					type="text"
+					label="PLG_SYSTEM_PWTSEO_FORM_ARTICLE_TITLE_SELECTOR_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_ARTICLE_TITLE_SELECTOR_DESC"
+					default=""
+				/>
+
+				<field
+					name="hide_browser_title_field"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_FORM_HIDE_BROWSER_TITLE_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_HIDE_BROWSER_TITLE_DESC"
+					default="0"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+				<field
+					name="ignore_intro_full_image"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_FORM_HIGNORE_INTRO_FULL_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_HIGNORE_INTRO_FULL_DESC"
+					default="0"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field
+					name="initial_timeout"
+					type="number"
+					label="PLG_SYSTEM_PWTSEO_FORM_INITIAL_TIMEOUT_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_INITIAL_TIMEOUT_DESC"
+					default="0"
+				/>
+
+				<field name="spacer_4" type="spacer" hr="true"/>
+
+				<field
+					name="ignore_global_sitename"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_FORM_IGNORE_GLOBAL_SITENAME_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_IGNORE_GLOBAL_SITENAME_DESC"
+					default="0"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+
+				<field name="spacer_5" type="spacer" hr="true"/>
+
+				<field
+					name="force_ssl"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_FORM_FORCE_SSL_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_FORCE_SSL_DESC"
+					default="0"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field name="spacer_6" type="spacer" hr="true"/>
+
+				<field
+					name="limit_categories"
+					type="list"
+					label="PLG_SYSTEM_PWTSEO_FORM_LIMIT_CATEGORIES_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_LIMIT_CATEGORIES_DESC"
+					default="0"
+				>
+					<option value="0">JNO</option>
+					<option value="1">PLG_SYSTEM_PWTSEO_FORM_INCLUDE</option>
+					<option value="-1">PLG_SYSTEM_PWTSEO_FORM_EXCLUDE</option>
+				</field>
+
+				<field
+					name="include_child_categories"
+					type="list"
+					showon="limit_categories:1,-1"
+					label="PLG_SYSTEM_PWTSEO_FORM_INCLUDE_CHILD_CATEGORIES_LABEL"
+					description="PLG_SYSTEM_PWTSEO_FORM_INCLUDE_CHILD_CATEGORIES_DESC"
+					default="0"
+				>
+					<option value="0">JNO</option>
+					<option value="1">JYES</option>
+				</field>
+
+				<field
+					name="catids"
+					type="category"
+					extension="com_content"
+					multiple="true"
+					showon="limit_categories:1,-1"
+					label="PLG_SYSTEM_PWTSEO_FORM_CATEGORY_SELECTION"
+					description="PLG_SYSTEM_PWTSEO_FORM_CATEGORY_SELECTION_DESC"
+					default="0"
+				/>
+			</fieldset>
+			<fieldset name="lang">
+			</fieldset>
+			<fieldset name="google">
+				<field
+					name="tagid"
+					type="text"
+					default=""
+					size="50"
+					hint="GTM-XXXX"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_TAGID_LABEL"
+				/>
+				<field
+					name="templates_styles_gtm"
+					type="templatestyle"
+					multiple="true"
+					label="PLG_SYSTEM_PWTSEO_PARAMS_TEMPLATE_LABEL"
+					description="PLG_SYSTEM_PWTSEO_PARAMS_TEMPLATE_DESC"
+					showon="tagid!:"
+				/>
+				<!--<field name="analytics" type="text" default="" size="50" hint="UA-XXXX" label="PLG_SYSTEM_PWTSEO_PARAMS_ANALYTICS_LABEL" description ="PLG_SYSTEM_PWTSEO_PARAMS_ANALYTICS_DESC" />-->
+			</fieldset>
+		</fields>
+	</config>
+</extension>

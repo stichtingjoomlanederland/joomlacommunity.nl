@@ -10,8 +10,8 @@ namespace Akeeba\AdminTools\Admin\Model;
 defined('_JEXEC') || die;
 
 use Exception;
-use FOF30\Container\Container;
-use FOF30\Update\Update;
+use FOF40\Container\Container;
+use FOF40\Update\Update;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Filesystem\File;
 
@@ -71,7 +71,7 @@ class Updates extends Update
 	/**
 	 * Refreshes the update sites, removing obsolete update sites in the process
 	 */
-	public function refreshUpdateSite()
+	public function refreshUpdateSite(): void
 	{
 		// Remove any update sites for the old com_admintools package
 		$this->removeObsoleteComponentUpdateSites();

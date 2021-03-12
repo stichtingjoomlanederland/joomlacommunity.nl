@@ -11,7 +11,7 @@ namespace Akeeba\AdminTools\Admin\Controller;
 defined('_JEXEC') || die();
 
 use Akeeba\AdminTools\Admin\Controller\Mixin\CustomACL;
-use FOF30\Controller\DataController;
+use FOF40\Controller\DataController;
 
 class WAFEmailTemplates extends DataController
 {
