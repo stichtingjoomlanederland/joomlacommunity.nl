@@ -131,18 +131,39 @@
 .o-avatar--rounded img {
   border-radius: 50%;
 }
-
-.o-avatar--sm {
+// Avatar Size
+.o-avatar--xs { // small
+  width: 1em;
+  height: 1em;
+  line-height: 1em;
+  font-size: .5em;
+}
+.o-avatar--sm { // small
   width: 1.5em;
   height: 1.5em;
-  line-height: 1.5em
+  line-height: 1.5em;
+  font-size: .75em;
 }
-
-.o-avatar--md {
+.o-avatar--md { // medium
   width: 2em;
   height: 2em;
   line-height: 2em;
+  font-size: 1em;
 }
+.o-avatar--lg { // large
+  width: 4em;
+  height: 4em;
+  line-height: 4em;
+  font-size: 2em;
+}
+.o-avatar--xl { // xlarge
+  width: 7.5em;
+  height: 7.5em;
+  line-height: 7.5em;
+  font-size: 3.75em;
+}
+
+
 
 .list-group-item--inline > * {
   display: inline-block;
