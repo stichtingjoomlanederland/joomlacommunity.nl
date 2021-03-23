@@ -203,16 +203,25 @@ class MailClass extends acymClass
     private function getTranslatedSettingsMail(&$mail)
     {
         $parentMailTranslation = acym_loadResult('SELECT translation FROM #__acym_mail WHERE id = '.intval($mail->parent_id));
-        if (!empty($parentMailTranslation)) {
-            $parentMailTranslation = json_decode($parentMailTranslation, true);
+        $parentMailTranslation = empty($parentMailTranslation) ? [] : json_decode($parentMailTranslation, true);
 
-            if (!empty($parentMailTranslation[$mail->language])) {
-                $mail->from_name = $parentMailTranslation[$mail->language]['from_name'];
-                $mail->from_email = $parentMailTranslation[$mail->language]['from_email'];
-                $mail->reply_to_name = $parentMailTranslation[$mail->language]['reply_to_name'];
-                $mail->reply_to_email = $parentMailTranslation[$mail->language]['reply_to_email'];
-            }
+        $translationConfig = $this->config->get('sender_info_translation', '');
+        $translationConfig = empty($translationConfig) ? [] : json_decode($translationConfig, true);
+
+        if (!empty($parentMailTranslation[$mail->language])) {
+            $senderTranslation = $parentMailTranslation[$mail->language];
+        } elseif (!empty($translationConfig[$mail->language])) {
+            $senderTranslation = $translationConfig[$mail->language];
+            $senderTranslation['reply_to_email'] = $senderTranslation['replyto_email'];
+            $senderTranslation['reply_to_name'] = $senderTranslation['replyto_name'];
+        } else {
+            return $mail;
         }
+
+        $mail->from_name = $senderTranslation['from_name'];
+        $mail->from_email = $senderTranslation['from_email'];
+        $mail->reply_to_name = $senderTranslation['reply_to_name'];
+        $mail->reply_to_email = $senderTranslation['reply_to_email'];
 
         return $mail;
     }
@@ -1161,5 +1170,20 @@ CONTENT;
     public function getMailAttachments($mailId)
     {
         return acym_loadResult('SELECT attachments FROM #__acym_mail WHERE id = '.intval($mailId));
+    }
+
+    public function isTransactionalMail($mail)
+    {
+        if ($mail->type == self::TYPE_STANDARD) return false;
+
+        if ($mail->type == self::TYPE_AUTOMATION) {
+            $query = 'SELECT step.triggers FROM #__acym_step AS step
+                        JOIN #__acym_condition AS condition ON condition.step_id = step.id
+                        JOIN #__acym_action AS action ON action.condition_id = condition.id AND action.actions LIKE '.acym_escapeDB('%"acy_add_queue":{"mail_id":"13"%');
+
+            return empty(acym_loadResult($query));
+        }
+
+        return true;
     }
 }

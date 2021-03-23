@@ -47,10 +47,11 @@ class WFMediamanagerPluginConfig
         // only allow a limited set that are support by the <video> and <audio> tags
         $filetypes = array_intersect($filetypes, array('mp3', 'oga', 'm4a', 'mp4', 'm4v', 'ogg', 'webm', 'ogv'));
 
-        if ($plugin->getParam('inline_upload', 1)) {
+        if ($plugin->getParam('inline_upload', 1) && $plugin->getParam('upload', 1)) {
             $config['upload'] = array(
                 'max_size' => $plugin->getParam('max_size', 1024),
                 'filetypes' => array_values($filetypes),
+                'inline' => true
             );
         }
 

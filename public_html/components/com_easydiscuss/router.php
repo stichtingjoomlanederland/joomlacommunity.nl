@@ -148,8 +148,20 @@ class EasyDiscussRouterBase extends EasyDiscuss
 
 		// Profile view
 		if (isset($query['view']) && $query['view'] == 'profile') {
+			$addView = true;
 
-			$segments[] = $query['view'];
+			if ($active) {
+				$xView = isset($active->query['view']) && $active->query['view'] ? $active->query['view'] : '';
+
+				if ($xView == 'profile') {
+					$addView = false;
+				}
+			}
+
+			if ($addView) {
+				$segments[] = $query['view'];
+			}
+
 			unset($query['view']);
 
 			if (isset($query['layout'])) {
@@ -464,6 +476,7 @@ class EasyDiscussRouterBase extends EasyDiscuss
 
 		$postSorting = array('latest', 'popular', 'hits', 'title', 'oldest');
 
+
 		// We know that the view=categories&layout=listings&id=xxx because there's only 1 segment
 		// and the active menu is view=categories
 		if (isset($item->query['view']) && $item->query['view'] == 'categories' && count($segments) >= 1 && !in_array($segments[0], $views)) {
@@ -487,6 +500,12 @@ class EasyDiscussRouterBase extends EasyDiscuss
 				$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 				array_unshift($segments, $xView);
 			}
+		}
+
+		// we know this is the profile view
+		if (isset($item->query['view']) && $item->query['view'] == 'profile' && count($segments) >= 1 && !in_array($segments[0], $views)) {
+			$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
+			array_unshift($segments, $xView);
 		}
 
 		// If user chooses to use the simple sef setup, we need to add the proper view

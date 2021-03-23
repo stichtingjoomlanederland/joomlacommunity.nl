@@ -134,6 +134,10 @@
             'prevent_hyphens' => [
                 'label' => 'ACYM_PREVENT_HYPHENS',
             ],
+            'unsubscribe_header' => [
+                'label' => 'ACYM_ADD_UNSUBSCRIBE_HEADER_IN_MAIL',
+                'default' => 1,
+            ],
         ];
 
         if ($this->config->get('built_by_update', 0) == 1 || acym_level(1)) {
@@ -158,9 +162,12 @@
             if (!empty($info)) {
                 $info = acym_info($info);
             }
+
+            $default = empty($option['default']) ? 0 : $option['default'];
+
             echo acym_switch(
                 'config['.$oneOption.']',
-                $this->config->get($oneOption),
+                $this->config->get($oneOption, $default),
                 $label.$info
             );
 

@@ -1,19 +1,21 @@
 ed.require(['edq', 'easydiscuss', 'perfect-scrollbar'], function($, EasyDiscuss) {
 
+var fPS = '';
+var cPS = '';
 
 // Apply perfect scrollbar for filters dropdown
 var initPerfectScrollbar = function () {
 	var filterContainer = $('[data-ed-filter-container]');
 
 	if (filterContainer.length > 0) {
-		new PerfectScrollbar('[data-ed-filter-container]', {
+		fPS = new PerfectScrollbar('[data-ed-filter-container]', {
 		});
 	}
 
 	var categoryContainer = $('[data-ed-category-container]');
 
 	if (categoryContainer.length > 0) {
-		new PerfectScrollbar('[data-ed-category-container]', {
+		cPS = new PerfectScrollbar('[data-ed-category-container]', {
 			suppressScrollX: true
 		});
 	}
@@ -142,7 +144,6 @@ $('body').on('click.ed.filter.category.back', '[data-category-back]', function(e
 });
 
 $('body').on('click.ed.filter.category.navigation', '[data-category-filter] [data-category-nav]', function(event) {
-
 	event.preventDefault();
 	event.stopPropagation();
 
@@ -163,7 +164,7 @@ $('body').on('click.ed.filter.category.navigation', '[data-category-filter] [dat
 
 	this.doneLoading = function() {
 		categoryGroup.removeClass('t-d--none');
-		categoryContainer.removeClass('is-loading');		
+		categoryContainer.removeClass('is-loading');
 	}
 
 	this.hideParents = function() {
@@ -191,6 +192,8 @@ $('body').on('click.ed.filter.category.navigation', '[data-category-filter] [dat
 		self.hideSiblingsAndSelf();
 
 		nestedList.removeClass('t-d--none');
+		cPS.update();
+
 		return;
 	}
 
@@ -205,17 +208,12 @@ $('body').on('click.ed.filter.category.navigation', '[data-category-filter] [dat
 		self.hideSiblingsAndSelf();
 
 		parent.append(contents);
-
-		// Make sure to scroll back to the top
-		categoryContainer[0].scrollTop = 0;
+		cPS.update();
 	})
 	.always(function() {
 		self.doneLoading();
 	});
-
 });
-
-
 
 /**
  * Handles click events for each filter item

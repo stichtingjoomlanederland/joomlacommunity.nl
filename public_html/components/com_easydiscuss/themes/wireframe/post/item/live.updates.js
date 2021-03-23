@@ -45,32 +45,10 @@ ed.require(['edq', 'easydiscuss', 'eventsource', 'toastr'], function($, EasyDisc
 		toastr.custom(message);
 	};
 
-	// Get the current question and replies id on the page
-	var ids = [];
-	ids.push(id);
-
-	postWrapper.find('[data-ed-reply-item]').each(function() {
-		var replyId = $(this).data('id');
-
-		ids.push(replyId);
-	});
-
-	var url = window.ed_site + 'index.php?option=com_easydiscuss&view=post&layout=updates&mode=SSE&ids=' + ids;
-	var sse = new EventSource(url);
-	var isAsc = <?php echo $this->config->get('main_comment_ordering') == 'asc' ? 1 : 0; ?>;
-	var replyList = postWrapper.find('[data-ed-post-replies]');
-
-	// The current values
-	var answerWrapper = postWrapper.find('[data-ed-post-answer-wrapper]');
-	var hasAnswer = answerWrapper.find('.is-answer').length > 0 ? true : false;
-	var currentAnswerId = hasAnswer ? answerWrapper.find('[data-ed-reply-item]').data('id') : 0;
-
-	// Get the live updates of the discussion entry
-	sse.addEventListener('updates', function(event) {
-		var data = JSON.parse(event.data);
-
+	var updates = function(data) {
 		data.forEach(function(obj) {
 			var data = JSON.parse(obj);
+
 			var replyWrapper = postWrapper.find('[data-ed-post-replies-wrapper]');
 			var commentWrapper = postWrapper.find('[data-ed-comments-wrapper][data-id="' + data.id + '"]');
 			var commentList = commentWrapper.find('[data-ed-comment-list]');
@@ -163,5 +141,54 @@ ed.require(['edq', 'easydiscuss', 'eventsource', 'toastr'], function($, EasyDisc
 				}
 			}
 		});
+	};
+
+	// Get the current question and replies id on the page
+	var ids = [];
+	ids.push(id);
+
+	postWrapper.find('[data-ed-reply-item]').each(function() {
+		var replyId = $(this).data('id');
+
+		ids.push(replyId);
 	});
+
+	var isAsc = <?php echo $this->config->get('main_comment_ordering') == 'asc' ? 1 : 0; ?>;
+	var replyList = postWrapper.find('[data-ed-post-replies]');
+
+	// The current values
+	var answerWrapper = postWrapper.find('[data-ed-post-answer-wrapper]');
+	var hasAnswer = answerWrapper.find('.is-answer').length > 0 ? true : false;
+	var currentAnswerId = hasAnswer ? answerWrapper.find('[data-ed-reply-item]').data('id') : 0;
+
+	<?php if ($this->config->get('system_single_polling')) { ?>
+	var url = window.ed_site + 'index.php?option=com_easydiscuss&view=post&layout=updates&mode=SSE&ids=' + ids;
+	var sse = new EventSource(url);
+
+	// Get the live updates of the discussion entry
+	sse.addEventListener('updates', function(event) {
+		var data = JSON.parse(event.data);
+
+		// Perform the updates
+		updates(data);
+	});
+	<?php } else { ?>
+		var interval = <?php echo (int) $this->config->get('system_polling_interval'); ?>;
+
+		// Just in case, the user set it to zero, we set it to 5 seconds
+		if (!interval) {
+			interval = 5;
+		}
+
+		setInterval(function() {
+			EasyDiscuss.ajax('site/views/post/updates', {
+				"ids": ids,
+				"interval": interval
+			}).done(function(obj) {
+				ids = obj.ids;
+
+				updates(obj.data);
+			});
+		}, interval * 1000);
+	<?php } ?>
 });

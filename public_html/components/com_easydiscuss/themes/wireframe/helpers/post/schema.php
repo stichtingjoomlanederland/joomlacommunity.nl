@@ -19,7 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	"mainEntity": {
 		"@type": "Question",
 		"name": "<?php echo $this->html('string.escape', $post->getTitle());?>",
-		"text": "<?php echo ED::normalizeSchema($post->getContent(false, false, false, false)); ?>",
+		"text": "<?php echo ED::normalizeSchema($post->getContent(false, false, false, false, false, true)); ?>",
 		"editor": "<?php echo $post->getAuthor()->nickname;?>",
 		"genre": "<?php echo $post->getCategory()->getTitle();?>",
 		"publisher": {

@@ -242,11 +242,13 @@ class EasyDiscussModelPostTypes extends EasyDiscussAdminModel
 			$query[] = 'a.' . $db->qn('published') . '=' . $db->Quote(1);
 			$query[] = 'AND';
 			$query[] = 'b.' . $db->qn('category_id') . ' = ' . $db->Quote($categoryId);
+			$query[] = 'OR';
+			$query[] = 'a.' . $db->qn('type') . '=' . $db->Quote('global');
 
-		// index and tag view	
+		// index and tag view
 		} else {
 			$query[] = 'WHERE';
-			$query[] = 'a.' . $db->qn('published') . '=' . $db->Quote(1);			
+			$query[] = 'a.' . $db->qn('published') . '=' . $db->Quote(1);
 		}
 
 		$query[] = 'ORDER BY `lft` ' . $order;

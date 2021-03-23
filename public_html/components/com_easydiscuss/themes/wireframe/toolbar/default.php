@@ -284,7 +284,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<?php } ?>
 
 								<div class="ed-toolbar-profile-info">
-									<div class="o-media o-media--rev t-mb--sm">
+									<div class="o-media o-media--rev">
 										<div class="o-media__body o-media__body--text-overflow">
 
 											<?php echo $this->html('user.username', $this->profile, array()); ?>
@@ -495,7 +495,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 			<?php } ?>
 
-			<?php if ($showNavigationMenu && $this->isMobile()) { ?>
+			<?php if ($showNavigationMenu && $this->isMobile() || $this->isTablet()) { ?>
 			<div class="o-nav__item ed-toolbar__item--mobile-toggle">
 				<a href="#ed-canvas" class="o-nav__link ed-toolbar__link" data-ed-toolbar-toggle>
 					<i class="fa fa-bars"></i>
@@ -540,66 +540,69 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</a>
 					</li>
 					<?php } ?>
-					<li class="mm-divider">
-						<?php echo JText::_("COM_EASYDISCUSS_ACCOUNT");?>
-					</li>
+					
+					<?php if ($this->my->id) { ?>
+						<li class="mm-divider">
+							<?php echo JText::_("COM_EASYDISCUSS_ACCOUNT");?>
+						</li>
 
-					<li>
-						<a href="<?php echo $this->profile->getEditProfileLink();?>">
-							<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_EDIT_PROFILE'); ?>
-						</a>
-					</li>
-
-					<li>
-						<a href="<?php echo $this->profile->getPermalink();?>">
-							<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_PROFILE'); ?>
-						</a>
-					</li>
-
-					<li class="ed-toolbar-dropdown-nav__item ">
-						<a href="<?php echo EDR::_('view=mypost');?>">
-							<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_POSTS'); ?>
-						</a>
-					</li>
-
-					<?php if (ED::isModerator()) { ?>
 						<li>
-							<a href="<?php echo EDR::_('view=assigned');?>"  class="ed-toolbar-dropdown-nav__link">
-								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_ASSIGNED_POSTS'); ?>
+							<a href="<?php echo $this->profile->getEditProfileLink();?>">
+								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_EDIT_PROFILE'); ?>
 							</a>
 						</li>
-					<?php } ?>
 
-					<?php if ($this->config->get('main_favorite')) { ?>
 						<li>
-							<a href="<?php echo EDR::_('view=favourites');?>">
-								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_FAVOURITES'); ?>
+							<a href="<?php echo $this->profile->getPermalink();?>">
+								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_PROFILE'); ?>
 							</a>
 						</li>
-					<?php } ?>
 
-					<?php if ($showManageSubscription) { ?>
-						<li>
-							<a href="<?php echo EDR::_('view=subscription');?>">
-								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_SUBSCRIPTION'); ?>
+						<li class="ed-toolbar-dropdown-nav__item ">
+							<a href="<?php echo EDR::_('view=mypost');?>">
+								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_POSTS'); ?>
 							</a>
 						</li>
-					<?php } ?>
 
-					<?php if ($this->acl->allowed('manage_pending') || ED::isSiteAdmin()) { ?>
-						<li>
-							<a href="<?php echo EDR::_('view=dashboard');?>">
-								<?php echo JText::_('COM_ED_MANAGE_SITE');?>
-							</a>
-						</li>
-					<?php } ?>
+						<?php if (ED::isModerator()) { ?>
+							<li>
+								<a href="<?php echo EDR::_('view=assigned');?>"  class="ed-toolbar-dropdown-nav__link">
+									<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_ASSIGNED_POSTS'); ?>
+								</a>
+							</li>
+						<?php } ?>
 
-					<?php if (ED::easyblog()->hasToolbar()) { ?>
-						<?php echo ED::easyblog()->getToolbarDropdown(); ?>
-					<?php } ?>
+						<?php if ($this->config->get('main_favorite')) { ?>
+							<li>
+								<a href="<?php echo EDR::_('view=favourites');?>">
+									<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_FAVOURITES'); ?>
+								</a>
+							</li>
+						<?php } ?>
 
-					<?php if (ED::easysocial()->hasToolbar()) { ?>
-						<?php echo ED::easysocial()->getToolbarDropdown(); ?>
+						<?php if ($showManageSubscription) { ?>
+							<li>
+								<a href="<?php echo EDR::_('view=subscription');?>">
+									<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_MY_SUBSCRIPTION'); ?>
+								</a>
+							</li>
+						<?php } ?>
+
+						<?php if ($this->acl->allowed('manage_pending') || ED::isSiteAdmin()) { ?>
+							<li>
+								<a href="<?php echo EDR::_('view=dashboard');?>">
+									<?php echo JText::_('COM_ED_MANAGE_SITE');?>
+								</a>
+							</li>
+						<?php } ?>
+
+						<?php if (ED::easyblog()->hasToolbar()) { ?>
+							<?php echo ED::easyblog()->getToolbarDropdown(); ?>
+						<?php } ?>
+
+						<?php if (ED::easysocial()->hasToolbar()) { ?>
+							<?php echo ED::easysocial()->getToolbarDropdown(); ?>
+						<?php } ?>
 					<?php } ?>
 				</ul>
 			</nav>

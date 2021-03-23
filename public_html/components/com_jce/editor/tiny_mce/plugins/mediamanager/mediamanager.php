@@ -250,11 +250,11 @@ class WFMediaManagerPlugin extends WFMediaManager
             'vimeo' => 'https://vimeo.com/api/oembed.json?url=',
             'dailymotion' => 'http://www.dailymotion.com/services/oembed?url=',
             'scribd' => 'https://www.scribd.com/services/oembed/?format=json&url=',
-            'facebook' => array(
+            /*'facebook' => array(
                 'posts' => 'https://www.facebook.com/plugins/post/oembed.json?url=',
                 'videos' => 'https://www.facebook.com/plugins/video/oembed.json?url=',
             ),
-            'instagram' => 'https://api.instagram.com/oembed?url=',
+            'instagram' => 'https://api.instagram.com/oembed?url=',*/
             'reddit' => 'https://www.reddit.com/oembed?url=',
             'slideshare' => 'https://www.slideshare.net/api/oembed/2?format=json&url=',
             'soundcloud' => 'https://soundcloud.com/oembed?format=json&url=',

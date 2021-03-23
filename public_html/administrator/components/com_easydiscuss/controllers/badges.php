@@ -163,7 +163,7 @@ class EasyDiscussControllerBadges extends EasyDiscussController
 	public function massAssign()
 	{
 		// Get the file from the request
-		$file = $this->input->get('package', '', 'FILES');
+		$file = $this->input->files->get('package', '');
 
 		// Get the data from the file.
 		$data = ED::parseCSV($file['tmp_name'], false, false);

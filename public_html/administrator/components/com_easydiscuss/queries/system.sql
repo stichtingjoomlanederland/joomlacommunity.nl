@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS`#__discuss_configs` (
   `name` VARCHAR(100) ,
   `params` TEXT ,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_mailq` (
   `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `#__discuss_mailq` (
   PRIMARY KEY  (`id`),
   KEY `discuss_mailq_status` (`status`),
   KEY `idx_mailq_pending` (`status`, `created`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_hashkeys` (
   `id` bigint(11) NOT NULL auto_increment,
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `#__discuss_hashkeys` (
   `key` text NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `uid` (`uid`),
-  KEY `type` (`type`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `type` (`type` (190))
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_migrators` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS `#__discuss_migrators` (
   `type` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_external_id` ( `external_id` )
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_views` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS `#__discuss_views` (
   `ip` varchar(20) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_id` (`user_id`),
-  KEY `hash` (`hash`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `hash` (`hash` (190))
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_favourites` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `#__discuss_favourites` (
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_fav_postid` (`post_id`)
-) ENGINE=MYISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+)  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_roles` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -72,14 +72,14 @@ CREATE TABLE IF NOT EXISTS `#__discuss_roles` (
   `created_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `created_user_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+) DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_captcha` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `response` varchar(5) NOT NULL,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+)  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_subscription` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS `#__discuss_subscription` (
   KEY `idx_cron` (`state`, `type`, `interval`),
   KEY `idx_email_cron` (`state`, `type` (25), `interval` (25), `email`),
   KEY `idx_sentout` (`sent_out`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_languages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `#__discuss_languages` (
   `progress` int(11) NOT NULL,
   `params` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+)  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_external_groups` (
   `id` bigint(20) NOT NULL auto_increment,
@@ -122,8 +122,8 @@ CREATE TABLE IF NOT EXISTS `#__discuss_external_groups` (
   KEY `external_groups_post_id` (`post_id`),
   KEY `external_groups_group_id` (`group_id`),
   KEY `external_groups_posts` (`group_id`, `post_id`),
-  KEY `external_groups` (`source`, `group_id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8;
+  KEY `external_groups` (`source` (180), `group_id`)
+)  DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_download` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS `#__discuss_download` (
   KEY `idx_userid` (`userid`),
   KEY `idx_state` (`state`),
   KEY `idx_created` (`created`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `#__discuss_sync_request` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
@@ -144,5 +144,19 @@ CREATE TABLE IF NOT EXISTS `#__discuss_sync_request` (
   `total` int(11) NOT NULL default 0,
   `created` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_command` (`command` (191))
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `idx_command` (`command` (190))
+) DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `#__discuss_packages` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) NOT NULL,
+  `group` varchar(255) NOT NULL,
+  `element` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `description` text NOT NULL,
+  `updated` datetime NOT NULL,
+  `state` tinyint(3) NOT NULL,
+  `version` varchar(255) NOT NULL,
+  `params` text NOT NULL,
+  PRIMARY KEY (`id`)
+) DEFAULT CHARSET=utf8mb4;

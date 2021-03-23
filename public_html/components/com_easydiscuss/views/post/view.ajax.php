@@ -1329,9 +1329,6 @@ class EasyDiscussViewPost extends EasyDiscussView
 	{
 		$id = $this->input->get('id', 0, 'int');
 
-		// $model = ED::model('Posts');
-		// $posts = $model->getDiscussions(array('limit' => DISCUSS_NO_LIMIT, 'exclude' => array($id)));
-
 		$theme = ED::themes();
 		$theme->set('id', $id);
 		$contents = $theme->output('site/post/dialogs/branch');
@@ -1540,5 +1537,48 @@ class EasyDiscussViewPost extends EasyDiscussView
 		$html = $composer->renderTabs($categoryId);
 
 		return $this->ajax->resolve($html);
+	}
+
+	/**
+	 * Displays confirmation to duplicate a post
+	 *
+	 * @since   5.0.3
+	 * @access  public
+	 */
+	public function duplicate()
+	{
+		$id = $this->input->get('id', 0, 'int');
+
+		$theme = ED::themes();
+		$theme->set('id', $id);
+
+		$content = $theme->output('site/post/dialogs/duplicate');
+
+		return $this->ajax->resolve($content);
+	}
+
+	/**
+	 * Perform live update for the post via ajax
+	 *
+	 * @since   5.0.3
+	 * @access  public
+	 */
+	public function updates()
+	{
+		if (!$this->config->get('layout_post_liveupdates') || $this->config->get('system_single_polling') || !$this->my->id) {
+
+			return $this->ajax->reject('COM_EASYDISCUSS_FEATURE_IS_DISABLED');
+		}
+
+		$ids = $this->input->get('ids', '', 'array');
+		$interval = $this->input->get('interval', 0, 'int');
+
+		$from = ED::date()->toSql();
+		$from = date("Y-m-d H:i:s", (strtotime($from) - $interval));
+
+		$lu = ED::liveupdates();
+		$updates = $lu->updates($ids, null, null, $from);
+
+		return $this->ajax->resolve($updates);
 	}
 }

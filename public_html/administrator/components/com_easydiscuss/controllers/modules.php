@@ -46,14 +46,14 @@ class EasyDiscussControllerModules extends EasyDiscussController
 
 		// Do something if we are unable to retrieve the full manifest list
 		if (!$manifest) {
-			return $this->ajax->reject($result->message);
+			return $this->ajax->reject('Something went awry while fetching the manifest list. Please contact our support team for more information.');
 		}
 
 		// Decode the result
 		if ($manifest->state != 200) {
 			$return = base64_encode('index.php?option=com_easysocial&view=modules');
 
-			return $this->ajax->reject($result->error);
+			return $this->ajax->reject('Something went awry while fetching the manifest list. Please contact our support team for more information.');
 		}
 
 		return $this->ajax->resolve();
@@ -76,7 +76,7 @@ class EasyDiscussControllerModules extends EasyDiscussController
 			$state = $package->install();
 
 			if (!$state) {
-				ED::setMessage($package->getError(), 'error');
+				ED::setMessage($package->getError(), 'danger');
 
 				return $this->redirectToView('modules');
 			}

@@ -33,7 +33,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="o-card o-card--ed-entry-item">
 		<div class="o-card__body">
 			<div class="l-stack">
-				
+
 				<div class="lg:t-d--flex t-align-items--c">
 					<div class="t-flex-grow--1">
 						<div class="ed-post-status-bar o-body">
@@ -69,7 +69,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</div>
 						</div>
 					</div>
-					
+
 				</div>
 
 				<h2 class="o-title">
@@ -86,14 +86,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<div class="t-min-width--0" data-category data-id="<?php echo $post->getCategory()->id; ?>">
 								<?php echo $this->html('post.category', $post->getCategory()); ?>
 							</div>
-							
+
 							<?php echo $this->html('post.author', $post); ?>
 
 							<div>
 								<i class="far fa-clock"></i>&nbsp; <?php echo $post->date;?>
 							</div>
 
-							<?php if ((!$post->isLocked() || ED::isModerator($post->category_id)) && $post->getCategory()->canViewReplies()) { ?>
+							<?php if ((!$post->isLocked() || ED::isModerator($post->category_id))) { ?>
 							<div>
 								<i class="far fa-comments"></i>&nbsp; <?php echo JText::sprintf('COM_ED_META_REPLIES', '<span data-ed-post-reply-counter>' . ED::formatNumbers($post->getTotalReplies()) . '</span>');?>
 							</div>
@@ -145,7 +145,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->html('post.location', $post); ?>
 
 				<?php echo $this->html('triggers.html', 'easydiscuss', 'onAfterPostContent', array(&$post)); ?>
-				
+
 				<?php if ($this->config->get('main_master_tags') && $tags) { ?>
 				<div class="o-meta-tag l-cluster l-spaces--sm">
 					<div class="">
@@ -218,7 +218,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php if ($sort == 'latest') { ?>
 							<?php echo JText::_('COM_ED_SORT_NEWEST_FIRST');?>
 						<?php } ?>
-					</span> 
+					</span>
 					&nbsp;<i class="fa fa-sort"></i>
 				</a>
 				<ul class="o-dropdown-menu t-mt--2xs sm:t-w--100 has-active-markers">
@@ -301,8 +301,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $pagination->getPagesLinks('post', $pageLinkOptions, true);?>
 				</div>
 			<?php } ?>
-			
-			<?php echo $this->html('card.empty', 'fa fa-comments', $emptyMessage); ?>
+
+			<?php echo $this->html('card.empty', 'fa fa-comments', $emptyMessage, false); ?>
 		</div>
 
 		<?php echo ED::renderModule('easydiscuss-after-replies'); ?>
@@ -323,10 +323,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo JText::_('COM_EASYDISCUSS_POST_IS_CURRENTLY_LOCKED'); ?>
 				<?php } ?>
 			</div>
-			
+
 		</div>
 	</div>
-	
+
 	<?php } ?>
 
 	<div class="ed-post-reply-form" data-ed-post-reply-form>

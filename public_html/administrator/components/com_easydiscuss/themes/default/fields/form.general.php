@@ -15,7 +15,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<div class="col-md-6">
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_CUSTOMFIELDS_MAIN_TITLE'); ?>
-			
+
 			<div class="panel-body">
 				<div class="o-form-horizontal">
 					<?php echo $this->html('forms.dropdown', 'type', 'COM_EASYDISCUSS_CUSTOMFIELDS_TYPE', $field->type,
@@ -41,6 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 					<?php echo $this->html('forms.toggle', 'published', 'COM_EASYDISCUSS_CUSTOMFIELDS_PUBLISHED', $field->published); ?>
 					<?php echo $this->html('forms.toggle', 'required', 'COM_EASYDISCUSS_CUSTOMFIELDS_REQUIRED', $field->required); ?>
+					<?php echo $this->html('forms.toggle', 'global', 'COM_EASYDISCUSS_CUSTOMFIELDS_GLOBAL', $field->global); ?>
 				</div>
 			</div>
 		</div>

@@ -578,7 +578,6 @@ class UsersController extends acymController
         if (!file_exists(ACYM_MEDIA.'import'.DS.$filename.'.csv')) {
             return;
         }
-        acym_noTemplate();
         $exportHelper = new ExportHelper();
         $exportHelper->setDownloadHeaders($filename);
         echo file_get_contents(ACYM_MEDIA.'import'.DS.$filename.'.csv');

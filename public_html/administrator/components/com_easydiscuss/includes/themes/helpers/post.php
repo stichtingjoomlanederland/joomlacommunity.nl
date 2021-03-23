@@ -64,7 +64,8 @@ class EasyDiscussThemesHelperPost extends EasyDiscussHelperAbstract
 			}
 		}
 
-		if (!isset($cache[$key])) {
+		// Do not cache the guest as there might have different guests posted
+		if (!isset($cache[$key]) || !$key) {
 			$theme = ED::themes();
 			$theme->set('user', $user);
 			$theme->set('post', $post);

@@ -214,8 +214,12 @@ class plgSystemAcymtriggers extends JPlugin
         $body = JResponse::getBody();
 
         $listsPosition = $config->get('regacy_listsposition', 'password');
+
+        if ($options['baseOption'] != 'regacy') $listsPosition = $config->get($options['baseOption'].'_regacy_listsposition', 'password');
+
         if ('custom' === $listsPosition) {
-            $listAfter = explode(';', str_replace(['\\[', '\\]'], ['[', ']'], $config->get('regacy_listspositioncustom')));
+            $customOptionName = $options['baseOption'] == 'regacy' ? 'regacy_listspositioncustom' : $options['baseOption'].'_regacy_listspositioncustom';
+            $listAfter = explode(';', str_replace(['\\[', '\\]'], ['[', ']'], $config->get($customOptionName)));
             $after = empty($listAfter) ? $options['password'] : $listAfter;
         } elseif (!empty($options[$listsPosition])) {
             $after = $options[$listsPosition];

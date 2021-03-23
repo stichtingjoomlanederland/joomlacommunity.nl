@@ -46,14 +46,15 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<div class="panel-body">
 				<div class="o-form-horizontal">
+					
 					<?php echo $this->html('forms.dropdown', 'type', 'COM_EASYDISCUSS_POST_TYPES_ASSOCIATION_TYPE', $postTypes->type,
 						array(
 							'global' => 'COM_EASYDISCUSS_POST_TYPES_ASSOCIATION_GLOBAL',
 							'category' => 'COM_EASYDISCUSS_POST_TYPES_ASSOCIATION_CATEGORY'
-						)
-					); ?>
+						), 'data-association-type');
+					?>
 
-					<div class="o-form-group <?php echo !$postTypes->type || $postTypes->type == 'global' ? ' hide' : '';?>" data-type-category>
+					<div class="o-form-group <?php echo !$postTypes->type || $postTypes->type == 'global' ? ' t-hidden' : '';?>" data-type-category>
 						<div class="col-md-5 o-form-label">
 							<?php echo $this->html('form.label', 'COM_EASYDISCUSS_POST_TYPES_SELECT_CATEGORIES'); ?>
 						</div>

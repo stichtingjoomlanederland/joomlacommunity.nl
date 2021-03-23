@@ -44,10 +44,20 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 
+		<div class="panel">
+			<?php echo $this->html('panel.head', 'COM_ED_SETTINGS_POLLING'); ?>
+
+			<div class="panel-body">
+				<div class="o-form-horizontal">
+					<?php echo $this->html('settings.toggle', 'system_single_polling', 'COM_ED_SETTINGS_SINGLE_POLLING'); ?>
+
+					<?php echo $this->html('settings.textbox', 'system_polling_interval', 'COM_ED_SETTINGS_POLLING_INTERVAL', '', ['size' => 7, 'postfix' => 'COM_EASYDISCUSS_SECONDS'], 'COM_ED_SETTINGS_POLLING_INTERVAL_INFO', '', 'text-center'); ?>
+				</div>
+			</div>
+		</div>
 	</div>
 
 	<div class="col-md-6">
-
 		<div class="panel">
 			<?php echo $this->html('panel.head', 'COM_EASYDISCUSS_CLEANUP'); ?>
 
@@ -70,5 +80,4 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 		</div>
 	</div>
-
 </div>

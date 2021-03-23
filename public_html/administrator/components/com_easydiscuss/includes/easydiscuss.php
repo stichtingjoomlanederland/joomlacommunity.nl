@@ -5153,8 +5153,10 @@ class ED
 	  * @since	5.0.0
 	  * @access	public
 	  */
-	 public static function normalizeSchema($schemaContent)
-	 {
+	public static function normalizeSchema($schemaContent)
+	{
+		$schemaContent = self::remove3rdPartyTags($schemaContent);
+
 		// Converts characters to HTML entities
 		$schemaContent = htmlentities($schemaContent, ENT_QUOTES);
 
@@ -5162,7 +5164,65 @@ class ED
 		$schemaContent = stripslashes($schemaContent);
 
 		return $schemaContent;
-	 }
+	}
+
+	/**
+	 * Remove known 3rd party tags from the content
+	 *
+	 * @since	5.0.3
+	 * @access	public
+	 */
+	private static function remove3rdPartyTags($content)
+	{
+		// E.g. {imageshow sl=90 sc=17 /}
+		$imageshow = '/{imageshow\s(.*?)\s\/}/i';
+
+		// E.g. {rsform 87}
+		$rsform = '/{rsform\s(.*?)}/i';
+
+		// {module 3}
+		// {module Main Menu}
+		// {module title="Main Menu" style="well"}.
+		$module = '/{module\s(.*?)}/i';
+
+		// {modulepos mainmenu}
+		$modulepos = '/{modulepos\s(.*?)}/i';
+
+		preg_match_all($imageshow, $content, $matchesImageshow, PREG_SET_ORDER);
+		preg_match_all($rsform, $content, $matchesRsform, PREG_SET_ORDER);
+		preg_match_all($module, $content, $matchesModule, PREG_SET_ORDER);
+		preg_match_all($modulepos, $content, $matchesModulepos, PREG_SET_ORDER);
+
+		// Removing matched imageshow tag
+		if ($matchesImageshow) {
+			foreach ($matchesImageshow as $match) {
+				$content = str_replace($match[0], '', $content);
+			}
+		}
+
+		// Removing matched rsform tag
+		if ($matchesRsform) {
+			foreach ($matchesRsform as $match) {
+				$content = str_replace($match[0], '', $content);
+			}
+		}
+
+		// Removing matched module tag
+		if ($matchesModule) {
+			foreach ($matchesModule as $match) {
+				$content = str_replace($match[0], '', $content);
+			}
+		}
+
+		// Removing matched modulepos tag
+		if ($matchesModulepos) {
+			foreach ($matchesModulepos as $match) {
+				$content = str_replace($match[0], '', $content);
+			}
+		}
+
+		return $content;
+	}
 
 	/**
 	 * Set the SEE header

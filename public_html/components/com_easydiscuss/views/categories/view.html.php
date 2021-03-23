@@ -136,6 +136,10 @@ class EasyDiscussViewCategories extends EasyDiscussView
 			$this->setPathway(JText::_('COM_EASYDISCUSS_FORUMS_BREADCRUMB_LAYOUT'));
 		}
 
+		// Add canonical tag for this page
+		$this->canonical('view=categories&layout=listings&category_id=' . $activeCategory->id);
+
+
 		$activeSort = $this->input->get('sort', $registry->get('sort'), 'string');
 		$activeFilter = $this->input->get('filter', 'all', 'string');
 

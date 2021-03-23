@@ -41,27 +41,11 @@ function acym_modalInclude($button, $file, $id, $data, $attributes = '', $classM
     return $modal;
 }
 
-function acym_modal_pagination_lists($button, $class, $textButton = null, $id = null, $attributes = '', $inputEventId = "", $checkedLists = "[]", $needDisplaySubscribers = false, $attributesModal = '')
+function acym_modalPaginationLists($inputEventId = '', $checkedLists = '[]', $needDisplaySubscribers = false, $attributesModal = '')
 {
-    return acym_modalPaginationLists(
-        $button,
-        $class,
-        $textButton = null,
-        $id = null,
-        $attributes = '',
-        $inputEventId = "",
-        $checkedLists = "[]",
-        $needDisplaySubscribers = false,
-        $attributesModal = ''
-    );
-}
+    $searchField = acym_filterSearch('', 'modal_search_lists');
 
-function acym_modalPaginationLists($button, $class, $textButton = null, $id = null, $attributes = '', $inputEventId = "", $checkedLists = "[]", $needDisplaySubscribers = false, $attributesModal = '')
-{
-    $searchField = acym_filterSearch('', 'modal_search_lists', 'ACYM_SEARCH');
-
-    $data = "";
-
+    $data = '';
     if (!empty($inputEventId)) {
         $data .= '<input type="hidden" id="'.$inputEventId.'">';
     }
@@ -74,12 +58,12 @@ function acym_modalPaginationLists($button, $class, $textButton = null, $id = nu
             <input type="hidden" id="modal__pagination__search__lists">
             <input type="hidden" name="lists_selected" id="acym__modal__lists-selected" value="'.acym_escape($checkedLists).'">
             <div class="cell grid-x">
-                <h4 class="cell text-center acym__modal__pagination__title">'.acym_translation('ACYM_CHOOSE_LISTS').'</h4>
+                <h4 class="cell text-center acym__title acym__title__secondary">'.acym_translation('ACYM_CHOOSE_LISTS').'</h4>
             </div>
             <div class="cell grid-x modal__pagination__search">
                 '.$searchField.'
             </div>
-            <div class="cell text-center" id="modal__pagination__search__spinner" style="display: none">
+            <div class="cell text-center padding-top-1" id="modal__pagination__search__spinner" style="display: none">
                 <i class="acymicon-circle-o-notch acymicon-spin"></i>
             </div>
             <div class="cell medium-6 modal__pagination__show">

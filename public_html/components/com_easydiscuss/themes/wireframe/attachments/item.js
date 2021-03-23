@@ -36,6 +36,7 @@ ed.require(['edq', 'easydiscuss', 'jquery.fancybox'], function($, EasyDiscuss) {
 		infobar: false,
 		animationEffect: false,
 		transitionEffect: false,
+		arrows: true,
 		buttons: [
 			'download',
 			'close',

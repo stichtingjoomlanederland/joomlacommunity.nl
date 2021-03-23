@@ -187,7 +187,7 @@ class EasyDiscussGdprPost extends EasyDiscussGdprAbstract
 		// We do not want to preprocessing the attachment
 		$content = $post->getContent(false, true, false);
 		$content = ED::parser()->convert2validImgLink($content);
-		$content = ED::parser()->normliseBBCode($content);
+		$content = ED::parser()->normaliseBBCode($content);
 
 		$content = $this->processAttachments($content, $post, $item);
 

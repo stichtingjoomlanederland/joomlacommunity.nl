@@ -250,11 +250,6 @@
 
             <?php
             if ('joomla' === ACYM_CMS) {
-                $options = [
-                    acym_selectOption('email', 'ACYM_EMAIL'),
-                    acym_selectOption('password', 'ACYM_SMTP_PASSWORD'),
-                    acym_selectOption('custom', 'ACYM_CUSTOM_FIELD'),
-                ];
                 ?>
 				<div class="cell xlarge-3 medium-5">
 					<label for="acym__config__regacy-listsposition">
@@ -264,7 +259,7 @@
 				<div class="cell xlarge-4 medium-7">
                     <?php
                     echo acym_select(
-                        $options,
+                        acym_getOptionRegacyPosition(),
                         'config[regacy_listsposition]',
                         $this->config->get('regacy_listsposition', 'password'),
                         'class="acym__select" data-toggle-select="'.acym_escape('{"custom":"#acym__config__regacy__custom-list-position"}').'"',

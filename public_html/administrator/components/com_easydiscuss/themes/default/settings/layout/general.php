@@ -19,7 +19,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="panel-body">
 				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'layout_darkmode', 'COM_ED_USE_DARK_MODE'); ?>
-					<?php echo $this->html('settings.toggle', 'layout_rem', 'COM_ED_USE_REM_SIZE'); ?>
 					<?php echo $this->html('settings.textbox', 'layout_list_limit', 'COM_EASYDISCUSS_LIST_LIMIT', '', array('size' => 7, 'postfix' => 'Posts'), '', '', 'text-center'); ?>
 					<?php echo $this->html('settings.textbox', 'layout_daystostaynew', 'COM_EASYDISCUSS_NUMBER_OF_DAYS_A_POST_STAY_AS_NEW', '', array('size' => 7, 'postfix' => 'Days'), '', '', 'text-center'); ?>
 					<?php echo $this->html('settings.toggle', 'layout_zero_as_plural', 'COM_EASYDISCUSS_SETTINGS_ZERO_AS_PLURAL'); ?>

@@ -100,6 +100,8 @@ final class bfSnapshot
             'kickstartseen'              => (int) $this->kickstartexists(),
             'fpaseen'                    => (int) $this->fpaexists(),
             'userregistrationenabled'    => (int) JComponentHelper::getParams('com_users')->get('allowUserRegistration'),
+            'media_files_folder'         => (string) JComponentHelper::getParams('com_media')->get('file_path'),
+            'media_images_folder'        => (string) JComponentHelper::getParams('com_media')->get('image_path'),
             'has_root_htaccess'          => (int) (file_exists(JPATH_BASE.'/.htaccess') ? 1 : 0),
             'adminhtaccess'              => (int) (file_exists(JPATH_BASE.'/administrator/.htaccess') ? 1 : 0),
             'gzipenabled'                => (int) $this->config->getCfg('gzip', ''),

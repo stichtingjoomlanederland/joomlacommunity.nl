@@ -34,7 +34,9 @@ class PlgSystemJce extends JPlugin
             'mediatype' => $mediatype,
         ));
 
-        $app->redirect($options['url']);
+        if (!empty($options['url'])) {
+            $app->redirect($options['url']);
+        }
     }
 
     private function isEditorEnabled()
@@ -57,16 +59,14 @@ class PlgSystemJce extends JPlugin
     {
         $app = JFactory::getApplication();
 
-        if ($app->input->getCmd('option') == 'com_media') {
-            if ($app->input->getWord('asset') && $app->input->getWord('tmpl') == 'component') {
+        if ($app->input->getCmd('option') == 'com_jce' && $app->input->getCmd('task') == 'mediafield.display' && $app->input->get('fieldid')) {
+            
+            if ($this->isEditorEnabled()) {
+                $params = JComponentHelper::getParams('com_jce');
 
-                if ($this->isEditorEnabled()) {
-                    $params = JComponentHelper::getParams('com_jce');
-
-                    if ((bool) $params->get('replace_media_manager', 1) == true) {
-                        // redirect to file browser
-                        $this->redirectMedia();
-                    }
+                if ((bool) $params->get('replace_media_manager', 1) == true) {
+                    // redirect to file browser
+                    $this->redirectMedia();
                 }
             }
         }

@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.12.24168
+ * @version         21.2.23991
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -37,11 +37,12 @@ class Article
 	 */
 	public static function get($id = null, $get_unpublished = false, $selects = [])
 	{
-		$id = ! empty($id) ? $id : (int) self::getId();
+		$id       = ! empty($id) ? $id : (int) self::getId();
+		$cache_id = md5(json_encode([$id, $get_unpublished, $selects]));
 
-		if (isset(self::$articles[$id]))
+		if (isset(self::$articles[$cache_id]))
 		{
-			return self::$articles[$id];
+			return self::$articles[$cache_id];
 		}
 
 		$db   = JFactory::getDbo();
@@ -156,9 +157,9 @@ class Article
 			$data->metadata = new Registry($data->metadata);
 		}
 
-		self::$articles[$id] = $data;
+		self::$articles[$cache_id] = $data;
 
-		return self::$articles[$id];
+		return self::$articles[$cache_id];
 	}
 
 	/**

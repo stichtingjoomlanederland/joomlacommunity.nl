@@ -7,6 +7,7 @@ use AcyMailing\Classes\ListClass;
 use AcyMailing\Classes\MailClass;
 use AcyMailing\Classes\UrlClass;
 use AcyMailing\Helpers\EncodingHelper;
+use AcyMailing\Helpers\ExportHelper;
 use AcyMailing\Helpers\HeaderHelper;
 use AcyMailing\Helpers\MailerHelper;
 use AcyMailing\Helpers\TabHelper;
@@ -559,6 +560,7 @@ class ConfigurationController extends acymController
         $mailerHelper->Subject = 'Test e-mail from '.ACYM_LIVE;
         $mailerHelper->Body = acym_translation('ACYM_TEST_EMAIL');
         $mailerHelper->SMTPDebug = 1;
+        $mailerHelper->isTest = true;
         if (acym_isDebug()) {
             $mailerHelper->SMTPDebug = 2;
         }
@@ -1110,5 +1112,44 @@ class ConfigurationController extends acymController
         if (empty($data)) acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_RETRIEVE_DATA'), [], false);
 
         acym_sendAjaxResponse('', $data);
+    }
+
+    public function synchonizeExistingUsers()
+    {
+        $sendingMethod = acym_getVar('string', 'sendingMethod', '');
+
+        if (empty($sendingMethod)) acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_FIND_SENDING_METHOD'), [], false);
+        acym_trigger('onAcymSynchonizeExistingeUsers', [$sendingMethod]);
+    }
+
+    function downloadLogFile()
+    {
+        $filename = acym_getVar('string', 'filename');
+
+        if (empty($filename) || !acym_fileNameValid($filename)) {
+            acym_enqueueMessage(acym_translation('ACYM_FILENAME_EMPTY_OR_NOT_VALID'), 'error');
+            $this->listing();
+
+            return;
+        }
+
+        $reportPath = acym_getLogPath($filename);
+
+        if (!file_exists($reportPath)) {
+            acym_enqueueMessage(acym_translation('ACYM_EXIST_LOG'), 'error');
+            $this->listing();
+
+            return;
+        }
+
+        if (ACYM_CMS === 'wordpress') @ob_get_clean();
+        $final = acym_fileGetContent($reportPath);
+        if (substr($filename, -4) === '.txt') {
+            $filename = substr($filename, 0, strlen($filename) - 4);
+        }
+        $exportHelper = new ExportHelper();
+        $exportHelper->setDownloadHeaders($filename, 'txt');
+        echo $final;
+        exit;
     }
 }

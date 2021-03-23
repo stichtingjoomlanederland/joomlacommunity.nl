@@ -223,8 +223,8 @@ class EDR
 	 */
 	public static function _($url = '', $xhtml = true, $ssl = null, $jRouted = true)
 	{
-		static $eUri = array();
-		static $loaded = array();
+		static $eUri = [];
+		static $loaded = [];
 
 		$mainframe = JFactory::getApplication();
 		$config = ED::config();
@@ -327,7 +327,6 @@ class EDR
 
 
 		} else {
-
 			$defaultMenu = self::getMenus('index', null, null, $lang);
 
 			if (!$defaultMenu) {
@@ -496,6 +495,18 @@ class EDR
 					$dropSegment = true;
 				}
 			}
+
+			if ($view == 'profile') {
+				$menu = self::getMenus($view, null, $id, $lang);
+
+				if ($menu) {
+					$tmpId = $menu->id;
+				}
+
+				if (!$id && !$layout && $tmpId) {
+					$dropSegment = true;
+				}
+			}
 		}
 
 		if (!$tmpId){
@@ -522,9 +533,8 @@ class EDR
 		}
 
 		if (self::isSefEnabled() && $dropSegment) {
-
 			$url = 'index.php?Itemid=' . $tmpId;
-			$loaded[$key]	= JRoute::_($url , $xhtml , $ssl);
+			$loaded[$key] = JRoute::_($url , $xhtml , $ssl);
 
 			return $loaded[$key];
 		}
@@ -1762,7 +1772,28 @@ class EDR
 		return false;
 	}
 
-}
+	/**
+	 * Appends a fragment to the url as it would intelligent detect if it should use & or ? to join the query string
+	 *
+	 * @since	5.0.3
+	 * @access	public
+	 */
+	public static function appendFormatToQueryString($url, $format = null)
+	{
+		if (!$format) {
+			return $url;
+		}
 
+		if (self::isSefEnabled()) {
+			$url .= '?format=' . $format;
+
+			return $url;
+		}
+
+		$url .= '&format=' . $format;
+
+		return $url;
+	}
+}
 
 class DiscussRouter extends EDR {}

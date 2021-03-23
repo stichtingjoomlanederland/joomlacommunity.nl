@@ -5,11 +5,10 @@ ed.require(['edq'], function($) {
             return;
         }
 
-        if (action == 'remove') {
-            confirm('<?php echo JText::_("COM_EASYDISCUSS_ARE_YOU_SURE_CONFIRM_DELETE", true); ?>')
+        if (action != 'remove' || confirm('<?php echo JText::_('COM_EASYDISCUSS_ARE_YOU_SURE_CONFIRM_DELETE', true); ?>')) {
+            $.Joomla('submitform', [action]);
         }
 
-        $.Joomla('submitform', [action]);
 	});
 
 });

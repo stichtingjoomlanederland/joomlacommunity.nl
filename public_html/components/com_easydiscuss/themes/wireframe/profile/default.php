@@ -25,11 +25,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</a>
 			</div>
 
+			<?php if ($this->config->get('main_postassignment')) { ?>
 			<div class="o-tabs__item <?php echo $filter == 'assigned' ? 'active' : '';?>" data-ed-tab>
 				<a href="#assigned" class="o-tabs__link" data-ed-toggle="tab" data-filter="assigned">
 					<?php echo JText::_('COM_ED_ASSIGNED');?>
 				</a>
 			</div>
+			<?php } ?>
 
 			<div class="o-tabs__item <?php echo $filter == 'replies' ? 'active' : '';?>" data-ed-tab>
 				<a href="#replies" class="o-tabs__link" data-ed-toggle="tab" data-filter="replies">
@@ -80,6 +82,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
 
+			<?php if ($this->config->get('main_postassignment')) { ?>
 			<div id="assigned" class="tab-pane <?php echo $filter == 'assigned' ? 'active' : '';?>">
 				<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">
 					<?php if ($filter == 'assigned') { ?>
@@ -95,6 +98,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo $this->html('loading.block');?>
 				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
+			<?php } ?>
 
 			<div id="replies" class="tab-pane <?php echo $filter == 'replies' ? 'active' : '';?>">
 				<div class="ed-posts-list l-stack" data-ed-list itemscope itemtype="http://schema.org/ItemList">

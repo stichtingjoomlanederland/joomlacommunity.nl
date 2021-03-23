@@ -33,27 +33,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 						<?php } ?>
 
 						<?php if ($category->totalSubcategories) { ?>
-						<div class="lg:t-d--flex t-align-items--c">
-							<div class="o-body lg:t-mr--md sm:t-mb--md">
+						<div class="ed-subcategories-wrapper">
+							<div class="ed-subcategories lg:t-mr--md sm:t-mb--md">
 								<?php echo JText::sprintf('COM_ED_SUBCATEGORIES_COUNT', $category->totalSubcategories);?>
 							</div>
-							<div class="l-cluster l-spaces--xs">
+							<div class="l-cluster l-cluster--comma-list l-spaces--xs">
 								<div>
 									<?php foreach ($category->childs as $child) { ?>
-									<div>
-										<a href="<?php echo $child->getPermalink();?>"
-											data-ed-popbox="ajax://site/views/popbox/category"
-											data-ed-popbox-position="bottom-left"
-											data-ed-popbox-toggle="hover"
-											data-ed-popbox-offset="4"
-											data-ed-popbox-type="ed-category"
-											data-ed-popbox-component="o-popbox--category"
-											data-ed-popbox-cache="1"
-											data-args-id="<?php echo $child->id; ?>"
-										>
-											<?php echo $this->html('category.identifier', $child, 'sm'); ?>
-										</a>
-									</div>
+										<div><a href="<?php echo $child->getPermalink(); ?>" class="si-link"><?php echo $child->getTitle(); ?></a></div>
 									<?php } ?>
 								</div>
 							</div>

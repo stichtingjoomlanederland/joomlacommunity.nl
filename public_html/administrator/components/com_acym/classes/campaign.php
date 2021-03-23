@@ -801,7 +801,14 @@ class CampaignClass extends acymClass
 
     private function shouldGenerateCampaign($campaign, $campaignMail)
     {
-        $results = acym_trigger('generateByCategory', [&$campaignMail]);
+        $results = acym_trigger(
+            'generateByCategory',
+            [&$campaignMail],
+            null,
+            function ($plugin) {
+                $plugin->generateCampaignResult->status = true;
+            }
+        );
 
         foreach ($results as $oneResult) {
             if (isset($oneResult->status) && !$oneResult->status) {
