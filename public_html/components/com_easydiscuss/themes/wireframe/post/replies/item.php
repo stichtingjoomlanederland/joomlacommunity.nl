@@ -109,7 +109,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<?php echo $this->output('site/post/widgets/polls/default', array('post' => $post)); ?>
 						<?php } ?>
 
-						<?php if ($post->hasAttachments()) { ?>
+						<?php if ($post->hasAttachments() && $this->acl->allowed('download_attachment')) { ?>
 							<?php echo $this->output('site/post/widgets/attachments/default', array('post' => $post)); ?>
 						<?php } ?>
 
@@ -138,7 +138,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php } ?>
 			</div>
 
-			<?php if ($this->config->get('main_commentpost')) { ?>
+			<?php if ($this->config->get('main_comment')) { ?>
 				<?php echo $this->output('site/comments/default', array('post' => $post)); ?>
 			<?php } ?>
 		</div>

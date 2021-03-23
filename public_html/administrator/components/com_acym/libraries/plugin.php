@@ -48,6 +48,9 @@ class acymPlugin extends acymObject
     var $customOptions = [];
     var $sendingPlugins = [];
     private $subCategories;
+    var $errors = [];
+
+    var $logFilename = '';
 
     public function __construct()
     {
@@ -77,6 +80,8 @@ class acymPlugin extends acymObject
         $this->sendingPlugins = [
             'wp_mail_smtp' => 'WP Mail SMTP',
         ];
+
+        $this->logFilename = (empty($this->name) ? get_class($this) : $this->name).'.txt';
     }
 
     protected function displaySelectionZone($zoneContent)
@@ -1127,5 +1132,26 @@ class acymPlugin extends acymObject
         foreach ($data['sendingMethods'] as $key => $sendingMethod) {
             $data['sendingMethods'][$key]['selected'] = $key == $mailerMethod;
         }
+    }
+
+    public function errorCallback()
+    {
+        $reportPath = acym_getLogPath($this->logFilename, true);
+
+        $lr = "\r\n";
+        file_put_contents(
+            $reportPath,
+            $lr.$lr.'********************     '.acym_getDate(time()).'     ********************'.$lr.implode($lr, $this->errors),
+            FILE_APPEND
+        );
+
+        $this->errors = [];
+    }
+
+    public function isLogFileEmpty()
+    {
+        $reportPath = acym_getLogPath($this->logFilename);
+
+        return !file_exists($reportPath);
     }
 }

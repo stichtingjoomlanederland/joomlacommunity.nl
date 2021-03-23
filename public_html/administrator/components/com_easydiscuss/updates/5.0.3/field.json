@@ -1,0 +1,7 @@
+[
+	{
+		"table": "#__discuss_customfields",
+		"column": "global",
+		"query": "ALTER TABLE `#__discuss_customfields` ADD `global` TINYINT(1) NOT NULL AFTER `section`;"
+	}
+]

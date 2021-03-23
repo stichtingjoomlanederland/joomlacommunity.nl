@@ -39,33 +39,28 @@ class plgAcymSubscriber extends acymPlugin
     public function textPopup()
     {
         ?>
-
 		<script language="javascript" type="text/javascript">
-            <!--
-            var selectedTag;
+            var selectedSubscriberDText;
 
             function changeSubscriberTag(tagname, element) {
                 if (!tagname) return;
 
-                selectedTag = tagname;
+                selectedSubscriberDText = tagname;
 
                 var baseTag = '<?php echo $this->name; ?>';
-                var $inputType = jQuery('input[name="typeinfo"]:checked');
-                if ($inputType.length > 0 && $inputType.val() == 'current') {
+                var $inputType = jQuery('input[name="typeInfoSubscriber"]:checked');
+                if ($inputType.length > 0 && $inputType.val() === 'current') {
                     baseTag = 'user';
                 }
                 var finalTag = '{' + baseTag + ':' + tagname;
 
-                if ($inputType.length > 0 && $inputType.val() != 'current') {
+                if ($inputType.length > 0 && $inputType.val() !== 'current') {
                     finalTag += '|info:' + $inputType.val() + '';
                 }
                 finalTag += '}';
 
-
                 setTag(finalTag, element);
             }
-
-            -->
 		</script>
 
         <?php
@@ -77,7 +72,7 @@ class plgAcymSubscriber extends acymPlugin
         $descriptions = [];
         $isAutomationAdmin = acym_getVar('string', 'automation');
         $mailType = acym_getVar('string', 'mail_type', MailClass::TYPE_STANDARD);
-        $typeNotif = acym_getVar('string', 'type_notif', '');
+        $typeNotif = acym_getVar('string', 'notification', '');
 
         foreach ($customFields as $one) {
             $descriptions[$one->namekey] = acym_translation('ACYM_CUSTOM_FIELD');
@@ -96,15 +91,20 @@ class plgAcymSubscriber extends acymPlugin
         $descriptions['date_click'] = acym_translation('ACYM_USER_CLICK_DATE');
         $descriptions['send_date'] = acym_translation('ACYM_USER_SEND_DATE');
 
-        $text = '<div class="acym__popup__listing text-center grid-x">';
+        echo '<div class="acym__popup__listing text-center grid-x">';
         if (!empty($isAutomationAdmin) || ($mailType == 'notification' && $typeNotif != 'acy_confirm')) {
             $textTrigger = $mailType == 'notification' ? 'ACYM_USER_TRIGGERING_NOTIFICATION' : 'ACYM_USER_TRIGGERING_AUTOMATION';
             $typeinfo = [];
             $typeinfo[] = acym_selectOption('receiver', 'ACYM_RECEIVER_INFORMATION');
             $typeinfo[] = acym_selectOption('current', $textTrigger);
-            $text .= acym_radio($typeinfo, 'typeinfo', 'receiver', ['onclick' => 'changeSubscriberTag(selectedTag, jQuery(this))']);
+            echo acym_radio(
+                $typeinfo,
+                'typeInfoSubscriber',
+                'receiver',
+                ['onclick' => 'changeSubscriberTag(selectedSubscriberDText, jQuery(this))']
+            );
         }
-        $text .= '<h1 class="acym__popup__plugin__title cell">'.acym_translation('ACYM_RECEIVER_INFORMATION').'</h1>
+        echo '<h1 class="acym__title acym__title__secondary text-center cell">'.acym_translation('ACYM_RECEIVER_INFORMATION').'</h1>
 					';
 
         $others = [];
@@ -112,7 +112,10 @@ class plgAcymSubscriber extends acymPlugin
         $others['name|part:last|ucfirst'] = ['name' => acym_translation('ACYM_USER_LASTPART'), 'desc' => acym_translation('ACYM_USER_LASTPART_DESC')];
 
         foreach ($others as $tagname => $tag) {
-            $text .= '<div style="cursor:pointer" class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="changeSubscriberTag(\''.$tagname.'\', jQuery(this));" ><div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div><div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div></div>';
+            echo '<div style="cursor:pointer" class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="changeSubscriberTag(\''.$tagname.'\', jQuery(this));">
+					<div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['name'].'</div>
+					<div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$tag['desc'].'</div>
+				</div>';
         }
 
         foreach ($fields as $fieldname) {
@@ -125,15 +128,13 @@ class plgAcymSubscriber extends acymPlugin
                 $type = '|type:time';
             }
 
-            $text .= '<div style="cursor:pointer" class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="changeSubscriberTag(\''.$fieldname.$type.'\', jQuery(this));" >
-                        <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$fieldname.'</div>
-                        <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.$descriptions[$fieldname].'</div>
+            echo '<div style="cursor:pointer" class="grid-x medium-12 cell acym__row__no-listing acym__listing__row__popup text-left" onclick="changeSubscriberTag(\''.$fieldname.$type.'\', jQuery(this));">
+                        <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.acym_escape($fieldname).'</div>
+                        <div class="cell medium-6 small-12 acym__listing__title acym__listing__title__dynamics">'.acym_escape($descriptions[$fieldname]).'</div>
                      </div>';
         }
 
-        $text .= '</div>';
-
-        echo $text;
+        echo '</div>';
     }
 
     public function replaceUserInformation(&$email, &$user, $send = true)

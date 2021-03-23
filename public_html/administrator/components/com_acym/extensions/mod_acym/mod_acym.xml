@@ -2,7 +2,7 @@
 <extension type="module" version="2.5" client="site" method="upgrade">
 	<name>AcyMailing subscription form</name>
 	<creationDate>August 2018</creationDate>
-	<version>7.2.2</version>
+	<version>7.3.0</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acymailing.com</authorUrl>
@@ -50,7 +50,8 @@
 			<fieldset name="advanced">
 				<field name="unsub" type="list" default="0" label="ACYM_DISPLAY_UNSUB_BUTTON">
 					<option value="0">ACYM_NO</option>
-					<option value="1">ACYM_YES</option>
+					<option value="1">ACYM_CONNECTED_USER_SUBSCRIBED</option>
+					<option value="2">ACYM_ALWAYS</option>
 				</field>
 				<field name="unsubtext" type="text" size="50" default="" label="ACYM_UNSUBSCRIBE_TEXT" description="ACYM_UNSUBSCRIBE_TEXT_DESC" filter="SAFEHTML"/>
 				<field name="successmode" type="list" default="0" label="ACYM_SUCCESS_MODE" description="ACYM_SUCCESS_MODE_DESC">

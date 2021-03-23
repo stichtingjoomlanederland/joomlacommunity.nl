@@ -44,7 +44,7 @@ class EasyDiscussEvents extends EasyDiscuss
 	'content_prepare_form'		=> 'onContentPrepareForm'
 	**/
 
-	public static function onContentBeforeSave($context = 'post', &$data = '', $isNew)
+	public static function onContentBeforeSave($context = 'post', &$data = '', $isNew = false)
 	{
 		$context = 'com_easydiscuss.'.$context;
 
@@ -57,7 +57,7 @@ class EasyDiscussEvents extends EasyDiscuss
 		return $result;
 	}
 
-	public static function onContentAfterSave($context = 'post', &$data = '', $isNew)
+	public static function onContentAfterSave($context = 'post', &$data = '', $isNew = false)
 	{
 		$context = 'com_easydiscuss.'.$context;
 

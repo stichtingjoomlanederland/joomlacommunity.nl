@@ -95,3 +95,7 @@ function acym_includeHeaders()
 {
     do_action('acym_head');
 }
+
+function acym_getOptionRegacyPosition()
+{
+}

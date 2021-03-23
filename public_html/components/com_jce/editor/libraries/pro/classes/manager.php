@@ -41,7 +41,7 @@ class WFMediaManager extends WFMediaManagerBase
             $this->addFileBrowserEvent('onUpload', array($this, 'onUpload'));
 
             if ($app->input->getCmd('action') === 'thumbnail') {
-                JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+                JSession::checkToken('request') or jexit(JText::_('JINVALID_TOKEN'));
 
                 $file = $app->input->get('img', '', 'STRING');
 
@@ -1011,7 +1011,7 @@ class WFMediaManager extends WFMediaManagerBase
     public function cleanEditorTmp($file = null, $exit = true)
     {
         // Check for request forgeries
-        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+        JSession::checkToken('request') or jexit(JText::_('JINVALID_TOKEN'));
 
         // check for image editor access
         if ($this->checkAccess('image_editor', 1) === false) {
@@ -1054,7 +1054,7 @@ class WFMediaManager extends WFMediaManagerBase
     public function applyImageEdit($file, $task, $value)
     {
         // Check for request forgeries
-        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+        JSession::checkToken('request') or jexit(JText::_('JINVALID_TOKEN'));
 
         // check for image editor access
         if ($this->checkAccess('image_editor', 1) === false) {
@@ -1127,7 +1127,7 @@ class WFMediaManager extends WFMediaManagerBase
     public function saveImageEdit($file, $name, $options = array(), $quality = 100)
     {
         // Check for request forgeries
-        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+        JSession::checkToken('request') or jexit(JText::_('JINVALID_TOKEN'));
 
         // check for image editor access
         if ($this->checkAccess('image_editor', 1) === false) {
@@ -1238,7 +1238,7 @@ class WFMediaManager extends WFMediaManagerBase
     public function saveTextFile($file, $name)
     {
         // Check for request forgeries
-        JSession::checkToken() or jexit(JText::_('JINVALID_TOKEN'));
+        JSession::checkToken('request') or jexit(JText::_('JINVALID_TOKEN'));
 
         // check for text editor access
         if ($this->checkAccess('text_editor', 0) === false) {

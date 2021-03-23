@@ -113,7 +113,7 @@ class EasyDiscussViewCategories extends EasyDiscussAdminView
 
 		// Get the Custom fields
 		$customFieldModel = ED::model('CustomFields');
-		$data = $customFieldModel->getData();
+		$data = $customFieldModel->getData(true, false);
 		$customFields = [];
 
 		foreach ($data as $item) {

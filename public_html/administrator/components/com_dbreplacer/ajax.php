@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.8PRO
+ * @version         6.3.9PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -524,13 +524,14 @@ class DBReplacer
 
 		$query = $db->getQuery(true)
 			->select($columns)
-			->from($db->quoteName(trim($table)));
+			->from($db->quoteName(trim($table)))
+			->setLimit($max);
 
 		$this->addWhereClause($query);
 
 		$this->addCustomWhereClause($query);
 
-		$db->setQuery($query, 0, $max);
+		$db->setQuery($query);
 
 		return $db->loadObjectList();
 	}

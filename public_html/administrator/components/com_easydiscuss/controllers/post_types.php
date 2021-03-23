@@ -105,13 +105,18 @@ class EasyDiscussControllerPost_types extends EasyDiscussController
 			$postTypes->updateTopicPostType($oldTitle);
 		}
 
-		// Create the necessary associations
-		if ($postTypes->type == 'category') {
-			$categories = $this->input->get('categories', '', 'array');
+		$categories = $this->input->get('categories', '', 'array');
 
-			$model = ED::model('PostTypes');
-			$model->createAssociation($postTypes, $categories);
+		// if the association type set to global then we need to reset the categories
+		if ($postTypes->type == 'global') {
+			$categories = '';
 		}
+
+		$model = ED::model('PostTypes');
+
+		// always delete the existing associated category in the post types
+		// Create the necessary associations
+		$model->createAssociation($postTypes, $categories);
 
 		// log the current action into database.
 		$actionlog = ED::actionlog();

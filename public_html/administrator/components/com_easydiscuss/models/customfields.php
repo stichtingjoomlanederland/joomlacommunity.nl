@@ -68,9 +68,9 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	 * @access private
 	 * @return string
 	 */
-	protected function _buildQuery()
+	protected function _buildQuery($includeGlobal = true)
 	{
-		$where = $this->_buildQueryWhere();
+		$where = $this->_buildQueryWhere($includeGlobal);
 		$orderby = $this->_buildQueryOrderBy();
 		$db = $this->db;
 
@@ -81,7 +81,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		return $query;
 	}
 
-	protected function _buildQueryWhere()
+	protected function _buildQueryWhere($includeGlobal = true)
 	{
 		$mainframe		= JFactory::getApplication();
 		$db				= ED::db();
@@ -108,7 +108,11 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			$where[] = ' LOWER(' . $db->nameQuote('title') . ') LIKE \'%' . $search . '%\' ';
 		}
 
-		$where 		= ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
+		if (!$includeGlobal) {
+			$where[] = $db->nameQuote('a.global') . ' != ' . $db->Quote('1');
+		}
+
+		$where = ( count( $where ) ? ' WHERE ' . implode( ' AND ', $where ) : '' );
 
 		return $where;
 	}
@@ -131,11 +135,11 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 	 * @access public
 	 * @return array
 	 */
-	public function getData($usePagination = true)
+	public function getData($usePagination = true, $includeGlobal = true)
 	{
 		// Lets load the content if it doesn't already exist
 		if (empty($this->_data)) {
-			$query = $this->_buildQuery();
+			$query = $this->_buildQuery($includeGlobal);
 
 			if ($usePagination) {
 				$this->_data = $this->_getList($query, $this->getState('limitstart'), $this->getState('limit'));
@@ -205,7 +209,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		$my = JFactory::getUser();
 		$groups = ED::getUserGroupId($my);
 
-		// Determine the section of the custom fields. By default the operation should be question. 
+		// Determine the section of the custom fields. By default the operation should be question.
 		$post = ED::post($post_id);
 		$section = ($post->isQuestion() && $operation != 'replying') ? DISCUSS_CUSTOMFIELDS_SECTION_QUESTIONS : DISCUSS_CUSTOMFIELDS_SECTION_REPLIES;
 
@@ -222,7 +226,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 
 		// We should disable custom fields if category has no custom fields assigned.
 		if (!$catFieldIds) {
-			return false;
+			// return false;
 		}
 
 		// Determine whether the current post have custom field, if given post_id
@@ -280,10 +284,17 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		foreach ($result as $row) {
 			$field = ED::field($row);
 
-			// If there is selected custom fields for the category
-			// And the custom field is not associated with the category, skip it
-			if ($catCF && !in_array($field->id, $catCF)) {
-				continue;
+			if (!$field->global) {
+
+				if (!$catCF) {
+					continue;
+				}
+
+				// If there is selected custom fields for the category
+				// And the custom field is not associated with the category, skip it
+				if (!in_array($field->id, $catCF)) {
+					continue;
+				}
 			}
 
 			$fields[] = $field;

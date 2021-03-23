@@ -354,9 +354,12 @@ class DiscussProfile extends EasyDiscussTable
 			}
 
 			if ($displayName == 'nickname') {
-				$name = $this->nickname;
+				
+				if ($this->nickname) {
+					$name = $this->nickname;
+				}		
 			}
-			
+
 			$cache[$this->id] = $name;
 		}
 

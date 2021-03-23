@@ -39,26 +39,24 @@ $option = $input->get('option', '', 'default');
 $id = $input->get('category_id', 0, 'int');
 
 $model = ED::model('Categories');
-$categories = $model->getCategoryTree();
-
+$data = $model->getCategoryTree();
+	
+$categories = [];
 // Formats the categories.
-foreach ($categories as $index => &$category) {
-	$postCount = $category->getTotalPosts();
-	$totalNew = ($my->id > 0) ? $category->getUnreadCount() : '0';
+foreach ($data as $item) {
+	$postCount = $item->getTotalPosts();
+	$totalNew = ($my->id > 0) ? $item->getUnreadCount() : '0';
 
 	if (!$params->get('display_empty_category') && !$postCount) {
-		unset($categories[$index]);
-
 		continue;
 	}
 
-	if (!$params->get('display_empty_category') && !$totalNew) {
-		unset($categories[$index]);
-
+	if (!$params->get('display_empty_category') && $totalNew) {
 		continue;
 	}
 
-	$category->totalNew = $totalNew;
+	$item->totalNew = $totalNew;
+	$categories[] = $item;
 }
 
 $notificationsCount = 0;
@@ -71,5 +69,7 @@ if ($my->id) {
 if ($option == 'com_easydiscuss' && $view == 'forums' && $layout == 'listings' && $id) {
 	$active	= $id;
 }
+
+
 
 require(JModuleHelper::getLayoutPath('mod_easydiscuss_navigation'));

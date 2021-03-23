@@ -162,7 +162,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<?php echo JText::_('COM_EASYDISCUSS_DASHBOARD_MANAGE_POST_APPROVE');?>
 						</button>
 						<?php } else { ?>
-						<a class="si-link t-hidden t-font-size--02 t-mr--sm" href="<?php echo $cancel;?>">
+						<a class="si-link t-font-size--02 t-mr--sm" href="<?php echo $cancel;?>">
 							<?php echo JText::_('COM_EASYDISCUSS_CANCEL_AND_DISCARD');?>
 						</a>
 

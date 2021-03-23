@@ -58,7 +58,8 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="wrapper clearfix clear accordion">
 
 				<?php if ($message) { ?>
-				<div class="discussNotice app-content__alert o-alert o-alert--<?php echo $message->type;?>">
+				<?php $alertType = $message->type == 'error' ? 'danger' : $message->type; ?>
+				<div class="discussNotice app-content__alert o-alert o-alert--<?php echo $alertType;?>">
 					<?php echo $message->message;?>
 				</div>
 				<?php } ?>

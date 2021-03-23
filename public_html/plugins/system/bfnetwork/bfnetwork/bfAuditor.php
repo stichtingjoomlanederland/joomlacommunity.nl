@@ -2031,14 +2031,15 @@ final class bfAudit
                     $pattern = base64_decode(substr($pattern, 4, strlen($pattern) - 4));
                     $RC4     = new Crypt_RC4();
                     $RC4->setKey('NotMeantToBeSecure'); // just to hide from other server side scanners
-                    $pattern = $RC4->decrypt($pattern);
+                    $pattern       = $RC4->decrypt($pattern);
+                    $patternChunks = explode('|__SPLIT_SEPARATOR__|', $pattern);
 
                     /*
                      * When developing/debugging we might want to cache the unencrypted patterns
                      * We dont do the normally because some webhost scanners see them as hacks
                      * when they are not!
                      */
-                    //file_put_contents('tmp/tmp.pattern.unenc', $pattern); //sss
+//                    file_put_contents('tmp/tmp.pattern.unenc', $pattern); //sss
 
                     bfLog::log('LAST PATTERN TEST =   '.$lastPatternmd5.'=='.md5($pattern));
                     if ($lastPatternmd5 == md5($pattern)) {
@@ -2096,7 +2097,8 @@ final class bfAudit
                 $pattern = base64_decode(substr($pattern, 4, strlen($pattern) - 4));
                 $RC4     = new Crypt_RC4();
                 $RC4->setKey('NotMeantToBeSecure'); // just to hide from other server side scanners
-                $pattern = $RC4->decrypt($pattern);
+                $pattern       = $RC4->decrypt($pattern);
+                $patternChunks = explode('|__SPLIT_SEPARATOR__|', $pattern);
             }
 
             if (file_exists('tmp/speedup.sql') && (_BF_SPEED == 'DEFAULT' || _BF_SPEED == 'FAST')) {
@@ -2295,7 +2297,15 @@ final class bfAudit
                                 // Test if suspect
                                 bfLog::log('Auditing File: '.$file_to_scan->filewithpath.' - '.$file_to_scan->size.' bytes');
                                 file_put_contents(dirname(__FILE__).'/tmp/currentlyAuditingFile.php', '<?php die(); ?>'.date('Y-m-d H:i:s').'||'.$file_to_scan->filewithpath);
-                                $isSuspect = (preg_match('/'.$pattern.'/ism', $chunk) ? true : false);
+
+                                $c = 0;
+                                foreach ($patternChunks as $patternChunk) {
+                                    if (true === $isSuspect) {
+                                        continue;
+                                    }
+                                    bfLog::log('Auditing File with patternChunk: '.$c++);
+                                    $isSuspect = (preg_match('/'.$patternChunk.'/ism', $chunk) ? true : false);
+                                }
                                 @unlink(dirname(__FILE__).'/tmp/currentlyAuditingFile.php');
                             }
 

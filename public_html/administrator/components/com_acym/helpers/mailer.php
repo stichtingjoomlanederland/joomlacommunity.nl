@@ -55,6 +55,11 @@ class MailerHelper extends acyPHPMailer
 
     public $userLanguage = '';
 
+    public $mailId;
+    public $receiverEmail;
+
+    public $isTest = false;
+
     public function __construct()
     {
         parent::__construct();
@@ -331,9 +336,23 @@ class MailerHelper extends acyPHPMailer
 
         $this->Body = str_replace(" ", ' ', $this->Body);
 
-        ob_start();
-        $result = parent::send();
-        $warnings = ob_get_clean();
+        $externalSending = false;
+
+        $mailClass = new MailClass();
+        $isTransactional = $this->isTest || (!empty($this->defaultMail[$this->mailId]) && $mailClass->isTransactionalMail($this->defaultMail[$this->mailId]));
+
+        acym_trigger('onAcymProcessQueueExternalSendingCampaign', [&$externalSending, $isTransactional]);
+
+        $warnings = '';
+
+        if ($externalSending) {
+            $result = true;
+            acym_trigger('onAcymRegisterReceiverContentAndList', [&$result, $this->Body, $this->receiverEmail, $this->mailId, &$warnings]);
+        } else {
+            ob_start();
+            $result = parent::send();
+            $warnings = ob_get_clean();
+        }
 
         if (!empty($warnings) && strpos($warnings, 'bloque')) {
             $result = false;
@@ -400,7 +419,7 @@ class MailerHelper extends acyPHPMailer
         $this->prepareEmailContent($this->defaultMail[$mailId], $style);
     }
 
-    public function load($mailId, $user = null, $isTest = false)
+    public function load($mailId, $user = null)
     {
         $mailClass = new MailClass();
         if (!empty($this->overrideEmailToSend)) {
@@ -410,7 +429,7 @@ class MailerHelper extends acyPHPMailer
         }
 
         global $acymLanguages;
-        if (!acym_isMultilingual() || $isTest) {
+        if (!acym_isMultilingual() || $this->isTest) {
             $this->defaultMail[$mailId] = $mailClass->getOneById($mailId, true);
 
             if (empty($this->defaultMail[$mailId])) {
@@ -469,6 +488,8 @@ class MailerHelper extends acyPHPMailer
         if (!empty($acymLanguages['userLanguage'])) unset($acymLanguages['userLanguage']);
 
         $this->loadUrlAndStyle($mailId);
+
+        $this->mailId = $mailId;
 
         return $this->defaultMail[$mailId];
     }
@@ -569,6 +590,8 @@ class MailerHelper extends acyPHPMailer
 
         $this->userLanguage = empty($receiver->language) ? acym_getLanguageTag() : $receiver->language;
 
+        $this->receiverEmail = $receiver->email;
+
         return $receiver;
     }
 
@@ -579,8 +602,9 @@ class MailerHelper extends acyPHPMailer
         }
 
         $receiver = $this->loadUser($user);
+        $this->isTest = $isTest;
 
-        if (!isset($this->defaultMail[$mailId]) && !$this->load($mailId, $receiver, $isTest)) {
+        if (!isset($this->defaultMail[$mailId]) && !$this->load($mailId, $receiver)) {
             $this->reportMessage = 'Can not load the e-mail : '.acym_escape($mailId);
             if ($this->report) {
                 acym_enqueueMessage($this->reportMessage, 'error');
@@ -620,7 +644,7 @@ class MailerHelper extends acyPHPMailer
 
         $this->Subject = $this->defaultMail[$mailId]->subject;
         $this->Body = $this->defaultMail[$mailId]->body;
-        if ($isTest && $testNote != '') {
+        if ($this->isTest && $testNote != '') {
             $this->Body = '<div style="text-align: center; padding: 25px; font-family: Poppins; font-size: 20px">'.$testNote.'</div>'.$this->Body;
         }
         $this->Preheader = $this->defaultMail[$mailId]->preheader;
@@ -702,7 +726,7 @@ class MailerHelper extends acyPHPMailer
         $this->stylesheet = &$this->stylesheet;
         $this->links_language = $this->defaultMail[$mailId]->links_language;
 
-        if (!$isTest && $this->canTrack($mailId, $receiver)) {
+        if (!$this->isTest && $this->canTrack($mailId, $receiver)) {
             $this->statPicture($this->id, $receiver->id);
             $this->body = acym_absoluteURL($this->body);
             $this->statClick($this->id, $receiver->id);
@@ -816,18 +840,36 @@ class MailerHelper extends acyPHPMailer
             $utmCampaign = acym_getAlias($mail->subject);
         }
 
-        preg_match_all('#href[ ]*=[ ]*"(?!mailto:|\#|ymsgr:|callto:|file:|ftp:|webcal:|skype:|tel:)([^"]+)"#Ui', $this->body, $results);
+        preg_match_all('#<[^>]* href[ ]*=[ ]*"(?!mailto:|\#|ymsgr:|callto:|file:|ftp:|webcal:|skype:|tel:)([^"]+)"#Ui', $this->body, $results);
         if (empty($results)) return;
 
         $countLinks = array_count_values($results[1]);
         if (array_product($countLinks) != 1) {
+            $previousLinkHandled = '';
             foreach ($results[1] as $key => $url) {
-                if ($countLinks[$url] == 1) {
-                    continue;
+                if ($countLinks[$url] === 1) continue;
+
+                $previousIsOutlook = false;
+                if (strpos($results[0][$key], '<v:roundrect') === 0) {
+                    $previousLinkHandled = $results[0][$key];
+                    if ($countLinks[$url] === 2) {
+                        $countLinks[$url] = 1;
+                        continue;
+                    }
+                } elseif (strpos($previousLinkHandled, '<v:roundrect') === 0) {
+                    $previousIsOutlook = true;
                 }
-                $countLinks[$url]--;
+                $previousLinkHandled = $results[0][$key];
+
+                if (!$previousIsOutlook) {
+                    $countLinks[$url]--;
+                }
 
                 $toAddUrl = (strpos($url, '?') === false ? '?' : '&').'idU='.$countLinks[$url];
+
+                if ($previousIsOutlook) {
+                    $countLinks[$url]--;
+                }
 
                 $posHash = strpos($url, '#');
                 if ($posHash !== false) {

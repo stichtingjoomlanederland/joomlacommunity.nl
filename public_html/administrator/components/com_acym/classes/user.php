@@ -245,6 +245,16 @@ class UserClass extends acymClass
         return acym_loadObject($query);
     }
 
+    public function getByColumnValue($column, $value)
+    {
+        $userColumns = acym_getColumns('user');
+        if (!in_array($column, $userColumns)) return [];
+
+        $query = 'SELECT * FROM #__acym_user WHERE '.acym_secureDBColumn($column).' = '.acym_escapeDB($value);
+
+        return acym_loadObjectList($query);
+    }
+
     public function getUserSubscriptionById($userId, $key = 'id', $includeManagement = false, $visible = false, $needTranslation = false)
     {
         $query = 'SELECT list.id, list.translation, list.name, list.color, list.active, list.visible, list.description, userlist.status, userlist.subscription_date, userlist.unsubscribe_date 
@@ -463,6 +473,8 @@ class UserClass extends acymClass
     {
         if (empty($lists)) return false;
 
+        $savingProfile = acym_getVar('int', 'acyprofile', 0);
+
         if (!is_array($userIds)) $userIds = [$userIds];
         if (!is_array($lists)) $lists = [$lists];
 
@@ -474,16 +486,21 @@ class UserClass extends acymClass
 
             $currentSubscription = $this->getUserSubscriptionById($userId);
 
+            $currentlySubscribed = [];
             $currentlyUnsubscribed = [];
             foreach ($currentSubscription as $oneList) {
                 if ($oneList->status == 0) {
                     $currentlyUnsubscribed[$oneList->id] = $oneList;
+                }elseif ($oneList->status == 1){
+                    $currentlySubscribed[$oneList->id] = $oneList;
                 }
             }
 
             $unsubscribedLists = [];
             foreach ($lists as $oneListId) {
                 if (empty($oneListId) || !empty($currentlyUnsubscribed[$oneListId])) continue;
+
+                if ($savingProfile === 1 && empty($currentlySubscribed[$oneListId])) continue;
 
                 $subscription = new \stdClass();
                 $subscription->user_id = $userId;
@@ -585,8 +602,6 @@ class UserClass extends acymClass
         if (empty($elements)) return 0;
 
         if (acym_isAdmin() || 'delete' === $this->config->get('frontend_delete_button', 'delete')) {
-            acym_trigger('onAcymBeforeUserDelete', [&$elements]);
-
             acym_query('DELETE FROM #__acym_user_has_list WHERE user_id IN ('.implode(',', $elements).')');
             acym_query('DELETE FROM #__acym_queue WHERE user_id IN ('.implode(',', $elements).')');
             acym_query('DELETE FROM #__acym_user_has_field WHERE user_id IN ('.implode(',', $elements).')');
@@ -994,6 +1009,11 @@ class UserClass extends acymClass
         return $user;
     }
 
+    public function getAllSimpleData()
+    {
+        return acym_loadObjectList('SELECT email, name FROM #__acym_user');
+    }
+
     public function synchSaveCmsUser($user, $isnew, $oldUser = null)
     {
         $source = acym_getVar('string', 'acy_source', '');
@@ -1136,13 +1156,11 @@ class UserClass extends acymClass
         $mailer->autoAddUser = true;
 
         $user = $this->getOneById($userId);
-        foreach ($user as $map => $value) {
-            $mailer->addParam('user:'.$map, $value);
-        }
-
         $userField = $this->getAllUserFields($user);
-        foreach ($user as $map => $value) {
-            $mailer->addParam('user:'.$map, $value);
+        if (!empty($userField)) {
+            foreach ($userField as $map => $value) {
+                $mailer->addParam('user:'.$map, $value);
+            }
         }
 
         $rawSubscription = $this->getUserSubscriptionById($userId);

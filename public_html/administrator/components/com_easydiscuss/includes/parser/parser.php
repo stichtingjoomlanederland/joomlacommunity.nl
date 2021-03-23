@@ -215,9 +215,23 @@ class EasyDiscussParser extends EasyDiscuss
 	 * @since	4.1
 	 * @access	public
 	 */
-	public function normliseBBCode($content)
+	public function normaliseBBCode($content)
 	{
 		$content = EDJString::str_ireplace('class="bb-smiley"', 'class="bb-smiley" width="20"', $content);
+		return $content;
+	}
+
+	/**
+	 * Normalize contents that can be used in the e-mail
+	 *
+	 * @since	5.0.3
+	 * @access	public
+	 */
+	public function normaliseForEmail($content)
+	{
+		$pattern = "#<iframe[^>]+>.*?</iframe>#is";
+		$content = preg_replace($pattern, "", $content);
+
 		return $content;
 	}
 

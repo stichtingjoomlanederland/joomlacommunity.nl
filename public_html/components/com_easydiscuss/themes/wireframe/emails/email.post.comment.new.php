@@ -89,12 +89,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</tbody>
 				</table>
 			</div>
-
-			<?php if ($attachments) { ?>
-				<?php foreach ($attachments as $attachment) { ?>
-					<?php echo $this->html('email.attachment', $attachment); ?>
-				<?php } ?>
-			<?php } ?>
 				
 			<!--[if mso | IE]>
 			</td></tr></table>
@@ -102,7 +96,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</td>
 	</tr>
 	</tbody>
-	</table>	
+	</table>
 </div>
 <!--[if mso | IE]>
 </td></tr></table>

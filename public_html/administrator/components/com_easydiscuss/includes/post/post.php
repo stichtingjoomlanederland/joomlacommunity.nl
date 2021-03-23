@@ -69,8 +69,6 @@ class EasyDiscussPost
 		$this->config = ED::config();
 		$this->my = JFactory::getUser();
 		$this->input = ED::request();
-		
-		// parent::__construct();
 
 		$resetCache = false;
 		$cache = true;
@@ -284,13 +282,23 @@ class EasyDiscussPost
 	 */
 	public function canComment()
 	{
-		$isModerator = ED::isModerator($this->post->category_id);
-
 		// If there is no post id, the post cannot be commented
 		if (!$this->post->id) {
 			$this->setError('COM_EASYDISCUSS_COMMENTS_INVALID_POST_ID');
 			return false;
 		}
+
+		if ($this->isQuestion() && !$this->config->get('main_commentpost')) {
+			$this->setError('COM_ED_COMMENTS_QUESTION_FEATURE_DISABLED');
+			return false;
+		}
+
+		if ($this->isReply() && !$this->config->get('main_comment')) {
+			$this->setError('COM_ED_COMMENTS_REPLIES_FEATURE_DISABLED');
+			return false;
+		}
+
+		$isModerator = ED::isModerator($this->post->category_id);
 
 		if ($isModerator) {
 			return true;
@@ -306,7 +314,6 @@ class EasyDiscussPost
 			$this->setError('COM_EASYDISCUSS_POST_IS_CURRENTLY_LOCKED');
 			return false;
 		}
-
 
 		$canComment = true;
 
@@ -3132,11 +3139,11 @@ class EasyDiscussPost
 			}
 
 			if ($json) {
-				$links[$key] = $links[$key] . '&format=json';
+				$links[$key] = EDR::appendFormatToQueryString($links[$key], 'json');
 			}
 
 			if ($amp) {
-				$links[$key] = $links[$key] . '&format=amp';
+				$links[$key] = EDR::appendFormatToQueryString($links[$key], 'amp');
 			}
 		}
 
@@ -5549,8 +5556,11 @@ class EasyDiscussPost
 		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
 		// fixed bbcode width in email content. #459
-		$emailContent = ED::parser()->normliseBBCode($emailContent);
+		$emailContent = ED::parser()->normaliseBBCode($emailContent);
 
+		// Remove any unwanted tags from emails
+		$emailContent = ED::parser()->normaliseForEmail($emailContent);
+		
 		$emailData['replyContent'] = $emailContent;
 		$emailData['replyAuthor'] = $owner->getName($overrideName);
 		$emailData['replyAuthorAvatar'] = $owner->getAvatar();
@@ -5939,7 +5949,10 @@ class EasyDiscussPost
 		$emailContent = ED::parser()->normaliseImageStyle($emailContent);
 
 		// fixed bbcode width in email content. #459
-		$emailContent = ED::parser()->normliseBBCode($emailContent);
+		$emailContent = ED::parser()->normaliseBBCode($emailContent);
+
+		// Remove any unwanted tags from emails
+		$emailContent = ED::parser()->normaliseForEmail($emailContent);
 
 		$emailData['attachments'] = $attachments;
 		$emailData['postContent'] = $emailContent;
@@ -8371,6 +8384,25 @@ class EasyDiscussPost
 		$params = $this->getParams();
 
 		if ($params->get('params_has_gist', false)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Determines if the user is allowed to duplicate a post
+	 *
+	 * @since   5.0.3
+	 * @access  public
+	 */
+	public function canDuplicate()
+	{
+		if (!$this->isQuestion()) {
+			return false;
+		}
+
+		if (ED::isModerator($this->post->category_id)) {
 			return true;
 		}
 

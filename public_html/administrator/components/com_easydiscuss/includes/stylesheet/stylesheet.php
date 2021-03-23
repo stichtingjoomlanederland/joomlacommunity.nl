@@ -30,6 +30,17 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	}
 
 	/**
+	 * Centralized method to add stylsheet from EasyDiscuss
+	 *
+	 * @since	5.0.3
+	 * @access	public
+	 */
+	public function addStylesheet($url)
+	{
+		$this->doc->addStylesheet($url);
+	}
+
+	/**
 	 * Attaches the stylesheet to the head of the document
 	 *
 	 * @since	4.0
@@ -52,8 +63,8 @@ class EasyDiscussStylesheet extends EasyDiscuss
 			$this->attachMobileMenu();
 		}
 
-		$uri = $this->getStylesheetUri();
-		$this->doc->addStyleSheet($uri);
+		$url = $this->getStylesheetUri();
+		$this->addStylesheet($url);
 
 		// Attach custom css codes on the page
 		if ($this->location == 'site' && $this->config->get('layout_customcss')) {
@@ -64,7 +75,7 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		$print = JFactory::getApplication()->input->get('print', 0, 'int');
 
 		if ($this->location == 'site' && $print) {
-			$this->doc->addStyleSheet(JURI::root(true) . '/media/com_easydiscuss/themes/wireframe/css/print.min.css');
+			$this->addStyleSheet(JURI::root(true) . '/media/com_easydiscuss/themes/wireframe/css/print.min.css');
 		}
 	}
 
@@ -84,7 +95,7 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		}
 
 		$customURI = JURI::root(true) . '/templates/' . $this->app->getTemplate() . '/html/com_easydiscuss/css/custom.css';
-		$this->doc->addStyleSheet($customURI);
+		$this->addStyleSheet($customURI);
 	}
 
 	/**
@@ -100,7 +111,7 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		if (is_null($loaded)) {
 			$path = JURI::root(true) . '/media/com_easydiscuss/fonts/font-awesome/css/all.min.css';
 
-			$this->doc->addStyleSheet($path);
+			$this->addStylesheet($path);
 
 			$loaded = true;
 		}
@@ -121,7 +132,7 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		if (is_null($loaded)) {
 			$path = JURI::root(true) . '/media/com_easydiscuss/vendors/prism/prism.css';
 
-			$this->doc->addStyleSheet($path);
+			$this->addStyleSheet($path);
 
 			$loaded = true;
 		}
@@ -142,7 +153,7 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		if (!defined('SI_MMENU') && $config->get('layout_enabletoolbar')) {
 			$css = JURI::root(true) . '/media/com_easydiscuss/vendors/mmenu/mmenu.css';
 
-			$this->doc->addStylesheet($css);
+			$this->addStylesheet($css);
 
 			define('SI_MMENU', true);
 

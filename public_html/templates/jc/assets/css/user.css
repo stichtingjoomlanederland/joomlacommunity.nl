@@ -73,6 +73,11 @@
   content: unset;
 }
 
+#ed .is-editor-markup pre > * {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
 .ed-signature {
   padding-top: 1em;
 }

@@ -24,6 +24,7 @@ class DiscussCustomFields extends EasyDiscussTable
 	public $required = null;
 	public $section = null;
 	public $params = null;
+	public $global = null;
 
 	public function __construct(&$db)
 	{

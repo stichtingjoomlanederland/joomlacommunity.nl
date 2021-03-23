@@ -1,11 +1,11 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.8PRO
+ * @version         6.3.9PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
- * @copyright       Copyright © 2020 Regular Labs All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
@@ -120,7 +120,7 @@ class DBReplacerModelDefault extends JModel
 
 				if ($search == 'NULL')
 				{
-					if ($val == '' || $val === null || $val == '0000-00-00')
+					if ($val == '' || $val === null || $val == '0000-00-00' || $val == '0000-00-00 00:00:00')
 					{
 						$set[] = $this->_db->quoteName(trim($key)) . ' = ' . $this->_db->quote($replace);
 					}

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <extension version="3.9" type="plugin" group="actionlog" method="upgrade">
-	<name>plg_actionlog_dbreplacer</name>
+	<name>PLG_ACTIONLOG_DBREPLACER</name>
 	<description>PLG_ACTIONLOG_DBREPLACER_DESC</description>
-	<version>6.3.8PRO</version>
-	<creationDate>September 2020</creationDate>
+	<version>6.3.9PRO</version>
+	<creationDate>March 2021</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
 	<authorUrl>https://www.regularlabs.com</authorUrl>
@@ -13,8 +13,8 @@
 	<scriptfile>script.install.php</scriptfile>
 
 	<updateservers>
-		<server type="extension" priority="1" name="Regular Labs - DBReplacer ">
-			https://download.regularlabs.com/updates.xml?e=dbreplacer&amp;pro=1&amp;type=.xml
+		<server type="extension" priority="1" name="Regular Labs - DB Replacer [PRO]">
+			https://download.regularlabs.com/updates.xml?e=XXX&amp;pro=1&amp;type=.xml
 		</server>
 	</updateservers>
 

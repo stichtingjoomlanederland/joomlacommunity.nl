@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Similar Discussions Module</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>26th February 2021</creationDate>
+	<creationDate>17th March 2021</creationDate>
 	<copyright>Copyright (C) 2009 - 2016 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GNU General Public License version 2 or later; see LICENSE.txt</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>5.0.2</version>
+	<version>5.0.3</version>
 	<description><![CDATA[This module only appear on viewing a single discussion by displaying a similar post.]]></description>
 	<files>
 		<folder>tmpl</folder>

@@ -59,7 +59,7 @@ ed.require(['edq', 'site/src/toolbar'], function($, App) {
 				</div>
 				<?php } ?>
 
-				<a href="<?php echo $category->getPermalink();?>" class="t-font-size--02 si-link t-bg--100 t-rounded--lg t-px--md t-py--xs"
+				<a href="<?php echo EDR::_('view=categories');?>" class="t-font-size--02 si-link t-bg--100 t-rounded--lg t-px--md t-py--xs"
 					>
 					<div class="t-d--flex t-align-items--c">
 						<div class="t-flex-grow--1 t-min-width--0 ">

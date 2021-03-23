@@ -79,7 +79,7 @@ $campaignController = acym_isAdmin() ? 'campaigns' : 'frontcampaigns';
                                 $onlyFilename = substr($onlyFilename, 0, 15)."...".substr($onlyFilename, strlen($onlyFilename) - 15);
                             }
                             echo acym_tooltip(
-                                '<div class="acym__row__no-listing cell" data-toggle="path_attachment_'.$key.'">'.$onlyFilename.'</div>',
+                                '<div class="cell" data-toggle="path_attachment_'.$key.'">'.$onlyFilename.'</div>',
                                 $oneAttachment->filename,
                                 'cell'
                             );

@@ -15,9 +15,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<a class="ed-attachment-item__link" 
 		title="<?php echo $this->html('string.escape', $attachment->title);?>"
 		href="<?php echo $attachment->getDownloadLink(); ?>" 
-		rel="post-<?php echo $attachment->uid;?>" 
 		<?php if ($type == 'image') { ?>
 		data-ed-fancybox
+		data-fancybox="images-<?php echo $attachment->uid;?>"
 		<?php } else { ?>
 		target="_blank"
 		<?php } ?>

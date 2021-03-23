@@ -87,6 +87,7 @@ $config = acym_config();
 $subscribeText = $params->get('subtext', 'ACYM_SUBSCRIBE');
 if (!empty($identifiedUser->id)) $subscribeText = $params->get('subtextlogged', 'ACYM_SUBSCRIBE');
 $unsubscribeText = $params->get('unsubtext', 'ACYM_UNSUBSCRIBE');
+$unsubButton = $params->get('unsub', '0');
 
 $listPosition = $params->get('listposition', 'before');
 $displayOutside = $params->get('textmode') == '0';

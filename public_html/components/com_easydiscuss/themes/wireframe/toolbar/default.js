@@ -23,7 +23,7 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/floatlabels', 'site/vendors/mme
 	// Implement the abstract
 	App.execute(toolbarSelector, {
 		"notifications": {
-			"interval": <?php echo $this->config->get('main_notifications_interval') * 1000; ?>,
+			"interval": <?php echo $this->config->get('system_polling_interval') * 1000; ?>,
 			"enabled": <?php echo $this->my->id && $this->config->get('main_notifications') ? 'true' : 'false';?>
 		},
 		"conversations": {
@@ -54,7 +54,7 @@ ed.require(['edq', 'site/src/toolbar', 'site/src/floatlabels', 'site/vendors/mme
 			$(toolbarSelector).toggleClass('ed-toolbar--search-on');
 	});
 
-	<?php if ($showToolbar && $showNavigationMenu && $this->isMobile()) { ?>
+	<?php if ($showToolbar && $showNavigationMenu && $this->isMobile() || $this->isTablet()) { ?>
 	if ($('#ed-canvas').length > 0) {
 		new Mmenu("#ed-canvas", {
 			"extensions": [

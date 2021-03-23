@@ -11,10 +11,6 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<style type="text/css">
-:root {--si-root-font-size: <?php echo $this->config->get('layout_rem') ? '1rem' : '16px';?>; }
-</style>
-
 <div id="ed" class="type-component si-theme--<?php echo $this->config->get('layout_darkmode') ? 'dark' : 'light';?>
 	ed-responsive
 	<?php echo $categoryClass;?>

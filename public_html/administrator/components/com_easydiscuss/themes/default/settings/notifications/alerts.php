@@ -20,7 +20,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<div class="o-form-horizontal">
 					<?php echo $this->html('settings.toggle', 'main_notifications', 'COM_EASYDISCUSS_ENABLE_NOTIFICATIONS'); ?>
 					<?php echo $this->html('settings.textbox', 'main_notifications_limit', 'COM_EASYDISCUSS_NOTIFICATIONS_LIMIT', '', array('size' => 7), '', '', 'text-center'); ?>
-					<?php echo $this->html('settings.textbox', 'main_notifications_interval', 'COM_EASYDISCUSS_NOTIFICATIONS_INTERVAL', '', array('size' => 7, 'postfix' => 'COM_EASYDISCUSS_SECONDS'), 'COM_ED_NOTIFICATIONS_INTERVAL_INFO', '', 'text-center'); ?>
 					<?php echo $this->html('settings.textbox', 'main_notification_listings_limit', 'COM_EASYDISCUSS_NOTIFICATION_LIMIT_DISPLAY', '', array('size' => 7, 
 									'defaultValue' => 20), '', '', 'text-center'); ?>
 				</div>

@@ -2,7 +2,7 @@
 <extension version="3.0" method="upgrade" type="plugin" group="search">
 	<name>AcyMailing - Search emails in Joomla search bar</name>
 	<creationDate>January 2021</creationDate>
-	<version>7.2.2</version>
+	<version>7.3.0</version>
 	<author>Acyba</author>
 	<authorEmail>dev@acyba.com</authorEmail>
 	<authorUrl>https://www.acymailing.com</authorUrl>

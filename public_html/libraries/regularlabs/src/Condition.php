@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.12.24168
+ * @version         21.2.23991
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -76,11 +76,11 @@ abstract class Condition
 		$app   = JFactory::getApplication();
 		$input = $app->input;
 
-		$attributes = $input->getArray();
-
-		$id = isset($attributes['a_id'])
-			? $input->get('a_id', [0], 'array')
-			: $input->get('id', [0], 'array');
+		$id = $input->get(
+			'a_id',
+			$input->get('id', [0], 'array'),
+			'array'
+		);
 
 		self::$_request = (object) [
 			'idname' => 'id',

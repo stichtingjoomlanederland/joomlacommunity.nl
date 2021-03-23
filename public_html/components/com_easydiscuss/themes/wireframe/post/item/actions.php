@@ -11,7 +11,7 @@
 */
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
-<?php if ($post->canEdit() || $post->canFeature() || $post->canPrint() || $post->canDelete() || $post->canResolve() || $post->canLock() || $post->canReport() || $post->canReply() || ($post->isPending() && $post->canModerate())) { ?>
+<?php if ($post->canEdit() || $post->canFeature() || $post->canDuplicate() || $post->canPrint() || $post->canDelete() || $post->canResolve() || $post->canLock() || $post->canReport() || $post->canReply() || ($post->isPending() && $post->canModerate())) { ?>
 <div class="ed-entry-actions-toolbar" role="toolbar" 
 	data-ed-actions
 	data-id="<?php echo $post->id;?>"
@@ -185,6 +185,16 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<li>
 				<a href="javascript:void(0);" class="o-dropdown__item" data-ed-post-merge>
 					<?php echo JText::_('COM_EASYDISCUSS_MERGE_POST'); ?>
+				</a>
+			</li>
+			<?php } ?>
+			<?php if ($post->canDuplicate()) { ?>
+			<li>
+				<a href="javascript:void(0);" class="o-dropdown__item"
+					data-ed-dialogs
+					data-namespace="site/views/post/duplicate"
+				>
+					<?php echo JText::_('COM_ED_COPY_POST'); ?>
 				</a>
 			</li>
 			<?php } ?>

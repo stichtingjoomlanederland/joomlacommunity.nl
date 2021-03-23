@@ -42,7 +42,7 @@ if (!$fields) {
 			<div class="lg:t-w--25 sm:t-mb--sm">
 				<label class="o-form-label" for="field-<?php echo $field->id;?>">
 					<b><?php echo JText::_($field->title);?></b>
-					
+
 					<?php if ($field->required) { ?>
 						<span class="t-text--danger">*</span>
 					<?php } ?>

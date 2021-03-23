@@ -66,7 +66,7 @@ class EasyDiscussComposer
 		// If the editor type is not bbcode, we should get the correct bbcode
 		if ($this->editorType != 'bbcode') {
 			JHtml::_('behavior.core');
-			
+
 			$this->editor = ED::getEditor($this->editorType);
 		}
 
@@ -153,7 +153,7 @@ class EasyDiscussComposer
 		// Render the captcha image
 		$captcha = ED::captcha();
 		$hasTabs = $this->hasTabs($currentCatId);
-				
+
 		$appendAjaxIndex = $this->config->get('system_ajax_index') ? 'index.php' : '';
 
 		$theme->set('hasTabs', $hasTabs);
@@ -189,7 +189,7 @@ class EasyDiscussComposer
 
 		return $output;
 	}
-	
+
 	/**
 	 * Renders the name and email field
 	 *
@@ -309,7 +309,7 @@ class EasyDiscussComposer
 	public function renderEditor($name = 'dc_content', $content = '', $resetContent = false)
 	{
 		// See if we need to reset the $this->content
-		// This is to avoid the situation where we load two composer one after another. 
+		// This is to avoid the situation where we load two composer one after another.
 		// If the content of a second composer is empty, it will use the previous content
 		if ($resetContent) {
 			$this->content = '';
@@ -338,7 +338,7 @@ class EasyDiscussComposer
 			$style = '#ed .markItUp .markItUpButton a { background-image: url("' . DISCUSS_JOOMLA_SITE_TEMPLATES_URI . $overridePath . '") !important; }';
 			$this->doc->addStyleDeclaration($style);
 		}
-		
+
 		if ($content) {
 			$this->content = $content;
 		}
@@ -367,7 +367,7 @@ class EasyDiscussComposer
 		}
 
 		$theme->set('canSlashCommand', $canSlashCommand);
-		
+
 		$html = $theme->output($namespace);
 
 		return $html;
@@ -395,7 +395,7 @@ class EasyDiscussComposer
 		if (ED::isSiteAdmin() || ED::isModerator($this->parent->category_id)) {
 			return true;
 		}
-		
+
 		return false;
 	}
 

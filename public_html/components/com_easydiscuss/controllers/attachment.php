@@ -27,6 +27,12 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			die('Invalid request');
 		}
 
+		$acl = ED::acl();
+
+		if (!$acl->allowed('download_attachment')) {
+			throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
+		}
+
 		$attachment = ED::attachment($id);
 		$file = $attachment->getAbsolutePath(true);
 
@@ -91,6 +97,12 @@ class EasyDiscussControllerAttachment extends EasyDiscussController
 			if ($post->private && $this->my->id != $post->user_id && !$isModerator) {
 				throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
 			}
+		}
+
+		$acl = ED::acl();
+
+		if (!$acl->allowed('download_attachment')) {
+			throw ED::exception('COM_ED_ATTACHMENT_DOWNLOAD_INSUFFICIENT_PERMISSION', ED_MSG_ERROR);
 		}
 
 		// Determine if user are allowed to download file from the discussion which belong to Easysocial cluster.

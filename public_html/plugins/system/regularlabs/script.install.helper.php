@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         20.12.24168
+ * @version         21.2.23991
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -745,7 +745,7 @@ class PlgSystemRegularLabsInstallerScriptHelper
 			->from('#__update_sites')
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%download.regularlabs.com%'))
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%e=' . $this->alias . '%'))
-			->where($this->db->quoteName('location') . ' NOT LIKE ' . $this->db->quote('%pro=1%'))
+			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%pro=1%'))
 			->setLimit(1);
 		$this->db->setQuery($query);
 		$id = $this->db->loadResult();
@@ -761,11 +761,11 @@ class PlgSystemRegularLabsInstallerScriptHelper
 			$this->db->setQuery($query, 0, 1);
 			$id = $this->db->loadResult();
 
-			// Remove pro=1 from the found update site
+			// Add pro=1 to the found update site
 			$query->clear()
 				->update('#__update_sites')
 				->set($this->db->quoteName('location')
-					. ' = replace(' . $this->db->quoteName('location') . ', ' . $this->db->quote('&pro=1') . ', ' . $this->db->quote('') . ')')
+					. ' = replace(' . $this->db->quoteName('location') . ', ' . $this->db->quote('&type=') . ', ' . $this->db->quote('&pro=1&type=') . ')')
 				->where($this->db->quoteName('update_site_id') . ' = ' . (int) $id);
 			$this->db->setQuery($query);
 			$this->db->execute();

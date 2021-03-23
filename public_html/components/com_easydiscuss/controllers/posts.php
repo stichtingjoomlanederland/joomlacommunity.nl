@@ -1037,6 +1037,42 @@ class EasyDiscussControllerPosts extends EasyDiscussController
 		}
 
 		ED::setMessage(JText::_('COM_EASYDISCUSS_ENTRY_UNRESOLVED'), 'success');
-		return ED::redirect(EDR::getPostRoute($post->id, false));		
-	}	
+		return ED::redirect(EDR::getPostRoute($post->id, false));
+	}
+
+	/**
+	 * Method to duplicate a post
+	 *
+	 * @since   5.0.3
+	 * @access  public
+	 */
+	public function duplicate()
+	{
+		ED::checkToken();
+
+		$id = $this->input->get('id', 0, 'int');
+		$post = ED::post($id);
+
+		// Default redirection
+		$redirect = EDR::_('view=post&id=' . $id, false);
+
+		if (!$post->id || !$id) {
+			ED::setMessage('COM_EASYDISCUSS_INVALID_POST_ID', 'error');
+
+			return ED::redirect($redirect);
+		}
+
+		if (!$post->canDuplicate()) {
+			ED::setMessage('COM_EASYDISCUSS_NO_PERMISSION_TO_PERFORM_THE_REQUESTED_ACTION', 'error');
+
+			return ED::redirect($redirect);
+		}
+
+		$post->duplicate();
+
+		$message = JText::_('COM_ED_DUPLICATE_POST_SUCCESS_MESSAGE');
+		ED::setMessage($message, 'success');
+
+		return ED::redirect($redirect);
+	}
 }

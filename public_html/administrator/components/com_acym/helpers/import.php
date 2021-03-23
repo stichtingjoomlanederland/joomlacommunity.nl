@@ -136,7 +136,8 @@ class ImportHelper extends acymObject
 
         $time = time();
         $formattedTime = acym_date($time, 'Y-m-d H:i:s');
-        $query = 'INSERT IGNORE INTO #__acym_user (`name`,`email`,`creation_date`,`active`,`cms_id`, `source`) SELECT `user`.`'.$this->cmsUserVars->name.'`,`user`.`'.$this->cmsUserVars->email.'`,`user`.`'.$this->cmsUserVars->registered.'`,1 - `user`.'.$this->cmsUserVars->blocked.',`user`.`'.$this->cmsUserVars->id.'`,\'Import on '.$formattedTime.'\' FROM '.$this->cmsUserVars->table.' AS `user` ';
+        $sourceImport = 'Import on '.$formattedTime;
+        $query = 'INSERT IGNORE INTO #__acym_user (`name`,`email`,`creation_date`,`active`,`cms_id`, `source`) SELECT `user`.`'.$this->cmsUserVars->name.'`,`user`.`'.$this->cmsUserVars->email.'`,`user`.`'.$this->cmsUserVars->registered.'`,1 - `user`.'.$this->cmsUserVars->blocked.',`user`.`'.$this->cmsUserVars->id.'`,\''.$sourceImport.'\' FROM '.$this->cmsUserVars->table.' AS `user` ';
         $groups = acym_getVar('array', 'groups', []);
         $this->config->save(['import_groups' => implode(',', $groups)]);
         if (!empty($groups)) {
@@ -155,6 +156,8 @@ class ImportHelper extends acymObject
         $insertedUsers = acym_query($query);
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = \'last_import\'');
+
+        acym_trigger('onAcymAfterCMSUserImport', [$sourceImport]);
 
         acym_enqueueMessage(acym_translationSprintf('ACYM_IMPORT_NEW_SUBS', $insertedUsers), 'info');
 
@@ -248,7 +251,8 @@ class ImportHelper extends acymObject
             $select['`confirmed`'] = 1;
         }
 
-        $select['`source`'] = acym_escapeDB('Import on '.$formattedTime);
+        $sourceTxt = 'Import on '.$formattedTime;
+        $select['`source`'] = acym_escapeDB($sourceTxt);
 
         $query = 'INSERT IGNORE INTO #__acym_user ('.implode(' , ', array_keys($select)).') SELECT '.implode(' , ', $select);
         $query .= ' FROM '.acym_secureDBColumn($table).' WHERE '.acym_secureDBColumn($select['`email`']).' LIKE "%@%"';
@@ -259,6 +263,8 @@ class ImportHelper extends acymObject
         $affectedRows = acym_query($query);
 
         acym_query('UPDATE #__acym_configuration SET `value` = '.intval($time).' WHERE `name` = "last_import"');
+
+        acym_trigger('onAcymAfterDatabaseUserImport', [$sourceTxt]);
 
         if ($onlyImport) return true;
 

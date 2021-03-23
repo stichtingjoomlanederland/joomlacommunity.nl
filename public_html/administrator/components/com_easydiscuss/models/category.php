@@ -411,9 +411,6 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 
 		$moderators = array();
 
-		$category = ED::category($categoryId);
-		$categoryId = !$category->global_acl ? $categoryId : 0;
-
 		// Get a list of user groups
 		$groups = $this->getAssignedModerator($categoryId, 'group');
 
@@ -680,13 +677,14 @@ class EasyDiscussModelCategory extends EasyDiscussAdminModel
 	 *
 	 * @since	4.0
 	 * @access	public
-	 * @param	string
-	 * @return
 	 */
 	public function getAssignedModerator($categoryId, $type = 'group')
 	{
 		$db = $this->db;
 		$acl = array();
+
+		$category = ED::category($categoryId);
+		$categoryId = !$category->global_acl ? $categoryId : 0;
 
 		// By default we assume that the type is group
 		$querySelect = ' b.title AS title';
