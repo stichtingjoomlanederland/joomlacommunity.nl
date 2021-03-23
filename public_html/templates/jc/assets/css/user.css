@@ -73,7 +73,8 @@
   content: unset;
 }
 
-#ed .is-editor-markup pre > * {
+#ed code[class*=language-],
+#ed pre[class*=language-] {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
