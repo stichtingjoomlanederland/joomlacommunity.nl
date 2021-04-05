@@ -174,7 +174,9 @@ figure {
   margin: 0;
 }
 
-.frame__media {
+.frame__media > iframe,
+.frame__media > img,
+.frame__media > video {
   display: block;
   width: 100%;
   object-fit: cover;
