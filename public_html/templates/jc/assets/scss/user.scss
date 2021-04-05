@@ -193,7 +193,11 @@ figure {
 }
 
 .frame__media {
-  display: block;
-  width: 100%;
-  object-fit: cover;
+  > iframe,
+  > img,
+  > video {
+    display: block;
+    width: 100%;
+    object-fit: cover;
+  }
 }
