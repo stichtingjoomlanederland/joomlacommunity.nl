@@ -208,7 +208,21 @@ class EasyDiscussRouterBase extends EasyDiscuss
 
 		// Ask question view
 		if (isset($query['view']) && $query['view'] == 'ask') {
-			$segments[] = $query['view'];
+
+			$addView = true;
+
+			if ($active) {
+				$xView = isset($active->query['view']) && $active->query['view'] ? $active->query['view'] : '';
+
+				if ($xView == 'ask') {
+					$addView = false;
+				}
+			}
+
+			if ($addView) {
+				$segments[] = $query['view'];
+			}
+
 			unset($query['view']);
 
 			if (isset($query['group_id']) && $query['group_id']) {
@@ -504,6 +518,12 @@ class EasyDiscussRouterBase extends EasyDiscuss
 
 		// we know this is the profile view
 		if (isset($item->query['view']) && $item->query['view'] == 'profile' && count($segments) >= 1 && !in_array($segments[0], $views)) {
+			$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
+			array_unshift($segments, $xView);
+		}
+
+		// we know this is the ask view
+		if (isset($item->query['view']) && $item->query['view'] == 'ask' && count($segments) >= 1 && !in_array($segments[0], $views)) {
 			$xView = isset($item->query['view']) && $item->query['view'] ? $item->query['view'] : '';
 			array_unshift($segments, $xView);
 		}
@@ -946,6 +966,7 @@ class EasyDiscussRouterBase extends EasyDiscuss
 				$alias = $segments[$count-1];
 				$vars['group_id'] = $easysocial->decodeAlias($alias);
 			}
+			
 		}
 
 		if (isset($segments[0]) && $segments[0] == 'search') {

@@ -1,4 +1,13 @@
 <?php die();?>
+Akeeba Backup 8.0.3
+================================================================================
+~ Rewritten installer plugin
+~ Converted all tables to InnoDB for better performance
+# [HIGH] Cannot take split archive backups under PHP 8
+# [HIGH] Backup on Update message shown to non-Super Users
+# [HIGH] Latest backup restoration backend menu item didn't work
+# [LOW] Annoying error message, without any real consequence, shown when clicking any feature button before checking the output folder security has completed in the background
+
 Akeeba Backup 8.0.2
 ================================================================================
 ! Update fails on some hosts which use opcache if the any of our software's installer plugin is enabled, you have gone through the Joomla Control Panel (with the extension updates quickicon plugin enabled) or the Extensions Update page before installing the new version, either as an automatic update or by manual installation (upload & install or install from URL).

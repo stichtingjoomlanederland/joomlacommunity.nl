@@ -35,7 +35,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				]); ?>
 			<?php } ?>
 		<?php } ?>
-		<?php echo $this->html('card.empty', 'fa fa-bell', 'COM_EASYDISCUSS_NOTIFICATIONS_ALL_CAUGHT_UP'); ?>
+		<?php echo $this->html('card.emptyCard', 'fa fa-bell', 'COM_EASYDISCUSS_NOTIFICATIONS_ALL_CAUGHT_UP'); ?>
 	</div>
 </div>
 

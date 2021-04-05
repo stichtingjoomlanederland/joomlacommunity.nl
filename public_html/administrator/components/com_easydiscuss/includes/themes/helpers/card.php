@@ -102,7 +102,7 @@ class EasyDiscussThemesHelperCard extends EasyDiscussHelperAbstract
 	 * @since	5.0.0
 	 * @access	public
 	 */
-	public function empty($icon, $text, $fixedHeight = true)
+	public function emptyCard($icon, $text, $fixedHeight = true)
 	{
 		$theme = ED::themes();
 		$theme->set('fixedHeight', $fixedHeight);

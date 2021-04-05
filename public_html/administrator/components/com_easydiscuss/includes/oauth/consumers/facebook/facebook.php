@@ -316,6 +316,10 @@ class EasyDiscussFacebook extends Facebook
 			return $groups;
 		}
 
+		if (!isset($result['data'])) {
+			return $groups;
+		}
+
 		foreach ($result['data'] as $group) {
 			$groups[] = (object) $group;
 		}
@@ -337,6 +341,10 @@ class EasyDiscussFacebook extends Facebook
 		$pages = array();
 
 		if (!$result) {
+			return $pages;
+		}
+
+		if (!isset($result['data'])) {
 			return $pages;
 		}
 

@@ -9,15 +9,15 @@
     <dlid prefix="dlid=" suffix=""/>
     <name>Admin Tools package</name>
     <author>Nicholas K. Dionysopoulos</author>
-    <creationDate>2021-03-08</creationDate>
+    <creationDate>2021-03-22</creationDate>
     <packagename>admintools</packagename>
-    <version>6.0.3</version>
+    <version>6.0.4</version>
     <url>https://www.akeeba.com</url>
     <packager>Akeeba Ltd</packager>
     <packagerurl>https://www.akeeba.com</packagerurl>
     <copyright>Copyright (c)2010-2019 Akeeba Ltd / Nicholas K. Dionysopoulos</copyright>
     <license>GNU GPL v3 or later</license>
-    <description>Admin Tools Professional installation package v.6.0.3</description>
+    <description>Admin Tools Professional installation package v.6.0.4</description>
 
     <!-- List of extensions to install -->
     <files>

@@ -44,18 +44,28 @@ class EasyDiscussTelegram extends EasyDiscuss
 		// Format the result
 		foreach ($result as &$item) {
 
+			// Check for private chat.
+			if (!isset($item->message)) {
+				// Check for channel chat.
+				if (!isset($item->my_chat_member)) {
+					continue;
+				}
+			}
+
+			$chat = isset($item->message) ? $item->message->chat : $item->my_chat_member->chat;
+
 			// Don't keep appending the same chats into the array.
-			if (in_array($item->message->chat->id, $unique)) {
+			if (in_array($chat->id, $unique)) {
 				continue;
 			}
 
 			// Standardize all items to have a "title" attribute
-			if (!isset($item->message->chat->title)) {
-				$item->message->chat->title = $item->message->chat->first_name . ' ' . $item->message->chat->last_name;
+			if (!isset($chat->title)) {
+				$chat->title = $chat->first_name . ' ' . $chat->last_name;
 			}
 
-			$unique[] = $item->message->chat->id;
-			$messages[] = $item->message;
+			$unique[] = $chat->id;
+			$messages[] = $chat;
 		}
 
 		return $messages;

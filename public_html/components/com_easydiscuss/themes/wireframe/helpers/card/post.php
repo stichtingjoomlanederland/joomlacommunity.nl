@@ -30,7 +30,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 							<?php echo $this->html('post.featured'); ?>
 						<?php } ?>
 
-						<?php echo $this->html('post.new'); ?>
+						<?php echo $this->html('post.newLabel'); ?>
 						
 						<?php echo $this->html('post.title', $post); ?>
 					</h2>

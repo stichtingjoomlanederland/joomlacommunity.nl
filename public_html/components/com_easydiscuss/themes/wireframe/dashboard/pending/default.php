@@ -77,5 +77,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php } ?>
 	<?php } ?>
 
-	<?php echo $this->html('card.empty', 'fa fa-newspaper', 'COM_EASYDISCUSS_DASHBOARD_NO_POST_TO_MANAGE'); ?>
+	<?php echo $this->html('card.emptyCard', 'fa fa-newspaper', 'COM_EASYDISCUSS_DASHBOARD_NO_POST_TO_MANAGE'); ?>
 </div>

@@ -57,7 +57,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<?php echo $this->html('loading.block'); ?>
 
-			<?php echo $this->html('card.empty', 'fa fa-tags', 'COM_ED_NO_TAGS_FOUND'); ?>
+			<?php echo $this->html('card.emptyCard', 'fa fa-tags', 'COM_ED_NO_TAGS_FOUND'); ?>
 		</div>
 		<?php if ($tags) { ?>
 		<div data-tags-pagination>

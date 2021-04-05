@@ -17,9 +17,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 			<div class="dl-menu-wrapper">
 				<div class="ed-filters" data-ed-filters data-category="">	
 					<div class="" data-ed-category-container>
-						<div class="ed-filter-menu ed-filter-menu--parent o-tabs--dlmenu " data-ed-category-group>
+						<div class="ed-filter-menu ed-filter-menu--parent o-tabs--dlmenu" data-ed-category-group>
 							<?php foreach ($categories as $category) { ?>
-							<div class="ed-filter-menu__item t-mb--sm <?php echo $activeCategory->id == $category->id ? 'active' : '';?>" data-category-filter="<?php echo $category->id;?>">
+							<div class="ed-filter-menu__item <?php echo $activeCategory->id == $category->id ? 'active' : '';?>" data-category-filter="<?php echo $category->id;?>">
 								<?php echo $helper->getCategoryItem($category, $params); ?>
 
 								<?php echo $helper->getNestedCategories($category->id, $params, $activeCategory); ?>

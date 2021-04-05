@@ -63,7 +63,7 @@ $defaultName = isset($user->name) ? $user->name : '';
 			<?php if (!$this->config->get('layout_text_avatar') || $this->config->get('layout_avatarIntegration') != 'default') { ?>
 				<img src="<?php echo !$isAnonymous ? $user->getAvatar() : ED::getDefaultAvatar();?>" 
 					alt="<?php echo !$isAnonymous ? $this->escape($user->getName($defaultName)) : JText::_('COM_EASYDISCUSS_ANONYMOUS_USER');?>"
-					<?php echo ED::easysocial()->getPopbox($user->id);?>
+					<?php echo $easysocialPopbox ? ED::easysocial()->getPopbox($user->id) : '';?>
 				/>
 			<?php } else { ?>
 				<?php echo $textAvatarName;?>

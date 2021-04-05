@@ -55,6 +55,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 	.mj-column-px-400 { width:400px !important; max-width: 400px; }
 	.mj-column-px-235 { width:235px !important; max-width: 235px; }
 	.mj-column-px-10 { width:10px !important; max-width: 10px; }
+	.mj-column-per-15 { width:15% !important; max-width: 15%; }
+	.mj-column-per-85 { width:85% !important; max-width: 85%; }
+	.mj-column-per-49 { width:49% !important; max-width: 49%; }
+	.mj-column-px-10 { width:10px !important; max-width: 10px; }
 	  }
 	</style>
 

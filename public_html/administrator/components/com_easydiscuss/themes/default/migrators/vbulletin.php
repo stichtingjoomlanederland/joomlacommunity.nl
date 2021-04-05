@@ -23,8 +23,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 				<?php echo JText::_('COM_EASYDISCUSS_VBULLETN_DB_PREFIX'); ?>
 				
 				<input type="text" name="migrator_vBulletin_prefix" class="form-control form-control-sm t-lg-mr--md" value="" data-ed-vbulletin-prefix />
-				<input type="submit" class="btn btn-success" value="<?php echo JText::_('COM_EASYDISCUSS_VBULLETIN_NEXT_STEP');?>" data-ed-vbulletin-next/>
-
+				<a href="javascript:void(0);" class="btn btn-success" data-ed-vbulletin-next>
+					<?php echo JText::_('COM_EASYDISCUSS_VBULLETIN_NEXT_STEP');?>
+				</a>
 			</div>
 
 		</div>
@@ -42,9 +43,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<li><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_NOTICE_OFFLINE'); ?></li>
 							</ul>
 
-							<button class="btn btn-success" data-ed-migrate>
+							<a href="javascript:void(0);" class="btn btn-success" data-ed-migrate>
 								<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL'); ?>
-							</button>
+							</a>
 
 						</div>
 					</div>
@@ -54,24 +55,24 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<div class="col-md-6">
 		<div class="panel">
-	        	<div class="panel-head">
-	        		<b><?php echo JText::_('COM_EASYDISCUSS_PROGRESS');?></b>
-	                <span data-progress-loading class="eb-loader-o size-sm hide"></span>
-	        	</div>
+				<div class="panel-head">
+					<b><?php echo JText::_('COM_EASYDISCUSS_PROGRESS');?></b>
+					<span data-progress-loading class="eb-loader-o size-sm hide"></span>
+				</div>
 
-	        	<div class="panel-body">
-		        	<div data-progress-status style="overflow:auto; height:98%;max-height: 300px;"><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_NO_PROGRESS_YET'); ?></div>
+				<div class="panel-body">
+					<div data-progress-status style="overflow:auto; height:98%;max-height: 300px;"><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_NO_PROGRESS_YET'); ?></div>
 				</div>
 			</div>
 
 			<div class="panel">
 				<div class="panel-head">
-	        		<b><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_STATISTIC');?></b>
-	        	</div>
+					<b><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_STATISTIC');?></b>
+				</div>
 
-	        	<div class="panel-body">
-	        		<div data-progress-stat style="overflow:auto; height:98%;"></div>
-	        	</div>
+				<div class="panel-body">
+					<div data-progress-stat style="overflow:auto; height:98%;"></div>
+				</div>
 			</div>
 	</div>
 </div>

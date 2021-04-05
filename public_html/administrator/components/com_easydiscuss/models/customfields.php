@@ -229,40 +229,18 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			// return false;
 		}
 
-		// Determine whether the current post have custom field, if given post_id
-		$noCustomFields = 0;
-
-		if ($post_id) {
-			$sql = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_customfields_value') . ' WHERE `post_id` = ' . $db->Quote($post_id);
-			$db->setQuery($sql);
-			$noCustomFields = $db->loadResult();
-		}
-
 		$query = [];
 		$query[] = 'SELECT a.*, ' . $db->Quote($aclId) . ' AS `acl_id`';
 		$query[] = 'FROM ' . $db->nameQuote('#__discuss_customfields') . ' AS a';
 		$query[] = 'WHERE a.`published` = ' . $db->Quote('1');
-			$query[] = 'AND 1 <= (';
-			$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_customfields_rule') . ' AS b';
-			$query[] = 'WHERE b.`field_id` = a.`id`';
-			$query[] = 'AND b.`content_type` = ' . $db->Quote('group');
-			$query[] = 'AND b.`acl_id` = ' . $db->Quote($aclId);
-			$query[] = 'AND b.`content_id` IN (' . implode(',', $groups) . ')';
-			$query[] = ')';
-
-		// Determine is this a question from "reply branch".
-		if ($post_id != NULL && $noCustomFields) {
-			$query[] = 'AND 1 <= (';
-			$query[] = 'SELECT COUNT(1) AS `count` FROM ' . $db->nameQuote('#__discuss_customfields_value') . ' AS c';
-			$query[] = 'WHERE c.`field_id` = a.`id`';
-			$query[] = 'AND c.`value` IS NOT NULL';
-			$query[] = 'AND c.`post_id` = ' . $db->Quote($post_id);
-			$query[] = ')';
-		} else {
-			// Else this is a normal customfield.
-			$query[] = 'AND a.`section` = ' . $db->Quote($section);
-		}
-
+		$query[] = 'AND 1 <= (';
+		$query[] = 'SELECT COUNT(1) FROM ' . $db->nameQuote('#__discuss_customfields_rule') . ' AS b';
+		$query[] = 'WHERE b.`field_id` = a.`id`';
+		$query[] = 'AND b.`content_type` = ' . $db->Quote('group');
+		$query[] = 'AND b.`acl_id` = ' . $db->Quote($aclId);
+		$query[] = 'AND b.`content_id` IN (' . implode(',', $groups) . ')';
+		$query[] = ')';
+		$query[] = 'AND a.`section` = ' . $db->Quote($section);
 		$query[] = 'ORDER BY a.`ordering`';
 
 		$query = implode(' ', $query);
@@ -321,7 +299,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		$groups = ED::getUserGroupId($user);
 
 		if (!$groups) {
-			return array();
+			return [];
 		}
 
 		$post = ED::post($postId);
@@ -333,11 +311,6 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 		$params = $category->getParams();
 
 		$catFieldIds = $params->get('custom_fields', '');
-
-		// We should disable custom fields if category has no custom fields assigned.
-		if (!$catFieldIds) {
-			return array();
-		}
 
 		$query = 'SELECT a.*,';
 		$query .= ' b.' . $db->qn('field_id') . ', b.' . $db->qn('acl_id') . ', b.' . $db->qn('content_id') . ',';
@@ -356,6 +329,7 @@ class EasyDiscussModelCustomFields extends EasyDiscussAdminModel
 			$query .= ' AND a.' . $db->qn('id') . ' IN (' . implode(',', $catFieldIds) . ')';
 		}
 
+		$query .= ' OR a.`global` = 1';
 		$query .= ' AND b.' . $db->qn('content_type') . '=' . $db->Quote('group');
 		$query .= ' AND b.' . $db->qn('acl_id') . '=' . $db->Quote(DISCUSS_CUSTOMFIELDS_ACL_VIEW);
 

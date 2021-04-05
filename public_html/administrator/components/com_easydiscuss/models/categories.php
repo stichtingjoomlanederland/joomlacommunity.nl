@@ -1018,7 +1018,7 @@ class EasyDiscussModelCategories extends EasyDiscussAdminModel
 			}
 
 			// echo $sql;
-			// echo '<br /><br />';
+			// echo '<br /><br />'; exit;
 
 			$db->setQuery($sql);
 

@@ -51,7 +51,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 
 					<?php if (!$thread->posts) { ?>
-						<?php echo $this->html('card.empty', 'fa-book', 'COM_EASYDISCUSS_FORUMS_CATEGORY_EMPTY_DISCUSSION_LIST'); ?>
+						<?php echo $this->html('card.emptyCard', 'fa-book', 'COM_EASYDISCUSS_FORUMS_CATEGORY_EMPTY_DISCUSSION_LIST'); ?>
 					<?php } ?>
 				</div>
 

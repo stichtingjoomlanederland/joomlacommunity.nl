@@ -19,6 +19,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 	<input type="hidden" name="option" value="com_easydiscuss" />
 	<input type="hidden" name="controller" value="migrators" />
-	<input type="hidden" name="task" value="purge" />
+	<input type="hidden" name="task" value="" />
 	<input type="hidden" name="layout" value="<?php echo $type; ?>" />
+
 </form>

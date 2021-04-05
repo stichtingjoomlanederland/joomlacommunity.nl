@@ -23,7 +23,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" style="background:#ffffff;background-color:#ffffff;width:100%;">
 	<tbody>
 	<tr>
-		<td style="direction:ltr;font-size:0px;padding:0;padding-top:40px;text-align:center;">
+		<td style="direction:ltr;font-size:0px;padding:40px 20px 0;text-align:center;">
 			<!--[if mso | IE]>
 			<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:480px;">
 			<![endif]-->
@@ -69,7 +69,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 	<table role="presentation" style="background:#f9f9fa;background-color:#f9f9fa;width:100%;" cellspacing="0" cellpadding="0" border="0" align="center">
 	<tbody>
 	<tr>
-		<td style="direction:ltr;font-size:0px;padding:10px 0 0;text-align:center;">
+		<td style="direction:ltr;font-size:0px;padding:10px 20px 0;text-align:center;">
 			<!--[if mso | IE]>
 			<table role="presentation" border="0" cellpadding="0" cellspacing="0"><tr><td style="vertical-align:top;width:40px;">
 			<![endif]-->

@@ -27,7 +27,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<?php echo $this->html('loading.block'); ?>
 			
-			<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_NO_FAVOURITE_POSTS_YET'); ?>
+			<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_NO_FAVOURITE_POSTS_YET'); ?>
 		</div>
 	</div>
 </div>

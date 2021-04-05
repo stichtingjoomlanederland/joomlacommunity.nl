@@ -29,9 +29,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<li><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_NOTICE_OFFLINE'); ?></li>
 							</ul>
 
-							<button class="btn btn-success" data-ed-migrate>
+							<a href="javascript:void(0);" class="btn btn-success" data-ed-migrate>
 								<?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_RUN_MIGRATION_TOOL'); ?>
-							</button>
+							</a>
 
 							<?php } else { ?>
 							<p><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_JOMSOCIAL_NOT_INSTALLED'); ?></p>
@@ -44,14 +44,14 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<div class="col-md-6">
 			<div class="panel">
-	        	<div class="panel-head">
-	        		<b><?php echo JText::_('COM_EASYDISCUSS_PROGRESS');?></b>
-	                <span data-progress-loading class="eb-loader-o size-sm hide"></span>
-	        	</div>
+				<div class="panel-head">
+					<b><?php echo JText::_('COM_EASYDISCUSS_PROGRESS');?></b>
+					<span data-progress-loading class="eb-loader-o size-sm hide"></span>
+				</div>
 
-	        	<div class="panel-body">
-		        	<div data-progress-empty><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_NO_PROGRESS_YET'); ?></div>
-		        	<div data-progress-status style="overflow:auto; height:98%;max-height: 300px;"></div>
+				<div class="panel-body">
+					<div data-progress-empty><?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_NO_PROGRESS_YET'); ?></div>
+					<div data-progress-status style="overflow:auto; height:98%;max-height: 300px;"></div>
 				</div>
 			</div>
 		</div>

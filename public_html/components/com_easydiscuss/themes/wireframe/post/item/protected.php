@@ -64,7 +64,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<div>
 									<?php echo $this->html('post.featured'); ?>
 
-									<?php echo $this->html('post.new'); ?>
+									<?php echo $this->html('post.newLabel'); ?>
 
 									<?php echo $this->html('post.resolved'); ?>
 

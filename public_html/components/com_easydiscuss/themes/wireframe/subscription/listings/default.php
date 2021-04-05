@@ -90,7 +90,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<?php echo $this->html('loading.block'); ?>
 				
-				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+				<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
 
 			<div id="category" class="tab-pane <?php echo $filter == 'category' ? 'active' : '';?>" data-ed-list-wrapper>
@@ -102,7 +102,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<?php echo $this->html('loading.block'); ?>
 				
-				<?php echo $this->html('card.empty', 'far fa-folder', 'You have not subscribed to any categories yet'); ?>
+				<?php echo $this->html('card.emptyCard', 'far fa-folder', 'You have not subscribed to any categories yet'); ?>
 			</div>
 		</div>
 	</div>

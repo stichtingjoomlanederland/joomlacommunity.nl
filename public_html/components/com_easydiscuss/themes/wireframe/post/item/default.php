@@ -41,7 +41,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 								<div>
 									<?php echo $this->html('post.featured'); ?>
 
-									<?php echo $this->html('post.new'); ?>
+									<?php echo $this->html('post.newLabel'); ?>
 
 									<?php echo $this->html('post.resolved'); ?>
 
@@ -302,7 +302,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 			<?php } ?>
 
-			<?php echo $this->html('card.empty', 'fa fa-comments', $emptyMessage, false); ?>
+			<?php echo $this->html('card.emptyCard', 'fa fa-comments', $emptyMessage, false); ?>
 		</div>
 
 		<?php echo ED::renderModule('easydiscuss-after-replies'); ?>

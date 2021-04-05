@@ -40,11 +40,21 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<div class="o-form-horizontal">
 						<div class="o-form-group">
 							<div class="col-md-12">
-								<a href="javascript:void(0);" class="o-btn o-btn--outline-primary" data-ed-telegram-discover>
+								<a href="javascript:void(0);" class="o-btn o-btn--primary" data-ed-telegram-discover>
 									<i class="fab fa-telegram"></i>&nbsp; <?php echo JText::_('COM_EASYDISCUSS_TELEGRAM_DISCOVER');?>
 								</a>
 							</div>
 						</div>
+
+						<?php if ($this->config->get('integrations_telegram_chat_id')) { ?>
+						<div class="o-form-group">
+							<div class="col-md-12" data-ed-telegram-test-wrapper>
+								<a href="javascript:void(0);" class="o-btn o-btn--primary-o" data-ed-telegram-test>
+									<i class="fab fa-telegram"></i>&nbsp; <?php echo JText::_('COM_ED_TELEGRAM_SEND_TEST_CHAT');?>
+								</a>
+							</div>
+						</div>
+						<?php } ?>
 
 						<div class="o-form-group t-hidden" data-ed-telegram-messages-wrapper>
 							<div class="col-md-5 o-form-label">
@@ -56,7 +66,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 						</div>
 
 						<?php if ($this->config->get('integrations_telegram_chat_id')) { ?>
-							<?php echo $this->html('settings.textbox', 'integrations_telegram_chat_id', 'COM_EASYDISCUSS_TELEGRAM_CHAT_ID'); ?>
+							<?php echo $this->html('settings.textbox', 'integrations_telegram_chat_id', 'COM_EASYDISCUSS_TELEGRAM_CHAT_ID', '', ['wrapperAttributes' => 'data-ed-integration-chat-id']); ?>
 						<?php } ?>
 					</div>
 				</div>

@@ -150,7 +150,7 @@ class EasyDiscussStylesheet extends EasyDiscuss
 	{
 		$config = ED::config();
 
-		if (!defined('SI_MMENU') && $config->get('layout_enabletoolbar')) {
+		if (!defined('SI_MMENU')) {
 			$css = JURI::root(true) . '/media/com_easydiscuss/vendors/mmenu/mmenu.css';
 
 			$this->addStylesheet($css);
@@ -176,15 +176,11 @@ class EasyDiscussStylesheet extends EasyDiscuss
 		$file = 'style';
 
 		if ($this->isRTL()) {
+			// RTL only use minified version regardless development mode or not
 			$file .= '-rtl.min';
 		}
 
-		if (!$this->isDevelopment()) {
-			
-			if ($this->isRTL()) {
-				$file .= '-rtl';
-			}
-
+		if (!$this->isDevelopment() && !$this->isRTL()) {
 			$file .= '.min';
 		}
 

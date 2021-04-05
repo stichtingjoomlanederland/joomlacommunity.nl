@@ -79,7 +79,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<?php echo $this->html('loading.block'); ?>
 				
-				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+				<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
 
 			<?php if ($this->config->get('main_postassignment')) { ?>
@@ -96,7 +96,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 
 				<?php echo $this->html('loading.block');?>
-				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+				<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
 			<?php } ?>
 
@@ -112,7 +112,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</div>
 				<?php echo $this->html('loading.block');?>
-				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+				<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
 
 			<?php if ($this->config->get('main_badges')) { ?>
@@ -123,7 +123,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php } ?>
 				</div>
 
-				<?php echo $this->html('card.empty', 'fas fa-certificate', 'COM_ED_NO_ACHIEVEMENTS_YET'); ?>
+				<?php echo $this->html('card.emptyCard', 'fas fa-certificate', 'COM_ED_NO_ACHIEVEMENTS_YET'); ?>
 			</div>
 			<?php } ?>
 
@@ -141,7 +141,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 
 				<?php echo $this->html('loading.block');?>
-				<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+				<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 			</div>
 			<?php } ?>
 
@@ -151,7 +151,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 
 				<?php echo $this->html('loading.block');?>
-				<?php echo $this->html('card.empty', 'fas fa-certificate', 'COM_EASYDISCUSS_USER_NO_POINTS_HISTORY'); ?>
+				<?php echo $this->html('card.emptyCard', 'fas fa-certificate', 'COM_EASYDISCUSS_USER_NO_POINTS_HISTORY'); ?>
 			</div>
 			<?php } ?>
 		</div>

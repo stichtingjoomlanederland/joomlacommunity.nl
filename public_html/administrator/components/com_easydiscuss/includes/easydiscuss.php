@@ -771,7 +771,7 @@ class ED
 	public static function isSiteAdmin($userId = null)
 	{
 		static $cache = array();
-		
+
 		$key = is_null($userId) ? 'me' : $userId;
 
 		if (!isset($cache[$key])) {
@@ -1427,7 +1427,7 @@ class ED
 
 			// Load it into our post library
 			$post = ED::post($row);
-			
+
 			if ($isFrontpage) {
 				$model = ED::model('Posts');
 				$post->lastReply = $model->getLastReply($post->id);
@@ -1732,7 +1732,7 @@ class ED
 	 *
 	 * @since	1.0
 	 * @access	public
-	 */	
+	 */
 	public static function getSAUsersIds()
 	{
 		if (ED::getJoomlaVersion() < '1.6') {
@@ -1751,7 +1751,7 @@ class ED
 		$result = $db->loadObjectList();
 
 		$saGroup = array();
-		
+
 		foreach ($result as $group) {
 
 			if (JAccess::checkGroup($group->id, 'core.admin')) {
@@ -1767,7 +1767,7 @@ class ED
 			foreach ($saGroup as $sag) {
 
 				$userArr = JAccess::getUsersByGroup($sag->id);
-				
+
 				if (count($userArr) > 0) {
 
 					foreach ($userArr as $user) {
@@ -1914,6 +1914,8 @@ class ED
 
 		$accessibleCatsIds = ED::getAccessibleCategories($parentId, $aclType);
 
+		// dump($accessibleCatsIds);
+
 		if (!empty($childs)) {
 
 			for ($j = 0; $j < count($childs); $j++) {
@@ -2018,7 +2020,7 @@ class ED
 						$html .= $str;
 				}
 
-			
+
 				ED::accessNestedCategories($child, $html, $deep, $default, $type, $linkDelimiter, $disableContainers);
 
 				if ($type == 'list') {
@@ -2542,75 +2544,54 @@ class ED
 		//if( !array_key_exists($sig, $accessibleCategories) )
 		if(! isset( $accessibleCategories[$sig] ) )
 		{
+			$gid = array();
 
-			$db	= ED::db();
+			$db = ED::db();
 
-			$gids		= '';
-			$catQuery	= 	'select distinct a.`id`, a.`private`';
-			$catQuery	.=  ' from `#__discuss_category` as a';
-
-
-			if( $my->id == 0 )
-			{
-				$catQuery	.=  ' where (a.`private` = ' . $db->Quote('0') . ' OR ';
-			}
-			else
-			{
-				$catQuery	.=  ' where (a.`private` = ' . $db->Quote('0') . ' OR a.`private` = ' . $db->Quote('1') . ' OR ';
+			if ($my->guest) {
+				$gid = JAccess::getGroupsByUser(0, false);
+			} else {
+				$gid = JAccess::getGroupsByUser($my->id, false);
 			}
 
+			$gids = '';
 
-			$gid	= array();
-			$gids	= '';
-
-			if( ED::getJoomlaVersion() >= '1.6' )
-			{
-				$gid    = array();
-				if( $my->id == 0 )
-				{
-					$gid 	= JAccess::getGroupsByUser(0, false);
+			if (count($gid) > 0) {
+				foreach ($gid as $id) {
+					$gids .= (empty($gids)) ? $id : ',' . $id;
 				}
-				else
-				{
-					$gid 	= JAccess::getGroupsByUser($my->id, false);
-				}
-			}
-			else
-			{
-				$gid	= ED::getUserGids();
+			} else {
+				$gids = '1'; // this this user as guest
 			}
 
+			$sql = "SELECT acat.`id`, acat.`private` ";
 
-			if( count( $gid ) > 0 )
-			{
-				foreach( $gid as $id)
-				{
-					$gids   .= ( empty($gids) ) ? $db->Quote( $id ) : ',' . $db->Quote( $id );
-				}
+			$tableAlias = 'pcat';
 
-				$catQuery   .=	'  a.`id` IN (';
-				$catQuery .= '		select b.`category_id` from `#__discuss_category_acl_map` as b';
-				$catQuery .= '			where b.`category_id` = a.`id` and b.`acl_id` = '. $db->Quote( $type );
-				$catQuery .= '			and b.`type` = ' . $db->Quote('group');
-				$catQuery .= '			and b.`content_id` IN (' . $gids . ')';
+			$sql .= " FROM " . $db->nameQuote('#__discuss_category') . " AS acat";
 
-				//logged in user
-				if( $my->id != 0 )
-				{
-					$catQuery .= '			union ';
-					$catQuery .= '			select b.`category_id` from `#__discuss_category_acl_map` as b';
-					$catQuery .= '				where b.`category_id` = a.`id` and b.`acl_id` = ' . $db->Quote( $type );
-					$catQuery .= '				and b.`type` = ' . $db->Quote('user');
-					$catQuery .= '				and b.`content_id` = ' . $db->Quote( $my->id );
-				}
-				$catQuery   .= ')';
+			$tableAlias = 'acat';
 
-			}
+			$sql .=	" WHERE $tableAlias.`parent_id` = " . $db->Quote($parentId);
 
-			$catQuery   .= ')';
-			$catQuery   .= ' AND a.parent_id = ' . $db->Quote($parentId);
+			$sql .= " AND (";
+			$sql .= " 	( acat.`private` = 0 ) OR";
+			$sql .= " 	( (acat.`private` = 1) AND (" . $my->id . " > 0) ) OR";
+			// joomla groups.
+			$sql .= " 	( (acat.`private` = 2) AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $type AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('0') . " ) > 0 ";
+			$sql .= " OR ";
+			$sql .= " (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = " . $db->Quote('0') ." AND cacl.`acl_id` = $type AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('1') . " ) > 0";
+			$sql .= " OR ";
+			$sql .= " (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') ." as cacl WHERE cacl.`category_id` = acat.`id` AND cacl.`acl_id` = " . DISCUSS_CATEGORY_ACL_ACTION_ASSIGNMENT . " AND cacl.`type` = " . $db->Quote('user') . " AND cacl.`content_id` = " . $db->Quote($my->id) . ") > 0";
 
-			$db->setQuery($catQuery);
+			$sql .= ") )";
+			$sql .= " )";
+
+			// echo $sql;
+			// echo '<br /><br />'; exit;
+
+			$db->setQuery($sql);
+
 			$result = $db->loadObjectList();
 
 			$accessibleCategories[ $sig ] = $result;
@@ -2722,16 +2703,19 @@ class ED
 				$gids = implode( ',', $gid );
 			}
 
-			$query = 'select c.`id` from `#__discuss_category` as c';
-			$query .= ' where not exists (';
-			$query .= '		select b.`category_id` from `#__discuss_category_acl_map` as b';
-			$query .= '			where b.`category_id` = c.`id` and b.`acl_id` = '. $db->Quote($type);
-			$query .= '			and b.`type` = ' . $db->Quote('group');
-			$query .= '			and b.`content_id` IN (' . $gids . ')';
+			$query = 'SELECT c.`id` FROM `#__discuss_category` as c';
+			$query .= " WHERE c.`id` NOT IN(";
 
-			$query .= '      )';
-			$query .= ' and c.`private` = ' . $db->Quote(DISCUSS_PRIVACY_ACL);
-			if( $parentId !== false )
+			$query .= 'SELECT acat.`id` FROM `#__discuss_category` as acat WHERE (';
+			// joomla groups.
+			$query .= " 	( (acat.`private` = " . $db->Quote(DISCUSS_PRIVACY_ACL) . ") AND ( (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = acat.id AND cacl.`acl_id` = $type AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('0') . " ) > 0 ";
+			$query .= " OR ";
+			$query .= " (select count(1) from " . $db->nameQuote('#__discuss_category_acl_map') . " as cacl WHERE cacl.`category_id` = " . $db->Quote('0') ." AND cacl.`acl_id` = $type AND cacl.type = 'group' AND cacl.`content_id` in (" . $gids . ") and acat.global_acl = " . $db->Quote('1') . " ) > 0";
+
+			$query .= ") )";
+			$query .= " ))";
+
+			if ($parentId !== false )
 				$query .= ' and c.`parent_id` = ' . $db->Quote($parentId);
 
 			$db->setQuery($query);
@@ -2755,7 +2739,7 @@ class ED
 		$className = $prefix . ucfirst($type);
 
 		ED::import('admin:/tables/table');
-		
+
 		// Only try to load the class if it doesn't already exist.
 		if (!class_exists($className)) {
 
@@ -3031,8 +3015,8 @@ class ED
 			// if the login provider set to other extension
 			if ($provider == 'easysocial' && ED::easysocial()->exists()) {
 
-				$returnURL = '?return=' . base64_encode($currentUrl);	
-				
+				$returnURL = '?return=' . base64_encode($currentUrl);
+
 				$url = ESR::login(array(), false) . $returnURL;
 			}
 
@@ -3119,7 +3103,7 @@ class ED
 		return $theme->output('site/post/default.viewers');
 	}
 
-	/* 
+	/*
 	 * Determine which limit should ED used.
 	 * -1 - Use Joomla settings
 	 * -2 - Use EasyDiscuss settings
@@ -3465,7 +3449,7 @@ class ED
 			$pageContent = EDJString::substr($pageContent, 0, 160);
 
 			$pageDescription = preg_replace('/\s+/', ' ', $pageContent);
-			
+
 			$result->keywords = $pageTitle;
 			$result->description =  $pageDescription;
 
@@ -3603,7 +3587,7 @@ class ED
 		$key = $categoryId . $userId;
 
 		if (!isset($cache[$key])) {
-			$cache[$key] = ED::moderator()->isModerator($categoryId, $userId);	
+			$cache[$key] = ED::moderator()->isModerator($categoryId, $userId);
 		}
 
 		return $cache[$key];
@@ -3694,7 +3678,7 @@ class ED
 
 		$doc = JFactory::getDocument();
 		$renderer = $doc->loadRenderer('module');
-		
+
 		if ($modules) {
 			foreach ($modules as $module) {
 				// Get the module output
@@ -4170,7 +4154,7 @@ class ED
 
 		if (!isset($cache[$userId])) {
 			$user = JFactory::getUser($userId);
-			
+
 			$jconfig = ED::jconfig();
 			$timezone = $jconfig->get('offset');
 
@@ -4709,7 +4693,11 @@ class ED
 			$logo[$type] = rtrim(JURI::root(), '/') . '/media/com_easydiscuss/images/' . $type . '/logo.png';
 
 			if (JFile::exists($override)) {
-				$logo[$type] = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $type . '/logo.png?' . time();
+				$logo[$type] = rtrim(JURI::root(), '/') . '/templates/' . $defaultJoomlaTemplate . '/html/com_easydiscuss/' . $type . '/logo.png';
+
+				if ($type !== 'schema') {
+					$logo[$type] .= '?' . time();
+				}
 			}
 		}
 
@@ -4817,7 +4805,7 @@ class ED
 	public static function getPlaceholderImage()
 	{
 		static $image = null;
-	
+
 		if (is_null($image)) {
 
 			$app = JFactory::getApplication();
@@ -5062,7 +5050,7 @@ class ED
 
 		return $db;
 	}
-	
+
 	/**
 	 * Creates a new instance of the GIPHY library.
 	 *
@@ -5131,11 +5119,11 @@ class ED
 
 		// Retrieve the current domain
     	$domain = rtrim(JURI::root(), '/');
-    
+
     	// Convert to use relative path check for the image size
     	$schemaLogoPath = str_replace($domain, '', $absoluteUrl);
     	$schemaLogoPath = JPATH_ROOT . $schemaLogoPath;
-    
+
 		$data = @getimagesize($schemaLogoPath);
 
 		if (!$data) {

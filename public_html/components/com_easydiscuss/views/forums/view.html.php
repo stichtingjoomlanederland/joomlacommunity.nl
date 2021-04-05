@@ -36,9 +36,10 @@ class EasyDiscussViewForums extends EasyDiscussView
 
 		// TODO: assign multiple category from the forum menu item
 
+		$registry->loadString($activeMenu->getParams());
+
 		// If there is an active menu, render the params
 		if ($activeMenu && !$categoryId) {
-			$registry->loadString($activeMenu->getParams());
 
 			if ($registry->get('category_id') && ($activeMenu->link == $activeMenuLink)) {
 				$categoryId	= $registry->get('category_id');

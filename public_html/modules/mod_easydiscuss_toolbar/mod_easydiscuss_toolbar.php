@@ -66,4 +66,6 @@ $modToolbar['showUsers'] = $params->get('show_users', 1) && $toolbar->showUserMe
 // since we are loading frontend lib, we will need to load EasyDiscuss frontend language.
 JFactory::getLanguage()->load( 'com_easydiscuss' , JPATH_ROOT );
 
+$config = ED::config();
+
 require(JModuleHelper::getLayoutPath('mod_easydiscuss_toolbar'));

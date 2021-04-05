@@ -124,6 +124,7 @@ class EasyDiscussView extends JViewLegacy
 		}
 
 		$tpl = 'site/' . $tpl;
+		$config = ED::config();
 
 		// Only proceed here when we know this is a html request
 		if ($format == 'html') {
@@ -133,7 +134,7 @@ class EasyDiscussView extends JViewLegacy
 
 			// If integrations with ES conversations is enabled, we need to render it's scripts
 			$easysocial = ED::easysocial();
-			
+
 			if ($this->config->get('integration_easysocial_messaging') && $easysocial->exists()) {
 				$easysocial->init();
 			}
@@ -160,8 +161,12 @@ class EasyDiscussView extends JViewLegacy
 			$categoryId = $this->input->get('category_id', 0, 'int');
 			$categoryClass = $categoryId ? ' category-' . $categoryId : '';
 
-			// Retrieve the toolbar for EasyDiscuss
-			$toolbar = $this->getToolbar();
+			$toolbar = '';
+
+			if ($config->get('layout_enabletoolbar')) {
+				// Retrieve the toolbar for EasyDiscuss
+				$toolbar = $this->getToolbar();
+			}
 
 			// Set the ajax url
 			$ajaxUrl = ED::getAjaxUrl();
@@ -193,9 +198,9 @@ class EasyDiscussView extends JViewLegacy
 
 			$heading = $this->getHeading();
 
+			$theme->set('toolbar', $toolbar);
 			$theme->set('heading', $heading);
 			$theme->set('messageObject', $messageObject);
-			$theme->set('toolbar', $toolbar);
 			$theme->set('categoryClass', $categoryClass);
 			$theme->set('suffix', $suffix);
 			$theme->set('rtl', $rtl);

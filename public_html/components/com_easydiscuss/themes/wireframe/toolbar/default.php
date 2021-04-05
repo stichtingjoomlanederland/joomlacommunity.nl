@@ -233,7 +233,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<?php if ($showNotification) { ?>
 				<div class="o-nav__item"
-					data-ed-notifications-wrapper
 					data-ed-popbox="ajax://site/views/notifications/popbox"
 					data-ed-popbox-position="bottom-right"
 					data-ed-popbox-toggle="click"
@@ -246,11 +245,10 @@ defined('_JEXEC') or die('Unauthorized Access');
 					data-placement="bottom"
 					data-original-title="<?php echo JText::_('COM_EASYDISCUSS_NOTIFICATIONS');?>"
 				>
-					<a href="javascript:void(0);" class="o-nav__link ed-toolbar__link no-active-state <?php echo $notificationsCount ? 'has-new' : '';?>">
+					<a href="javascript:void(0);" class="o-nav__link ed-toolbar__link no-active-state <?php echo $notificationsCount ? 'has-new' : '';?>" data-ed-notifications-wrapper>
 						<i class="fa fa-bell"></i>
-						<span class="ed-toolbar__link-bubble" data-ed-notifications-counter><?php echo $notificationsCount;?></span>
+						<span class="ed-toolbar__link-bubble"></span>
 					</a>
-
 				</div>
 				<?php } ?>
 
@@ -409,12 +407,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 									<i class="fas fa-sign-out-alt"></i>
 								</a>
-								<form method="post" action="<?php echo JRoute::_('index.php');?>" data-ed-toolbar-logout-form>
-									<input type="hidden" value="com_users"  name="option">
-									<input type="hidden" value="user.logout" name="task">
-									<input type="hidden" name="<?php echo ED::getToken();?>" value="1" />
-									<input type="hidden" value="<?php echo EDR::getLogoutRedirect(); ?>" name="return" />
-								</form>
 							</div>
 						</div>
 					</div>
@@ -596,6 +588,12 @@ defined('_JEXEC') or die('Unauthorized Access');
 							</li>
 						<?php } ?>
 
+						<li>
+							<a href="javascript:void(0);" data-ed-toolbar-logout>
+								<?php echo JText::_('COM_EASYDISCUSS_TOOLBAR_LOGOUT');?>
+							</a>
+						</li>
+
 						<?php if (ED::easyblog()->hasToolbar()) { ?>
 							<?php echo ED::easyblog()->getToolbarDropdown(); ?>
 						<?php } ?>
@@ -610,6 +608,13 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</nav>
 	</div>
 </div>
+
+<form method="post" action="<?php echo JRoute::_('index.php');?>" data-ed-toolbar-logout-form>
+	<input type="hidden" value="com_users"  name="option">
+	<input type="hidden" value="user.logout" name="task">
+	<input type="hidden" name="<?php echo ED::getToken();?>" value="1" />
+	<input type="hidden" value="<?php echo EDR::getLogoutRedirect(); ?>" name="return" />
+</form>
 <?php } ?>
 
 <?php if ($renderToolbarModule) { ?>

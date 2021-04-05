@@ -2,12 +2,12 @@
 <extension type="module" version="3.0" client="site" method="upgrade">
 	<name>EasyDiscuss - Navigation Button</name>
 	<author>Stack Ideas Sdn Bhd</author>
-	<creationDate>17th March 2021</creationDate>
+	<creationDate>5th April 2021</creationDate>
 	<copyright>Copyright 2009 - 2019 Stack Ideas Sdn Bhd. All rights reserved.</copyright>
 	<license>GPL License v2</license>
 	<authorEmail>support@stackideas.com</authorEmail>
 	<authorUrl>http://stackideas.com</authorUrl>
-	<version>5.0.3</version>
+	<version>5.0.4</version>
 	<description><![CDATA[This module will display the navigation for EasyDiscuss.]]></description>
 	<files>
 		<folder>tmpl</folder>

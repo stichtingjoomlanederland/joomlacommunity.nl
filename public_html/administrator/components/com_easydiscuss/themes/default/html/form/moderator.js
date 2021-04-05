@@ -1,28 +1,32 @@
 ed.require(['edq'], function($) {
 
-	var removeButton = $('[data-moderator-browser] [data-remove]');
-	var browseButton = $('[data-moderator-browser] [data-browse]');
+	$(document).ready(function() {
 
-	window.selectUser = function(id, name) {
-		$('#<?php echo $id;?>-placeholder').val(name);
-		$('#<?php echo $id;?>').val(id);
+		var removeButton = $('[data-moderator-browser] [data-remove]');
+		var browseButton = $('[data-moderator-browser] [data-browse]');
 
-		EasyDiscuss.dialog().close();
-	}
+		window.selectUser = function(id, name) {
+			$('#<?php echo $id;?>-placeholder').val(name);
+			$('#<?php echo $id;?>').val(id);
 
-	removeButton.on('click', function() {
-		var button = $(this);
-		var parent = button.parents('[data-moderator-browser]');
+			EasyDiscuss.dialog().close();
+		}
 
-		// Reset the form
-		parent.find('input[type=hidden]').val('');
-		parent.find('input[type=text]').val('');
-	});
+		removeButton.on('click.remove', function() {
+			var button = $(this);
+			var parent = button.parents('[data-moderator-browser]');
 
-	browseButton.on('click', function() {
-		EasyDiscuss.dialog({
-			content: EasyDiscuss.ajax('admin/views/users/browse', {"moderator": "1", "categoryId": "<?php echo $categoryId; ?>"})
+			// Reset the form
+			parent.find('input[type=hidden]').val('');
+			parent.find('input[type=text]').val('');
 		});
+
+		browseButton.on('click.browse', function() {
+			EasyDiscuss.dialog({
+				content: EasyDiscuss.ajax('admin/views/users/browse', {"moderator": "1", "categoryId": "<?php echo $categoryId; ?>"})
+			});
+		});
+
 	});
 
 });

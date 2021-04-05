@@ -68,7 +68,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 				<?php echo $this->html('loading.block'); ?>
 
-				<?php echo $this->html('card.empty', 'fa fa-search', 'COM_ED_NO_RESULT_BASED_ON_SEARCH_CRITERIA'); ?>
+				<?php echo $this->html('card.emptyCard', 'fa fa-search', 'COM_ED_NO_RESULT_BASED_ON_SEARCH_CRITERIA'); ?>
 			</div>
 		</div>
 		<?php } ?>

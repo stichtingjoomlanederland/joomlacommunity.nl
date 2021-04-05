@@ -27,6 +27,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 		<?php echo $this->html('loading.block'); ?>
 		
-		<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_ED_NO_ASSIGNED_POSTS_YET'); ?>
+		<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_ED_NO_ASSIGNED_POSTS_YET'); ?>
 	</div>
 </div>

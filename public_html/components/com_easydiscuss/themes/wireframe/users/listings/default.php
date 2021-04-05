@@ -45,7 +45,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 			</div>
 			<?php } ?>
 
-			<?php echo $this->html('card.empty', 'fa fa-users', JText::sprintf('COM_ED_NO_USERS_FOUND_BASED_ON_SEARCH', $search)); ?>
+			<?php echo $this->html('card.emptyCard', 'fa fa-users', JText::sprintf('COM_ED_NO_USERS_FOUND_BASED_ON_SEARCH', $search)); ?>
 		</div>
 		<div class="ed-pagination">
 			<?php echo $pagination->getPagesLinks();?>

@@ -57,7 +57,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 				</div>
 				<?php } ?>
 
-				<?php echo $this->html('card.empty', '', 'COM_EASYDISCUSS_NO_COMMENT_YET', false); ?>
+				<?php echo $this->html('card.emptyCard', '', 'COM_EASYDISCUSS_NO_COMMENT_YET', false); ?>
 			</div>
 
 			<?php if ($post->canComment()) { ?>

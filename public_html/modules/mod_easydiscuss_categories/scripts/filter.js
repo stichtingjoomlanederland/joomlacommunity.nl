@@ -1,5 +1,8 @@
 ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 
+$(document).ready(function() {
+
+
 	$('[data-category-back]').on('click', function(e) {
 		event.preventDefault();
 		event.stopPropagation();
@@ -23,9 +26,11 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 		previous.siblings().removeClass('t-d--none');
 	});
 
-	$('[data-mod-category-nav]').on('click', function(e) { 
+	$('[data-mod-category-nav]').on('click.category.nav', function(e) { 
 		event.preventDefault();
 		event.stopPropagation();
+
+		
 
 		var element = $(this).parents('[data-mod-category-item]');
 		var parent = element.parent('[data-category-filter]');
@@ -60,6 +65,8 @@ ed.require(['edq', 'easydiscuss'], function($, EasyDiscuss) {
 			nestedList.removeClass('t-d--none');
 			return;
 		}
-
 	});
+
+});
+
 });

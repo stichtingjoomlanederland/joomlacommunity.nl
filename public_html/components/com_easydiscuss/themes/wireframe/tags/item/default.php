@@ -34,7 +34,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 
 			<?php echo $this->html('loading.block'); ?>
 			
-			<?php echo $this->html('card.empty', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
+			<?php echo $this->html('card.emptyCard', 'far fa-newspaper', 'COM_EASYDISCUSS_EMPTY_DISCUSSION_LIST'); ?>
 		</div>
 	</div>
 </div>

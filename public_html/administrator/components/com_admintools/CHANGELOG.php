@@ -1,4 +1,11 @@
 <?php die() ?>
+Admin Tools 6.0.4
+================================================================================
+~ Rewritten installer plugin
+~ Converted all tables to InnoDB for better performance
+# [LOW] Administrator Exclusive Allow IP List displayed ordering instead of checkboxes, making it impossible to delete entries
+# [LOW] Error dialog if you click on a feature button before the security exceptions graph is fully loaded
+
 Admin Tools 6.0.3
 ================================================================================
 ~ Rewritten installer plugin

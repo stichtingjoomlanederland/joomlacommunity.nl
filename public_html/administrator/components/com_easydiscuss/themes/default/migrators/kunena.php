@@ -30,9 +30,9 @@ defined('_JEXEC') or die('Unauthorized Access');
 					<?php echo $this->html('forms.toggle', 'migrator_user_signature', 'COM_EASYDISCUSS_MIGRATORS_USER_SIGNATURE', $this->config->get('migrator_user_signature'), array('attributes' => 'data-migrator-kunena-signature')); ?>
 					<?php echo $this->html('forms.toggle', 'migrator_user_avatar', 'COM_EASYDISCUSS_MIGRATORS_USER_AVATAR', $this->config->get('migrator_user_avatar'), array('attributes' => 'data-migrator-kunena-avatar')); ?>
 
-					<button class="o-btn o-btn--default-o" data-ed-migrate>
+					<a href="javascript:void(0);" class="btn btn-success" data-ed-migrate>
 						<?php echo JText::_('COM_EASYDISCUSS_MIGRATOR_MIGRATE'); ?>
-					</button>
+					</a>
 
 					<?php } else { ?>
 						<p><?php echo JText::_('COM_EASYDISCUSS_MIGRATORS_KUNENA_NOT_INSTALLED'); ?></p>

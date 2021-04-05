@@ -487,11 +487,21 @@ class EDR
 			if ($view == 'ask') {
 				$menu = self::getMenus($view, null, $ackCategory, $lang);
 
+				$sameCategory = false;
+
 				if ($menu) {
+
+					if ($ackCategory) {
+						// need to check if this menu is mean for the ackCategory or not.
+						if (isset($menu->category) && $menu->category && $menu->category == $ackCategory) {
+							$sameCategory = true;
+						}
+					}
+
 					$tmpId = $menu->id;
 				}
 
-				if (!$id && $tmpId) {
+				if (!$id && !$groupId && $sameCategory && $tmpId) {
 					$dropSegment = true;
 				}
 			}

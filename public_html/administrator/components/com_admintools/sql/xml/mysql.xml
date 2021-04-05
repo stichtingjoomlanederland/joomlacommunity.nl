@@ -857,5 +857,168 @@ ALTER TABLE `#__admintools_redirects` ADD PRIMARY KEY(`id`);
             ]]></query>
 		</action>
 
+		<!-- Convert tables to InnoDB -->
+		<action table="#__admintools_acl" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_acl') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_acl` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_adminiplist" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_adminiplist') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_adminiplist` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_badwords" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_badwords') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_badwords` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_customperms" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_customperms') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_customperms` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_filescache" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_filescache') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_filescache` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_ipautoban" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_ipautoban') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_ipautoban` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_ipblock" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_ipblock') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_ipblock` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_log" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_log') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_log` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_redirects" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_redirects') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_redirects` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_scanalerts" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_scanalerts') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_scanalerts` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_scans" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_scans') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_scans` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_storage" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_storage') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_storage` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_wafexceptions" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_wafexceptions') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_wafexceptions` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_wafblacklists" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_wafblacklists') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_wafblacklists` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_profiles" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_profiles') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_profiles` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_waftemplates" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_waftemplates') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_waftemplates` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_ipautobanhistory" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_ipautobanhistory') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_ipautobanhistory` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
+		<action table="#__admintools_cookies" canfail="1">
+			<condition type="equals" operator="not" value="1"><![CDATA[
+SELECT COUNT(*) FROM `INFORMATION_SCHEMA`.`TABLES` WHERE (`TABLE_NAME` = '#__admintools_cookies') AND (`TABLE_SCHEMA` = DATABASE()) AND (`ENGINE` = 'InnoDB');
+            ]]></condition>
+			<query><![CDATA[
+ALTER TABLE `#__admintools_cookies` ENGINE InnoDB;
+            ]]></query>
+		</action>
+
 	</sql>
 </schema>

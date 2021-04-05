@@ -12,9 +12,9 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <div id="ed" class="ed-mod ed-mod-toolbar <?php echo $lib->getModuleWrapperClass();?>" data-ed-wrapper>
-<?php echo $toolbar->render($modToolbar); ?>
+	<?php echo $toolbar->render($modToolbar); ?>
 </div>
 
-<?php if (!$edPageExist) { ?>
+<?php if (!$edPageExist || !$config->get('layout_enabletoolbar')) { ?>
 	<div><?php echo ED::scripts()->getScripts(); ?></div>
 <?php } ?>

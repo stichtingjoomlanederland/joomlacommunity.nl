@@ -18,6 +18,7 @@ require_once(ED_ROOT . '/views/views.php');
 
 require_once(JPATH_COMPONENT . '/controllers/controller.php');
 
+
 ED::ajax()->process();
 ED::checkEnvironment();
 

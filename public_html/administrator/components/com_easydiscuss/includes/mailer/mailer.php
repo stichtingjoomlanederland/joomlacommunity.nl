@@ -533,14 +533,22 @@ class EasyDiscussMailer extends EasyDiscuss
 		$db = ED::db();
 
 		$excludeInterval = ED::normalize($params, 'excludeInterval', false);
+		$userIdOnly = ED::normalize($params, 'userIdOnly', false);
+		$emailOnly = ED::normalize($params, 'emailOnly', false);
 
-		$query = 'SELECT `content_id` FROM `#__discuss_category_acl_map`';
-		$query .= ' WHERE `category_id` = ' . $db->Quote($categoryId);
-		$query .= ' AND `acl_id` = ' . $db->Quote($aclType);
-		$query .= ' AND `type` = ' . $db->Quote('group');
+		$resultColumnName = 'email';
 
-		$db->setQuery($query);
-		$categoryGrps = $db->loadResultArray();
+		$categoryGrps = array();
+
+		if ($categoryId) {
+			$query = 'SELECT `content_id` FROM `#__discuss_category_acl_map`';
+			$query .= ' WHERE `category_id` = ' . $db->Quote($categoryId);
+			$query .= ' AND `acl_id` = ' . $db->Quote($aclType);
+			$query .= ' AND `type` = ' . $db->Quote('group');
+
+			$db->setQuery($query);
+			$categoryGrps = $db->loadResultArray();
+		}
 
 		if (!empty($categoryGrps)) {
 
@@ -565,9 +573,8 @@ class EasyDiscussMailer extends EasyDiscuss
 
 			$query .= ' AND um.`group_id` IN (' . $queryCatIds. ')';
 
-
 			$db->setQuery($query);
-			$aclItems  = $db->loadObjectList();
+			$aclItems  = $db->loadObjectList($resultColumnName);
 
 			$guestGroupId = JComponentHelper::getParams('com_users')->get('guest_usergroup');
 
@@ -583,7 +590,7 @@ class EasyDiscussMailer extends EasyDiscuss
 				$query	.= ' AND ds.`userid` = ' . $db->Quote('0');
 
 				$db->setQuery($query);
-				$nonAclItems  = $db->loadObjectList();
+				$nonAclItems  = $db->loadObjectList($resultColumnName);
 			}
 
 			$result = array_merge($aclItems, $nonAclItems);
@@ -597,6 +604,10 @@ class EasyDiscussMailer extends EasyDiscuss
 
 			if (!$excludeInterval) {
 				$query .= " AND `interval` = " . $db->Quote('instant');
+			}
+
+			if ($userIdOnly) {
+				$query .= " AND `userid` > 0";
 			}
 
 			// Add email exclusions if there are any exclusions
@@ -617,35 +628,46 @@ class EasyDiscussMailer extends EasyDiscuss
 				$query .= ')';
 			}
 
+			// echo $query;
+
 			$db->setQuery($query);
-			$result = $db->loadObjectList();
+			$result = $db->loadObjectList($resultColumnName);
 		}
 
 		// lets run another checking to ensure the emails doesnt exists in exclude array
 		$finalResult = array();
 
 		if (count($excludes) > 0 && count($result) > 0) {
-			foreach ($result as $item) {
-				$email = $item->email;
 
-				if (!in_array($email, $excludes)) {
-					$finalResult[] = $item;
+			// let remove the excluded emails from the results;
+			foreach ($excludes as $exEmail) {
+				unset($result[$exEmail]);
+			}
+		}
+
+		if (count($result) > 0) {
+
+			if ($emailOnly) {
+				$emails = array_keys($result);
+				$emails = array_unique($emails);
+				return $emails;
+			}
+
+			// $finalResult = $result;
+			$userIds = array();
+
+			foreach ($result as $key => $item) {
+				$finalResult[] = $item;
+
+				if ($item->userid) {
+					$userIds[] = $item->userid;
 				}
 			}
-		}
 
-		if (empty($excludes)) {
-			$finalResult = $result;
-		}
-
-		if (isset($params['emailOnly']) && $params['emailOnly']) {
-			$emails = array();
-
-			foreach ($finalResult as $subscriber) {
-				$emails[] = $subscriber->email;
+			if ($userIdOnly) {
+				$userIds = array_unique($userIds);
+				return $userIds;
 			}
-
-			return $emails;
 		}
 
 		return $finalResult;

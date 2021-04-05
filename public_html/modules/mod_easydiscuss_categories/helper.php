@@ -86,7 +86,7 @@ class EasyDiscussModCategoriesHelper
 			</div>
 
 			<?php foreach ($categories as $item) { ?>
-				<div class="ed-filter-menu__item t-mb--sm <?php echo $activeCategory->id == $item->id ? 'active' : '';?>" data-category-filter="<?php echo $item->id;?>">
+				<div class="ed-filter-menu__item <?php echo $activeCategory->id == $item->id ? 'active' : '';?>" data-category-filter="<?php echo $item->id;?>">
 					<?php echo $this->getCategoryItem($item, $params); ?>
 
 					<?php echo $this->getNestedCategories($item->id, $params, $activeCategory); ?>

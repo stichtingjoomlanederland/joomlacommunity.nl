@@ -1,9 +1,9 @@
 <mj-section padding-top="40px" >
 </mj-section>
-<mj-section padding-top="1px" padding-bottom="0px" full-width="full-width" background-color="#e1e4ed">
+<mj-section padding="1px 20px 0px" full-width="full-width" background-color="#e1e4ed">
 </mj-section>
 
-<mj-section padding-top="40px" >
+<mj-section padding="40px 20px" >
   <mj-column background-color="#ffffff">
     <mj-text  
               font-size="16px"

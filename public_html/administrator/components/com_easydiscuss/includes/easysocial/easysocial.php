@@ -598,18 +598,23 @@ class EasyDiscussEasySocial
 		$recipients = array();
 
 		if ($action == 'new.discussion') {
-			$rows = ED::mailer()->getSubscribers('site', 0, 0 , array('excludeInterval' => true) , array($post->user_id));
 
-			if (!$rows) {
+			$authorEmail = JFactory::getUser($post->user_id)->email;
+			$recipients = ED::mailer()->getSubscribers('site', 0, 0 , array('excludeInterval' => false, 'userIdOnly' => true) , array($authorEmail));
+
+			if (!$recipients) {
 				return false;
 			}
 
-			foreach ($rows as $row) {
-				// We don't want to add the owner of the post to the recipients
-				if ($row->userid != $post->user_id) {
-					$recipients[]	= $row->userid;
-				}
-			}
+			// we already exclude the post author id when calling getSubscribers() so below iteration is not needed.
+			// #1256
+
+			// foreach ($rows as $row) {
+			// 	// We don't want to add the owner of the post to the recipients
+			// 	if ($row->userid != $post->user_id) {
+			// 		$recipients[]	= $row->userid;
+			// 	}
+			// }
 
 			return $recipients;
 		}

@@ -413,7 +413,7 @@ class EasyDiscussThemesHelperPost extends EasyDiscussHelperAbstract
 	 * @since	5.0.0
 	 * @access	public
 	 */
-	public function new()
+	public function newLabel()
 	{
 		static $html = null;
 

@@ -30,7 +30,7 @@ define('KICKSTART_RECOMMENDED_PHP', '7.4.0');
 
 if (!defined('VERSION'))
 {
-	define('VERSION', '7.0.3');
+	define('VERSION', '7.0.4');
 }
 
 if (!defined('KICKSTARTPRO'))
@@ -1459,7 +1459,6 @@ abstract class AKAbstractUnarchiver extends AKAbstractPart
 
 			// Reset internal state, prevents __wakeup from trying to open a non-existent file
 			$this->currentPartNumber = -1;
-			$this->archiveList = [];
 		}
 		elseif (!empty($error))
 		{
@@ -13813,7 +13812,7 @@ function echoPage()
 		<div id="header">
 			<div class="title">
 				<span id="logo" alt="Akeeba Kickstart logo"></span>
-				Akeeba Kickstart <?php echo $edition ?> <?php echo defined('VERSION') ? VERSION : '7.0.3' ?>
+				Akeeba Kickstart <?php echo $edition ?> <?php echo defined('VERSION') ? VERSION : '7.0.4' ?>
 			</div>
 		</div>
 
@@ -14920,7 +14919,7 @@ function kickstart_application_cli()
 
 	if (!$silent)
 	{
-		$version = defined('VERSION') ? VERSION : '7.0.3';
+		$version = defined('VERSION') ? VERSION : '7.0.4';
 		echo <<< BANNER
 Akeeba Kickstart CLI $version
 Copyright (c) 2008-$year Akeeba Ltd / Nicholas K. Dionysopoulos

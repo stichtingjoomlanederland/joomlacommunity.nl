@@ -88,5 +88,5 @@ defined('_JEXEC') or die('Unauthorized Access');
 		<?php } ?>
 	<?php } ?>
 
-	<?php echo $this->html('card.empty', 'fa fa-calendar-o', 'COM_EASYDISCUSS_EMPTY_HOLIDAY_LIST'); ?>
+	<?php echo $this->html('card.emptyCard', 'fa fa-calendar-o', 'COM_EASYDISCUSS_EMPTY_HOLIDAY_LIST'); ?>
 </div>

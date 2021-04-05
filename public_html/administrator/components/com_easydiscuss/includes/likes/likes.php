@@ -265,6 +265,11 @@ class EasyDiscussLikes extends EasyDiscuss
 		}
 
 		$question = $post->isQuestion() ? $post : $post->getParent();
+		$content = $post->getContent();
+		$content = $post->trimEmail($content);
+		$content = ED::parser()->normaliseImageStyle($content);
+		$content = ED::parser()->normaliseBBCode($content);
+		$content = ED::parser()->normaliseForEmail($content);
 
 		// Add email notification to the post owner.
 		$notify	= ED::getNotification();
@@ -283,7 +288,7 @@ class EasyDiscussLikes extends EasyDiscuss
 
 		$emailData = array();
 		$emailData['emailContent'] = JText::sprintf('COM_EASYDISCUSS_EMAIL_TEMPLATE_LIKES_' . $emailText, $profile->getName(), $title);
-		$emailData['replyContent'] = $post->content;
+		$emailData['replyContent'] = $content;
 		$emailData['postLink'] = EDR::getRoutedURL($permalink, false, true);
 
 		$recipient = JFactory::getUser($post->user_id);

@@ -12,11 +12,11 @@
 defined('_JEXEC') or die('Unauthorized Access');
 ?>
 <?php if ($messages) { ?>
-    <select class="form-control" name="integrations_telegram_chat_id">
-    <?php foreach ($messages as $message) { ?>
-        <option value="<?php echo $message->chat->id;?>">
-            <?php echo $message->chat->title;?>
-        </option>
-    <?php } ?>
-    </select>
+	<select class="form-control" name="integrations_telegram_chat_id">
+	<?php foreach ($messages as $message) { ?>
+		<option value="<?php echo $message->id;?>">
+			<?php echo $message->title;?>
+		</option>
+	<?php } ?>
+	</select>
 <?php } ?>

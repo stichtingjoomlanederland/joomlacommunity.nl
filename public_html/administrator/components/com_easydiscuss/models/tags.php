@@ -321,6 +321,8 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 
 		$exclude = ED::getPrivateCategories();
 
+		// dump($exclude);
+
 		if (!empty($exclude)) {
 			$query .= ' AND c.`category_id` NOT IN(' . implode(',', $exclude) . ')';
 		}
@@ -505,6 +507,6 @@ class EasyDiscussModelTags extends EasyDiscussAdminModel
 			'link' => 'index.php?option=com_easydiscuss&view=tags&layout=form&id=' . $tag->id,
 			'tagTitle' => JText::_($tag->title),
 			'mergeTagTitle' => JText::_($mergeTag->title)
-		));		
+		));
 	}
 }

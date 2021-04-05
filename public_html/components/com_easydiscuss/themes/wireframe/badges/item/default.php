@@ -31,6 +31,6 @@ defined('_JEXEC') or die('Unauthorized Access');
 		</div>
 		<?php } ?>
 
-		<?php echo $this->html('card.empty', 'fa-id-badge', 'COM_EASYDISCUSS_BADGES_NO_USERS'); ?>
+		<?php echo $this->html('card.emptyCard', 'fa-id-badge', 'COM_EASYDISCUSS_BADGES_NO_USERS'); ?>
 	</div>
 </div>

@@ -80,7 +80,7 @@ defined('_JEXEC') or die('Unauthorized Access');
 									<?php echo $lib->html('post.priority', $post);?>
 									
 									<?php if ($post->isStillNew()) { ?>
-										<?php echo $lib->html('post.new'); ?>
+										<?php echo $lib->html('post.newLabel'); ?>
 									<?php } ?>
 								</div>
 							</div>

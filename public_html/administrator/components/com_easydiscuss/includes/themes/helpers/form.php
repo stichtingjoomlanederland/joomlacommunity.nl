@@ -379,7 +379,7 @@ class EasyDiscussThemesHelperForm
 		}
 
 		if (!is_array($selected)) {
-			$selected = array();
+			$selected = ED::makeArray($selected);
 		}
 
 		$theme = ED::themes();

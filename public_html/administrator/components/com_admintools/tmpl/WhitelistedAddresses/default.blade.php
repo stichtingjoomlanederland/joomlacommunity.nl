@@ -30,7 +30,7 @@ defined('_JEXEC') || die;
 @section('browse-table-header')
 	<tr>
 		<th width="32">
-			@jhtml('FEFHelp.browse.orderfield', 'ordering')
+			@jhtml('FEFHelp.browse.checkall')
 		</th>
 		<th>
 			@sortgrid('ip', 'COM_ADMINTOOLS_LBL_WHITELISTEDADDRESS_IP')
@@ -58,7 +58,7 @@ defined('_JEXEC') || die;
 	@foreach($this->items as $row)
 		<tr>
 			<td>
-				@jhtml('FEFHelp.browse.order', 'ordering', $row->ordering)
+				@jhtml('FEFHelp.browse.id', ++$i, $row->getId())
 			</td>
 			<td>
 				<a href="index.php?option=com_admintools&view=WhitelistedAddresses&task=edit&id={{ $row->getId() }}">

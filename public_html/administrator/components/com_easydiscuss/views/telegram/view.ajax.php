@@ -35,4 +35,22 @@ class EasyDiscussViewTelegram extends EasyDiscussAdminView
 
 		return $this->ajax->resolve($output);
 	}
+
+	public function test()
+	{
+		$telegram = ED::telegram();
+
+		$data = array();
+		$data['chat_id'] = $this->config->get('integrations_telegram_chat_id');
+		$data['text'] = urlencode("This is a test message for EasyDiscuss integration connection. If you're receiving this message, means your connection is a successful.");
+		$data['parse_mode'] = 'markdown';
+
+		$response = $telegram->ping('sendMessage', $data);
+		
+		if (!$response) {
+			return $this->ajax->resolve('<div class="t-mt--sm alert alert-error">Auch! Something went wrong. Kindly consult with our support team for more information.</div>');
+		}
+
+		return $this->ajax->resolve('<div class="t-mt--sm alert alert-success">Connection successful. Check your Telegram chat.</div>');
+	}
 }
