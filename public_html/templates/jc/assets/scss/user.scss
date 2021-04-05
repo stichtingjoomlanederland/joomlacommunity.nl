@@ -85,7 +85,7 @@
       content: unset;
     }
   }
-  
+
   code[class*=language-],
   pre[class*=language-] {
     white-space: pre-wrap;
@@ -186,4 +186,14 @@
 
 .navbar-nav > li.dropdown {
   line-height: 54px;
+}
+
+figure {
+  margin: 0;
+}
+
+.frame__media {
+  display: block;
+  width: 100%;
+  object-fit: cover;
 }
