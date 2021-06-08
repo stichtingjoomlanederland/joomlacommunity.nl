@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -26,26 +26,7 @@ class JFormFieldRL_Tags extends \RegularLabs\Library\Field
 {
 	public $type = 'Tags';
 
-	protected function getInput()
-	{
-		$size        = (int) $this->get('size');
-		$simple      = (int) $this->get('simple');
-		$show_ignore = $this->get('show_ignore');
-		$use_names   = $this->get('use_names');
-
-		if ($show_ignore && in_array('-1', $this->value))
-		{
-			$this->value = ['-1'];
-		}
-
-		return $this->selectListAjax(
-			$this->type, $this->name, $this->value, $this->id,
-			compact('size', 'simple', 'show_ignore', 'use_names'),
-			$simple
-		);
-	}
-
-	function getAjaxRaw(Registry $attributes)
+	public function getAjaxRaw(Registry $attributes)
 	{
 		$name   = $attributes->get('name', $this->type);
 		$id     = $attributes->get('id', strtolower($name));
@@ -75,6 +56,25 @@ class JFormFieldRL_Tags extends \RegularLabs\Library\Field
 		$options = array_merge($options, $this->getTags($use_names));
 
 		return $options;
+	}
+
+	protected function getInput()
+	{
+		$size        = (int) $this->get('size');
+		$simple      = (int) $this->get('simple');
+		$show_ignore = $this->get('show_ignore');
+		$use_names   = $this->get('use_names');
+
+		if ($show_ignore && in_array('-1', $this->value))
+		{
+			$this->value = ['-1'];
+		}
+
+		return $this->selectListAjax(
+			$this->type, $this->name, $this->value, $this->id,
+			compact('size', 'simple', 'show_ignore', 'use_names'),
+			$simple
+		);
 	}
 
 	protected function getTags($use_names)

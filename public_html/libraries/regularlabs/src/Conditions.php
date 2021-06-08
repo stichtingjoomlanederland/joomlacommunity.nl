@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -12,6 +12,8 @@
 namespace RegularLabs\Library;
 
 defined('_JEXEC') or die;
+
+use RegularLabs\Library\CacheNew as Cache;
 
 jimport('joomla.filesystem.file');
 
@@ -24,76 +26,13 @@ class Conditions
 	static $installed_extensions = null;
 	static $params               = null;
 
-	public static function pass($conditions, $matching_method = 'all', $article = null, $module = null)
-	{
-		if (empty($conditions))
-		{
-			return true;
-		}
-
-		$article_id      = isset($article->id) ? $article->id : '';
-		$module_id       = isset($module->id) ? $module->id : '';
-		$matching_method = in_array($matching_method, ['any', 'or']) ? 'any' : 'all';
-		$cache_id        = 'pass_' . $article_id . '_' . $module_id . '_' . $matching_method . '_' . json_encode($conditions);
-
-		if (Cache::has($cache_id))
-		{
-			return Cache::get($cache_id);
-		}
-
-		$pass = (bool) ($matching_method == 'all');
-
-		foreach (self::getTypes() as $type)
-		{
-			// Break if not passed and matching method is ALL
-			// Or if passed and matching method is ANY
-			if (
-				( ! $pass && $matching_method == 'all')
-				|| ($pass && $matching_method == 'any')
-			)
-			{
-				break;
-			}
-
-			if ( ! isset($conditions[$type]))
-			{
-				continue;
-			}
-
-			$pass = self::passByType($conditions[$type], $type, $article, $module);
-		}
-
-		return Cache::set(
-			$cache_id,
-			$pass
-		);
-	}
-
-	public static function hasConditions($conditions)
-	{
-		if (empty($conditions))
-		{
-			return false;
-		}
-
-		foreach (self::getTypes() as $type)
-		{
-			if (isset($conditions[$type]) && isset($conditions[$type]->include_type) && $conditions[$type]->include_type)
-			{
-				return true;
-			}
-		}
-
-		return false;
-	}
-
 	public static function getConditionsFromParams(&$params)
 	{
-		$cache_id = 'getConditionsFromParams_' . json_encode($params);
+		$cache = new Cache([__METHOD__, $params]);
 
-		if (Cache::has($cache_id))
+		if ($cache->exists())
 		{
-			return Cache::get($cache_id);
+			return $cache->get();
 		}
 
 		self::renameParamKeys($params);
@@ -121,10 +60,7 @@ class Conditions
 			self::addParams($types[$type], $type, $id, $params);
 		}
 
-		return Cache::set(
-			$cache_id,
-			$types
-		);
+		return $cache->set($types);
 	}
 
 	public static function getConditionsFromTagAttributes(&$attributes, $only_types = [])
@@ -148,7 +84,7 @@ class Conditions
 				continue;
 			}
 
-			list($type, $param) = explode('_', $type_param, 2);
+			[$type, $param] = explode('_', $type_param, 2);
 
 			$condition_type = self::getType($type, $only_types);
 
@@ -198,270 +134,73 @@ class Conditions
 		return $conditions;
 	}
 
-	private static function initParametersByType(&$params, $type = '')
+	public static function getMatchAllTypes()
 	{
-		$params->class_name = str_replace('.', '', $type);
-
-		$params->include_type = self::getConditionState($params->include_type);
+		return [
+			'User.Grouplevel',
+			'Tag',
+		];
 	}
 
-	private static function passByType($condition, $type, $article = null, $module = null)
+	public static function hasConditions($conditions)
 	{
-		$article_id   = isset($article->id) ? $article->id : '';
-		$module_id    = isset($module->id) ? $module->id : '';
-		$cache_prefix = 'passByType_' . $type . '_' . $article_id . '_' . $module_id;
-		$cache_id     = $cache_prefix . '_' . json_encode($condition);
-
-		if (Cache::has($cache_id))
+		if (empty($conditions))
 		{
-			return Cache::get($cache_id);
+			return false;
 		}
 
-		self::initParametersByType($condition, $type);
-
-		$cache_id = $cache_prefix . '_' . json_encode($condition);
-
-		if (Cache::has($cache_id))
+		foreach (self::getTypes() as $type)
 		{
-			return Cache::get($cache_id);
+			if (isset($conditions[$type]) && isset($conditions[$type]->include_type) && $conditions[$type]->include_type)
+			{
+				return true;
+			}
 		}
 
-		$pass = false;
-
-		switch ($condition->include_type)
-		{
-			case 'all':
-				$pass = true;
-				break;
-
-			case 'none':
-				$pass = false;
-				break;
-
-			default:
-				if ( ! file_exists(__DIR__ . '/Condition/' . $condition->class_name . '.php'))
-				{
-					break;
-				}
-
-				$className = '\\RegularLabs\\Library\\Condition\\' . $condition->class_name;
-
-				$class = new $className($condition, $article, $module);
-
-				$class->beforePass();
-
-				$pass = $class->pass();
-
-				break;
-		}
-
-		return Cache::set(
-			$cache_id,
-			$pass
-		);
+		return false;
 	}
 
-	private static function getConditionState($include_type)
+	public static function pass($conditions, $matching_method = 'all', $article = null, $module = null)
 	{
-		switch ($include_type . '')
+		if (empty($conditions))
 		{
-			case 1:
-			case 'include':
-				return 'include';
-
-			case 2:
-			case 'exclude':
-				return 'exclude';
-
-			case 3:
-			case -1:
-			case 'none':
-				return 'none';
-
-			default:
-				return 'all';
-		}
-	}
-
-	private static function makeArray($array = '', $delimiter = ',', $trim = true)
-	{
-		if (empty($array))
-		{
-			return [];
+			return true;
 		}
 
-		$cache_id = 'makeArray_' . json_encode($array) . '_' . $delimiter . '_' . $trim;
+		$article_id      = $article->id ?? '';
+		$module_id       = $module->id ?? '';
+		$matching_method = in_array($matching_method, ['any', 'or']) ? 'any' : 'all';
 
-		if (Cache::has($cache_id))
+		$cache = new Cache([__METHOD__, $article_id, $module_id, $matching_method, $conditions]);
+
+		if ($cache->exists())
 		{
-			return Cache::get($cache_id);
+			return $cache->get();
 		}
 
-		$array = self::mixedDataToArray($array, $delimiter);
+		$pass = (bool) ($matching_method == 'all');
 
-		if (empty($array))
+		foreach (self::getTypes() as $type)
 		{
-			return $array;
-		}
+			// Break if not passed and matching method is ALL
+			// Or if passed and matching method is ANY
+			if (
+				( ! $pass && $matching_method == 'all')
+				|| ($pass && $matching_method == 'any')
+			)
+			{
+				break;
+			}
 
-		if ( ! $trim)
-		{
-			return $array;
-		}
-
-		foreach ($array as $k => $v)
-		{
-			if ( ! is_string($v))
+			if ( ! isset($conditions[$type]))
 			{
 				continue;
 			}
 
-			$array[$k] = trim($v);
+			$pass = self::passByType($conditions[$type], $type, $article, $module);
 		}
 
-		return Cache::set(
-			$cache_id,
-			$array
-		);
-	}
-
-	private static function mixedDataToArray($array = '', $delimiter = ',')
-	{
-		if ( ! is_array($array))
-		{
-			return explode($delimiter, $array);
-		}
-
-		if (empty($array))
-		{
-			return $array;
-		}
-
-		if (isset($array[0]) && is_array($array[0]))
-		{
-			return $array[0];
-		}
-
-		if (count($array) === 1 && strpos($array[0], $delimiter) !== false)
-		{
-			return explode($delimiter, $array[0]);
-		}
-
-		return $array;
-	}
-
-	private static function renameParamKeys(&$params)
-	{
-		$params->conditions = isset($params->conditions) ? $params->conditions : [];
-
-		foreach ($params as $key => $value)
-		{
-			if (strpos($key, 'condition_') === false && strpos($key, 'assignto_') === false)
-			{
-				continue;
-			}
-
-			$new_key                      = substr($key, strpos($key, '_') + 1);
-			$params->conditions[$new_key] = $value;
-
-			unset($params->{$key});
-		}
-	}
-
-	private static function getSelection($selection, $type = '')
-	{
-		if (in_array($type, self::getNotArrayTextAreaTypes()))
-		{
-			return $selection;
-		}
-
-		$delimiter = in_array($type, self::getTextAreaTypes()) ? "\n" : ',';
-
-		return self::makeArray($selection, $delimiter);
-	}
-
-	private static function getSelectionFromTagAttribute($type, $value, &$params, &$reverse)
-	{
-		if ($type == 'Date.Date')
-		{
-			$value = str_replace('from', '', $value);
-			$dates = explode(' - ', str_replace('to', ' - ', $value));
-
-			$params->ignore_time_zone = true;
-
-			if ( ! empty($dates[0]))
-			{
-				$params->publish_up = date('Y-m-d H:i:s', strtotime($dates[0]));
-			}
-
-			if ( ! empty($dates[1]))
-			{
-				$params->publish_down = date('Y-m-d H:i:s', strtotime($dates[1]));
-			}
-
-			return [];
-		}
-
-		if ($type == 'Date.Time')
-		{
-			$value = str_replace('from', '', $value);
-			$dates = explode(' - ', str_replace('to', ' - ', $value));
-
-			$params->publish_up   = $dates[0];
-			$params->publish_down = isset($dates[1]) ? $dates[1] : $dates[0];
-
-			return [];
-		}
-
-		if (in_array($type, self::getTextAreaTypes()))
-		{
-			$value = Html::convertWysiwygToPlainText($value);
-		}
-
-		if (strpos($value, '!NOT!') === 0)
-		{
-			$reverse = true;
-			$value   = substr($value, 5);
-		}
-
-		if ( ! in_array($type, self::getNotArrayTextAreaTypes()))
-		{
-			$value = str_replace('[[:COMMA:]]', ',', str_replace(',', '[[:SPLIT:]]', str_replace('\\,', '[[:COMMA:]]', $value)));
-			$value = explode('[[:SPLIT:]]', $value);
-		}
-
-		return $value;
-	}
-
-	private static function getDefaultParamsByType($condition_type, $type)
-	{
-		switch ($condition_type)
-		{
-			case 'Content.Category':
-				return (object) [
-					'assignto_' . $type . '_inc' => [
-						'inc_cats',
-						'inc_arts',
-					],
-				];
-
-			case 'Easyblog.Category':
-			case 'K2.Category':
-			case 'Zoo.Category':
-			case 'Hikashop.Category':
-			case 'Mijoshop.Category':
-			case 'Redshop.Category':
-			case 'Virtuemart.Category':
-				return (object) [
-					'assignto_' . $type . '_inc' => [
-						'inc_cats',
-						'inc_items',
-					],
-				];
-
-			default:
-				return (object) [];
-		}
+		return $cache->set($pass);
 	}
 
 	private static function addParams(&$object, $type, $id, &$params)
@@ -501,9 +240,10 @@ class Conditions
 				{
 					$object->selection .= "\n" . $params->conditions['urls_selection_sef'];
 				}
-				$object->selection     = trim(str_replace("\r", '', $object->selection));
-				$object->selection     = explode("\n", $object->selection);
-				$object->params->regex = isset($params->conditions['urls_regex']) ? $params->conditions['urls_regex'] : false;
+				$object->selection             = trim(str_replace("\r", '', $object->selection));
+				$object->selection             = explode("\n", $object->selection);
+				$object->params->casesensitive = $params->conditions['urls_casesensitive'] ?? false;
+				$object->params->regex         = $params->conditions['urls_regex'] ?? false;
 				break;
 
 			case 'Agent.Browser':
@@ -568,6 +308,9 @@ class Conditions
 			case 'Zoo.Item':
 				$extra_params = ['authors'];
 				break;
+
+			default:
+				break;
 		}
 
 		if (in_array($type, self::getMatchAllTypes()))
@@ -622,6 +365,202 @@ class Conditions
 		}
 
 		unset($object->params->inc);
+	}
+
+	private static function getConditionState($include_type)
+	{
+		switch ($include_type . '')
+		{
+			case 1:
+			case 'include':
+				return 'include';
+
+			case 2:
+			case 'exclude':
+				return 'exclude';
+
+			case 3:
+			case -1:
+			case 'none':
+				return 'none';
+
+			default:
+				return 'all';
+		}
+	}
+
+	private static function getDefaultParamsByType($condition_type, $type)
+	{
+		switch ($condition_type)
+		{
+			case 'Content.Category':
+				return (object) [
+					'assignto_' . $type . '_inc' => [
+						'inc_cats',
+						'inc_arts',
+					],
+				];
+
+			case 'Easyblog.Category':
+			case 'K2.Category':
+			case 'Zoo.Category':
+			case 'Hikashop.Category':
+			case 'Mijoshop.Category':
+			case 'Redshop.Category':
+			case 'Virtuemart.Category':
+				return (object) [
+					'assignto_' . $type . '_inc' => [
+						'inc_cats',
+						'inc_items',
+					],
+				];
+
+			default:
+				return (object) [];
+		}
+	}
+
+	private static function getNotArrayTextAreaTypes()
+	{
+		return [
+			'Php',
+		];
+	}
+
+	private static function getSelection($selection, $type = '')
+	{
+		if (in_array($type, self::getNotArrayTextAreaTypes()))
+		{
+			return $selection;
+		}
+
+		$delimiter = in_array($type, self::getTextAreaTypes()) ? "\n" : ',';
+
+		return self::makeArray($selection, $delimiter);
+	}
+
+	private static function getSelectionFromTagAttribute($type, $value, &$params, &$reverse)
+	{
+		if ($type == 'Date.Date')
+		{
+			$value = str_replace('from', '', $value);
+			$dates = explode(' - ', str_replace('to', ' - ', $value));
+
+			$params->ignore_time_zone = true;
+
+			if ( ! empty($dates[0]))
+			{
+				$params->publish_up = date('Y-m-d H:i:s', strtotime($dates[0]));
+			}
+
+			if ( ! empty($dates[1]))
+			{
+				$params->publish_down = date('Y-m-d H:i:s', strtotime($dates[1]));
+			}
+
+			return [];
+		}
+
+		if ($type == 'Date.Time')
+		{
+			$value = str_replace('from', '', $value);
+			$dates = explode(' - ', str_replace('to', ' - ', $value));
+
+			$params->publish_up   = $dates[0];
+			$params->publish_down = $dates[1] ?? $dates[0];
+
+			return [];
+		}
+
+		if (in_array($type, self::getTextAreaTypes()))
+		{
+			$value = Html::convertWysiwygToPlainText($value);
+		}
+
+		if (strpos($value, '!NOT!') === 0)
+		{
+			$reverse = true;
+			$value   = substr($value, 5);
+		}
+
+		if ( ! in_array($type, self::getNotArrayTextAreaTypes()))
+		{
+			$value = str_replace('[[:COMMA:]]', ',', str_replace(',', '[[:SPLIT:]]', str_replace('\\,', '[[:COMMA:]]', $value)));
+			$value = explode('[[:SPLIT:]]', $value);
+		}
+
+		return $value;
+	}
+
+	private static function getTextAreaTypes()
+	{
+		return [
+			'Ip',
+			'Url',
+			'Php',
+		];
+	}
+
+	private static function getType(&$type, $only_types = [])
+	{
+		$types = self::getTypes($only_types);
+
+		if (isset($types[$type]))
+		{
+			return $types[$type];
+		}
+
+		// Make it plural
+		$type = rtrim($type, 's') . 's';
+
+		if (isset($types[$type]))
+		{
+			return $types[$type];
+		}
+
+		// Replace incorrect plural endings
+		$type = str_replace('ys', 'ies', $type);
+
+		if (isset($types[$type]))
+		{
+			return $types[$type];
+		}
+
+		return false;
+	}
+
+	private static function getTypeAliases()
+	{
+		return [
+			'matching_method'  => ['method'],
+			'menuitems'        => ['menu'],
+			'homepage'         => ['home'],
+			'date'             => ['daterange'],
+			'seasons'          => [''],
+			'months'           => [''],
+			'days'             => [''],
+			'time'             => [''],
+			'accesslevels'     => ['access'],
+			'usergrouplevels'  => ['usergroups', 'groups'],
+			'users'            => [''],
+			'languages'        => ['langs'],
+			'ips'              => ['ipaddress', 'ipaddresses'],
+			'geocontinents'    => ['continents'],
+			'geocountries'     => ['countries'],
+			'georegions'       => ['regions'],
+			'geopostalcodes'   => ['postalcodes', 'postcodes'],
+			'templates'        => [''],
+			'urls'             => [''],
+			'devices'          => [''],
+			'os'               => [''],
+			'browsers'         => [''],
+			'components'       => [''],
+			'tags'             => [''],
+			'contentpagetypes' => ['pagetypes'],
+			'cats'             => ['categories', 'category'],
+			'articles'         => [''],
+			'php'              => [''],
+		];
 	}
 
 	private static function getTypeParamValue($id, $params, $key, $is_array = false)
@@ -719,89 +658,145 @@ class Conditions
 		return array_intersect_key($types, array_flip($only_types));
 	}
 
-	private static function getType(&$type, $only_types = [])
+	private static function initParametersByType(&$params, $type = '')
 	{
-		$types = self::getTypes($only_types);
+		$params->class_name = str_replace('.', '', $type);
 
-		if (isset($types[$type]))
+		$params->include_type = self::getConditionState($params->include_type);
+	}
+
+	private static function makeArray($array = '', $delimiter = ',', $trim = true)
+	{
+		if (empty($array))
 		{
-			return $types[$type];
+			return [];
 		}
 
-		// Make it plural
-		$type = rtrim($type, 's') . 's';
+		$cache = new Cache([__METHOD__, $array, $delimiter, $trim]);
 
-		if (isset($types[$type]))
+		if ($cache->exists())
 		{
-			return $types[$type];
+			return $cache->get();
 		}
 
-		// Replace incorrect plural endings
-		$type = str_replace('ys', 'ies', $type);
+		$array = self::mixedDataToArray($array, $delimiter);
 
-		if (isset($types[$type]))
+		if (empty($array))
 		{
-			return $types[$type];
+			return $array;
 		}
 
-		return false;
+		if ( ! $trim)
+		{
+			return $array;
+		}
+
+		foreach ($array as $k => $v)
+		{
+			if ( ! is_string($v))
+			{
+				continue;
+			}
+
+			$array[$k] = trim($v);
+		}
+
+		return $cache->set($array);
 	}
 
-	private static function getTypeAliases()
+	private static function mixedDataToArray($array = '', $delimiter = ',')
 	{
-		return [
-			'matching_method'  => ['method'],
-			'menuitems'        => ['menu'],
-			'homepage'         => ['home'],
-			'date'             => ['daterange'],
-			'seasons'          => [''],
-			'months'           => [''],
-			'days'             => [''],
-			'time'             => [''],
-			'accesslevels'     => ['access'],
-			'usergrouplevels'  => ['usergroups', 'groups'],
-			'users'            => [''],
-			'languages'        => ['langs'],
-			'ips'              => ['ipaddress', 'ipaddresses'],
-			'geocontinents'    => ['continents'],
-			'geocountries'     => ['countries'],
-			'georegions'       => ['regions'],
-			'geopostalcodes'   => ['postalcodes', 'postcodes'],
-			'templates'        => [''],
-			'urls'             => [''],
-			'devices'          => [''],
-			'os'               => [''],
-			'browsers'         => [''],
-			'components'       => [''],
-			'tags'             => [''],
-			'contentpagetypes' => ['pagetypes'],
-			'cats'             => ['categories', 'category'],
-			'articles'         => [''],
-			'php'              => [''],
-		];
+		if ( ! is_array($array))
+		{
+			return explode($delimiter, $array);
+		}
+
+		if (empty($array))
+		{
+			return $array;
+		}
+
+		if (isset($array[0]) && is_array($array[0]))
+		{
+			return $array[0];
+		}
+
+		if (count($array) === 1 && strpos($array[0], $delimiter) !== false)
+		{
+			return explode($delimiter, $array[0]);
+		}
+
+		return $array;
 	}
 
-	private static function getTextAreaTypes()
+	private static function passByType($condition, $type, $article = null, $module = null)
 	{
-		return [
-			'Ip',
-			'Url',
-			'Php',
-		];
+		$article_id = $article->id ?? '';
+		$module_id  = $module->id ?? '';
+
+		$cache = new Cache([__METHOD__, $type, $article_id, $module_id, $condition]);
+
+		if ($cache->exists())
+		{
+			return $cache->get();
+		}
+
+		self::initParametersByType($condition, $type);
+
+		$cache = new Cache([__METHOD__, $type, $article_id, $module_id, $condition]);
+
+		if ($cache->exists())
+		{
+			return $cache->get();
+		}
+
+		$pass = false;
+
+		switch ($condition->include_type)
+		{
+			case 'all':
+				$pass = true;
+				break;
+
+			case 'none':
+				$pass = false;
+				break;
+
+			default:
+				if ( ! file_exists(__DIR__ . '/Condition/' . $condition->class_name . '.php'))
+				{
+					break;
+				}
+
+				$className = '\\RegularLabs\\Library\\Condition\\' . $condition->class_name;
+
+				$class = new $className($condition, $article, $module);
+
+				$class->beforePass();
+
+				$pass = $class->pass();
+
+				break;
+		}
+
+		return $cache->set($pass);
 	}
 
-	private static function getNotArrayTextAreaTypes()
+	private static function renameParamKeys(&$params)
 	{
-		return [
-			'Php',
-		];
-	}
+		$params->conditions = $params->conditions ?? [];
 
-	public static function getMatchAllTypes()
-	{
-		return [
-			'User.Grouplevel',
-			'Tag',
-		];
+		foreach ($params as $key => $value)
+		{
+			if (strpos($key, 'condition_') === false && strpos($key, 'assignto_') === false)
+			{
+				continue;
+			}
+
+			$new_key                      = substr($key, strpos($key, '_') + 1);
+			$params->conditions[$new_key] = $value;
+
+			unset($params->{$key});
+		}
 	}
 }

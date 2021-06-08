@@ -11,7 +11,7 @@
             $workflow = $data['workflowHelper'];
             echo $workflow->display($this->steps, $this->step);
 
-            if (acym_level(2)) {
+            if (acym_level(ACYM_ENTERPRISE)) {
                 ?>
 				<div class="cell grid-x acym__campaigns__segment__summary margin-bottom-1">
 					<h4 class="cell acym__title acym__title__secondary"><?php echo acym_translation('ACYM_CHOSEN_LISTS').acym_info('ACYM_CHOSEN_LISTS_DESC'); ?></h4>
@@ -99,7 +99,7 @@
 				</div>
                 <?php
             }
-            if (!acym_level(2)) {
+            if (!acym_level(ACYM_ENTERPRISE)) {
                 include acym_getView('campaigns', 'segment_splashscreen');
             }
             ?>

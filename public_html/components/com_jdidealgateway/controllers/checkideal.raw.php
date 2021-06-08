@@ -20,6 +20,8 @@ use Jdideal\Psp\Sisow;
 use Jdideal\Psp\Targetpay;
 use Joomla\CMS\Factory;
 use Joomla\CMS\MVC\Controller\BaseController;
+use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Uri\Uri;
 use Mollie\Api\Exceptions\ApiException;
 
 /**
@@ -37,16 +39,15 @@ class JdidealgatewayControllerCheckIdeal extends BaseController
 	 *
 	 * @return  void
 	 *
-	 * @throws  Exception
+	 * @since   3.0
 	 * @throws  RuntimeException
 	 * @throws  ApiException
-	 *
-	 * @since   3.0
+	 * @throws  Exception
 	 */
-	public function send()
+	public function send(): void
 	{
 		$jdideal = new Gateway;
-		$input   = Factory::getApplication()->input;
+		$input   = $this->input;
 
 		switch ($jdideal->psp)
 		{
@@ -88,5 +89,66 @@ class JdidealgatewayControllerCheckIdeal extends BaseController
 		}
 
 		Factory::getApplication()->close();
+	}
+
+	/**
+	 * Process a PSP request.
+	 *
+	 * @return  void
+	 *
+	 * @since   6.4.0
+	 * @throws  Exception
+	 */
+	public function request(): void
+	{
+		$redirect = $this->input->getBase64('redirect');
+
+		if (empty($redirect))
+		{
+			return;
+		}
+
+		$transactionId = '';
+		$pid           = '';
+		$uri           = Uri::getInstance(base64_decode($redirect));
+
+		if ($uri->hasVar('transactionId'))
+		{
+			$transactionId = $uri->getVar('transactionId');
+		}
+
+		if ($uri->hasVar('pid'))
+		{
+			$pid = $uri->getVar('pid');
+		}
+
+		if (empty($transactionId) || empty($pid))
+		{
+			return;
+		}
+
+		BaseDatabaseModel::addIncludePath(
+			JPATH_SITE . '/components/com_jdidealgateway/models'
+		);
+		/** @var JdidealgatewayModelCheckideal $model */
+		$model    = $this->getModel('Checkideal', 'JdidealgatewayModel');
+		$userName = $model->getUsername($transactionId, $pid);
+
+		if ($userName
+			&& Factory::getApplication()->login(
+				[
+					'username' => $userName
+				],
+				[
+					'entry_url' => $uri->toString(),
+					'source'    => 'RO Payments'
+				]
+			) === false)
+		{
+			return;
+		}
+
+		$this->setRedirect($uri->toString());
+		$this->redirect();
 	}
 }

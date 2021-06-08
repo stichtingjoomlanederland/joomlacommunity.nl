@@ -18,6 +18,8 @@ class rseventsproEmails
 		$replace		= $placeholders['replace'];
 		$optionalsPlace = array('{TicketInfo}', '{TicketsTotal}', '{Discount}', '{Tax}', '{LateFee}', '{EarlyDiscount}', '{Gateway}', '{IP}', '{Coupon}');
 		
+		JFactory::getApplication()->triggerEvent('onrseproBeforePlaceholders', array(array('text' => &$text, 'ide' => $ide, 'ids' => $ids, 'optionals' => $optionals)));
+		
 		if (!is_null($ids)) {
 			$db = JFactory::getDbo();
 			$query = $db->getQuery(true)->select($db->qn('hash'))->from($db->qn('#__rseventspro_users'))->where($db->qn('id').' = '.$db->q($ids));
@@ -49,6 +51,8 @@ class rseventsproEmails
 				$text = str_replace($optionalsPlace, $optionals, $text);
 			}
 		}
+		
+		JFactory::getApplication()->triggerEvent('onrseproAfterPlaceholders', array(array('text' => &$text, 'ide' => $ide, 'ids' => $ids)));
 		
 		return $text;
 	}
@@ -687,11 +691,40 @@ class rseventsproEmails
 	*/
 	
 	public static function notify_me($to, $ide, $additional_data = array(), $lang = 'en-GB', $optionals = null, $ids = null) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
 		$config		= rseventsproHelper::getConfig();
 		$email		= rseventsproEmails::email('notify_me', null, null, $lang);
+		$emails		= array();
 		
 		if (empty($email))
 			return false;
+		
+		$query->clear()
+			->select($db->qn('notify_me'))->select($db->qn('notify_me_emails'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($ide));
+		$db->setQuery($query);
+		$event = $db->loadObject();
+		
+		if ($event->notify_me) {
+			$emails[] = $to;
+		}
+		
+		if (!empty($event->notify_me_emails)) {
+			if ($notify_emails = explode(',', $event->notify_me_emails)) {
+				foreach ($notify_emails as $notify_email) {
+					$notify_email = trim($notify_email);
+					if (JMailHelper::isEmailAddress($notify_email)) {
+						$emails[] = $notify_email;
+					}
+				}
+			}
+		}
+		
+		if (empty($emails)) {
+			return false;
+		}
 		
 		$from		= $config->email_from;
 		$fromName	= $config->email_fromname;
@@ -730,8 +763,11 @@ class rseventsproEmails
 		}
 		
 		try {
-			$mailer	= JFactory::getMailer();
-			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+			foreach ($emails as $notify_email) {
+				$mailer	= JFactory::getMailer();
+				$mailer->sendMail($text['from'] , $text['fromName'] , $notify_email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+			}
+			
 		} catch(Exception $e) {}
 		
 		return true;
@@ -742,11 +778,40 @@ class rseventsproEmails
 	*/
 	
 	public static function notify_me_paid($to, $ide, $additional_data = array(), $lang = 'en-GB', $optionals = null, $ids = null) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
 		$config		= rseventsproHelper::getConfig();
 		$email		= rseventsproEmails::email('notify_me_paid', null, null, $lang);
+		$emails		= array();
 		
 		if (empty($email))
 			return false;
+		
+		$query->clear()
+			->select($db->qn('notify_me_paid'))->select($db->qn('notify_me_paid_emails'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($ide));
+		$db->setQuery($query);
+		$event = $db->loadObject();
+		
+		if ($event->notify_me_paid) {
+			$emails[] = $to;
+		}
+		
+		if (!empty($event->notify_me_paid_emails)) {
+			if ($notify_paid_emails = explode(',', $event->notify_me_paid_emails)) {
+				foreach ($notify_paid_emails as $notify_paid_email) {
+					$notify_paid_email = trim($notify_paid_email);
+					if (JMailHelper::isEmailAddress($notify_paid_email)) {
+						$emails[] = $notify_paid_email;
+					}
+				}
+			}
+		}
+		
+		if (empty($emails)) {
+			return false;
+		}
 		
 		$from		= $config->email_from;
 		$fromName	= $config->email_fromname;
@@ -785,8 +850,10 @@ class rseventsproEmails
 		}
 		
 		try {
-			$mailer	= JFactory::getMailer();
-			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+			foreach ($emails as $notify_paid_email) {			
+				$mailer	= JFactory::getMailer();
+				$mailer->sendMail($text['from'] , $text['fromName'] , $notify_paid_email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+			}
 		} catch(Exception $e) {}
 		
 		return true;
@@ -798,11 +865,40 @@ class rseventsproEmails
 	*/
 	
 	public static function notify_me_unsubscribe($to, $ide, $additional_data = array(), $lang = 'en-GB', $ids = null) {
+		$db			= JFactory::getDbo();
+		$query		= $db->getQuery(true);
 		$config		= rseventsproHelper::getConfig();
 		$email		= rseventsproEmails::email('notify_me_unsubscribe', null, null, $lang);
+		$emails		= array();
 		
 		if (empty($email))
 			return false;
+		
+		$query->clear()
+			->select($db->qn('notify_me_unsubscribe'))->select($db->qn('notify_me_unsubscribe_emails'))
+			->from($db->qn('#__rseventspro_events'))
+			->where($db->qn('id').' = '.$db->q($ide));
+		$db->setQuery($query);
+		$event = $db->loadObject();
+		
+		if ($event->notify_me_unsubscribe) {
+			$emails[] = $to;
+		}
+		
+		if (!empty($event->notify_me_unsubscribe_emails)) {
+			if ($notify_unsub_emails = explode(',', $event->notify_me_unsubscribe_emails)) {
+				foreach ($notify_unsub_emails as $notify_unsub_email) {
+					$notify_unsub_email = trim($notify_unsub_email);
+					if (JMailHelper::isEmailAddress($notify_unsub_email)) {
+						$emails[] = $notify_unsub_email;
+					}
+				}
+			}
+		}
+		
+		if (empty($emails)) {
+			return false;
+		}
 		
 		$from		= $config->email_from;
 		$fromName	= $config->email_fromname;
@@ -841,8 +937,10 @@ class rseventsproEmails
 		}
 		
 		try {
-			$mailer	= JFactory::getMailer();
-			$mailer->sendMail($text['from'] , $text['fromName'] , $to , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+			foreach ($emails as $notify_unsub_email) {
+				$mailer	= JFactory::getMailer();
+				$mailer->sendMail($text['from'] , $text['fromName'] , $notify_unsub_email , $text['subject'] , $text['body'] , $mode , $text['cc'] , $text['bcc'] , null , $text['replyto'], $text['replyname']);
+			}
 		} catch(Exception $e) {}
 		
 		return true;

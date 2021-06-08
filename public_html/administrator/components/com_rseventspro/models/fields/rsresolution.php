@@ -57,11 +57,10 @@ class JFormFieldRSResolution extends JFormFieldList
 			JHtml::_('select.option', 'h', JText::_('COM_RSEVENTSPRO_GALLERY_PARAM_HEIGHT'))
 		);
 		
-		$select = JHtml::_('select.genericlist', $options, $name.'[]', 'onchange="rsepro_change_other(\''.addslashes($fieldname).'\', this.value)"', 'value', 'text', $value[0], $fieldname.'_w');
-		$input	= '<input style="text-align: center;" type="text" name="'.$name.'[]" id="'.$fieldname.'_res" value="'.(int) $value[1].'" '.$size.' />';
+		$select = JHtml::_('select.genericlist', $options, $name.'[]', 'onchange="rsepro_change_other(\''.addslashes($fieldname).'\', this.value)" class="custom-select"', 'value', 'text', $value[0], $fieldname.'_w');
+		$input	= '<input class="form-control" type="text" name="'.$name.'[]" id="'.$fieldname.'_res" value="'.(int) $value[1].'" '.$size.' />';
 		$other	= $value[0] == 'h' ? JText::_('COM_RSEVENTSPRO_GALLERY_PARAM_WIDTH') : JText::_('COM_RSEVENTSPRO_GALLERY_PARAM_HEIGHT');
 		
-		// because Joomla! 2.5 doesn't behave quite right with params and we don't want to keep this whole HTML code in the language files, we need to make this ugly workaround
 		$words = explode(' ', JText::_('COM_RSEVENTSPRO_GALLERY_PARAM_SIZE_ADJUST'));
 		
 		foreach ($words as $word) {

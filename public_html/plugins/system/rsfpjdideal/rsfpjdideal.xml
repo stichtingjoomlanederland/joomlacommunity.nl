@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <extension version="3.5" type="plugin" group="system" method="upgrade">
     <name>PLG_RSFP_PAYMENT_JDIDEAL_TITLE</name>
-    <creationDate>21 January 2021</creationDate>
+    <creationDate>5 May 2021</creationDate>
     <author>RolandD Cyber Produksi</author>
     <authorEmail>contact@rolandd.com</authorEmail>
     <authorUrl>https://rolandd.com</authorUrl>
     <copyright>Copyright (C) 2009 - 2021 RolandD Cyber Produksi. All rights reserved.</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
-    <version>6.3.2</version>
+    <version>6.4.1</version>
     <description>PLG_RSFP_PAYMENT_JDIDEAL_DESCRIPTION</description>
 
     <scriptfile>script.php</scriptfile>
@@ -48,6 +48,14 @@
                     type="textarea"
                     label="PLG_RSFP_JDIDEAL_FIELD_EXTENSIONS_LABEL"
                     description="PLG_RSFP_JDIDEAL_FIELD_EXTENSIONS_DESC"
+                />
+                <field
+                    name="expireHours"
+                    type="number"
+                    label="PLG_RSFP_JDIDEAL_FIELD_EXPIRE_HOURS_LABEL"
+                    description="PLG_RSFP_JDIDEAL_FIELD_EXPIRE_HOURS_DESC"
+                    min="1"
+                    default="12"
                 />
             </fieldset>
         </fields>

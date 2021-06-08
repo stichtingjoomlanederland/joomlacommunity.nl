@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -22,17 +22,7 @@ class JFormFieldRL_EasyBlog extends \RegularLabs\Library\FieldGroup
 {
 	public $type = 'EasyBlog';
 
-	protected function getInput()
-	{
-		if ($error = $this->missingFilesOrTables(['categories' => 'category', 'items' => 'post', 'tags' => 'tag']))
-		{
-			return $error;
-		}
-
-		return $this->getSelectList();
-	}
-
-	function getCategories()
+	public function getCategories()
 	{
 		$query = $this->db->getQuery(true)
 			->select('COUNT(*)')
@@ -55,7 +45,7 @@ class JFormFieldRL_EasyBlog extends \RegularLabs\Library\FieldGroup
 		return $this->getOptionsTreeByList($items);
 	}
 
-	function getItems()
+	public function getItems()
 	{
 		$query = $this->db->getQuery(true)
 			->select('i.id, i.title as name, c.title as cat, i.published')
@@ -69,7 +59,7 @@ class JFormFieldRL_EasyBlog extends \RegularLabs\Library\FieldGroup
 		return $this->getOptionsByList($list, ['cat', 'id']);
 	}
 
-	function getTags()
+	public function getTags()
 	{
 		$query = $this->db->getQuery(true)
 			->select('t.alias as id, t.title as name')
@@ -82,5 +72,12 @@ class JFormFieldRL_EasyBlog extends \RegularLabs\Library\FieldGroup
 		$list = $this->db->loadObjectList();
 
 		return $this->getOptionsByList($list);
+	}
+
+	protected function getInput()
+	{
+		$error = $this->missingFilesOrTables(['categories' => 'category', 'items' => 'post', 'tags' => 'tag']);
+
+		return $error ?: $this->getSelectList();
 	}
 }

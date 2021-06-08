@@ -83,6 +83,8 @@ class plgAcymArticle extends acymPlugin
         foreach ($element as $key => $value) {
             $this->elementOptions[$value] = [$value];
         }
+        $this->elementOptions['image_intro_caption'] = ['image_intro_caption'];
+        $this->elementOptions['image_fulltext_caption'] = ['image_fulltext_caption'];
     }
 
     public function getPossibleIntegrations()
@@ -100,6 +102,13 @@ class plgAcymArticle extends acymPlugin
             'SELECT id, parent_id, title
             FROM `#__categories` 
             WHERE extension = "com_content"'
+        );
+
+        $this->tagvalues = acym_loadObjectList(
+            'SELECT `id` AS `term_id`, `title` AS `name`
+			FROM #__tags 
+			WHERE `level` > 0
+			ORDER BY `name`'
         );
 
         $tabHelper = new TabHelper();
@@ -161,6 +170,7 @@ class plgAcymArticle extends acymPlugin
                     'title' => 'ACYM_DISPLAY_PICTURES',
                     'type' => 'pictures',
                     'name' => 'pictures',
+                    'caption' => true,
                 ],
             ]
         );
@@ -187,32 +197,26 @@ class plgAcymArticle extends acymPlugin
                 ],
             ],
             [
-                'title' => 'ACYM_COLUMNS',
-                'type' => 'number',
-                'name' => 'cols',
-                'default' => 1,
-                'min' => 1,
-                'max' => 10,
-            ],
-            [
-                'title' => 'ACYM_MAX_NB_ELEMENTS',
-                'type' => 'number',
-                'name' => 'max',
-                'default' => 20,
-            ],
-            [
                 'title' => 'ACYM_GROUP_BY_CATEGORY',
                 'type' => 'boolean',
                 'name' => 'groupbycat',
                 'default' => false,
             ],
         ];
+        $this->autoContentOptions($catOptions);
 
         $this->autoCampaignOptions($catOptions);
 
         $displayOptions = array_merge($displayOptions, $catOptions);
 
         echo $this->displaySelectionZone($this->getCategoryListing());
+        echo $this->pluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
+
+        $tabHelper->endTab();
+        $identifier = $this->name.'_tags';
+        $tabHelper->startTab(acym_translation('ACYM_BY_TAG'), !empty($this->defaultValues->defaultPluginTab) && $identifier === $this->defaultValues->defaultPluginTab);
+
+        echo $this->displaySelectionZone($this->getTagListing());
         echo $this->pluginHelper->displayOptions($displayOptions, $identifier, 'grouped', $this->defaultValues);
 
         $tabHelper->endTab();
@@ -283,6 +287,8 @@ class plgAcymArticle extends acymPlugin
     public function generateByCategory(&$email)
     {
         $tags = $this->pluginHelper->extractTags($email, 'auto'.$this->name);
+        $tags = array_merge($tags, $this->pluginHelper->extractTags($email, $this->name.'_tags'));
+
         $this->tags = [];
         $time = time();
 
@@ -297,7 +303,12 @@ class plgAcymArticle extends acymPlugin
 
             $selectedArea = $this->getSelectedArea($parameter);
             if (!empty($selectedArea)) {
-                $where[] = 'element.catid IN ('.implode(',', $selectedArea).')';
+                if (strpos($oneTag, '{'.$this->name.'_tags') === 0) {
+                    $query .= 'JOIN #__contentitem_tag_map AS tags ON element.id = tags.content_item_id AND tags.type_alias = "com_content.article"';
+                    $where[] = 'tags.tag_id IN ('.implode(',', $selectedArea).')';
+                } else {
+                    $where[] = 'element.catid IN ('.implode(',', $selectedArea).')';
+                }
             }
 
             $where[] = 'element.state = 1';
@@ -372,24 +383,36 @@ class plgAcymArticle extends acymPlugin
         $afterTitle = '';
         $afterArticle = '';
         $imagePath = '';
+        $imageCaption = '';
         $contentText = '';
         $customFields = [];
 
         $varFields['{title}'] = $element->title;
         if (in_array('title', $tag->display)) $title = $varFields['{title}'];
 
-        $images = json_decode($element->images);
-
         $varFields['{picthtml}'] = '';
+        $varFields['{image_intro_caption}'] = '';
+        $varFields['{image_fulltext_caption}'] = '';
         if (!empty($element->images)) {
-            $pictVar = in_array('intro', $tag->display) || empty($images->image_fulltext) ? 'image_intro' : 'image_fulltext';
-            if (!empty($images->$pictVar)) {
-                $imagePath = acym_rootURI().$images->$pictVar;
+            $images = json_decode($element->images, true);
+            if (!empty($images['image_intro_caption'])) $varFields['{image_intro_caption}'] = $images['image_intro_caption'];
+            if (!empty($images['image_fulltext_caption'])) $varFields['{image_fulltext_caption}'] = $images['image_fulltext_caption'];
+
+            $pictVar = in_array('intro', $tag->display) || empty($images['image_fulltext']) ? 'image_intro' : 'image_fulltext';
+            if (!empty($images[$pictVar])) {
+                $imagePath = acym_rootURI().$images[$pictVar];
                 $varFields['{picthtml}'] = '<img alt="" src="'.acym_escape($imagePath).'" />';
+
+                if (!empty($tag->caption)) {
+                    $imageCaption = $varFields['{'.$pictVar.'_caption}'];
+                }
             }
         }
 
-        if (empty($tag->pict)) $imagePath = '';
+        if (empty($tag->pict)) {
+            $imagePath = '';
+            $imageCaption = '';
+        }
 
         $varFields['{content}'] = $element->introtext.$element->fulltext;
         if (in_array('content', $tag->display)) $contentText .= $varFields['{content}'];
@@ -443,6 +466,7 @@ class plgAcymArticle extends acymPlugin
         $format->afterTitle = $afterTitle;
         $format->afterArticle = $afterArticle;
         $format->imagePath = $imagePath;
+        $format->imageCaption = $imageCaption;
         $format->description = $contentText;
         $format->link = empty($tag->clickable) ? '' : $link;
         $format->customFields = $customFields;

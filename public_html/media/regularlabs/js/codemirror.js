@@ -1,9 +1,9 @@
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -12,14 +12,14 @@
 
 if (typeof window.RegularLabsCodeMirror === 'undefined'
 	|| typeof RegularLabsCodeMirror.version === 'undefined'
-	|| RegularLabsCodeMirror.version < '21.2.23991') {
+	|| RegularLabsCodeMirror.version < '21.6.1331') {
 
 	(function($) {
 		window.RegularLabsCodeMirror = {
-			version: '21.2.23991',
+			version: '21.6.1331',
 
 			init: function(id) {
-				if (!$(`#rl_codemirror_${id} .CodeMirror`).length) {
+				if ( ! $(`#rl_codemirror_${id} .CodeMirror`).length) {
 					setTimeout(function() {
 						RegularLabsCodeMirror.init(id);
 					}, 100);
@@ -69,8 +69,8 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 		function dragTracker(options) {
 
 			var ep = Element.prototype;
-			if (!ep.matches) ep.matches = ep.msMatchesSelector || ep.webkitMatchesSelector;
-			if (!ep.closest) ep.closest = function(s) {
+			if ( ! ep.matches) ep.matches = ep.msMatchesSelector || ep.webkitMatchesSelector;
+			if ( ! ep.closest) ep.closest = function(s) {
 				var node = this;
 				do {
 					if (node.matches(s)) return node;
@@ -145,7 +145,7 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 
 			function stopEvent(e) {
 				e.preventDefault();
-				if (!propagate) {
+				if ( ! propagate) {
 					e.stopPropagation();
 				}
 			}
@@ -173,22 +173,22 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 			}
 
 			function onMove(e) {
-				if (!dragged) {
+				if ( ! dragged) {
 					return;
 				}
 				stopEvent(e);
 
-				var pos = getMousePos(e, container, mouseOffset, !dragOutside);
+				var pos = getMousePos(e, container, mouseOffset, ! dragOutside);
 				callback(dragged, pos, dragStart);
 			}
 
 			function onEnd(e) {
-				if (!dragged) {
+				if ( ! dragged) {
 					return;
 				}
 
 				if (callbackEnd || callbackClick) {
-					var pos = getMousePos(e, container, mouseOffset, !dragOutside);
+					var pos = getMousePos(e, container, mouseOffset, ! dragOutside);
 
 					if (callbackClick && dragStart[0] === pos[0] && dragStart[1] === pos[1]) {
 						callbackClick(dragged, dragStart);
@@ -210,7 +210,7 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 			});
 
 			window.addEventListener('mousemove', function(e) {
-				if (!dragged) {
+				if ( ! dragged) {
 					return;
 				}
 
@@ -225,7 +225,7 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 			});
 
 			window.addEventListener('mouseup', function(e) {
-				if (dragged && !isLeftButton(e)) {
+				if (dragged && ! isLeftButton(e)) {
 					onEnd(e);
 				}
 			});
@@ -253,7 +253,7 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 
 			function tweakTouch(e) {
 				var touch = e.targetTouches[0];
-				if (!touch) {
+				if ( ! touch) {
 					touch = e.changedTouches[0];
 				}
 
@@ -283,7 +283,7 @@ if (typeof window.RegularLabsCodeMirror === 'undefined'
 				hScroll = cmElement.querySelector('.CodeMirror-hscrollbar');
 
 			function constrainScrollbars() {
-				if (!config.handle) {
+				if ( ! config.handle) {
 					vScroll.style.bottom = '18px';
 					hScroll.style.right  = '18px';
 				}

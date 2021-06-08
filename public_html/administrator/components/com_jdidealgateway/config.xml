@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
+	<fieldset name="general" label="COM_ROPAYMENTS_CONFIG_LABEL">
+		<field name="domain"
+			   type="text"
+			   label="COM_ROPAYMENTS_DOMAIN_LABEL"
+			   description="COM_ROPAYMENTS_DOMAIN_DESC"
+			   default=""
+			   size="100"
+			   class="input-xxlarge"/>
+	</fieldset>
 	<fieldset name="update" label="COM_ROPAYMENTS_UPDATE_LABEL">
 		<field name="downloadid"
 			   type="password"
+			   label="COM_ROPAYMENTS_DOWNLOAD_LABEL"
+			   description="COM_ROPAYMENTS_DOWNLOAD_DESC"
 			   default=""
 			   size="100"
-			   class="input-xxlarge"
-			   label="COM_ROPAYMENTS_DOWNLOAD_LABEL" description="COM_ROPAYMENTS_DOWNLOAD_DESC"/>
+			   class="input-xxlarge"/>
 	</fieldset>
 	<fieldset name="permissions" label="JCONFIG_PERMISSIONS_LABEL" description="JCONFIG_PERMISSIONS_DESC">
 		<field name="rules"

@@ -14,9 +14,11 @@ use Exception;
 use InvalidArgumentException;
 use Jdideal\Gateway;
 use Jdideal\Psp;
-use JdidealAddon;
+use JEventDispatcher;
 use Joomla\CMS\Application\SiteApplication;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Filesystem\File;
+use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Http\HttpFactory;
 use Joomla\CMS\Language\LanguageHelper;
 use Joomla\CMS\Language\Text;
@@ -24,8 +26,11 @@ use Joomla\CMS\Log\Log;
 use Joomla\CMS\Mail\Mail;
 use Joomla\CMS\Plugin\PluginHelper;
 use Joomla\CMS\Router\Route;
+use Joomla\CMS\Table\Table;
+use Joomla\CMS\Uri\Uri;
 use Joomla\Registry\Registry;
 use RuntimeException;
+use TableLog;
 
 defined('_JEXEC') or die;
 
@@ -94,6 +99,10 @@ class Request
 	 */
 	public function __construct()
 	{
+		Table::addIncludePath(
+			JPATH_ADMINISTRATOR . '/components/com_jdidealgateway/tables'
+		);
+
 		$this->app = Factory::getApplication();
 	}
 
@@ -107,16 +116,19 @@ class Request
 	 */
 	public function batch(): array
 	{
-		// Get the helper
 		$jdideal = new Gateway;
 		$input   = Factory::getApplication()->input;
 
-		/** @var Psp\Onlinekassa $notifier */
+		/** @var Psp\Mollie $notifier */
 		$notifier = $jdideal->loadNotifier($jdideal->psp, $input);
 
 		if (!$notifier)
 		{
-			throw new RuntimeException(Text::sprintf('COM_ROPAYMENTS_CANNOT_LOAD_NOTIFIER', $jdideal->psp));
+			throw new RuntimeException(
+				Text::sprintf(
+					'COM_ROPAYMENTS_CANNOT_LOAD_NOTIFIER', $jdideal->psp
+				)
+			);
 		}
 
 		$isCustomer = $notifier->isCustomer();
@@ -129,7 +141,6 @@ class Request
 			return $this->process($notifier);
 		}
 
-		// Get the orders to process
 		$notifier->getOrders($jdideal);
 
 		$result = [
@@ -161,32 +172,62 @@ class Request
 	 */
 	private function process($notifier): array
 	{
-		// Get the helpers
 		$jdideal    = new Gateway;
 		$status     = false;
 		$errorLevel = '';
 		$redirect   = false;
+		$recurring  = false;
 
 		if (!$notifier)
 		{
 			throw new RuntimeException(
-				Text::sprintf('COM_ROPAYMENTS_CANNOT_LOAD_NOTIFIER', $jdideal->psp)
+				Text::sprintf(
+					'COM_ROPAYMENTS_CANNOT_LOAD_NOTIFIER', $jdideal->psp
+				)
 			);
 		}
 
 		try
 		{
-			// Get the log ID
-			$logId = $notifier->getLogId();
+			$logId              = $notifier->getLogId($jdideal);
+			$transactionDetails = $jdideal->getDetails($logId);
+			$jdideal->loadConfiguration($transactionDetails->alias);
+
+			if ($jdideal->get('recurring', false)
+				&& method_exists(
+					$notifier, 'getPaymentId'
+				))
+			{
+				$paymentId = $notifier->getPaymentId();
+
+				if ($paymentId
+					&& ($this->doesTransactionExist($paymentId) === false))
+				{
+					$logId     = $this->createTransaction($logId, $paymentId);
+					$recurring = true;
+
+					$this->triggerPlugin(
+					'onCreateRenewal',
+							[
+								'paymentId'     => $paymentId,
+								'transactionId' => $notifier->getTransactionId()
+							]
+					);
+				}
+			}
+
+			$transactionDetails = $jdideal->getDetails($logId);
+			$jdideal->loadConfiguration($transactionDetails->alias);
 		}
 		catch (Exception $exception)
 		{
 			$this->writeErrorLog($exception->getMessage());
 
-			throw new RuntimeException($exception->getMessage(), $exception->getCode());
+			throw new RuntimeException(
+				$exception->getMessage(), $exception->getCode()
+			);
 		}
 
-		// Store some data for debugging
 		if (array_key_exists('HTTP_USER_AGENT', $_SERVER))
 		{
 			$jdideal->log('User agent: ' . $_SERVER['HTTP_USER_AGENT'], $logId);
@@ -194,32 +235,33 @@ class Request
 
 		$jdideal->log('Query string: ' . $_SERVER['QUERY_STRING'], $logId);
 
-		$user = Factory::getUser();
-
-		// Determine if the payment provider is calling
+		$user       = Factory::getUser();
 		$isCustomer = $notifier->isCustomer();
 
 		if ($isCustomer)
 		{
-			$jdideal->log('User ' . $user->get('username', 'Guest') . ' is calling.', $logId);
+			$jdideal->log(
+				'User ' . $user->get('username', 'Guest') . ' is calling.',
+				$logId
+			);
 		}
 		else
 		{
 			$jdideal->log('Payment provider calling', $logId);
 		}
 
-		// Load the payment details from the database
-		$transactionDetails = $jdideal->getDetails($logId);
-
 		if (!is_object($transactionDetails))
 		{
 			$jdideal->log('No transaction details have been found.', $logId);
 
-			throw new RuntimeException(Text::sprintf('COM_ROPAYMENTS_NO_LOGDETAILS_FOUND', $logId));
+			throw new RuntimeException(
+				Text::sprintf('COM_ROPAYMENTS_NO_LOGDETAILS_FOUND', $logId)
+			);
 		}
 
 		// Make the customer wait for the payment result
-		if ($isCustomer && !$transactionDetails->processed && !$notifier->canUseCustomerStatus())
+		if ($isCustomer && !$transactionDetails->processed
+			&& !$notifier->canUseCustomerStatus())
 		{
 			$jdideal->log('Going to sleep', $logId);
 			sleep(3);
@@ -230,31 +272,44 @@ class Request
 
 			// Add some logging
 			$jdideal->log('Result: ' . $transactionDetails->result, $logId);
-			$jdideal->log('Is transaction processed: ' . ($transactionDetails->processed ? 'Yes' : 'No'), $logId);
+			$jdideal->log(
+				'Is transaction processed: ' . ($transactionDetails->processed
+					? 'Yes' : 'No'), $logId
+			);
 
 			// If we have no transaction status and cannot use the customer status this is the end of the line
-			if ($transactionDetails->result !== 'TRANSFER' && !$transactionDetails->processed)
+			if ($transactionDetails->result !== 'TRANSFER'
+				&& !$transactionDetails->processed)
 			{
 				$jdideal->status('UNKNOWN', $logId);
 				$redirect = Route::_(
-					'index.php?option=com_jdidealgateway&view=status&lang=' . $transactionDetails->language,
+					'index.php?option=com_jdidealgateway&view=status&lang='
+					. $transactionDetails->language,
 					false
 				);
 
 				// Workaround for Language filter plugin stripping the sef language when the option Remove URL language code is enabled
 				if (PluginHelper::isEnabled('system', 'languagefilter'))
 				{
-					$languageFilter = PluginHelper::getPlugin('system', 'languagefilter');
+					$languageFilter = PluginHelper::getPlugin(
+						'system', 'languagefilter'
+					);
 					$languageParams = new Registry($languageFilter->params);
 
 					if ($this->app->get('sef', 0)
 						&& $languageParams->get('remove_default_prefix', 0))
 					{
-						$languageCodes = LanguageHelper::getLanguages('lang_code');
+						$languageCodes = LanguageHelper::getLanguages(
+							'lang_code'
+						);
 
-						if (array_key_exists($transactionDetails->language, $languageCodes))
+						if (array_key_exists(
+							$transactionDetails->language, $languageCodes
+						))
 						{
-							$redirect = '/' . $languageCodes[$transactionDetails->language]->sef . $redirect;
+							$redirect = '/'
+								. $languageCodes[$transactionDetails->language]->sef
+								. $redirect;
 						}
 					}
 				}
@@ -262,45 +317,38 @@ class Request
 				// Clear the URL from the /cli prefix
 				$redirect = str_replace('/cli', '', $redirect);
 
-				$jdideal->log('Redirect to unknown status page: ' . $redirect, $logId);
+				$jdideal->log(
+					'Redirect to unknown status page: ' . $redirect, $logId
+				);
 			}
 		}
 
 		// Check if the payment has already been checked and only if the payment provider is calling
 		if (!$redirect && (!$transactionDetails->processed || !$isCustomer))
 		{
-			// Load the config
-			$config       = Factory::getConfig();
-			$this->mail   = Factory::getMailer();
-
-			// Load the mail settings
+			$config         = Factory::getConfig();
+			$this->mail     = Factory::getMailer();
 			$this->from     = $config->get('mailfrom');
 			$this->fromName = $config->get('fromname');
+			$this->siteUrl  = $jdideal->getUrl();
 
-			// Get the live site URL
-			$this->siteUrl = $jdideal->getUrl();
-
-			// Build the result data
 			$resultData            = [];
 			$resultData['isValid'] = true;
 			$resultData['message'] = '';
 
-			// Get the transaction ID
 			$jdideal->log('Get transaction ID', $logId);
 			$transactionID = $notifier->getTransactionId();
 			$jdideal->log('Received transaction ID ' . $transactionID, $logId);
 
-			// Validate the status request
 			$jdideal->log('Get transaction status', $logId);
 			$transactionStatus = $notifier->transactionStatus($jdideal, $logId);
+			$status            = $transactionStatus['isOK'];
 
-			// Set the status
-			$status = $transactionStatus['isOK'];
-
-			// Load the Addon class
 			try
 			{
-				$extensionAddon = $jdideal->getAddon($transactionDetails->origin);
+				$extensionAddon = $jdideal->getAddon(
+					$transactionDetails->origin
+				);
 			}
 			catch (Exception $exception)
 			{
@@ -316,7 +364,10 @@ class Request
 					$this->from,
 					$this->fromName,
 					$this->from,
-					Text::sprintf('COM_ROPAYMENTS_ADDON_FILE_MISSING', $transactionDetails->origin),
+					Text::sprintf(
+						'COM_ROPAYMENTS_ADDON_FILE_MISSING',
+						$transactionDetails->origin
+					),
 					$body,
 					false
 				);
@@ -324,19 +375,21 @@ class Request
 				throw new RuntimeException($exception->getMessage());
 			}
 
-			// Build the order data
-			$orderData                 = array();
+			$orderData                 = [];
 			$orderData['order_number'] = $transactionDetails->order_number;
 			$orderData['order_id']     = $transactionDetails->order_id;
 
-			// Get the additional order data from the addon
 			try
 			{
-				$orderData = $extensionAddon->getOrderInformation($transactionDetails->order_id, $orderData);
+				$orderData = $extensionAddon->getOrderInformation(
+					$transactionDetails->order_id, $orderData
+				);
 			}
 			catch (Exception $exception)
 			{
-				$jdideal->log('Caught an error: ' . $exception->getMessage(), $logId);
+				$jdideal->log(
+					'Caught an error: ' . $exception->getMessage(), $logId
+				);
 			}
 
 			if (!$transactionStatus['isOK'])
@@ -348,7 +401,9 @@ class Request
 				$errorLevel            = 'error';
 
 				// Status Request failed
-				$message = Text::_('COM_ROPAYMENTS_STATUS_COULD_NOT_BE_RETRIEVED');
+				$message = Text::_(
+					'COM_ROPAYMENTS_STATUS_COULD_NOT_BE_RETRIEVED'
+				);
 
 				// Log the error message
 				if (array_key_exists('error_message', $transactionStatus))
@@ -365,46 +420,78 @@ class Request
 				// Store the result
 				$jdideal->status('OPEN', $logId);
 
-				$this->emailResultNOK($jdideal, $transactionDetails, $orderData);
+				$this->emailResultNOK(
+					$jdideal, $transactionDetails, $orderData
+				);
 			}
 			else
 			{
-				// Get the payment status
 				$responseStatus = $transactionStatus['suggestedAction'];
 
 				if (!$responseStatus)
 				{
-					$jdideal->log('No response status has been received for transaction ID ' . $transactionID, $logId);
+					$jdideal->log(
+						'No response status has been received for transaction ID '
+						. $transactionID, $logId
+					);
 
-					throw new InvalidArgumentException(Text::_('COM_ROPAYMENTS_NO_RESPONSESTATUS'));
+					throw new InvalidArgumentException(
+						Text::_('COM_ROPAYMENTS_NO_RESPONSESTATUS')
+					);
 				}
 
-				$jdideal->log('Payment has ' . $responseStatus . ' status', $logId);
-				$jdideal->log('Current order status ' . $orderData['order_status'], $logId);
+				$jdideal->log(
+					'Payment has ' . $responseStatus . ' status', $logId
+				);
 
-				// Store the result
+				if ($responseStatus === 'CHARGEBACK' || $responseStatus === 'REFUNDED')
+				{
+					$jdideal->log(
+						'Creating a new transaction entry for the ' . strtolower($responseStatus) . ' status.', $logId
+					);
+					$logId = $this->createTransaction($logId, $transactionDetails->paymentId);
+
+					$this->triggerPlugin(
+						'onCreate' . ucfirst(strtolower($responseStatus)),
+						[
+							'paymentId'     => $transactionDetails->paymentId,
+							'transactionId' => $transactionID,
+							'logId'         => $logId
+						]
+					);
+				}
+
+				$jdideal->log(
+					'Current order status ' . $orderData['order_status'], $logId
+				);
+
 				$jdideal->status($responseStatus, $logId);
 
-				// Log the error message received from the payment provider
 				if (array_key_exists('error_message', $transactionStatus))
 				{
 					$jdideal->log($transactionStatus['error_message'], $logId);
 				}
 
-				// Verify the order pending status matches the status to update an order
-				if (!$jdideal->canUpdateOrder($orderData['order_status']))
+				if (!$recurring
+					&& !$jdideal->canUpdateOrder(
+						$orderData['order_status']
+					))
 				{
 					// Status doesn't match, inform the administrator if needed
 					if ($jdideal->get('status_mismatch'))
 					{
-						$options                    = array();
+						$options                    = [];
 						$options['type']            = 'status_mismatch';
-						$options['expected_status'] = $jdideal->get('pendingStatus');
-						$options['found_status']    = $orderData['order_status'];
+						$options['expected_status'] = $jdideal->get(
+							'pendingStatus'
+						);
+						$options['found_status']
+						                            = $orderData['order_status'];
 
 						if (array_key_exists('order_number', $orderData))
 						{
-							$options['order_number'] = $orderData['order_number'];
+							$options['order_number']
+								= $orderData['order_number'];
 						}
 
 						$options['status'] = $responseStatus;
@@ -412,8 +499,10 @@ class Request
 					}
 
 					$jdideal->log(
-						'Order has status ' . $orderData['order_status'] . ' but according to the settings it needs status '
-						. $jdideal->get('pendingStatus') . ' to be able to update the order',
+						'Order has status ' . $orderData['order_status']
+						. ' but according to the settings it needs status '
+						. $jdideal->get('pendingStatus')
+						. ' to be able to update the order',
 						$logId
 					);
 
@@ -426,44 +515,63 @@ class Request
 					);
 				}
 
-				// Set the order comment
-				$orderData['order_comment'] = Text::_('COM_ROPAYMENTS_TRANSACTION_ID') . ' ' . $transactionID;
+				$orderData['order_comment'] = Text::_(
+						'COM_ROPAYMENTS_TRANSACTION_ID'
+					) . ' ' . $transactionID;
 
-				// Process the response
 				$defaultStatus = $jdideal->get('openStatus');
 
 				switch (strtoupper($responseStatus))
 				{
 					case 'SUCCESS':
 						// Check if the current order status matches the order status the order must have to be able to update it
-						$orderData['order_status'] = $jdideal->get('verifiedStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'verifiedStatus', $defaultStatus
+						);
 						break;
 					case 'CANCELLED':
-						$orderData['order_status'] = $jdideal->get('cancelledStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'cancelledStatus', $defaultStatus
+						);
 						break;
 					case 'FAILURE':
-						$orderData['order_status'] = $jdideal->get('failedStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'failedStatus', $defaultStatus
+						);
 						break;
 					case 'EXPIRED':
-						$orderData['order_status'] = $jdideal->get('expiredStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'expiredStatus', $defaultStatus
+						);
 						break;
 					case 'REFUNDED':
-						$orderData['order_status'] = $jdideal->get('refundStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'refundStatus', $defaultStatus
+						);
 						break;
 					case 'CHARGEBACK':
-						$orderData['order_status'] = $jdideal->get('chargebackStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'chargebackStatus', $defaultStatus
+						);
 						break;
 					case 'TRANSFER':
-						$orderData['order_status'] = $jdideal->get('transferStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'transferStatus', $defaultStatus
+						);
 						break;
 					default:
-						$orderData['order_status'] = $jdideal->get('openStatus', $defaultStatus);
+						$orderData['order_status'] = $jdideal->get(
+							'openStatus', $defaultStatus
+						);
 						break;
 				}
 
-				// Update the order status
-				$orderStatusName = $extensionAddon->getOrderStatusName($orderData);
-				$orderLink       = $extensionAddon->getOrderLink($orderData['order_id'], $orderData['order_number']);
+				$orderStatusName = $extensionAddon->getOrderStatusName(
+					$orderData
+				);
+				$orderLink       = $extensionAddon->getOrderLink(
+					$orderData['order_id'], $orderData['order_number']
+				);
 
 				// Send out the emails if needed
 				try
@@ -501,98 +609,144 @@ class Request
 				}
 			}
 
-			// Build the notify URL for the extension
-			$redirect = $transactionDetails->notify_url ?: $transactionDetails->return_url;
-
-			if (!$resultData['isValid'])
+			if (!$recurring)
 			{
-				$jdideal->log('Result data is not valid', $logId);
+				// Build the notify URL for the extension
+				$redirect = $transactionDetails->notify_url
+					?: $transactionDetails->return_url;
 
-				$redirect = $transactionDetails->cancel_url ?: $transactionDetails->return_url;
-			}
-
-			// Complete the redirect URL
-			if (strpos($redirect, '?') !== false)
-			{
-				$redirect .= '&transactionId=' . $transactionID;
-			}
-			else
-			{
-				$redirect .= '?transactionId=' . $transactionID;
-			}
-
-			$redirect .= '&pid=' . $transactionDetails->pid;
-
-			// Call the extension to update the status if we are the payment provider calling
-			$jdideal->log('Notifying extension on URL: ' . $redirect, $logId);
-
-			// Load the HTTP driver
-			try
-			{
-				$options      = new Registry;
-				$http         = HttpFactory::getHttp($options, ['curl', 'stream']);
-				$notifyMethod = 'get';
-
-				if (method_exists($extensionAddon, 'notifyMethod'))
+				if (!$resultData['isValid'])
 				{
-					$notifyMethod = $extensionAddon->notifyMethod();
+					$jdideal->log('Result data is not valid', $logId);
+
+					$redirect = $transactionDetails->cancel_url
+						?: $transactionDetails->return_url;
 				}
 
-				$jdideal->log('Notify method: ' . $notifyMethod, $logId);
-
-				switch ($notifyMethod)
+				// Complete the redirect URL
+				if (strpos($redirect, '?') !== false)
 				{
-					case 'post':
-						$data = array(
-							'trans'        => $transactionDetails->trans,
-							'order_number' => $transactionDetails->order_number,
-							'amount'       => $transactionDetails->amount,
-							'result'       => $transactionDetails->result
-						);
-
-						$httpResponse = $http->post($redirect, $data);
-						break;
-					case 'get':
-					default:
-						$httpResponse = $http->get($redirect);
-						break;
+					$redirect .= '&transactionId=' . $transactionID;
+				}
+				else
+				{
+					$redirect .= '?transactionId=' . $transactionID;
 				}
 
-				$jdideal->log('Received HTTP status ' . $httpResponse->code, $logId);
+				$redirect .= '&pid=' . $transactionDetails->pid;
 
-				if ($httpResponse->code === 500)
+				// Call the extension to update the status if we are the payment provider calling
+				$jdideal->log(
+					'Notifying extension on URL: ' . $redirect, $logId
+				);
+
+				try
 				{
-					$jdideal->log($httpResponse->body, $logId);
-				}
+					$cookieFile = $config->get('tmp_path') . '/cookie' . $logId . '.txt';
+					$options = new Registry;
+					$options->set(
+						'transport.curl',
+						[
+							CURLOPT_COOKIEJAR  => $cookieFile,
+							CURLOPT_COOKIEFILE => $cookieFile
+						]
+					);
+					$http         = HttpFactory::getHttp(
+						$options, ['curl', 'stream']
+					);
+					$notifyMethod = 'get';
 
-				// Get the new transaction details as they may have changed
-				$transactionDetails = $jdideal->getDetails($transactionDetails->id, 'id', true);
-			}
-			catch (Exception $exception)
-			{
-				$jdideal->log('Caught an error notifying extension: ' . $exception->getMessage(), $logId);
+					if (method_exists($extensionAddon, 'notifyMethod'))
+					{
+						$notifyMethod = $extensionAddon->notifyMethod();
+					}
+
+					$jdideal->log('Notify method: ' . $notifyMethod, $logId);
+
+					switch ($notifyMethod)
+					{
+						case 'post':
+							$data = array(
+								'trans'        => $transactionDetails->trans,
+								'order_number' => $transactionDetails->order_number,
+								'amount'       => $transactionDetails->amount,
+								'result'       => $transactionDetails->result,
+							);
+
+							$httpResponse = $http->post($redirect, $data);
+							break;
+						case 'get':
+						default:
+							$uri = Uri::getInstance();
+							$jdideal->log(
+								'Coming in on  ' . $uri->toString(), $logId
+							);
+							$url = str_ireplace(
+								'/cli/notify.php',
+								'',
+								$uri->toString(
+									['scheme', 'user', 'pass', 'host', 'port', 'path']
+								)
+							);
+							$url .= '/index.php?option=com_jdidealgateway&task=checkideal.request&format=raw&redirect='
+								. base64_encode($redirect);
+							$jdideal->log(
+								'Calling RO Payments on  ' . $url, $logId
+							);
+							$httpResponse = $http->get($url);
+							break;
+					}
+
+					File::delete($cookieFile);
+
+					$jdideal->log(
+						'Received HTTP status ' . $httpResponse->code, $logId
+					);
+
+					if ($httpResponse->code === 500)
+					{
+						$jdideal->log($httpResponse->body, $logId);
+					}
+
+					// Get the new transaction details as they may have changed
+					$transactionDetails = $jdideal->getDetails(
+						$transactionDetails->id, 'id', true
+					);
+				}
+				catch (Exception $exception)
+				{
+					$jdideal->log(
+						'Caught an error notifying extension: '
+						. $exception->getMessage(), $logId
+					);
+				}
 			}
 
 			if ($isCustomer)
 			{
-				$redirect = $this->getCustomerRedirect($jdideal, $transactionDetails);
+				$redirect = $this->getCustomerRedirect(
+					$jdideal, $transactionDetails
+				);
 
 				$jdideal->log('Redirecting customer to: ' . $redirect, $logId);
 			}
 
-			$extensionAddon->callBack(array_merge($resultData, (array) $transactionDetails));
+			$extensionAddon->callBack(
+				array_merge($resultData, (array) $transactionDetails)
+			);
 		}
 
 		if (!$redirect)
 		{
 			// Get the redirect URL
-			$redirect = $this->getCustomerRedirect($jdideal, $transactionDetails);
+			$redirect = $this->getCustomerRedirect(
+				$jdideal, $transactionDetails
+			);
 
 			$jdideal->log('Redirecting customer to: ' . $redirect, $logId);
 		}
 
-		// Build the return data
-		$return               = array();
+		$return               = [];
 		$return['isCustomer'] = $isCustomer;
 		$return['url']        = $redirect;
 		$return['message']    = '';
@@ -600,6 +754,85 @@ class Request
 		$return['status']     = $status ? 'OK' : 'NOK';
 
 		return $return;
+	}
+
+	/**
+	 * Check if a transaction exists with this payment ID.
+	 *
+	 * @param   string  $paymentId  The payment ID to check
+	 *
+	 * @return  boolean  True if the transaction exists | False otherwise.
+	 *
+	 * @since   6.4.0
+	 */
+	private function doesTransactionExist(string $paymentId): bool
+	{
+		/** @var TableLog $logTable */
+		$logTable = Table::getInstance('Log', 'Table');
+		$logTable->load(
+			[
+				'paymentId' => $paymentId,
+			]
+		);
+
+		return ((int) $logTable->id) > 0;
+	}
+
+	/**
+	 * Create a new transaction log.
+	 *
+	 * @param   int     $logId      The ID of the existing transaction log
+	 * @param   string  $paymentId  The payment ID to check
+	 *
+	 * @return  integer  The new log ID.
+	 *
+	 * @since   6.4.0
+	 */
+	private function createTransaction(int $logId, string $paymentId): int
+	{
+		/** @var TableLog $logTable */
+		$logTable = Table::getInstance('Log', 'Table');
+		$logTable->load($logId);
+		$logTable->set('id');
+		$logTable->set('result');
+		$logTable->set(
+			'date_added', HTMLHelper::_('date', 'now', 'Y-m-d H:i:s', false)
+		);
+		$logTable->set('paymentId', $paymentId);
+		$logTable->set('processed', 0);
+		$logTable->set('pid', '');
+		$logTable->set('history', '');
+		$logTable->store(true);
+
+		return (int) $logTable->id;
+	}
+
+	/**
+	 * Trigger a plugin.
+	 *
+	 * @param   string  $trigger  The name of the plugin trigger
+	 * @param   array   $data     The data to send to the plugin
+	 *
+	 * @return  void
+	 *
+	 * @since   6.4.0
+	 * @throws  Exception
+	 */
+	private function triggerPlugin(string $trigger, array $data = []): void
+	{
+		PluginHelper::importPlugin('jdideal');
+
+		if (JVERSION < 4)
+		{
+			$dispatcher = JEventDispatcher::getInstance();
+			$dispatcher->trigger($trigger, [$data]);
+		}
+		else
+		{
+			Factory::getApplication()->triggerEvent(
+				$trigger, [$data]
+			);
+		}
 	}
 
 	/**
@@ -616,7 +849,7 @@ class Request
 	{
 		Log::addLogger(
 			array(
-				'text_file' => 'com_jdidealgateway.errors.php'
+				'text_file' => 'com_jdidealgateway.errors.php',
 			),
 			Log::ERROR,
 			array('com_jdidealgateway')
@@ -672,8 +905,8 @@ class Request
 	 * @since   4.0.0
 	 * @throws  Exception
 	 */
-	private function emailResultNOK(Gateway $jdideal, $details, $orderData): void
-	{
+	private function emailResultNOK(Gateway $jdideal, $details, $orderData
+	): void {
 		if ($jdideal->get('admin_status_failed'))
 		{
 			// Inform the admin
@@ -693,7 +926,9 @@ class Request
 				$replace[] = number_format($details->amount, 2, ',', '.');
 				$replace[] = $orderData['user_email'];
 				$body      = str_ireplace($find, $replace, $mailTemplate->body);
-				$subject   = str_ireplace($find, $replace, $mailTemplate->subject);
+				$subject   = str_ireplace(
+					$find, $replace, $mailTemplate->subject
+				);
 				$html      = true;
 			}
 			else
@@ -707,12 +942,23 @@ class Request
 				$body    = Text::_('COM_ROPAYMENTS_MAIL_INTRO') . "\n\n";
 				$body    .= sprintf(
 						Text::_('COM_ROPAYMENTS_MAIL_IDEAL_RESULT'),
-						strtoupper(Text::_('COM_ROPAYMENTS_MAIL_STATUS_REQUEST_FAILED'))
+						strtoupper(
+							Text::_('COM_ROPAYMENTS_MAIL_STATUS_REQUEST_FAILED')
+						)
 					) . "\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_TRANSACTION_FOR'), $this->from, $this->siteUrl) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_TRANSACTION_FOR'),
+						$this->from, $this->siteUrl
+					) . "\n";
 				$body    .= "-----------------------------------------------------------\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_EMAIL_CUSTOMER'), $orderData['user_email']) . "\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_ORDER_ID'), $orderData['order_number']) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_EMAIL_CUSTOMER'),
+						$orderData['user_email']
+					) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_ORDER_ID'),
+						$orderData['order_number']
+					) . "\n";
 				$html    = false;
 			}
 
@@ -723,7 +969,10 @@ class Request
 				foreach ($recipients as $recipient)
 				{
 					$this->mail->clearAddresses();
-					$this->mail->sendMail($this->from, $this->fromName, $recipient, $subject, $body, $html);
+					$this->mail->sendMail(
+						$this->from, $this->fromName, $recipient, $subject,
+						$body, $html
+					);
 				}
 			}
 		}
@@ -744,8 +993,9 @@ class Request
 	 * @throws  Exception
 	 *
 	 */
-	private function emailCustomerChangeStatus(Gateway $jdideal, $result, $orderData, $orderStatusName, $orderLink)
-	{
+	private function emailCustomerChangeStatus(Gateway $jdideal, $result,
+		$orderData, $orderStatusName, $orderLink
+	) {
 		if ($jdideal->get('customer_change_status'))
 		{
 			$recipient    = $orderData['user_email'];
@@ -763,7 +1013,8 @@ class Request
 				$replace[] = $orderData['order_number'];
 				$replace[] = $orderData['order_id'];
 				$replace[] = $orderStatusName;
-				$replace[] = $orderLink ? Route::_($this->siteUrl . $orderLink) : '';
+				$replace[] = $orderLink ? Route::_($this->siteUrl . $orderLink)
+					: '';
 				$body      = str_ireplace($find, $replace, $mailTemplate->body);
 				$html      = true;
 			}
@@ -776,15 +1027,22 @@ class Request
 					$orderData['order_number']
 				);
 				$body    = Text::_('COM_ROPAYMENTS_MAIL_INTRO') . "\n\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_STATUS_CHANGED'), $orderData['order_number']) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_STATUS_CHANGED'),
+						$orderData['order_number']
+					) . "\n";
 				$body    .= "-------------------------------------------------------------------------------------------------------\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_NEW_STATUS'), $orderStatusName) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_NEW_STATUS'),
+						$orderStatusName
+					) . "\n";
 				$body    .= "-------------------------------------------------------------------------------------------------------\n";
 				$body    .= "\n\n";
 
 				if ($orderLink)
 				{
-					$body .= Text::_('COM_ROPAYMENTS_MAIL_CLICK_BROWSER_LINK') . "\n";
+					$body .= Text::_('COM_ROPAYMENTS_MAIL_CLICK_BROWSER_LINK')
+						. "\n";
 					$body .= $this->siteUrl . $orderLink . "\n";
 					$body .= "\n\n";
 					$body .= "-------------------------------------------------------------------------------------------------------\n";
@@ -797,7 +1055,9 @@ class Request
 			}
 
 			$this->mail->clearAddresses();
-			$this->mail->sendMail($this->from, $this->fromName, $recipient, $subject, $body, $html);
+			$this->mail->sendMail(
+				$this->from, $this->fromName, $recipient, $subject, $body, $html
+			);
 		}
 	}
 
@@ -858,23 +1118,23 @@ class Request
 				if (!empty($result['consumer']))
 				{
 					$replace[] = array_key_exists(
-						'consumerconsumerAccount',
+						'consumerAccount',
 						$result['consumer']
 					) ? $result['consumer']['consumerAccount'] : '';
 					$replace[] = array_key_exists(
-						'consumerconsumerIban',
+						'consumerIban',
 						$result['consumer']
 					) ? $result['consumer']['consumerIban'] : '';
 					$replace[] = array_key_exists(
-						'consumerconsumerBic',
+						'consumerBic',
 						$result['consumer']
 					) ? $result['consumer']['consumerBic'] : '';
 					$replace[] = array_key_exists(
-						'consumerconsumerName',
+						'consumerName',
 						$result['consumer']
 					) ? $result['consumer']['consumerName'] : '';
 					$replace[] = array_key_exists(
-						'consumerconsumerCity',
+						'consumerCity',
 						$result['consumer']
 					) ? $result['consumer']['consumerCity'] : '';
 				}
@@ -889,7 +1149,9 @@ class Request
 
 				$replace[] = $result['card'] ?: '';
 				$body      = str_ireplace($find, $replace, $mailTemplate->body);
-				$subject   = str_ireplace($find, $replace, $mailTemplate->subject);
+				$subject   = str_ireplace(
+					$find, $replace, $mailTemplate->subject
+				);
 				$html      = true;
 			}
 			else
@@ -911,8 +1173,14 @@ class Request
 						$this->siteUrl
 					) . "\n";
 				$body    .= "-----------------------------------------------------------\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_TRANSACTION_ID'), $transactionID) . "\n";
-				$body    .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_EMAIL_CUSTOMER'), $orderData['user_email']) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_TRANSACTION_ID'),
+						$transactionID
+					) . "\n";
+				$body    .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_EMAIL_CUSTOMER'),
+						$orderData['user_email']
+					) . "\n";
 
 				if (!empty($result['consumer']))
 				{
@@ -957,12 +1225,21 @@ class Request
 					}
 				}
 
-				$body .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_ORDER_ID'), $orderData['order_number']) . "\n";
-				$body .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_ORDER_STATUS'), $orderStatusName) . "\n";
+				$body .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_ORDER_ID'),
+						$orderData['order_number']
+					) . "\n";
+				$body .= sprintf(
+						Text::_('COM_ROPAYMENTS_MAIL_ORDER_STATUS'),
+						$orderStatusName
+					) . "\n";
 
 				if ($result['card'])
 				{
-					$body .= sprintf(Text::_('COM_ROPAYMENTS_MAIL_ORDER_CARD'), $result['card']) . "\n";
+					$body .= sprintf(
+							Text::_('COM_ROPAYMENTS_MAIL_ORDER_CARD'),
+							$result['card']
+						) . "\n";
 				}
 
 				$html = false;
@@ -976,7 +1253,10 @@ class Request
 				foreach ($recipients as $recipient)
 				{
 					$this->mail->clearAddresses();
-					$this->mail->sendMail($this->from, $this->fromName, $recipient, $subject, $body, $html);
+					$this->mail->sendMail(
+						$this->from, $this->fromName, $recipient, $subject,
+						$body, $html
+					);
 				}
 			}
 		}
@@ -995,7 +1275,8 @@ class Request
 	private function getCustomerRedirect(Gateway $jdideal, $transactionDetails)
 	{
 		// Transaction already processed, build the return URL for the extension
-		$redirect = $transactionDetails->cancel_url ?: $transactionDetails->return_url;
+		$redirect = $transactionDetails->cancel_url
+			?: $transactionDetails->return_url;
 
 		if ($jdideal->isValid($transactionDetails->result))
 		{

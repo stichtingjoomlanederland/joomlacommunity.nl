@@ -1941,7 +1941,8 @@ class RseventsproModelRseventspro extends JModelLegacy
 			$id			= $jinput->getInt('id');
 			$name		= @$form['RSEProName'];
 			$email		= @$form['RSEProEmail'];
-			$payment	= is_array($form['RSEProPayment']) ? $form['RSEProPayment'][0] : @$form['RSEProPayment'];
+			$rsfpayment	= @$form['RSEProPayment'];
+			$payment	= is_array($rsfpayment) ? $rsfpayment[0] : $rsfpayment;
 		}
 		
 		$email = trim($email);
@@ -2455,7 +2456,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$this->_db->execute();
 		
 		// Notify the owner of a new subscription
-		if ($ids && $event->notify_me) {
+		if ($ids) {
 			$theuser = JFactory::getUser($event->owner); 			
 			$additional_data = array(
 				'{SubscriberUsername}' => $uid ? JFactory::getUser($uid)->get('username') : '',
@@ -2631,21 +2632,16 @@ class RseventsproModelRseventspro extends JModelLegacy
 					}
 				}
 				
-				// Notify the owner
-				if ($event->notify_me_unsubscribe) {
-					if ($event->owner) {
-						$additional_data = array(
-							'{SubscriberUsername}' => JFactory::getUser($this->_user->get('id'))->get('username'),
-							'{SubscriberName}' => rseventsproHelper::getUser($this->_user->get('id')),
-							'{SubscriberEmail}' => $subscription->email,
-							'{SubscriberIP}' => $subscription->ip,
-							'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true)
-						);
-						
-						rseventsproEmails::notify_me_unsubscribe(JFactory::getUser($event->owner)->get('email'), $event->id, $additional_data, $subscription->lang, $subscription->id);
-					}
-				}
+				// Notify the owner				
+				$additional_data = array(
+					'{SubscriberUsername}' => JFactory::getUser($this->_user->get('id'))->get('username'),
+					'{SubscriberName}' => rseventsproHelper::getUser($this->_user->get('id')),
+					'{SubscriberEmail}' => $subscription->email,
+					'{SubscriberIP}' => $subscription->ip,
+					'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true)
+				);
 				
+				rseventsproEmails::notify_me_unsubscribe(JFactory::getUser($event->owner)->get('email'), $event->id, $additional_data, $subscription->lang, $subscription->id);
 			}
 			return array('status' => true, 'url' => $URL, 'message' => JText::_('COM_RSEVENTSPRO_USER_UNSUBSCRIBED'));
 		}
@@ -2793,19 +2789,15 @@ class RseventsproModelRseventspro extends JModelLegacy
 			}
 			
 			// Notify the owner
-			if ($event->notify_me_unsubscribe) {
-				if ($event->owner) {
-					$additional_data = array(
-						'{SubscriberUsername}' => JFactory::getUser($this->_user->get('id'))->get('username'),
-						'{SubscriberName}' => rseventsproHelper::getUser($this->_user->get('id')),
-						'{SubscriberEmail}' => $subscription->email,
-						'{SubscriberIP}' => $subscription->ip,
-						'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true)
-					);
-					
-					rseventsproEmails::notify_me_unsubscribe(JFactory::getUser($event->owner)->get('email'), $event->id, $additional_data, $subscription->lang, $subscription->id);
-				}
-			}
+			$additional_data = array(
+				'{SubscriberUsername}' => JFactory::getUser($this->_user->get('id'))->get('username'),
+				'{SubscriberName}' => rseventsproHelper::getUser($this->_user->get('id')),
+				'{SubscriberEmail}' => $subscription->email,
+				'{SubscriberIP}' => $subscription->ip,
+				'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true)
+			);
+			
+			rseventsproEmails::notify_me_unsubscribe(JFactory::getUser($event->owner)->get('email'), $event->id, $additional_data, $subscription->lang, $subscription->id);
 			
 			return array('id' => $event->id, 'name' => $event->name, 'message' => JText::_('COM_RSEVENTSPRO_USER_UNSUBSCRIBED'));
 		}		
@@ -3965,7 +3957,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 		$query->clear()
 			->select($db->qn('email'))
 			->from($db->qn('#__rseventspro_users'))
-			->where('MD5(CONCAT('.$db->qn('date').','.$db->qn('id').','.$db->qn('email').','.$db->qn('verification').')) = '.$db->q($code));
+			->where('MD5(CONCAT('.$db->qn('date').','.$db->qn('id').',LOWER('.$db->qn('email').'),'.$db->qn('verification').')) = '.$db->q($code));
 		$db->setQuery($query);
 		$email = $db->loadResult();
 		
@@ -3974,7 +3966,7 @@ class RseventsproModelRseventspro extends JModelLegacy
 				->select($db->qn('u.email'))
 				->from($db->qn('#__rseventspro_rsvp_users','r'))
 				->join('LEFT', $db->qn('#__users','u').' ON '.$db->qn('r.uid').' = '.$db->qn('u.id'))
-				->where('MD5(CONCAT('.$db->qn('r.date').','.$db->qn('r.id').','.$db->qn('u.email').')) = '.$db->q($code));
+				->where('MD5(CONCAT('.$db->qn('r.date').','.$db->qn('r.id').',LOWER('.$db->qn('u.email').'))) = '.$db->q($code));
 			$db->setQuery($query);
 			$email = $db->loadResult();
 		}

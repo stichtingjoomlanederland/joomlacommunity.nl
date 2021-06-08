@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -37,32 +37,29 @@ use Joomla\CMS\Plugin\PluginHelper as JPluginHelper;
 class SearchModelSearch extends JModel
 {
 	/**
-	 * Search data array
-	 *
-	 * @var array
-	 */
-	protected $_data = null;
-
-	/**
-	 * Search total
-	 *
-	 * @var integer
-	 */
-	protected $_total = null;
-
-	/**
 	 * Search areas
 	 *
 	 * @var integer
 	 */
 	protected $_areas = null;
-
+	/**
+	 * Search data array
+	 *
+	 * @var array
+	 */
+	protected $_data = null;
 	/**
 	 * Pagination object
 	 *
 	 * @var object
 	 */
 	protected $_pagination = null;
+	/**
+	 * Search total
+	 *
+	 * @var integer
+	 */
+	protected $_total = null;
 
 	/**
 	 * Constructor
@@ -109,39 +106,51 @@ class SearchModelSearch extends JModel
 	}
 
 	/**
-	 * Method to set the search parameters
+	 * Method to get the search areas
 	 *
-	 * @param string $keyword  string search string
-	 * @param string $match    matching option, exact|any|all
-	 * @param string $ordering option, newest|oldest|popular|alpha|category
+	 * @return int
+	 *
+	 * @since 1.5
+	 */
+	public function getAreas()
+	{
+		// Load the Category data
+		if (empty($this->_areas['search']))
+		{
+			$areas = [];
+
+			JPluginHelper::importPlugin('search');
+			$dispatcher  = JEventDispatcher::getInstance();
+			$searchareas = $dispatcher->trigger('onContentSearchAreas');
+
+			foreach ($searchareas as $area)
+			{
+				if (is_array($area))
+				{
+					$areas = array_merge($areas, $area);
+				}
+			}
+
+			$this->_areas['search'] = $areas;
+		}
+
+		return $this->_areas;
+	}
+
+	/**
+	 * Method to set the search areas
+	 *
+	 * @param array $active areas
+	 * @param array $search areas
 	 *
 	 * @return  void
 	 *
-	 * @access    public
+	 * @access  public
 	 */
-	public function setSearch($keyword, $match = 'all', $ordering = 'newest')
+	public function setAreas($active = [], $search = [])
 	{
-		if (isset($keyword))
-		{
-			$this->setState('origkeyword', $keyword);
-
-			if ($match !== 'exact')
-			{
-				$keyword = preg_replace('#\xE3\x80\x80#s', ' ', $keyword);
-			}
-
-			$this->setState('keyword', $keyword);
-		}
-
-		if (isset($match))
-		{
-			$this->setState('match', $match);
-		}
-
-		if (isset($ordering))
-		{
-			$this->setState('ordering', $ordering);
-		}
+		$this->_areas['active'] = $active;
+		$this->_areas['search'] = $search;
 	}
 
 	/**
@@ -212,34 +221,6 @@ class SearchModelSearch extends JModel
 	}
 
 	/**
-	 * Method to get the total number of weblink items for the category
-	 *
-	 * @access  public
-	 *
-	 * @return  integer
-	 */
-	public function getTotal()
-	{
-		return $this->_total;
-	}
-
-	/**
-	 * Method to set the search areas
-	 *
-	 * @param array $active areas
-	 * @param array $search areas
-	 *
-	 * @return  void
-	 *
-	 * @access  public
-	 */
-	public function setAreas($active = [], $search = [])
-	{
-		$this->_areas['active'] = $active;
-		$this->_areas['search'] = $search;
-	}
-
-	/**
 	 * Method to get a pagination object of the weblink items for the category
 	 *
 	 * @access public
@@ -257,34 +238,50 @@ class SearchModelSearch extends JModel
 	}
 
 	/**
-	 * Method to get the search areas
+	 * Method to get the total number of weblink items for the category
 	 *
-	 * @return int
+	 * @access  public
 	 *
-	 * @since 1.5
+	 * @return  integer
 	 */
-	public function getAreas()
+	public function getTotal()
 	{
-		// Load the Category data
-		if (empty($this->_areas['search']))
+		return $this->_total;
+	}
+
+	/**
+	 * Method to set the search parameters
+	 *
+	 * @param string $keyword  string search string
+	 * @param string $match    matching option, exact|any|all
+	 * @param string $ordering option, newest|oldest|popular|alpha|category
+	 *
+	 * @return  void
+	 *
+	 * @access    public
+	 */
+	public function setSearch($keyword, $match = 'all', $ordering = 'newest')
+	{
+		if (isset($keyword))
 		{
-			$areas = [];
+			$this->setState('origkeyword', $keyword);
 
-			JPluginHelper::importPlugin('search');
-			$dispatcher  = JEventDispatcher::getInstance();
-			$searchareas = $dispatcher->trigger('onContentSearchAreas');
-
-			foreach ($searchareas as $area)
+			if ($match !== 'exact')
 			{
-				if (is_array($area))
-				{
-					$areas = array_merge($areas, $area);
-				}
+				$keyword = preg_replace('#\xE3\x80\x80#s', ' ', $keyword);
 			}
 
-			$this->_areas['search'] = $areas;
+			$this->setState('keyword', $keyword);
 		}
 
-		return $this->_areas;
+		if (isset($match))
+		{
+			$this->setState('match', $match);
+		}
+
+		if (isset($ordering))
+		{
+			$this->setState('ordering', $ordering);
+		}
 	}
 }

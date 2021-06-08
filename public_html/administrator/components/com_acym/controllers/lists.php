@@ -227,7 +227,10 @@ class ListsController extends acymController
                 'user',
                 ['join' => 'join_list-'.$listId],
                 $entityHelper->getColumnsForUser('userlist.user_id'),
-                ['text' => acym_translation('ACYM_CONFIRM'), 'action' => 'saveSubscribers']
+                ['text' => acym_translation('ACYM_CONFIRM'), 'action' => 'saveSubscribers'],
+                true,
+                '',
+                'subscriber'
             ),
             null,
             '',
@@ -634,5 +637,14 @@ class ListsController extends acymController
         $listClass = new ListClass();
 
         acym_sendAjaxResponse('', ['users' => $listClass->getUsersForSummaryModal($id, $offset, $limit, $search)]);
+    }
+
+    public function getListsAjax()
+    {
+        $listClass = new ListClass();
+
+        $lists = $listClass->getAllForSelect(false);
+
+        acym_sendAjaxResponse('', $lists);
     }
 }

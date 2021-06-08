@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -26,7 +26,7 @@ class JFormFieldRL_Content extends \RegularLabs\Library\FieldGroup
 {
 	public $type = 'Content';
 
-	function getCategories()
+	public function getCategories()
 	{
 		$query = $this->db->getQuery(true)
 			->select('COUNT(*)')
@@ -68,7 +68,7 @@ class JFormFieldRL_Content extends \RegularLabs\Library\FieldGroup
 		return $options;
 	}
 
-	function getItems()
+	public function getItems()
 	{
 		$query = $this->db->getQuery(true)
 			->select('COUNT(*)')

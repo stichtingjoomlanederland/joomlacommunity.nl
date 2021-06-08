@@ -1,9 +1,9 @@
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -25,11 +25,7 @@
 [class^="icon-reglab-"],
 [class*=" icon-reglab-"] {
   display: inline-block;
-  width: 14px;
-  height: 14px;
   *margin-right: 0.3em;
-  line-height: 16px;
-  font-size: 16px;
   speak: none;
   font-style: normal;
   font-weight: normal;
@@ -39,20 +35,219 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.icon-reglab:before {
-  font-family: 'RegularLabs' !important;
-  font-size: 14.2px !important;
+.icon-reglab,
+[class^="icon-reglab-"],
+[class*=" icon-reglab-"] {
+  width: 14px;
+  height: 14px;
 }
-h1 .icon-reglab:before,
-h2 .icon-reglab:before {
-  font-size: 16px !important;
+.icon-reglab {
+  width: 1em !important;
+  height: 1em !important;
+  background-color: #000;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='100 100 760 760'%3E%3Cpath d='M444.22,100.12H175.9A40,40,0,0,0,140.12,158L247.45,372.67a40,40,0,0,0,53.66,17.89L515.78,283.23a40,40,0,0,0,17.89-53.67L480,122.23A40,40,0,0,0,444.22,100.12Z' /%3E%3Cpath d='M658.89,569.44,444.22,676.77a40,40,0,0,0-17.89,53.67L480,837.77a40,40,0,0,0,35.78,22.11H784.1A40,40,0,0,0,819.88,802L712.55,587.33A40,40,0,0,0,658.89,569.44Z' /%3E%3Cpath d='M229.56,426.33,122.23,480a40,40,0,0,0-22.11,35.78V784.1A40,40,0,0,0,158,819.88L372.67,712.55a40,40,0,0,0,17.89-53.66L283.23,444.22A40,40,0,0,0,229.56,426.33Z' /%3E%3Cpath d='M840.91,141.87A40,40,0,0,0,802,140.12L587.33,247.45a40,40,0,0,0-17.89,53.66L676.77,515.78a40,40,0,0,0,53.67,17.89L837.77,480a40,40,0,0,0,22.11-35.78V175.9A40,40,0,0,0,840.91,141.87Z' /%3E%3C/svg%3E%0A");
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='100 100 760 760'%3E%3Cpath d='M444.22,100.12H175.9A40,40,0,0,0,140.12,158L247.45,372.67a40,40,0,0,0,53.66,17.89L515.78,283.23a40,40,0,0,0,17.89-53.67L480,122.23A40,40,0,0,0,444.22,100.12Z' /%3E%3Cpath d='M658.89,569.44,444.22,676.77a40,40,0,0,0-17.89,53.67L480,837.77a40,40,0,0,0,35.78,22.11H784.1A40,40,0,0,0,819.88,802L712.55,587.33A40,40,0,0,0,658.89,569.44Z' /%3E%3Cpath d='M229.56,426.33,122.23,480a40,40,0,0,0-22.11,35.78V784.1A40,40,0,0,0,158,819.88L372.67,712.55a40,40,0,0,0,17.89-53.66L283.23,444.22A40,40,0,0,0,229.56,426.33Z' /%3E%3Cpath d='M840.91,141.87A40,40,0,0,0,802,140.12L587.33,247.45a40,40,0,0,0-17.89,53.66L676.77,515.78a40,40,0,0,0,53.67,17.89L837.77,480a40,40,0,0,0,22.11-35.78V175.9A40,40,0,0,0,840.91,141.87Z' /%3E%3C/svg%3E%0A");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
 }
+.page-title .icon-reglab {
+  margin-right: 12px !important;
+  background-color: #fff;
+}
+.btn-toolbar .btn-wrapper .icon-reglab {
+  width: 28px !important;
+  height: auto !important;
+}
+button .icon-reglab,
+.btn-wrapper .icon-reglab,
+.btn-group .icon-reglab,
 .btn .icon-reglab {
-  text-indent: -2px;
-  font-size: 12px;
+  background-color: transparent;
+  mask-image: none;
+  -webkit-mask-image: none;
 }
+button .icon-reglab:before,
+.btn-wrapper .icon-reglab:before,
+.btn-group .icon-reglab:before,
 .btn .icon-reglab:before {
-  vertical-align: -3px;
+  font-family: 'RegularLabs' !important;
+  vertical-align: bottom;
+}
+button .icon-reglab.icon-reglab:before,
+.btn-wrapper .icon-reglab.icon-reglab:before,
+.btn-group .icon-reglab.icon-reglab:before,
+.btn .icon-reglab.icon-reglab:before {
+  content: "\e000";
+}
+button .icon-reglab.icon-addtomenu:before,
+.btn-wrapper .icon-reglab.icon-addtomenu:before,
+.btn-group .icon-reglab.icon-addtomenu:before,
+.btn .icon-reglab.icon-addtomenu:before {
+  content: "\e001";
+}
+button .icon-reglab.icon-advancedmodulemanager:before,
+.btn-wrapper .icon-reglab.icon-advancedmodulemanager:before,
+.btn-group .icon-reglab.icon-advancedmodulemanager:before,
+.btn .icon-reglab.icon-advancedmodulemanager:before {
+  content: "\e003";
+}
+button .icon-reglab.icon-advancedtemplatemanager:before,
+.btn-wrapper .icon-reglab.icon-advancedtemplatemanager:before,
+.btn-group .icon-reglab.icon-advancedtemplatemanager:before,
+.btn .icon-reglab.icon-advancedtemplatemanager:before {
+  content: "\e015";
+}
+button .icon-reglab.icon-articlesanywhere:before,
+.btn-wrapper .icon-reglab.icon-articlesanywhere:before,
+.btn-group .icon-reglab.icon-articlesanywhere:before,
+.btn .icon-reglab.icon-articlesanywhere:before {
+  content: "\e004";
+}
+button .icon-reglab.icon-articlesfield:before,
+.btn-wrapper .icon-reglab.icon-articlesfield:before,
+.btn-group .icon-reglab.icon-articlesfield:before,
+.btn .icon-reglab.icon-articlesfield:before {
+  content: "\e01d";
+}
+button .icon-reglab.icon-betterpreview:before,
+.btn-wrapper .icon-reglab.icon-betterpreview:before,
+.btn-group .icon-reglab.icon-betterpreview:before,
+.btn .icon-reglab.icon-betterpreview:before {
+  content: "\e005";
+}
+button .icon-reglab.icon-bettertrash:before,
+.btn-wrapper .icon-reglab.icon-bettertrash:before,
+.btn-group .icon-reglab.icon-bettertrash:before,
+.btn .icon-reglab.icon-bettertrash:before {
+  content: "\e01b";
+}
+button .icon-reglab.icon-cachecleaner:before,
+.btn-wrapper .icon-reglab.icon-cachecleaner:before,
+.btn-group .icon-reglab.icon-cachecleaner:before,
+.btn .icon-reglab.icon-cachecleaner:before {
+  content: "\e006";
+}
+button .icon-reglab.icon-cdnforjoomla:before,
+.btn-wrapper .icon-reglab.icon-cdnforjoomla:before,
+.btn-group .icon-reglab.icon-cdnforjoomla:before,
+.btn .icon-reglab.icon-cdnforjoomla:before {
+  content: "\e007";
+}
+button .icon-reglab.icon-componentsanywhere:before,
+.btn-wrapper .icon-reglab.icon-componentsanywhere:before,
+.btn-group .icon-reglab.icon-componentsanywhere:before,
+.btn .icon-reglab.icon-componentsanywhere:before {
+  content: "\e008";
+}
+button .icon-reglab.icon-conditionalcontent:before,
+.btn-wrapper .icon-reglab.icon-conditionalcontent:before,
+.btn-group .icon-reglab.icon-conditionalcontent:before,
+.btn .icon-reglab.icon-conditionalcontent:before {
+  content: "\e019";
+}
+button .icon-reglab.icon-contenttemplater:before,
+.btn-wrapper .icon-reglab.icon-contenttemplater:before,
+.btn-group .icon-reglab.icon-contenttemplater:before,
+.btn .icon-reglab.icon-contenttemplater:before {
+  content: "\e009";
+}
+button .icon-reglab.icon-dbreplacer:before,
+.btn-wrapper .icon-reglab.icon-dbreplacer:before,
+.btn-group .icon-reglab.icon-dbreplacer:before,
+.btn .icon-reglab.icon-dbreplacer:before {
+  content: "\e00a";
+}
+button .icon-reglab.icon-dummycontent:before,
+.btn-wrapper .icon-reglab.icon-dummycontent:before,
+.btn-group .icon-reglab.icon-dummycontent:before,
+.btn .icon-reglab.icon-dummycontent:before {
+  content: "\e017";
+}
+button .icon-reglab.icon-emailprotector:before,
+.btn-wrapper .icon-reglab.icon-emailprotector:before,
+.btn-group .icon-reglab.icon-emailprotector:before,
+.btn .icon-reglab.icon-emailprotector:before {
+  content: "\e00b";
+}
+button .icon-reglab.icon-geoip:before,
+.btn-wrapper .icon-reglab.icon-geoip:before,
+.btn-group .icon-reglab.icon-geoip:before,
+.btn .icon-reglab.icon-geoip:before {
+  content: "\e018";
+}
+button .icon-reglab.icon-iplogin:before,
+.btn-wrapper .icon-reglab.icon-iplogin:before,
+.btn-group .icon-reglab.icon-iplogin:before,
+.btn .icon-reglab.icon-iplogin:before {
+  content: "\e016";
+}
+button .icon-reglab.icon-keyboardshortcuts:before,
+.btn-wrapper .icon-reglab.icon-keyboardshortcuts:before,
+.btn-group .icon-reglab.icon-keyboardshortcuts:before,
+.btn .icon-reglab.icon-keyboardshortcuts:before {
+  content: "\e01e";
+}
+button .icon-reglab.icon-modals:before,
+.btn-wrapper .icon-reglab.icon-modals:before,
+.btn-group .icon-reglab.icon-modals:before,
+.btn .icon-reglab.icon-modals:before {
+  content: "\e00c";
+}
+button .icon-reglab.icon-modulesanywhere:before,
+.btn-wrapper .icon-reglab.icon-modulesanywhere:before,
+.btn-group .icon-reglab.icon-modulesanywhere:before,
+.btn .icon-reglab.icon-modulesanywhere:before {
+  content: "\e00d";
+}
+button .icon-reglab.icon-quickindex:before,
+.btn-wrapper .icon-reglab.icon-quickindex:before,
+.btn-group .icon-reglab.icon-quickindex:before,
+.btn .icon-reglab.icon-quickindex:before {
+  content: "\e01c";
+}
+button .icon-reglab.icon-rereplacer:before,
+.btn-wrapper .icon-reglab.icon-rereplacer:before,
+.btn-group .icon-reglab.icon-rereplacer:before,
+.btn .icon-reglab.icon-rereplacer:before {
+  content: "\e00e";
+}
+button .icon-reglab.icon-simpleusernotes:before,
+.btn-wrapper .icon-reglab.icon-simpleusernotes:before,
+.btn-group .icon-reglab.icon-simpleusernotes:before,
+.btn .icon-reglab.icon-simpleusernotes:before {
+  content: "\e01a";
+}
+button .icon-reglab.icon-sliders:before,
+.btn-wrapper .icon-reglab.icon-sliders:before,
+.btn-group .icon-reglab.icon-sliders:before,
+.btn .icon-reglab.icon-sliders:before {
+  content: "\e00f";
+}
+button .icon-reglab.icon-snippets:before,
+.btn-wrapper .icon-reglab.icon-snippets:before,
+.btn-group .icon-reglab.icon-snippets:before,
+.btn .icon-reglab.icon-snippets:before {
+  content: "\e010";
+}
+button .icon-reglab.icon-sourcerer:before,
+.btn-wrapper .icon-reglab.icon-sourcerer:before,
+.btn-group .icon-reglab.icon-sourcerer:before,
+.btn .icon-reglab.icon-sourcerer:before {
+  content: "\e011";
+}
+button .icon-reglab.icon-tabs:before,
+.btn-wrapper .icon-reglab.icon-tabs:before,
+.btn-group .icon-reglab.icon-tabs:before,
+.btn .icon-reglab.icon-tabs:before {
+  content: "\e012";
+}
+button .icon-reglab.icon-tooltips:before,
+.btn-wrapper .icon-reglab.icon-tooltips:before,
+.btn-group .icon-reglab.icon-tooltips:before,
+.btn .icon-reglab.icon-tooltips:before {
+  content: "\e014";
 }
 .icon-reglab-24:before {
   vertical-align: -5px;
@@ -61,101 +256,6 @@ h2 .icon-reglab:before {
   .icon-reglab-24:before {
     vertical-align: -3px;
   }
-}
-.icon-reglab:before {
-  content: "\e000";
-}
-.icon-nonumber:before {
-  content: "\e100";
-}
-.icon-addtomenu:before {
-  content: "\e001";
-}
-.icon-advancedmodulemanager:before {
-  content: "\e003";
-}
-.icon-advancedtemplatemanager:before {
-  content: "\e015";
-}
-.icon-articlesanywhere:before {
-  content: "\e004";
-}
-.icon-articlesfield:before {
-  content: "\e01d";
-}
-.icon-betterpreview:before {
-  content: "\e005";
-}
-.icon-bettertrash:before {
-  content: "\e01b";
-}
-.icon-cachecleaner:before {
-  content: "\e006";
-}
-.icon-cdnforjoomla:before {
-  content: "\e007";
-}
-.icon-componentsanywhere:before {
-  content: "\e008";
-}
-.icon-conditionalcontent:before {
-  content: "\e019";
-}
-.icon-contenttemplater:before {
-  content: "\e009";
-}
-.icon-dbreplacer:before {
-  content: "\e00a";
-}
-.icon-dummycontent:before {
-  content: "\e017";
-}
-.icon-emailprotector:before {
-  content: "\e00b";
-}
-.icon-geoip:before {
-  content: "\e018";
-}
-.icon-iplogin:before {
-  content: "\e016";
-}
-.icon-keyboardshortcuts:before {
-  content: "\e01e";
-}
-.icon-modals:before {
-  content: "\e00c";
-}
-.icon-modulesanywhere:before {
-  content: "\e00d";
-}
-.icon-quickindex:before {
-  content: "\e01c";
-}
-.icon-rereplacer:before {
-  content: "\e00e";
-}
-.icon-simpleusernotes:before {
-  content: "\e01a";
-}
-.icon-sliders:before {
-  content: "\e00f";
-}
-.icon-snippets:before {
-  content: "\e010";
-}
-.icon-sourcerer:before {
-  content: "\e011";
-}
-.icon-tabs:before {
-  content: "\e012";
-}
-.icon-tooltips:before {
-  content: "\e014";
-}
-.icon-whatnothing:before {
-  content: " ";
-  width: 16px;
-  display: inline-block;
 }
 [class^="icon-reglab-"]:before,
 [class*=" icon-reglab-"]:before {

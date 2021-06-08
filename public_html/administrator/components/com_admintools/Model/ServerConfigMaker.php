@@ -120,7 +120,7 @@ abstract class ServerConfigMaker extends Model
 		$this->defaultConfig = (object) $this->defaultConfig;
 	}
 
-	public function getConfigFileName()
+	public function getConfigFileName(): string
 	{
 		return $this->configFileName;
 	}
@@ -294,7 +294,7 @@ abstract class ServerConfigMaker extends Model
 	 *
 	 * @return  bool
 	 */
-	public function writeConfigFile()
+	public function writeConfigFile(): bool
 	{
 		// Make sure we are called by an expected caller
 		ServerTechnology::checkCaller($this->allowedCallersForWrite);
@@ -319,18 +319,6 @@ abstract class ServerConfigMaker extends Model
 		 */
 		$configFileContents = str_replace("\r\n", "\n", $configFileContents);
 
-		// Save the hash of the contents as well as the technology used, so later we can inform the user about any manual edit
-		// Please note: we have to save the hash only when we actually write to disk, not when we save the config
-		// We're going to do that even if the user decided to ignore the warning, because if he changes idea later we can warn him
-		$storage = Storage::getInstance();
-
-		$info = [
-			'technology' => $this->getName(),
-			'contents'   => md5($configFileContents),
-		];
-
-		$storage->setValue('configInfo', $info, true);
-
 		if (!@file_put_contents($htaccessPath, $configFileContents))
 		{
 			return File::write($htaccessPath, $configFileContents);
@@ -340,13 +328,46 @@ abstract class ServerConfigMaker extends Model
 	}
 
 	/**
+	 * Given a server configuration file, strips out header comments and create an hash of the remaining contents
+	 *
+	 * @param string $contents
+	 *
+	 * @return string
+	 */
+	public function getConfigHash(string $contents): string
+	{
+		// Get the lines of the configuration
+		$lines = explode("\n", $contents);
+
+		// Trim the lines and convert comments to empty lines
+		$lines = array_map(function ($line) {
+			$line = trim($line);
+
+			if (substr($line, 0, 1) === '#')
+			{
+				$line = '';
+			}
+
+			return $line;
+		}, $lines);
+
+		// Remove empty lines
+		$lines  = array_filter($lines, function ($line) {
+			return !empty($line);
+		});
+
+		// Get the MD5 of the normalised contents
+		return md5(implode("\n", $lines));
+	}
+
+	/**
 	 * Checks if current redirection rules do match the URL saved inside the live_site variable. For example:
 	 * - live_site: www.example.com - Redirect www to non-www   WRONG!
 	 * - live_site: www.example.com - Redirect non-www to www   CORRECT!
 	 *
 	 * @return bool Are the live_site variable and current redirection rules compatible?
 	 */
-	public function enableRedirects()
+	public function enableRedirects(): bool
 	{
 		$live_site = $this->container->platform->getConfig()->get('live_site', '');
 
@@ -393,7 +414,7 @@ abstract class ServerConfigMaker extends Model
 	 *
 	 * @return  string  The escaped string
 	 */
-	protected function escape_string_for_regex($str)
+	protected function escape_string_for_regex($str): string
 	{
 		//All regex special chars (according to arkani at iol dot pt below):
 		// \ ^ . $ | ( ) [ ]

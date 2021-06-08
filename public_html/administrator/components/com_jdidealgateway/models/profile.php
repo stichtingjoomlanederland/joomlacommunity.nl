@@ -47,7 +47,6 @@ class JdidealgatewayModelProfile extends AdminModel
 	 */
 	public function getForm($data = [], $loadData = true)
 	{
-		// Get the form.
 		$form = $this->loadForm(
 			'com_jdidealgateway.profile',
 			'profile',
@@ -305,7 +304,6 @@ class JdidealgatewayModelProfile extends AdminModel
 	 */
 	protected function loadFormData()
 	{
-		// Check the session for previously entered form data.
 		$data = Factory::getApplication()->getUserState('com_jdidealgateway.edit.profile.data', []);
 
 		if (0 === count($data))

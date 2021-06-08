@@ -24,7 +24,7 @@ class ConfigurationClass extends acymClass
         return $default;
     }
 
-    public function save($newConfig)
+    public function save($newConfig, $escape = true)
     {
         $query = 'REPLACE INTO #__acym_configuration (`name`, `value`) VALUES ';
 
@@ -51,7 +51,11 @@ class ConfigurationClass extends acymClass
             }
             $this->values[$name]->value = $value;
 
-            $params[] = '('.acym_escapeDB(strip_tags($name)).','.acym_escapeDB(strip_tags($value)).')';
+            if ($escape) {
+                $params[] = '('.acym_escapeDB(strip_tags($name)).','.acym_escapeDB(strip_tags($value)).')';
+            } else {
+                $params[] = '('.acym_escapeDB($name).','.acym_escapeDB($value).')';
+            }
         }
 
         if (empty($params)) return true;
@@ -72,7 +76,7 @@ class ConfigurationClass extends acymClass
 
     public function setLicenseKeyByDomain()
     {
-        if (!acym_level(1)) return true;
+        if (!acym_level(ACYM_ESSENTIAL)) return true;
         $licenseKey = $this->config->get('license_key', '');
         if (!empty($licenseKey)) return true;
 

@@ -10,7 +10,7 @@
  *
  * Based on JImage library from Joomla.Platform 11.3
  */
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 /**
  * Class to manipulate an image.
@@ -47,12 +47,21 @@ class WFImageImagick
         }
 
         // If the source input is a resource, set it as the image handle.
-        if (is_resource($source) && (get_resource_type($source) == 'imagick')) {
+        if ($this->isValidResource($source)) {
             $this->handle = &$source;
         } elseif (!empty($source) && is_string($source)) {
             // If the source input is not empty, assume it is a path and populate the image handle.
             $this->loadFile($source);
         }
+    }
+
+    private function isValidResource($resource)
+    {
+        if (!is_object($resource) || ($resource instanceof Imagick === false)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -109,11 +118,7 @@ class WFImageImagick
     public function isLoaded()
     {
         // Make sure the resource handle is valid.
-        if (!is_object($this->handle) || ($this->handle instanceof Imagick === false)) {
-            return false;
-        }
-
-        return true;
+        return $this->isValidResource($this->handle);
     }
 
     /**

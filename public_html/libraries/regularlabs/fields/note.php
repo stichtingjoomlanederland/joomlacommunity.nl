@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -45,15 +45,15 @@ class JFormFieldRL_Note extends \RegularLabs\Library\Field
 		$title       = $this->element['label'] ? (string) $this->element['label'] : ($this->element['title'] ? (string) $this->element['title'] : '');
 		$heading     = $this->element['heading'] ? (string) $this->element['heading'] : 'h4';
 		$description = (string) $this->element['description'];
-		$class       = ! empty($this->class) ? $this->class : '';
+		$class       = $this->class ?? '';
 		$close       = (string) $this->element['close'];
 		$controls    = (int) $this->element['controls'];
 
 		$class = ! empty($class) ? ' class="' . $class . '"' : '';
 
 		$button      = '';
-		$title       = ! empty($title) ? JText::_($title) : '';
-		$description = ! empty($description) ? JText::_($description) : '';
+		$title       = JText::_($title ?? '');
+		$description = JText::_($description ?? '');
 
 		if ($close)
 		{

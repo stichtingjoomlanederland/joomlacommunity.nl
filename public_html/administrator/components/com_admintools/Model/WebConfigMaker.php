@@ -345,6 +345,7 @@ class WebConfigMaker extends ServerConfigMaker
 	protected $allowedCallersForMake = [
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\WebConfigMaker::apply',
+		'Akeeba\AdminTools\Admin\Model\ControlPanel::serverConfigEdited',
 		'Akeeba\AdminTools\Admin\Model\ServerConfigMaker::writeConfigFile',
 		'Akeeba\AdminTools\Admin\Model\WebConfigMaker::writeWebConfig',
 		'Akeeba\AdminTools\Admin\View\WebConfigMaker\Html::onBeforeMain',

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -15,25 +15,28 @@ defined('_JEXEC') or die;
 
 use DateTimeZone;
 use Joomla\CMS\Factory as JFactory;
+use RegularLabs\Library\Api\ConditionInterface;
+use RegularLabs\Library\CacheNew as Cache;
+use RegularLabs\Library\ParametersNew as Parameters;
 
 /**
  * Class Condition
  * @package RegularLabs\Library
  */
 abstract class Condition
-	implements \RegularLabs\Library\Api\ConditionInterface
+	implements ConditionInterface
 {
 	static  $_request     = null;
-	public  $request      = null;
+	public  $article      = null;
 	public  $date         = null;
 	public  $db           = null;
-	public  $selection    = null;
-	public  $params       = null;
 	public  $include_type = null;
-	public  $article      = null;
 	public  $module       = null;
-	private $timezone     = null;
+	public  $params       = null;
+	public  $request      = null;
+	public  $selection    = null;
 	private $dates        = [];
+	private $timezone     = null;
 
 	public function __construct($condition = [], $article = null, $module = null)
 	{
@@ -44,9 +47,9 @@ abstract class Condition
 
 		$this->db = JFactory::getDbo();
 
-		$this->selection    = isset($condition->selection) ? $condition->selection : [];
-		$this->params       = isset($condition->params) ? $condition->params : [];
-		$this->include_type = isset($condition->include_type) ? $condition->include_type : 'none';
+		$this->selection    = $condition->selection ?? [];
+		$this->params       = $condition->params ?? [];
+		$this->include_type = $condition->include_type ?? 'none';
 
 		if (is_array($this->selection))
 		{
@@ -57,6 +60,107 @@ abstract class Condition
 		$this->module  = $module;
 	}
 
+	public function _($pass = true, $include_type = null)
+	{
+		$include_type = $include_type ?: $this->include_type;
+
+		return $pass ? ($include_type == 'include') : ($include_type == 'exclude');
+	}
+
+	public function beforePass()
+	{
+	}
+
+	public function getDate($date = '')
+	{
+		$date = Date::fix($date);
+
+		$id = 'date_' . $date;
+
+		if (isset($this->dates[$id]))
+		{
+			return $this->dates[$id];
+		}
+
+		$this->dates[$id] = JFactory::getDate($date);
+
+		if (empty($this->params->ignore_time_zone))
+		{
+			$this->dates[$id]->setTimeZone($this->getTimeZone());
+		}
+
+		return $this->dates[$id];
+	}
+
+	public function getDateString($date = '')
+	{
+		$date = $this->getDate($date);
+		$date = strtotime($date->format('Y-m-d H:i:s', true));
+
+		return $date;
+	}
+
+	public function getMenuItemParams($id = 0)
+	{
+		$cache = new Cache([__METHOD__, $id]);
+
+		if ($cache->exists())
+		{
+			return $cache->get();
+		}
+
+		$query = $this->db->getQuery(true)
+			->select('m.params')
+			->from('#__menu AS m')
+			->where('m.id = ' . (int) $id);
+		$this->db->setQuery($query);
+		$params = $this->db->loadResult();
+
+		return $cache->set(Parameters::getObjectFromRegistry($params));
+	}
+
+	public function getNow()
+	{
+		return strtotime($this->date->format('Y-m-d H:i:s', true));
+	}
+
+	public function getParentIds($id = 0, $table = 'menu', $parent = 'parent_id', $child = 'id')
+	{
+		if ( ! $id)
+		{
+			return [];
+		}
+
+		$cache = new Cache([__METHOD__, $id, $table, $parent, $child]);
+
+		if ($cache->exists())
+		{
+			return $cache->get();
+		}
+
+		$parent_ids = [];
+
+		while ($id)
+		{
+			$query = $this->db->getQuery(true)
+				->select('t.' . $parent)
+				->from('#__' . $table . ' as t')
+				->where('t.' . $child . ' = ' . (int) $id);
+			$this->db->setQuery($query);
+			$id = $this->db->loadResult();
+
+			// Break if no parent is found or parent already found before for some reason
+			if ( ! $id || in_array($id, $parent_ids))
+			{
+				break;
+			}
+
+			$parent_ids[] = $id;
+		}
+
+		return $cache->set($parent_ids);
+	}
+
 	public function init()
 	{
 	}
@@ -65,8 +169,198 @@ abstract class Condition
 	{
 	}
 
-	public function beforePass()
+	public function makeArray($array = '', $delimiter = ',', $trim = false)
 	{
+		if (empty($array))
+		{
+			return [];
+		}
+
+		$cache = new Cache([__METHOD__, $array, $delimiter, $trim]);
+
+		if ($cache->exists())
+		{
+			return $cache->get();
+		}
+
+		$array = $this->mixedDataToArray($array, $delimiter);
+
+		if (empty($array))
+		{
+			return $array;
+		}
+
+		if ( ! $trim)
+		{
+			return $array;
+		}
+
+		foreach ($array as $k => $v)
+		{
+			if ( ! is_string($v))
+			{
+				continue;
+			}
+
+			$array[$k] = trim($v);
+		}
+
+		return $cache->set($array);
+	}
+
+	public function passByPageType($option, $selection = [], $include_type = 'all', $add_view = false, $get_task = false, $get_layout = true)
+	{
+		if ($this->request->option != $option)
+		{
+			return $this->_(false, $include_type);
+		}
+
+		if ($get_task && $this->request->task && $this->request->task != $this->request->view && $this->request->task != 'default')
+		{
+			$pagetype = ($add_view ? $this->request->view . '_' : '') . $this->request->task;
+
+			return $this->passSimple($pagetype, $selection, $include_type);
+		}
+
+		if ($get_layout && $this->request->layout && $this->request->layout != $this->request->view && $this->request->layout != 'default')
+		{
+			$pagetype = ($add_view ? $this->request->view . '_' : '') . $this->request->layout;
+
+			return $this->passSimple($pagetype, $selection, $include_type);
+		}
+
+		return $this->passSimple($this->request->view, $selection, $include_type);
+	}
+
+	public function passInRange($value = '', $include_type = null, $selection = null)
+	{
+		$include_type = $include_type ?: $this->include_type;
+
+		if (empty($value))
+		{
+			return $this->_(false, $include_type);
+		}
+
+		$selections = $this->makeArray($selection ?: $this->selection);
+
+		$pass = false;
+		foreach ($selections as $selection)
+		{
+			if (empty($selection))
+			{
+				continue;
+			}
+
+			if (strpos($selection, '-') === false)
+			{
+				if ((int) $value == (int) $selection)
+				{
+					$pass = true;
+					break;
+				}
+
+				continue;
+			}
+
+			[$min, $max] = explode('-', $selection, 2);
+
+			if ((int) $value >= (int) $min && (int) $value <= (int) $max)
+			{
+				$pass = true;
+				break;
+			}
+		}
+
+		return $this->_($pass, $include_type);
+	}
+
+	public function passItemByType(&$pass, $type = '', $data = null)
+	{
+		$pass_type = ! empty($data) ? $this->{'pass' . $type}($data) : $this->{'pass' . $type}();
+
+		if ($pass_type === null)
+		{
+			return true;
+		}
+
+		$pass = $pass_type;
+
+		return $pass;
+	}
+
+	public function passSimple($values = '', $caseinsensitive = false, $include_type = null, $selection = null)
+	{
+		$values       = $this->makeArray($values);
+		$include_type = $include_type ?: $this->include_type;
+		$selection    = $selection ?: $this->selection;
+
+		$pass = false;
+		foreach ($values as $value)
+		{
+			if ($caseinsensitive)
+			{
+				if (in_array(strtolower($value), array_map('strtolower', $selection)))
+				{
+					$pass = true;
+					break;
+				}
+
+				continue;
+			}
+
+			if (in_array($value, $selection))
+			{
+				$pass = true;
+				break;
+			}
+		}
+
+		return $this->_($pass, $include_type);
+	}
+
+	private function getActiveMenu()
+	{
+		$menu = JFactory::getApplication()->getMenu()->getActive();
+
+		if (empty($menu->id))
+		{
+			return false;
+		}
+
+		return $this->getMenuById($menu->id);
+	}
+
+	private function getItemId()
+	{
+		$id = JFactory::getApplication()->input->getInt('Itemid', 0);
+
+		if ($id)
+		{
+			return $id;
+		}
+
+		$menu = $this->getActiveMenu();
+
+		return $menu->id ?? 0;
+	}
+
+	private function getMenuById($id = 0)
+	{
+		$menu = JFactory::getApplication()->getMenu()->getItem($id);
+
+		if (empty($menu->id))
+		{
+			return false;
+		}
+
+		if ($menu->type == 'alias')
+		{
+			$params = $menu->getParams();
+
+			return $this->getMenuById($params->get('aliasoptions'));
+		}
+
+		return $menu;
 	}
 
 	private function getRequest()
@@ -96,7 +390,7 @@ abstract class Condition
 		{
 			case 'com_categories':
 				$extension              = $input->getCmd('extension');
-				self::$_request->option = $extension ? $extension : 'com_content';
+				self::$_request->option = $extension ?: 'com_content';
 				self::$_request->view   = 'category';
 				break;
 
@@ -152,227 +446,16 @@ abstract class Condition
 		return self::$_request;
 	}
 
-	public function _($pass = true, $include_type = null)
+	private function getTimeZone()
 	{
-		$include_type = $include_type ?: $this->include_type;
-
-		return $pass ? ($include_type == 'include') : ($include_type == 'exclude');
-	}
-
-	public function passSimple($values = '', $caseinsensitive = false, $include_type = null, $selection = null)
-	{
-		$values       = $this->makeArray($values);
-		$include_type = $include_type ?: $this->include_type;
-		$selection    = $selection ?: $this->selection;
-
-		$pass = false;
-		foreach ($values as $value)
+		if ( ! is_null($this->timezone))
 		{
-			if ($caseinsensitive)
-			{
-				if (in_array(strtolower($value), array_map('strtolower', $selection)))
-				{
-					$pass = true;
-					break;
-				}
-
-				continue;
-			}
-
-			if (in_array($value, $selection))
-			{
-				$pass = true;
-				break;
-			}
+			return $this->timezone;
 		}
 
-		return $this->_($pass, $include_type);
-	}
+		$this->timezone = new DateTimeZone(JFactory::getApplication()->getCfg('offset'));
 
-	public function passInRange($value = '', $include_type = null, $selection = null)
-	{
-		$include_type = $include_type ?: $this->include_type;
-
-		if (empty($value))
-		{
-			return $this->_(false, $include_type);
-		}
-
-		$selections = $this->makeArray($selection ?: $this->selection);
-
-		$pass = false;
-		foreach ($selections as $selection)
-		{
-			if (empty($selection))
-			{
-				continue;
-			}
-
-			if (strpos($selection, '-') === false)
-			{
-				if ((int) $value == (int) $selection)
-				{
-					$pass = true;
-					break;
-				}
-
-				continue;
-			}
-
-			list($min, $max) = explode('-', $selection, 2);
-
-			if ((int) $value >= (int) $min && (int) $value <= (int) $max)
-			{
-				$pass = true;
-				break;
-			}
-		}
-
-		return $this->_($pass, $include_type);
-	}
-
-	public function passItemByType(&$pass, $type = '', $data = null)
-	{
-		$pass_type = ! empty($data) ? $this->{'pass' . $type}($data) : $this->{'pass' . $type}();
-
-		if ($pass_type === null)
-		{
-			return true;
-		}
-
-		$pass = $pass_type;
-
-		return $pass;
-	}
-
-	public function passByPageType($option, $selection = [], $include_type = 'all', $add_view = false, $get_task = false, $get_layout = true)
-	{
-		if ($this->request->option != $option)
-		{
-			return $this->_(false, $include_type);
-		}
-
-		if ($get_task && $this->request->task && $this->request->task != $this->request->view && $this->request->task != 'default')
-		{
-			$pagetype = ($add_view ? $this->request->view . '_' : '') . $this->request->task;
-
-			return $this->passSimple($pagetype, $selection, $include_type);
-		}
-
-		if ($get_layout && $this->request->layout && $this->request->layout != $this->request->view && $this->request->layout != 'default')
-		{
-			$pagetype = ($add_view ? $this->request->view . '_' : '') . $this->request->layout;
-
-			return $this->passSimple($pagetype, $selection, $include_type);
-		}
-
-		return $this->passSimple($this->request->view, $selection, $include_type);
-	}
-
-	public function getMenuItemParams($id = 0)
-	{
-		$cache_id = 'getMenuItemParams_' . $id;
-
-		if (Cache::has($cache_id))
-		{
-			return Cache::get($cache_id);
-		}
-
-		$query = $this->db->getQuery(true)
-			->select('m.params')
-			->from('#__menu AS m')
-			->where('m.id = ' . (int) $id);
-		$this->db->setQuery($query);
-		$params = $this->db->loadResult();
-
-		$parameters = Parameters::getInstance();
-
-		return Cache::set(
-			$cache_id,
-			$parameters->getParams($params)
-		);
-	}
-
-	public function getParentIds($id = 0, $table = 'menu', $parent = 'parent_id', $child = 'id')
-	{
-		if ( ! $id)
-		{
-			return [];
-		}
-
-		$cache_id = 'getParentIds_' . $id . '_' . $table . '_' . $parent . '_' . $child;
-
-		if (Cache::has($cache_id))
-		{
-			return Cache::get($cache_id);
-		}
-
-		$parent_ids = [];
-
-		while ($id)
-		{
-			$query = $this->db->getQuery(true)
-				->select('t.' . $parent)
-				->from('#__' . $table . ' as t')
-				->where('t.' . $child . ' = ' . (int) $id);
-			$this->db->setQuery($query);
-			$id = $this->db->loadResult();
-
-			// Break if no parent is found or parent already found before for some reason
-			if ( ! $id || in_array($id, $parent_ids))
-			{
-				break;
-			}
-
-			$parent_ids[] = $id;
-		}
-
-		return Cache::set(
-			$cache_id,
-			$parent_ids
-		);
-	}
-
-	public function makeArray($array = '', $delimiter = ',', $trim = false)
-	{
-		if (empty($array))
-		{
-			return [];
-		}
-
-		$cache_id = 'makeArray_' . json_encode($array) . '_' . $delimiter . '_' . $trim;
-
-		if (Cache::has($cache_id))
-		{
-			return Cache::get($cache_id);
-		}
-
-		$array = $this->mixedDataToArray($array, $delimiter);
-
-		if (empty($array))
-		{
-			return $array;
-		}
-
-		if ( ! $trim)
-		{
-			return $array;
-		}
-
-		foreach ($array as $k => $v)
-		{
-			if ( ! is_string($v))
-			{
-				continue;
-			}
-
-			$array[$k] = trim($v);
-		}
-
-		return Cache::set(
-			$cache_id,
-			$array
-		);
+		return $this->timezone;
 	}
 
 	private function mixedDataToArray($array = '', $onlycommas = false)
@@ -400,96 +483,5 @@ abstract class Condition
 		}
 
 		return $array;
-	}
-
-	private function getItemId()
-	{
-		$app = JFactory::getApplication();
-
-		if ($id = $app->input->getInt('Itemid', 0))
-		{
-			return $id;
-		}
-
-		$menu = $this->getActiveMenu();
-
-		return isset($menu->id) ? $menu->id : 0;
-	}
-
-	private function getActiveMenu()
-	{
-		$menu = JFactory::getApplication()->getMenu()->getActive();
-
-		if (empty($menu->id))
-		{
-			return false;
-		}
-
-		return $this->getMenuById($menu->id);
-	}
-
-	private function getMenuById($id = 0)
-	{
-		$menu = JFactory::getApplication()->getMenu()->getItem($id);
-
-		if (empty($menu->id))
-		{
-			return false;
-		}
-
-		if ($menu->type == 'alias')
-		{
-			$params = $menu->getParams();
-
-			return $this->getMenuById($params->get('aliasoptions'));
-		}
-
-		return $menu;
-	}
-
-	public function getNow()
-	{
-		return strtotime($this->date->format('Y-m-d H:i:s', true));
-	}
-
-	public function getDate($date = '')
-	{
-		$date = Date::fix($date);
-
-		$id = 'date_' . $date;
-
-		if (isset($this->dates[$id]))
-		{
-			return $this->dates[$id];
-		}
-
-		$this->dates[$id] = JFactory::getDate($date);
-
-		if (empty($this->params->ignore_time_zone))
-		{
-			$this->dates[$id]->setTimeZone($this->getTimeZone());
-		}
-
-		return $this->dates[$id];
-	}
-
-	public function getDateString($date = '')
-	{
-		$date = $this->getDate($date);
-		$date = strtotime($date->format('Y-m-d H:i:s', true));
-
-		return $date;
-	}
-
-	private function getTimeZone()
-	{
-		if ( ! is_null($this->timezone))
-		{
-			return $this->timezone;
-		}
-
-		$this->timezone = new DateTimeZone(JFactory::getApplication()->getCfg('offset'));
-
-		return $this->timezone;
 	}
 }

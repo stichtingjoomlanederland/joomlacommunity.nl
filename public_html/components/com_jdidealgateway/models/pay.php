@@ -11,6 +11,7 @@
 defined('_JEXEC') or die;
 
 use Jdideal\Gateway;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Form\Form;
@@ -70,6 +71,7 @@ class JdidealgatewayModelPay extends FormModel
 		$id           = $input->get('order_id', false);
 		$profileAlias = '';
 		$menu         = $app->getMenu();
+		$params       = ComponentHelper::getParams('com_jdidealgateway');
 
 		if ($menu)
 		{
@@ -117,14 +119,26 @@ class JdidealgatewayModelPay extends FormModel
 			$profileSetting = '&profile_id=' . $profileId;
 		}
 
+		$domain = $params->get('domain');
+
+		if ($domain === '')
+		{
+			$domain = Uri::root();
+		}
+
+		if (substr($domain, -1) === '/')
+		{
+			$domain = substr($domain, 0, -1);
+		}
+
 		return [
 			'amount'         => array_key_exists('amount', $post) ? $post['amount'] : 0,
 			'order_number'   => array_key_exists('order_number', $post) ? $post['order_number'] : $table->get('id'),
 			'order_id'       => $table->get('id'),
 			'origin'         => 'jdidealgateway',
-			'return_url'     => substr(Uri::root(), 0, -1) . Route::_('index.php?option=com_jdidealgateway&task=pay.result' . $profileSetting),
+			'return_url'     => $domain . Route::_('index.php?option=com_jdidealgateway&task=pay.result' . $profileSetting),
 			'notify_url'     => '',
-			'cancel_url'     => substr(Uri::root(), 0, -1) . Route::_('index.php?option=com_jdidealgateway&task=pay.result' . $profileSetting),
+			'cancel_url'     => $domain . Route::_('index.php?option=com_jdidealgateway&task=pay.result' . $profileSetting),
 			'email'          => $table->get('user_email'),
 			'payment_method' => '',
 			'profileAlias'   => $profileAlias,

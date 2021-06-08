@@ -19,13 +19,13 @@ class OverrideController extends acymController
 
     public function listing()
     {
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'splashscreen');
 
             return parent::display([]);
         }
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             if (!$this->currentClass->areOverrideMailsInstalled()) {
                 acym_setVar('layout', 'listing_empty');
 

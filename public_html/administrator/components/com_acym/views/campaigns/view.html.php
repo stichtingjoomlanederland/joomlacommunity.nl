@@ -30,7 +30,7 @@ class CampaignsViewCampaigns extends acymView
             'campaigns' => 'ACYM_CAMPAIGNS',
         ];
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             $this->tabs['campaigns_auto'] = 'ACYM_AUTOMATICS_CAMPAIGNS';
         }
         $this->tabs['followup'] = 'ACYM_FOLLOW_UP';

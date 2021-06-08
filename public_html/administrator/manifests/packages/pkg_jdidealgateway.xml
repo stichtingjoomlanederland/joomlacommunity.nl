@@ -2,22 +2,24 @@
 <extension type="package" version="3.5" method="upgrade">
     <name>RO Payments</name>
     <packagename>jdidealgateway</packagename>
-    <creationDate>21 January 2021</creationDate>
+    <creationDate>5 May 2021</creationDate>
     <author>RolandD Cyber Produksi</author>
     <authorEmail>contact@rolandd.com</authorEmail>
     <authorUrl>https://rolandd.com/</authorUrl>
     <copyright>Copyright (C) 2009 - @year@ RolandD Cyber Produksi. All rights reserved.</copyright>
     <license>GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html</license>
-    <version>6.3.2</version>
+    <version>6.4.1</version>
     <description>RO Payments Package</description>
 
     <blockChildUninstall>true</blockChildUninstall>
 
     <files folder="packages">
-        <file type="component" id="com_jdidealgateway">com_ropayments_6.3.2.zip</file>
-        <file type="plugin" group="editors-xtd" id="jdidealpaymentbutton">plg_editors-xtd_jdidealpaymentbutton_6.3.2.zip</file>
-        <file type="plugin" group="system" id="jdidealpaymentlink">plg_system_jdidealpaymentlink_6.3.2.zip</file>
-        <file type="plugin" group="system" id="jdidealgateway">plg_system_jdidealgateway_6.3.2.zip</file>
+        <file type="component" id="com_jdidealgateway">com_ropayments_6.4.1.zip</file>
+        <file type="plugin" group="editors-xtd" id="jdidealpaymentbutton">plg_editors-xtd_jdidealpaymentbutton_6.4.1.zip</file>
+        <file type="plugin" group="system" id="jdidealpaymentlink">plg_system_jdidealpaymentlink_6.4.1.zip</file>
+        <file type="plugin" group="system" id="jdidealgateway">plg_system_jdidealgateway_6.4.1.zip</file>
+        <file type="plugin" group="authentication" id="ropayments">plg_authentication_ropayments_6.4.1.zip</file>
+        <file type="plugin" group="jdideal" id="ropayments">plg_jdideal_ropayments_6.4.1.zip</file>
     </files>
 
     <updateservers>

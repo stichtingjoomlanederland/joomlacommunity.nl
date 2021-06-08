@@ -88,7 +88,7 @@ class AutomationClass extends acymClass
 
     public function trigger($trigger, $data = [])
     {
-        if (!acym_level(2) || empty($trigger)) return;
+        if (!acym_level(ACYM_ENTERPRISE) || empty($trigger)) return;
 
         $stepClass = new StepClass();
         $actionClass = new ActionClass();
@@ -262,5 +262,18 @@ class AutomationClass extends acymClass
         if (!empty($ids)) $query .= ' AND `id` IN ('.implode(', ', $ids).')';
 
         return acym_loadObjectList($query, 'name');
+    }
+
+    public function getActionsByAutomationId($id)
+    {
+        return acym_loadObjectList(
+            'SELECT action.* 
+            FROM `#__acym_action` AS `action` 
+            JOIN `#__acym_condition` AS `condition` 
+                ON `action`.`condition_id` = `condition`.`id` 
+            JOIN `#__acym_step` AS `step` 
+                ON `condition`.`step_id` = `step`.`id` 
+            WHERE `step`.`automation_id` = '.intval($id)
+        );
     }
 }

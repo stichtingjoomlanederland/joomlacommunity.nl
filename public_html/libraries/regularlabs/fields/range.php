@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -54,8 +54,8 @@ class JFormFieldRL_Range extends \JFormFieldRange
 
 		// Initialize some field attributes.
 		$extraData = [
-			'prepend' => isset($this->element['prepend']) ? (string) $this->element['prepend'] : '',
-			'append'  => isset($this->element['append']) ? (string) $this->element['append'] : '',
+			'prepend' => (string) $this->element['prepend'] ?? '',
+			'append'  => (string) $this->element['append'] ?? '',
 		];
 
 		return array_merge($data, $extraData);

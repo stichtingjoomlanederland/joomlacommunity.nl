@@ -178,7 +178,7 @@ class rseventsproMapHelper
 		return $type;
 	}
 	
-	public static function markers($locations) {
+	public static function markers($locations, $itemid = null) {
 		$markers = array(); 
 		
 		if ($locations) {
@@ -192,7 +192,7 @@ class rseventsproMapHelper
 					'title' => $event->name,
 					'position' => $event->coordinates,
 					'address' => $event->address,
-					'content' => rseventsproHelper::locationContent($event, $single)
+					'content' => rseventsproHelper::locationContent($event, $single, $itemid)
 				);
 				
 				if ($event->marker) { 

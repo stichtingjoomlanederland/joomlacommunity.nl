@@ -153,7 +153,17 @@ class QueueHelper extends acymObject
 
         if ($externalSending) {
             $listExternalSending = [];
-            acym_trigger('onAcymInitExternalSendingMethodBeforeSend', [&$listExternalSending, $this->id]);
+            if (!empty($this->id)) {
+                acym_trigger('onAcymInitExternalSendingMethodBeforeSend', [&$listExternalSending, $this->id]);
+            } else {
+                $mailIds = [];
+                foreach ($queueElements as $oneElement) {
+                    if (!in_array($oneElement->mail_id, $mailIds)) {
+                        $mailIds[] = $oneElement->mail_id;
+                        acym_trigger('onAcymInitExternalSendingMethodBeforeSend', [&$listExternalSending, $oneElement->mail_id]);
+                    }
+                }
+            }
         }
 
         $mailIds = [];
@@ -335,7 +345,7 @@ class QueueHelper extends acymObject
         $userStatClass = new UserStatClass();
         $mailStatClass = new MailStatClass();
 
-        $time = acym_date("now", "Y-m-d H:i:s");
+        $time = acym_date("now", 'Y-m-d H:i:s');
 
         foreach ($statsAdd as $mailId => $infos) {
 
@@ -398,7 +408,7 @@ class QueueHelper extends acymObject
             } else {
                 $message .= acym_translation('ACYM_SEND_REFUSE');
                 $message .= '<br />';
-                if (!acym_level(1)) {
+                if (!acym_level(ACYM_ESSENTIAL)) {
                     $message .= acym_translation('ACYM_SEND_CONTINUE_COMMERCIAL');
                 } else {
                     $message .= acym_translation('ACYM_SEND_CONTINUE_AUTO');

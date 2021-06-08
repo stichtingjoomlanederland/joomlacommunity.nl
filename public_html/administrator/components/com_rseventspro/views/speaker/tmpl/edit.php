@@ -32,6 +32,36 @@ if (!empty($this->item->image)) {
 			<?php echo $this->form->renderField('facebook'); ?>
 			<?php echo $this->form->renderField('twitter'); ?>
 			<?php echo $this->form->renderField('linkedin'); ?>
+			
+			<fieldset class="options-form">
+				<legend>
+					<?php echo JText::_('COM_RSEVENTSPRO_CUSTOM_SOCIAL_LINKS'); ?>
+				</legend>
+				<button type="button" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>" onclick="addCustomSocial()">+ <?php echo JText::_('COM_RSEVENTSPRO_ADD'); ?></button>
+				
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th width="30%"><?php echo JText::_('COM_RSEVENTSPRO_CUSTOM_SOCIAL_LINK_CLASS'); ?></th>
+							<th><?php echo JText::_('COM_RSEVENTSPRO_CUSTOM_SOCIAL_LINK_URL'); ?></th>
+							<th width="5%">&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody id="socialLinks">
+						<?php if (!empty($this->item->custom)) { ?>
+						<?php $i = 1; ?>
+						<?php foreach ($this->item->custom as $custom) { ?>
+						<tr id="custom00<?php echo $i; ?>">
+							<td><input type="text" name="jform[custom][class][]" class="form-control" value="<?php echo $custom['class']; ?>" /></td>
+							<td><input type="text" name="jform[custom][link][]" class="form-control" value="<?php echo $custom['link']; ?>" /></td>
+							<td><a href="javascript:void(0)" class="btn btn-danger" onclick="removeCustomSocial('00<?php echo $i; ?>');">x</a></td>
+						</tr>
+						<?php $i++; ?>
+						<?php } ?>
+						<?php } ?>
+					<tbody>
+				</table>
+			</fieldset>
 		</div>
 	</div>
 

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,20 +20,10 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 class JFormFieldRL_Form2Content extends \RegularLabs\Library\FieldGroup
 {
-	public $type          = 'Form2Content';
 	public $default_group = 'Projects';
+	public $type          = 'Form2Content';
 
-	protected function getInput()
-	{
-		if ($error = $this->missingFilesOrTables(['projects' => 'project'], '', 'f2c'))
-		{
-			return $error;
-		}
-
-		return $this->getSelectList();
-	}
-
-	function getProjects()
+	public function getProjects()
 	{
 		$query = $this->db->getQuery(true)
 			->select('t.id, t.title as name')
@@ -44,5 +34,12 @@ class JFormFieldRL_Form2Content extends \RegularLabs\Library\FieldGroup
 		$list = $this->db->loadObjectList();
 
 		return $this->getOptionsByList($list);
+	}
+
+	protected function getInput()
+	{
+		$error = $this->missingFilesOrTables(['projects' => 'project'], '', 'f2c');
+
+		return $error ?: $this->getSelectList();
 	}
 }

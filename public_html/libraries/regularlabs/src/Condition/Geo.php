@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -13,15 +13,17 @@ namespace RegularLabs\Library\Condition;
 
 defined('_JEXEC') or die;
 
+use GeoIp;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Log\Log as JLog;
+use RegularLabs\Library\Condition;
+use RegularLabs_GeoIp;
 
 /**
  * Class Geo
  * @package RegularLabs\Library\Condition
  */
-abstract class Geo
-	extends \RegularLabs\Library\Condition
+abstract class Geo extends Condition
 {
 	var $geo = null;
 
@@ -62,9 +64,9 @@ abstract class Geo
 
 		if ( ! class_exists('RegularLabs_GeoIp'))
 		{
-			return new \GeoIp($ip);
+			return new GeoIp($ip);
 		}
 
-		return new \RegularLabs_GeoIp($ip);
+		return new RegularLabs_GeoIp($ip);
 	}
 }

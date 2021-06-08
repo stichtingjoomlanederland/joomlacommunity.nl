@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -18,6 +18,42 @@ use Joomla\CMS\Factory as JFactory;
 
 class Date
 {
+	/**
+	 * Applies offset to a date
+	 *
+	 * @param string $date
+	 * @param string $timezone
+	 */
+	public static function applyTimezone(&$date, $timezone = '')
+	{
+		if ($date <= 0)
+		{
+			$date = 0;
+
+			return;
+		}
+
+		$user     = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
+		$timezone = $timezone ?: $user->getParam('timezone', JFactory::getConfig()->get('offset'));
+
+		$date = JFactory::getDate($date, $timezone);
+		$date->setTimezone(new DateTimeZone('UTC'));
+
+		$date = $date->format('Y-m-d H:i:s', true, false);
+	}
+
+	/**
+	 * Convert string with 'date' format to 'strftime' format
+	 *
+	 * @param string $format
+	 *
+	 * @return string
+	 */
+	public static function dateToStrftimeFormat($format)
+	{
+		return strtr((string) $format, self::getDateToStrftimeFormats());
+	}
+
 	/**
 	 * Convert string to a correct date format ('00-00-00 00:00:00' or '00-00-00') or null
 	 *
@@ -60,29 +96,6 @@ class Date
 	}
 
 	/**
-	 * Applies offset to a date
-	 *
-	 * @param string $date
-	 * @param string $timezone
-	 */
-	public static function applyTimezone(&$date, $timezone = '')
-	{
-		if ($date <= 0)
-		{
-			$date = 0;
-
-			return;
-		}
-
-		$timezone = $timezone ?: JFactory::getUser()->getParam('timezone', JFactory::getConfig()->get('offset'));
-
-		$date = JFactory::getDate($date, $timezone);
-		$date->setTimezone(new DateTimeZone('UTC'));
-
-		$date = $date->format('Y-m-d H:i:s', true, false);
-	}
-
-	/**
 	 * Convert string with 'date' format to 'strftime' format
 	 *
 	 * @param string $format
@@ -97,55 +110,6 @@ class Date
 		}
 
 		return strtr((string) $format, self::getStrftimeToDateFormats());
-	}
-
-	/**
-	 * Convert string with 'date' format to 'strftime' format
-	 *
-	 * @param string $format
-	 *
-	 * @return string
-	 */
-	public static function dateToStrftimeFormat($format)
-	{
-		return strtr((string) $format, self::getDateToStrftimeFormats());
-	}
-
-	private static function getStrftimeToDateFormats()
-	{
-		return [
-			// Day
-			'%d'  => 'd',
-			'%a'  => 'D',
-			'%#d' => 'j',
-			'%A'  => 'l',
-			'%u'  => 'N',
-			'%w'  => 'w',
-			'%j'  => 'z',
-			// Week
-			'%V'  => 'W',
-			// Month
-			'%B'  => 'F',
-			'%m'  => 'm',
-			'%b'  => 'M',
-			// Year
-			'%G'  => 'o',
-			'%Y'  => 'Y',
-			'%y'  => 'y',
-			// Time
-			'%P'  => 'a',
-			'%p'  => 'A',
-			'%l'  => 'g',
-			'%I'  => 'h',
-			'%H'  => 'H',
-			'%M'  => 'i',
-			'%S'  => 's',
-			// Timezone
-			'%z'  => 'O',
-			'%Z'  => 'T',
-			// Full Date / Time
-			'%s'  => 'U',
-		];
 	}
 
 	private static function getDateToStrftimeFormats()
@@ -183,6 +147,43 @@ class Date
 			'T'  => '%Z',
 			// Full Date / Time - no strf eq : c, r; no date eq : %c, %D, %F, %x
 			'U'  => '%s',
+		];
+	}
+
+	private static function getStrftimeToDateFormats()
+	{
+		return [
+			// Day
+			'%d'  => 'd',
+			'%a'  => 'D',
+			'%#d' => 'j',
+			'%A'  => 'l',
+			'%u'  => 'N',
+			'%w'  => 'w',
+			'%j'  => 'z',
+			// Week
+			'%V'  => 'W',
+			// Month
+			'%B'  => 'F',
+			'%m'  => 'm',
+			'%b'  => 'M',
+			// Year
+			'%G'  => 'o',
+			'%Y'  => 'Y',
+			'%y'  => 'y',
+			// Time
+			'%P'  => 'a',
+			'%p'  => 'A',
+			'%l'  => 'g',
+			'%I'  => 'h',
+			'%H'  => 'H',
+			'%M'  => 'i',
+			'%S'  => 's',
+			// Timezone
+			'%z'  => 'O',
+			'%Z'  => 'T',
+			// Full Date / Time
+			'%s'  => 'U',
 		];
 	}
 }

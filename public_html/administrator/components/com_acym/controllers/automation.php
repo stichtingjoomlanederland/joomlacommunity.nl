@@ -31,11 +31,11 @@ class AutomationController extends acymController
 
     public function listing()
     {
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             acym_session();
             $_SESSION['massAction'] = ['filters' => [], 'actions' => []];
             acym_setVar('layout', 'listing');
@@ -103,7 +103,7 @@ class AutomationController extends acymController
 
     public function info()
     {
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
 
@@ -149,7 +149,7 @@ class AutomationController extends acymController
 
     public function condition()
     {
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
 
@@ -339,7 +339,7 @@ class AutomationController extends acymController
 
         parent::display($data);
 
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
     }
@@ -459,7 +459,7 @@ class AutomationController extends acymController
 
         parent::display($data);
 
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
     }
@@ -541,7 +541,7 @@ class AutomationController extends acymController
 
         parent::display($data);
 
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
     }

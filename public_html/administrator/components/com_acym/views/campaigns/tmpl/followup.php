@@ -10,7 +10,7 @@
         $workflow = $data['workflowHelper'];
         echo $workflow->displayTabs($this->tabs, 'followup');
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             if ($isEmpty) {
                 include acym_getView('campaigns', 'listing_empty', true);
             } else {

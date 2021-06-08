@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -44,7 +44,7 @@ $script = "
 	var DBR_INVALID_QUERY = '" . addslashes(JText::_('DBR_INVALID_QUERY')) . "';
 ";
 RL_Document::scriptDeclaration($script);
-RL_Document::script('dbreplacer/script.min.js', '6.3.9.p');
+RL_Document::script('dbreplacer/script.min.js', '6.4.0.p');
 
 // Version check
 

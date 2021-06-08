@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,17 +20,16 @@ if ( ! class_exists('RegularLabsInstallerScript'))
 		public $name           = 'Regular Labs Library';
 		public $alias          = 'regularlabs';
 		public $extension_type = 'library';
+		public $soft_break         = true;
 
 		public function onBeforeInstall($route)
 		{
-			if ( ! $this->isNewer())
+			if ( ! parent::onBeforeInstall($route))
 			{
-				$this->softbreak = true;
-
 				return false;
 			}
 
-			return true;
+			return $this->isNewer();
 		}
 	}
 }

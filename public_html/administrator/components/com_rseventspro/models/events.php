@@ -1091,6 +1091,9 @@ class RseventsproModelEvents extends JModelLegacy
 		if (rseventsproHelper::isJ4()) {
 			$form->setFieldAttribute('categories','layout','joomla.form.field.list-fancy-select');
 			$form->setFieldAttribute('tags','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('groups','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('speakers','layout','joomla.form.field.list-fancy-select');
+			$form->setFieldAttribute('sponsors','layout','joomla.form.field.list-fancy-select');
 		}
 		
 		return $form;

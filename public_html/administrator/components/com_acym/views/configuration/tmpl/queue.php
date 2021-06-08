@@ -32,12 +32,12 @@
 		<div class="cell medium-9 automatic_only automatic_manual">
             <?php
             $cronFrequency = $this->config->get('cron_frequency');
-            $valueBatch = acym_level(2) ? intval($this->config->get('queue_batch_auto', 1)) : 1;
+            $valueBatch = acym_level(ACYM_ENTERPRISE) ? intval($this->config->get('queue_batch_auto', 1)) : 1;
             if (!function_exists('curl_multi_exec') && (intval($cronFrequency) < 900 || intval($valueBatch) > 1)) {
                 acym_display(acym_translation('ACYM_MULTI_CURL_DISABLED'), 'error');
             }
 
-            $disabledBatch = acym_level(2) ? '' : 'disabled';
+            $disabledBatch = acym_level(ACYM_ENTERPRISE) ? '' : 'disabled';
             $delayTypeAuto = $data['typeDelay'];
             $delayHtml = '<span data-acym-tooltip="'.acym_translation('ACYM_CRON_TRIGGERED_DESC').'">'.$delayTypeAuto->display(
                     'config[cron_frequency]',
@@ -125,7 +125,7 @@
 		</div>
         <?php
 
-        if (acym_level(1)) {
+        if (acym_level(ACYM_ESSENTIAL)) {
             $expirationDate = $this->config->get('expirationdate', 0);
             if (empty($expirationDate) || (time() - 604800) > $this->config->get('lastlicensecheck', 0)) {
                 acym_checkVersion();
@@ -146,7 +146,7 @@
 	</div>
 </div>
 <?php
-if (acym_level(1)) {
+if (acym_level(ACYM_ESSENTIAL)) {
     ?>
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
 		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_REPORT'); ?></div>
@@ -298,7 +298,7 @@ if (acym_level(1)) {
 	</div>
     <?php
 }
-if (!acym_level(1)) {
+if (!acym_level(ACYM_ESSENTIAL)) {
     echo '<div class="acym_area">
             <div class="acym__title acym__title__secondary">'.acym_translation('ACYM_CRON').'</div>';
     include acym_getView('configuration', 'upgrade_license');

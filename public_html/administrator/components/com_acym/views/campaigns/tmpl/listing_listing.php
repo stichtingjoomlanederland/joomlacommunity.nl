@@ -116,7 +116,7 @@
 						<p class='acym__listing__title__secondary'>
                             <?php
                             if (!empty($campaign->sending_date) && (!$campaign->scheduled || $campaign->sent)) {
-                                echo acym_translation('ACYM_SENDING_DATE').' : '.acym_date($campaign->sending_date, 'M. j, Y');
+                                echo acym_translation('ACYM_SENDING_DATE').' : '.acym_date($campaign->sending_date, 'ACYM_DATE_FORMAT_LC3');
                             } elseif ($data['statusAuto'] === $campaign->sending_type) {
                                 $numberCampaignsGenerated = empty($campaign->sending_params['number_generated']) ? '0' : $campaign->sending_params['number_generated'];
                                 echo acym_translationSprintf('ACYM_X_CAMPAIGN_GENERATED', $numberCampaignsGenerated);
@@ -124,20 +124,34 @@
                             ?>
 						</p>
 					</div>
-					<div class="<?php echo $data['campaign_type'] == 'campaigns_auto' ? 'large-1' : 'large-2'; ?> medium-3 small-5 cell">
+					<div class="<?php echo $data['campaign_type'] == 'campaigns_auto' ? 'large-1' : 'large-2'; ?> acym__campaign__recipients medium-3 small-5 cell">
                         <?php
                         if (!empty($campaign->lists)) {
-                            echo '<div class="grid-x cell text-center">';
+
+                            $subscriptionsCount = count($campaign->lists);
+                            $counter = 0;
                             foreach ($campaign->lists as $list) {
-                                echo acym_tooltip('<i class="acym_subscription acymicon-circle" style="color:'.acym_escape($list->color).'"></i>', acym_escape($list->name));
+                                $classes = 'acym_subscription acymicon-circle';
+                                if ($counter >= 5 && $subscriptionsCount !== 6) $classes .= ' acym_subscription_more';
+
+                                echo acym_tooltip(
+                                    '<i class="'.$classes.'" style="color:'.acym_escape($list->color).'"></i>',
+									acym_escape($list->name)
+                                );
+                                $counter++;
                             }
-                            echo '</div>';
+
+                            if ($counter > 5 && $subscriptionsCount !== 6) {
+                                $counter = $counter - 5;
+                                echo '<span class="acym__campaign__show-subscription acymicon-stack" data-iscollapsed="0" acym-data-value="'.$counter.'">
+										<i class="acym__campaign__button__showsubscription acymicon-circle acymicon-stack-2x"></i>
+										<span class="acym__listing__text acym__campaign__show-subscription-bt acymicon-stack-1x">+'.$counter.'</span>
+									</span>';
+                            }
                         } else {
-                            echo '<div class="cell medium-12">'.(empty($campaign->automation)
-                                    ? acym_translation('ACYM_NO_LIST_SELECTED')
-                                    : acym_translation(
-                                        'ACYM_SENT_WITH_AUTOMATION'
-                                    )).'</div>';
+                            echo '<div class="cell medium-12">';
+                            echo acym_translation(empty($campaign->automation) ? 'ACYM_NO_LIST_SELECTED' : 'ACYM_SENT_WITH_AUTOMATION');
+                            echo '</div>';
                         }
                         ?>
 					</div>
@@ -152,7 +166,7 @@
                             } elseif ($campaign->scheduled && !$campaign->draft) {
                                 echo '<div class="cell acym__campaign__status__status acym__background-color__orange"><span>'.acym_translation('ACYM_SCHEDULED').' : '.acym_date(
                                         $campaign->sending_date,
-                                        'M. j, Y'
+                                        'ACYM_DATE_FORMAT_LC3'
                                     ).'</span></div>';
                                 $target = '<div class="acym__campaign__listing__scheduled__stop grid-x cell xlarge-shrink acym_vcenter" data-campaignid="'.acym_escape(
                                         $campaign->id
@@ -169,7 +183,7 @@
 
                                 echo acym_tooltip(
                                     '<div class="cell acym__campaign__status__status acym__background-color__purple">
-																<span class="acym__color__white">'.$campaign->sending_params.'</span>
+																<span class="acym__color__white">'.$campaign->sending_params['trigger_text'].'</span>
 															</div>',
                                     $tooltip,
                                     'cell'
@@ -244,8 +258,9 @@
                     <?php if (acym_isTrackingSalesActive()) { ?>
 						<div class="large-1 hide-for-small-only hide-for-medium-only cell text-center">
                             <?php
-                            if (!empty($campaign->sale) && !empty($campaign->currency)) {
-                                echo round($campaign->sale, 2).' '.$campaign->currency;
+                            if (!empty($campaign->tracking_sale) && !empty($campaign->currency)) {
+                                acym_trigger('getCurrency', [&$campaign->currency]);
+                                echo round($campaign->tracking_sale, 2).' '.$campaign->currency;
                             } else {
                                 echo '-';
                             }
@@ -270,7 +285,9 @@
                             ?>
 						</div>
                     <?php } ?>
-					<h6 class="large-1 hide-for-medium-only hide-for-small-only cell text-center acym__listing__text"><?php echo acym_escape($campaign->id); ?></h6>
+					<h6 class="large-1 hide-for-medium-only hide-for-small-only cell text-center acym__listing__text acym__campaign__listing__id">
+                        <?php echo acym_escape($campaign->id); ?>
+					</h6>
 				</div>
 			</div>
             <?php

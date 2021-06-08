@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,6 +16,7 @@ defined('_JEXEC') or die;
 use Exception;
 use Joomla\CMS\Language\Text as JText;
 use ReflectionClass;
+use RegularLabs\Library\ParametersNew as Parameters;
 
 /**
  * Class EditorButtonPopup
@@ -30,7 +31,21 @@ class EditorButtonPopup
 	public function __construct($extension)
 	{
 		$this->extension = $extension;
-		$this->params    = Parameters::getInstance()->getPluginParams($extension);
+		$this->params    = Parameters::getPlugin($extension);
+	}
+
+	public function loadLanguages()
+	{
+		Language::load('plg_editors-xtd_' . $this->extension);
+		Language::load('plg_system_' . $this->extension);
+	}
+
+	public function loadScripts()
+	{
+	}
+
+	public function loadStyles()
+	{
 	}
 
 	public function render()
@@ -58,18 +73,12 @@ class EditorButtonPopup
 		echo $this->renderTemplate();
 	}
 
-	public function loadLanguages()
+	private function getDir()
 	{
-		Language::load('plg_editors-xtd_' . $this->extension);
-		Language::load('plg_system_' . $this->extension);
-	}
+		// use static::class instead of get_class($this) after php 5.4 support is dropped
+		$rc = new ReflectionClass(get_class($this));
 
-	public function loadScripts()
-	{
-	}
-
-	public function loadStyles()
-	{
+		return dirname($rc->getFileName());
 	}
 
 	private function loadLibraryLanguages()
@@ -90,13 +99,5 @@ class EditorButtonPopup
 		ob_end_clean();
 
 		return $html;
-	}
-
-	private function getDir()
-	{
-		// use static::class instead of get_class($this) after php 5.4 support is dropped
-		$rc = new ReflectionClass(get_class($this));
-
-		return dirname($rc->getFileName());
 	}
 }

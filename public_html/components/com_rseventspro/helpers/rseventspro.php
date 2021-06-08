@@ -1121,28 +1121,26 @@ class rseventsproHelper
 				rseventsproHelper::newsletterSubscribe($subscription->email, $subscription->ide, $ids, 1);
 				
 				$query->clear()
-					->select($db->qn('owner'))->select($db->qn('notify_me_paid'))
+					->select($db->qn('owner'))
 					->from($db->qn('#__rseventspro_events'))
 					->where($db->qn('id').' = '.$db->q($subscription->ide));
 				$db->setQuery($query);
-				$event = $db->loadObject();
+				$owner = (int) $db->loadResult();
 				
-				if ($event->notify_me_paid) {
-					$theuser = JFactory::getUser($event->owner); 			
-					$additional_data = array(
-						'{SubscriberUsername}' => $subscription->idu ? JFactory::getUser($subscription->idu)->get('username') : '',
-						'{SubscriberName}' => $subscription->name,
-						'{SubscriberEmail}' => $subscription->email,
-						'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true),
-						'{PaymentGateway}' => $gateway,
-						'{SubscriberIP}' => $IP,
-						'{TicketInfo}' => $info,
-						'{TicketsTotal}' => $ticketstotal,
-						'{TicketsDiscount}' => $ticketsdiscount
-					);
-					
-					rseventsproEmails::notify_me_paid($theuser->get('email'), $subscription->ide, $additional_data, $subscription->lang, $optionals, $ids);
-				}
+				$theuser = JFactory::getUser($owner); 			
+				$additional_data = array(
+					'{SubscriberUsername}' => $subscription->idu ? JFactory::getUser($subscription->idu)->get('username') : '',
+					'{SubscriberName}' => $subscription->name,
+					'{SubscriberEmail}' => $subscription->email,
+					'{SubscribeDate}' => rseventsproHelper::showdate($subscription->date,null,true),
+					'{PaymentGateway}' => $gateway,
+					'{SubscriberIP}' => $IP,
+					'{TicketInfo}' => $info,
+					'{TicketsTotal}' => $ticketstotal,
+					'{TicketsDiscount}' => $ticketsdiscount
+				);
+				
+				rseventsproEmails::notify_me_paid($theuser->get('email'), $subscription->ide, $additional_data, $subscription->lang, $optionals, $ids);
 			}
 		}
 		
@@ -3030,7 +3028,9 @@ class rseventsproHelper
 					}
 				}
 				
-				$permissions['limit_events'] = max($limits);
+				if (!empty($limits)) {
+					$permissions['limit_events'] = max($limits);
+				}
 			}
 		}
 		
@@ -7924,6 +7924,25 @@ class rseventsproHelper
 				if ($speaker->linkedin && substr($speaker->linkedin,0,4) != 'http') {
 					$speaker->linkedin = 'https://www.linkedin.com/in/'.$speaker->linkedin;
 				}
+				
+				
+				if ($speaker->custom) {
+					if (!is_array($speaker->custom)) {
+						$registry = new JRegistry;
+						$registry->loadString($speaker->custom);
+						if ($customSocials = $registry->toArray()) {
+							foreach ($customSocials as $i => $custom) {
+								if (empty($custom['class']) || empty($custom['link'])) unset($customSocials[$i]);
+								
+								if ($customSocials[$i]['link'] && substr($customSocials[$i]['link'],0,4) != 'http') {
+									$customSocials[$i]['link'] = 'http://'.$customSocials[$i]['link'];
+								}
+							}
+						}
+						
+						$speaker->custom = $customSocials;
+					}
+				}
 			}
 			
 			return $speakers[$id];
@@ -8039,6 +8058,10 @@ class rseventsproHelper
 	}
 	
 	public static function fixValue($string) {
+		if (is_numeric($string)) {
+			return $string;
+		}
+		
 		if (strlen($string) && in_array($string[0], array('=', '+', '-', '@'))) {
 			$string = ' ' . $string;
 		}

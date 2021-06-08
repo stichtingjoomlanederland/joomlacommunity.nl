@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,7 +16,7 @@ use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\MVC\View\HtmlView as JView;
 use RegularLabs\Library\Document as RL_Document;
-use RegularLabs\Library\Parameters as RL_Parameters;
+use RegularLabs\Library\ParametersNew as RL_Parameters;
 
 // Import VIEW object class
 jimport('joomla.application.component.view');
@@ -48,10 +48,10 @@ class DBReplacerViewDefault extends JView
 
 	public function display($tpl = null)
 	{
-		$this->config = RL_Parameters::getInstance()->getComponentParams('com_dbreplacer');
+		$this->config = RL_Parameters::getComponent('com_dbreplacer');
 
 		RL_Document::style('regularlabs/style.min.css');
-		RL_Document::style('dbreplacer/style.min.css', '6.3.9.p');
+		RL_Document::style('dbreplacer/style.min.css', '6.4.0.p');
 
 		// Set document title
 		JFactory::getDocument()->setTitle(JText::_('DBREPLACER'));
@@ -59,7 +59,9 @@ class DBReplacerViewDefault extends JView
 		JToolbarHelper::title(JText::_('DBREPLACER'), 'dbreplacer icon-reglab');
 		// Set toolbar items for the page
 
-		if (JFactory::getUser()->authorise('core.admin', 'com_dbreplacer'))
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
+
+		if ($user->authorise('core.admin', 'com_dbreplacer'))
 		{
 			JToolbarHelper::preferences('com_dbreplacer', '300');
 		}

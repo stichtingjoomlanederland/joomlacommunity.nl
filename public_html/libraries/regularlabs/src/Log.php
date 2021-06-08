@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -26,7 +26,7 @@ class Log
 {
 	public static function add($message, $languageKey, $context)
 	{
-		$user = JFactory::getUser();
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
 
 		$message['userid']      = $user->id;
 		$message['username']    = $user->username;
@@ -38,22 +38,6 @@ class Log
 		/* @var ActionlogsModelActionlog $model */
 		$model = JModel::getInstance('Actionlog', 'ActionlogsModel');
 		$model->addLog([$message], $languageKey, $context, $user->id);
-	}
-
-	public static function save($message, $context, $isNew)
-	{
-		$languageKey       = $isNew ? 'PLG_SYSTEM_ACTIONLOGS_CONTENT_ADDED' : 'PLG_SYSTEM_ACTIONLOGS_CONTENT_UPDATED';
-		$message['action'] = $isNew ? 'add' : 'update';
-
-		self::add($message, $languageKey, $context);
-	}
-
-	public static function delete($message, $context)
-	{
-		$languageKey       = 'PLG_SYSTEM_ACTIONLOGS_CONTENT_DELETED';
-		$message['action'] = 'deleted';
-
-		self::add($message, $languageKey, $context);
 	}
 
 	public static function changeState($message, $context, $value)
@@ -83,6 +67,14 @@ class Log
 		self::add($message, $languageKey, $context);
 	}
 
+	public static function delete($message, $context)
+	{
+		$languageKey       = 'PLG_SYSTEM_ACTIONLOGS_CONTENT_DELETED';
+		$message['action'] = 'deleted';
+
+		self::add($message, $languageKey, $context);
+	}
+
 	public static function install($message, $context, $type = 'component')
 	{
 		$languageKey = 'PLG_ACTIONLOG_JOOMLA_' . strtoupper($type) . '_INSTALLED';
@@ -93,6 +85,14 @@ class Log
 
 		$message['action'] = 'install';
 		$message['type']   = 'PLG_ACTIONLOG_JOOMLA_TYPE_' . strtoupper($type);
+
+		self::add($message, $languageKey, $context);
+	}
+
+	public static function save($message, $context, $isNew)
+	{
+		$languageKey       = $isNew ? 'PLG_SYSTEM_ACTIONLOGS_CONTENT_ADDED' : 'PLG_SYSTEM_ACTIONLOGS_CONTENT_UPDATED';
+		$message['action'] = $isNew ? 'add' : 'update';
 
 		self::add($message, $languageKey, $context);
 	}

@@ -11,7 +11,7 @@
 	<field name="facebook" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_SPEAKER_FACEBOOK" size="70" />
 	<field name="twitter" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_SPEAKER_TWITTER" size="70" />
 	<field name="linkedin" type="text" class="input-xxlarge" label="COM_RSEVENTSPRO_SPEAKER_LINKEDIN" size="70" />
-	
+	<field name="custom" type="hidden" />
 	
 	<field name="published" type="list" label="JSTATUS" description="JFIELD_PUBLISHED_DESC" class="inputbox" filter="intval" size="1" default="1">
 		<option value="1">JPUBLISHED</option>

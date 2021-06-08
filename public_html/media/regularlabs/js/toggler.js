@@ -1,9 +1,9 @@
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,11 +16,11 @@
 
 if (typeof window.RegularLabsToggler === 'undefined'
 	|| typeof RegularLabsToggler.version === 'undefined'
-	|| RegularLabsToggler.version < '21.2.23991') {
+	|| RegularLabsToggler.version < '21.6.1331') {
 
 	(function($) {
 		$(document).ready(function() {
-			if (!$('.rl_toggler').length) {
+			if ( ! $('.rl_toggler').length) {
 				// Try again 2 seconds later, because IE sometimes can't see object immediately
 				$(function() {
 					if ($('.rl_toggler').length) {
@@ -35,7 +35,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 		});
 
 		window.RegularLabsToggler = {
-			version: '21.2.23991',
+			version: '21.6.1331',
 
 			togglers: {}, // holds all the toggle areas
 			elements: {}, // holds all the elements and their values that affect toggle areas
@@ -43,7 +43,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 			initialize: function() {
 				this.togglers = $('.rl_toggler');
 
-				if (!this.togglers.length) {
+				if ( ! this.togglers.length) {
 					return;
 				}
 
@@ -58,7 +58,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 
 				$.each(this.togglers, function(i, toggler) {
 					// init togglers
-					if (!toggler.id) {
+					if ( ! toggler.id) {
 						return;
 					}
 
@@ -115,8 +115,8 @@ if (typeof window.RegularLabsToggler === 'undefined'
 				// set all divs in the form to auto height
 				$.each($('div.col div, div.fltrt div'), function(i, el) {
 					if (el.getStyle('height') != '0px'
-						&& !el.hasClass('input')
-						&& !el.hasClass('rl_hr')
+						&& ! el.hasClass('input')
+						&& ! el.hasClass('rl_hr')
 						// GK elements
 						&& el.id.indexOf('gk_') < 0
 						&& el.className.indexOf('gk_') < 0
@@ -170,7 +170,7 @@ if (typeof window.RegularLabsToggler === 'undefined'
 						values != null && values.length
 						&& (
 							(vals == '*' && values != '')
-							|| (vals.toString().substr(0, 1) === '!' && !RegularLabsScripts.in_array(vals.toString().substr(1), values))
+							|| (vals.toString().substr(0, 1) === '!' && ! RegularLabsScripts.in_array(vals.toString().substr(1), values))
 							|| RegularLabsScripts.in_array(vals, values)
 						)
 					) {

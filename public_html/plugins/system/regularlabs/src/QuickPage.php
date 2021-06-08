@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -17,6 +17,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Uri\Uri as JUri;
 use RegularLabs\Library\Document as RL_Document;
+use RegularLabs\Library\Http as RL_Http;
 use RegularLabs\Library\RegEx as RL_RegEx;
 
 class QuickPage
@@ -32,7 +33,7 @@ class QuickPage
 
 		if ($url)
 		{
-			echo \RegularLabs\Library\Http::getFromServer($url, JFactory::getApplication()->input->getInt('timeout', ''));
+			echo RL_Http::getFromServer($url, JFactory::getApplication()->input->getInt('timeout', ''));
 
 			die;
 		}
@@ -114,7 +115,7 @@ class QuickPage
 			ob_end_clean();
 		}
 
-		RL_Document::setBuffer($html);
+		RL_Document::setComponentBuffer($html);
 
 		$app = new Application;
 		$app->render();

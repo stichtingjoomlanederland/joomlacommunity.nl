@@ -1001,6 +1001,10 @@ class com_rseventsproInstallerScript
 			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'invoice_layout', 'type' => 'TEXT');
 			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'can_confirm_tickets', 'type' => 'TINYINT(2)', 'default' => '0');
 			$updateData[] = array('table' => '#__rseventspro_groups', 'field' => 'limit_events', 'type' => 'INT(11)', 'default' => '0');
+			$updateData[] = array('table' => '#__rseventspro_speakers', 'field' => 'custom', 'type' => 'TEXT', 'after' => 'phone');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'notify_me_emails', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'notify_me_paid_emails', 'type' => 'TEXT');
+			$updateData[] = array('table' => '#__rseventspro_events', 'field' => 'notify_me_unsubscribe_emails', 'type' => 'TEXT');
 			
 			foreach ($updateData as $data) {
 				$checkQuery = 'SHOW COLUMNS FROM '.$db->qn($data['table']).' WHERE '.$db->qn('Field').' = '.$db->q($data['field']);
@@ -1237,9 +1241,9 @@ class com_rseventsproInstallerScript
 		<?php } ?>
 	</div>
 	<?php } ?>
-	<h2>Changelog v1.13.6</h2>
+	<h2>Changelog v1.13.8</h2>
 	<ul class="version-history">
-		<li><span class="version-fixed">Fix</span> Unsubscribe end date was not working in the 'My subscriptions' menu item.</li>
+		<li><span class="version-fixed">Fix</span> Improvements to the import from Google! Calendar.</li>
 	</ul>
 	<a class="com-rseventspro-button" href="index.php?option=com_rseventspro">Go to RSEvents!Pro</a>
 	<a class="com-rseventspro-button" href="https://www.rsjoomla.com/support/documentation/rseventspro.html" target="_blank">Read the Documentation</a>

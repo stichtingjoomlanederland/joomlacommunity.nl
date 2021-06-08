@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.7
+ * @version         7.4.9
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -489,7 +489,7 @@ class PlgActionlogRegularLabsManagerInstallerScriptHelper
 			html_entity_decode(
 				JText::sprintf(
 					'RLI_ERROR_UNINSTALL_FIRST',
-					'<a href="https://www.regularlabs.com/extensions/' . $this->alias . '" target="_blank">',
+					'<a href="https://regularlabs.com/' . $this->alias . '" target="_blank">',
 					'</a>',
 					JText::_($this->name)
 				)

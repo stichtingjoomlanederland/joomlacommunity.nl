@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -26,17 +26,7 @@ class JFormFieldRL_Zoo extends \RegularLabs\Library\FieldGroup
 {
 	public $type = 'Zoo';
 
-	protected function getInput()
-	{
-		if ($error = $this->missingFilesOrTables(['applications' => 'application', 'categories' => 'category', 'items' => 'item']))
-		{
-			return $error;
-		}
-
-		return $this->getSelectList();
-	}
-
-	function getCategories()
+	public function getCategories()
 	{
 		$query = $this->db->getQuery(true)
 			->select('COUNT(*)')
@@ -94,7 +84,7 @@ class JFormFieldRL_Zoo extends \RegularLabs\Library\FieldGroup
 				foreach ($items as $v)
 				{
 					$pt   = $v->parent_id;
-					$list = @$children[$pt] ? $children[$pt] : [];
+					$list = @$children[$pt] ?: [];
 					array_push($list, $v);
 					$children[$pt] = $list;
 				}
@@ -118,7 +108,7 @@ class JFormFieldRL_Zoo extends \RegularLabs\Library\FieldGroup
 		return $options;
 	}
 
-	function getItems()
+	public function getItems()
 	{
 		$query = $this->db->getQuery(true)
 			->select('COUNT(*)')
@@ -141,5 +131,15 @@ class JFormFieldRL_Zoo extends \RegularLabs\Library\FieldGroup
 		$list = $this->db->loadObjectList();
 
 		return $this->getOptionsByList($list, ['cat', 'id']);
+	}
+
+	protected function getInput()
+	{
+		if ($error = $this->missingFilesOrTables(['applications' => 'application', 'categories' => 'category', 'items' => 'item']))
+		{
+			return $error;
+		}
+
+		return $this->getSelectList();
 	}
 }

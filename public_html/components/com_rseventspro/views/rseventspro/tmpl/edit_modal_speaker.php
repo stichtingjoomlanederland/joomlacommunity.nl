@@ -7,7 +7,7 @@
 defined( '_JEXEC' ) or die( 'Restricted access' );
 JHtml::_('behavior.formvalidator');
 JFactory::getApplication()->input->set('tmpl', 'component');
-$form = JForm::getInstance('location', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/speaker.xml', array('control' => 'jform')); ?>
+$form = JForm::getInstance('speaker', JPATH_ADMINISTRATOR.'/components/com_rseventspro/models/forms/speaker.xml', array('control' => 'jform')); ?>
 
 <script type="text/javascript">
 	Joomla.submitbutton = function(task) {
@@ -23,6 +23,29 @@ $form = JForm::getInstance('location', JPATH_ADMINISTRATOR.'/components/com_rsev
 		<?php if ($field->fieldname == 'published' || $field->fieldname == 'id') continue; ?>
 		<?php echo $form->renderField($field->fieldname); ?>
 		<?php } ?>
+		
+		<div class="control-group">
+			<div class="controls">
+				<fieldset class="options-form">
+					<legend>
+						<?php echo JText::_('COM_RSEVENTSPRO_CUSTOM_SOCIAL_LINKS'); ?>
+						<div class="<?php echo RSEventsproAdapterGrid::styles(array('pull-right')); ?>"><button type="button" class="<?php echo RSEventsproAdapterGrid::styles(array('btn')); ?>" onclick="addCustomSocial()">+</button></div>
+					</legend>
+					<table class="table table-striped">
+						<thead>
+							<tr>
+								<th width="30%"><?php echo JText::_('COM_RSEVENTSPRO_CUSTOM_SOCIAL_LINK_CLASS'); ?></th>
+								<th><?php echo JText::_('COM_RSEVENTSPRO_CUSTOM_SOCIAL_LINK_URL'); ?></th>
+								<th width="5%">&nbsp;</th>
+							</tr>
+						</thead>
+						<tbody id="socialLinks">
+						<tbody>
+					</table>
+				</fieldset>
+			</div>
+		</div>
+		
 		<?php if ($this->config->modaltype == 2) { ?>
 		<div class="control-group">
 			<div class="control-label"><label>&nbsp;</label></div>

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -22,11 +22,6 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 
 class RLAssignmentsHelper
 {
-	function passAll($assignments, $matching_method = 'all', $item = 0)
-	{
-		return RL_Conditions::pass($assignments, $matching_method, $item);
-	}
-
 	public function getAssignmentsFromParams(&$params)
 	{
 		return RL_Conditions::getConditionsFromParams($params);
@@ -40,5 +35,10 @@ class RLAssignmentsHelper
 	public function hasAssignments(&$assignments)
 	{
 		return RL_Conditions::hasConditions($assignments);
+	}
+
+	public function passAll($assignments, $matching_method = 'all', $item = 0)
+	{
+		return RL_Conditions::pass($assignments, $matching_method, $item);
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -47,7 +47,9 @@ class JFormFieldRL_TextAreaPlus extends \RegularLabs\Library\Field
 
 		if ($show_insert_date_name)
 		{
-			$date_name = JDate::getInstance()->format('[Y-m-d]') . ' ' . JFactory::getUser()->name . ' : ';
+			$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
+
+			$date_name = JDate::getInstance()->format('[Y-m-d]') . ' ' . $user->name . ' : ';
 			$separator = $add_separator ? '---' : 'none';
 			$onclick   = "RegularLabsForm.prependTextarea('" . $this->id . "', '" . addslashes($date_name) . "', '" . $separator . "');";
 

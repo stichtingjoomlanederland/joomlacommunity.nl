@@ -4,15 +4,15 @@
  *
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            https://github.com/regularlabs/regularjs
- * @copyright       Copyright © 2019 Regular Labs - All Rights Reserved
+ * @copyright       Copyright © 2021 Regular Labs - All Rights Reserved
  * @license         https://github.com/regularlabs/regularjs/blob/master/LICENCE MIT
  */
-
-"use strict";
 
 if (typeof window.Regular === 'undefined'
 	|| typeof Regular.version === 'undefined'
 	|| Regular.version < 1.3) {
+
+	"use strict";
 
 	window.Regular = new function() {
 		/**
@@ -58,7 +58,7 @@ if (typeof window.Regular === 'undefined'
 		 * @return boolean
 		 */
 		this.hasClasses = function(selector, classes, matchAll = true) {
-			if (!selector) {
+			if ( ! selector) {
 				return false;
 			}
 
@@ -75,11 +75,11 @@ if (typeof window.Regular === 'undefined'
 			for (const clss of classes) {
 				hasClass = element.classList.contains(clss);
 
-				if (matchAll && !hasClass) {
+				if (matchAll && ! hasClass) {
 					return false;
 				}
 
-				if (!matchAll && hasClass) {
+				if ( ! matchAll && hasClass) {
 					return true;
 				}
 			}
@@ -123,7 +123,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
 		 */
 		this.show = function(selector) {
-			if (!selector) {
+			if ( ! selector) {
 				return;
 			}
 
@@ -138,7 +138,7 @@ if (typeof window.Regular === 'undefined'
 
 			let computedDisplay = getComputedStyle(element, 'display');
 
-			if (!('origDisplay' in element)) {
+			if ( ! ('origDisplay' in element)) {
 				element.origDisplay = computedDisplay === 'none'
 					? getDefaultComputedStyle(element, 'display')
 					: computedDisplay;
@@ -163,7 +163,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param selector  A CSS selector string, a HTMLElement object or a collection of HTMLElement objects.
 		 */
 		this.hide = function(selector) {
-			if (!selector) {
+			if ( ! selector) {
 				return;
 			}
 
@@ -178,7 +178,7 @@ if (typeof window.Regular === 'undefined'
 
 			const computedDisplay = getComputedStyle(element, 'display');
 
-			if (computedDisplay !== 'none' && !('origDisplay' in element)) {
+			if (computedDisplay !== 'none' && ! ('origDisplay' in element)) {
 				element.origDisplay = computedDisplay;
 			}
 
@@ -195,7 +195,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param oncomplete  Optional callback function to execute when effect is completed.
 		 */
 		this.fadeIn = function(selector, duration = 250, oncomplete) {
-			if (!selector) {
+			if ( ! selector) {
 				return;
 			}
 
@@ -216,7 +216,7 @@ if (typeof window.Regular === 'undefined'
 
 			element.style.opacity = getComputedStyle(element, 'opacity');
 
-			if (!element.style.opacity) {
+			if ( ! element.style.opacity) {
 				element.style.opacity = 0;
 			}
 
@@ -258,7 +258,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param oncomplete  Optional callback function to execute when effect is completed.
 		 */
 		this.fadeOut = function(selector, duration = 250, oncomplete) {
-			if (!selector) {
+			if ( ! selector) {
 				return;
 			}
 
@@ -360,7 +360,7 @@ if (typeof window.Regular === 'undefined'
 		 *
 		 */
 
-		this.as = this.alias;
+		this.as          = this.alias;
 		this.hasClass    = this.hasClasses;
 		this.addClass    = this.addClasses;
 		this.removeClass = this.removeClasses;
@@ -380,7 +380,7 @@ if (typeof window.Regular === 'undefined'
 		 * @param classes   A string or array of class names.
 		 */
 		const doClasses = function(action, selector, classes) {
-			if (!selector) {
+			if ( ! selector) {
 				return;
 			}
 
@@ -409,7 +409,7 @@ if (typeof window.Regular === 'undefined'
 		 * @returns mixed
 		 */
 		const getComputedStyle = function(element, property) {
-			if (!element) {
+			if ( ! element) {
 				return null;
 			}
 
@@ -425,7 +425,7 @@ if (typeof window.Regular === 'undefined'
 		 * @returns mixed
 		 */
 		const getDefaultComputedStyle = function(element, property) {
-			if (!element) {
+			if ( ! element) {
 				return null;
 			}
 

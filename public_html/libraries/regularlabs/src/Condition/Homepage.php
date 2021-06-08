@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,6 +16,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\LanguageHelper as JLanguageHelper;
 use Joomla\CMS\Uri\Uri as JUri;
+use RegularLabs\Library\Condition;
 use RegularLabs\Library\RegEx;
 use RegularLabs\Library\StringHelper;
 
@@ -23,8 +24,7 @@ use RegularLabs\Library\StringHelper;
  * Class HomePage
  * @package RegularLabs\Library\Condition
  */
-class HomePage
-	extends \RegularLabs\Library\Condition
+class HomePage extends Condition
 {
 	public function pass()
 	{
@@ -42,9 +42,9 @@ class HomePage
 			if ( ! $this->request->option)
 			{
 				// set the view/task/layout in the menu item to empty if not set
-				$home->query['view']   = isset($home->query['view']) ? $home->query['view'] : '';
-				$home->query['task']   = isset($home->query['task']) ? $home->query['task'] : '';
-				$home->query['layout'] = isset($home->query['layout']) ? $home->query['layout'] : '';
+				$home->query['view']   = $home->query['view'] ?? '';
+				$home->query['task']   = $home->query['task'] ?? '';
+				$home->query['layout'] = $home->query['layout'] ?? '';
 			}
 
 			// check set values against home menu query items

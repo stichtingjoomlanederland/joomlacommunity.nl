@@ -1,9 +1,9 @@
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -12,7 +12,7 @@
 
 if (typeof window.RegularLabsMultiSelect === 'undefined'
 	|| typeof RegulaRegularLabsMultiSelectrLabsForm.version === 'undefined'
-	|| RegularLabsMultiSelect.version < '21.2.23991') {
+	|| RegularLabsMultiSelect.version < '21.6.1331') {
 
 	(function($) {
 		$(document).ready(function() {
@@ -22,7 +22,7 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 		});
 
 		window.RegularLabsMultiSelect = {
-			version: '21.2.23991',
+			version: '21.6.1331',
 
 			init: function(element) {
 				const self      = this;
@@ -41,7 +41,7 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 					// Append clearfix
 					$div.after('<div class="clearfix"></div>');
 
-					if (!$li.find('ul.rl_multiselect-sub').length) {
+					if ( ! $li.find('ul.rl_multiselect-sub').length) {
 						return;
 					}
 
@@ -51,7 +51,7 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 					// Append drop down menu in nodes
 					$div.find('label:first').after(menu);
 
-					if (!$li.find('ul.rl_multiselect-sub ul.rl_multiselect-sub').length) {
+					if ( ! $li.find('ul.rl_multiselect-sub ul.rl_multiselect-sub').length) {
 						$li.find('div.rl_multiselect-menu-expand').remove();
 					}
 				});
@@ -113,7 +113,7 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 					list.find('input').each(function() {
 						const $input = $(this);
 
-						$input.prop('checked', !$input.prop('checked'));
+						$input.prop('checked', ! $input.prop('checked'));
 					});
 					self.updateCounts(this.closest('.rl_multiselect'));
 				});
@@ -208,7 +208,7 @@ if (typeof window.RegularLabsMultiSelect === 'undefined'
 
 						if ($input.prop('checked')) {
 							$parent.find('span.rl_multiselect-toggle, div.rl_multiselect-menu').css('visibility', 'hidden');
-							if (!$sub.parent().hasClass('hidelist')) {
+							if ( ! $sub.parent().hasClass('hidelist')) {
 								$sub.wrap('<div style="display:none;" class="hidelist"></div>');
 							}
 

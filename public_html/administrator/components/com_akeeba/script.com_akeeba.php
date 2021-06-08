@@ -479,6 +479,9 @@ class Com_AkeebaInstallerScript extends \FOF40\InstallScript\Component
 			"media/com_akeeba/js/System.min.map",
 			"media/com_akeeba/js/Tooltip.min.js",
 			"media/com_akeeba/js/Tooltip.min.map",
+
+			// Obsolete plugin file
+			'plugins/console/akeebabackup.xml',
 		],
 		'folders' => [
 			// Directories used up to version 4.1 (inclusive)
@@ -554,6 +557,11 @@ class Com_AkeebaInstallerScript extends \FOF40\InstallScript\Component
 
 			// Rename ViewTemplates to tmpl
 			'administrator/components/com_akeeba/ViewTemplates',
+
+			// Remove pCloud
+			'administrator/components/com_akeeba/BackupEngine/Postproc/pcloud.json',
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Pcloud.php',
+			'administrator/components/com_akeeba/BackupEngine/Postproc/Connector/Pcloud.php',
 		],
 	];
 

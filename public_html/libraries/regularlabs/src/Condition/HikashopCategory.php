@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -17,8 +17,7 @@ defined('_JEXEC') or die;
  * Class HikashopCategory
  * @package RegularLabs\Library\Condition
  */
-class HikashopCategory
-	extends Hikashop
+class HikashopCategory extends Hikashop
 {
 	public function pass()
 	{
@@ -59,6 +58,11 @@ class HikashopCategory
 		return $this->passSimple($cats);
 	}
 
+	private function getCatParentIds($id = 0)
+	{
+		return $this->getParentIds($id, 'hikashop_category', 'category_parent_id', 'category_id');
+	}
+
 	private function getCategories()
 	{
 		switch (true)
@@ -86,10 +90,5 @@ class HikashopCategory
 			default:
 				return [];
 		}
-	}
-
-	private function getCatParentIds($id = 0)
-	{
-		return $this->getParentIds($id, 'hikashop_category', 'category_parent_id', 'category_id');
 	}
 }

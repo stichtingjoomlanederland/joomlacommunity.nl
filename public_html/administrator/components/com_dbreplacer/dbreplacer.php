@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -19,8 +19,10 @@ use Joomla\CMS\Plugin\PluginHelper as JPluginHelper;
 use RegularLabs\Library\Document as RL_Document;
 use RegularLabs\Library\Language as RL_Language;
 
+$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
+
 // Access check.
-if ( ! JFactory::getUser()->authorise('core.manage', 'com_dbreplacer'))
+if ( ! $user->authorise('core.manage', 'com_dbreplacer'))
 {
 	throw new JAccessExceptionNotallowed(JText::_('JERROR_ALERTNOAUTHOR'), 403);
 }
@@ -40,6 +42,13 @@ if (
 	return;
 }
 
+require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
+
+if ( ! RL_Document::isJoomlaVersion(3, 'COM_DBREPLACER'))
+{
+	return;
+}
+
 // give notice if Regular Labs Library plugin is not enabled
 if ( ! JPluginHelper::isEnabled('system', 'regularlabs'))
 {
@@ -48,14 +57,7 @@ if ( ! JPluginHelper::isEnabled('system', 'regularlabs'))
 	JFactory::getApplication()->enqueueMessage($msg, 'notice');
 }
 
-require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
-
 RL_Language::load('plg_system_regularlabs');
-
-if (!RL_Document::isJoomlaVersion(3, 'COM_DBREPLACER'))
-{
-	return;
-}
 
 $controller = JController::getInstance('DBReplacer');
 $controller->execute(JFactory::getApplication()->input->get('task'));

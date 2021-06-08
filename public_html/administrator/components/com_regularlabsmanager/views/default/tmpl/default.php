@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.7
+ * @version         7.4.9
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -52,8 +52,8 @@ JText::script('RLEM_ALERT_NO_ITEMS_SELECTED');
 JText::script('RLEM_ALERT_FAIL');
 JText::script('RLEM_ALERT_NO_DATA');
 
-RL_Document::script('regularlabsmanager/script.min.js', '7.4.7');
-RL_Document::style('regularlabsmanager/style.min.css', '7.4.7');
+RL_Document::script('regularlabsmanager/script.min.js', '7.4.9');
+RL_Document::style('regularlabsmanager/style.min.css', '7.4.9');
 
 $script = "
 	jQuery(document).ready(function() {
@@ -69,10 +69,10 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 			<div class="well">
 				<h4><?php echo JText::_('RLEM_DOWNLOAD_KEY'); ?></h4>
 
-				<p id="rl_key_text_empty"><?php echo RL_String::html_entity_decoder(JText::sprintf('RLEM_DOWNLOAD_KEY_DESC', '<a href="https://www.regularlabs.com/purchase" target="_blank">', '</a>', '<a href="https://www.regularlabs.com/downloads" target="_blank">', '</a>')); ?></p>
+				<p id="rl_key_text_empty"><?php echo RL_String::html_entity_decoder(JText::sprintf('RLEM_DOWNLOAD_KEY_DESC', '<a href="https://regularlabs.com/purchase" target="_blank">', '</a>', '<a href="https://regularlabs.com/downloads" target="_blank">', '</a>')); ?></p>
 
 				<p id="rl_key_text_invalid"
-				   style="display:none;"><?php echo RL_String::html_entity_decoder(JText::sprintf('RLEM_DOWNLOAD_KEY_INVALID', '<a href="https://www.regularlabs.com/downloads" target="_blank">', '</a>')); ?></p>
+				   style="display:none;"><?php echo RL_String::html_entity_decoder(JText::sprintf('RLEM_DOWNLOAD_KEY_INVALID', '<a href="https://regularlabs.com/downloads" target="_blank">', '</a>')); ?></p>
 
 				<div>
 					<?php
@@ -145,12 +145,11 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 								<input type="hidden" id="url_<?php echo $item->id; ?>" value="">
 								<span class="hasPopover" data-trigger="hover"
 								      title="<?php echo JText::_($item->name); ?>" data-content="<?php echo JText::_($item->name . '_DESC'); ?>">
-									<span class="icon-reglab icon-<?php echo $item->alias; ?> hidden-phone"></span>
 									<?php echo JText::_($item->name); ?>
 								</span>
 							</td>
 							<td class="center hidden-phone hidden-tablet ext_website">
-								<a href="https://www.regularlabs.com/<?php echo $item->id; ?>" target="_blank">
+								<a href="https://regularlabs.com/<?php echo $item->id; ?>" target="_blank">
 									<span class="icon-out-2"></span>
 								</a>
 							</td>
@@ -300,7 +299,7 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 								<span class="hidden-tablet hidden-desktop nowrap">
 									<div class="clearfix"></div>
 									<span class="changelog data hide">
-										<a href="https://www.regularlabs.com/<?php echo $item->id; ?>/changelog" target="_blank">
+										<a href="https://regularlabs.com/<?php echo $item->id; ?>/changelog" target="_blank">
 											<span class="new_version badge"></span></a>
 										<span class="pro_access label label-info data hide">P</span>
 									</span>
@@ -312,13 +311,13 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 								</span>
 								<span class="changelog data hide">
 									<span class="hidden-tablet">
-										<a href="https://www.regularlabs.com/<?php echo $item->id; ?>/changelog" target="_blank"
+										<a href="https://regularlabs.com/<?php echo $item->id; ?>/changelog" target="_blank"
 										   class="hasPopover" data-trigger="hover"
 										   title="<?php echo JText::_('RL_CHANGELOG'); ?>" data-content="">
 											<span class="new_version badge"></span></a>
 									</span>
 									<span class="hidden-desktop">
-										<a href="https://www.regularlabs.com/<?php echo $item->id; ?>/changelog" target="_blank"
+										<a href="https://regularlabs.com/<?php echo $item->id; ?>/changelog" target="_blank"
 										   class="changelog data hide">
 											<span class="new_version badge"></span></a>
 									</span>
@@ -333,12 +332,12 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 									<span class="pro_available data hide">
 										<span class="pro_no_access data hide">
 											<a style="margin-bottom:4px;" class="btn btn-small btn-info hidden-tablet"
-											   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
+											   href="https://regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 												<span class="icon-basket"></span> <?php echo JText::_('RLEM_BUY_PRO_VERSION'); ?>
 											</a>
 											<a style="margin-bottom:4px;" class="btn btn-small btn-info hidden-desktop"
 											   rel="tooltip" title="<?php echo JText::_('RLEM_BUY_PRO_VERSION'); ?>"
-											   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
+											   href="https://regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 												<span class="icon-basket"></span>
 											</a>
 										</span>
@@ -347,12 +346,12 @@ $loading = '<div class="progress progress-striped active" style="min-width: 60px
 								<span class="pro_installed data hide">
 									<span class="pro_key_invalid data hide">
 										<a style="margin-bottom:4px;" class="btn btn-small btn-warning hidden-tablet"
-										   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
+										   href="https://regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 											<span class="icon-basket"></span> <?php echo JText::_('RLEM_RENEW_SUBSCRIPTION'); ?>
 										</a>
 										<a style="margin-bottom:4px;" class="btn btn-small btn-warning hidden-desktop"
 										   rel="tooltip" title="<?php echo JText::_('RLEM_RENEW_SUBSCRIPTION'); ?>"
-										   href="https://www.regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
+										   href="https://regularlabs.com/purchase/cart/add/<?php echo $item->id; ?>" target="_blank">
 											<span class="icon-basket"></span>
 										</a>
 									</span>

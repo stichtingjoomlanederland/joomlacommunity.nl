@@ -356,6 +356,7 @@ class HtaccessMaker extends ServerConfigMaker
 	protected $allowedCallersForMake = [
 		'Akeeba\AdminTools\Admin\Controller\ServerConfigMaker::apply',
 		'Akeeba\AdminTools\Admin\Controller\HtaccessMaker::apply',
+		'Akeeba\AdminTools\Admin\Model\ControlPanel::serverConfigEdited',
 		'Akeeba\AdminTools\Admin\Model\ServerConfigMaker::writeConfigFile',
 		'Akeeba\AdminTools\Admin\Model\HtaccessMaker::writeHtaccess',
 		'Akeeba\AdminTools\Admin\View\HtaccessMaker\Html::onBeforePreview',

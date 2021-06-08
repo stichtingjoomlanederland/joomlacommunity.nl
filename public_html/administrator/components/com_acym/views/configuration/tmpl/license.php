@@ -1,15 +1,12 @@
 <?php
-if (acym_level(1)) {
+if (acym_level(ACYM_ESSENTIAL)) {
     $licenseKey = acym_escape($this->config->get('license_key', ''));
     $cronUrl = acym_frontendLink('cron');
     $automaticSend = acym_escape($this->config->get('active_cron', 0));
     ?>
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2 cell margin-y">
 		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_MY_LICENSE'); ?>
-			<a target="_blank"
-			   id="acym__configuration__subscription__page"
-			   class="margin-left-1"
-			   href="<?php echo ACYM_REDIRECT.'subscription-page'; ?>"><?php echo acym_translation('ACYM_GET_MY_LICENSE_KEY'); ?></a>
+			<?php echo acym_externalLink('ACYM_GET_MY_LICENSE_KEY', ACYM_REDIRECT.'subscription-page', true, true, ['margin-left-1']) ?>
 		</div>
 		<div class="cell grid-x grid-margin-x acym_vcenter">
 			<label for="acym__configuration__license-key" class="cell medium-2">
@@ -39,6 +36,6 @@ if (acym_level(1)) {
         <?php } ?>
 	</div>
 <?php }
-if (!acym_level(1)) {
+if (!acym_level(ACYM_ESSENTIAL)) {
     include acym_getView('configuration', 'upgrade_license', true);
 }

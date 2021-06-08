@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -22,27 +22,72 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 class RLAssignmentsContent extends RLAssignment
 {
-	public function passPageTypes()
+	public function getItem($fields = [])
 	{
-		$components = ['com_content', 'com_contentsubmit'];
-		if ( ! in_array($this->request->option, $components))
+		if ($this->article)
+		{
+			return $this->article;
+		}
+
+		if ( ! class_exists('ContentModelArticle'))
+		{
+			require_once JPATH_SITE . '/components/com_content/models/article.php';
+		}
+
+		$model = JModel::getInstance('article', 'contentModel');
+
+		if ( ! method_exists($model, 'getItem'))
+		{
+			return null;
+		}
+
+		$this->article = $model->getItem($this->request->id);
+
+		return $this->article;
+	}
+
+	public function passArticles()
+	{
+		if ( ! $this->request->id
+			|| ! (($this->request->option == 'com_content' && $this->request->view == 'article')
+				|| ($this->request->option == 'com_flexicontent' && $this->request->view == 'item')
+			)
+		)
 		{
 			return $this->pass(false);
 		}
-		if ($this->request->view == 'category' && $this->request->layout == 'blog')
+
+		$pass = false;
+
+		// Pass Article Id
+		if ( ! $this->passItemByType($pass, 'ContentIds'))
 		{
-			$view = 'categoryblog';
-		}
-		else
-		{
-			$view = $this->request->view;
+			return $this->pass(false);
 		}
 
-		return $this->passSimple($view);
+		// Pass Content Keywords
+		if ( ! $this->passItemByType($pass, 'ContentKeywords'))
+		{
+			return $this->pass(false);
+		}
+
+		// Pass Meta Keywords
+		if ( ! $this->passItemByType($pass, 'MetaKeywords'))
+		{
+			return $this->pass(false);
+		}
+
+		// Pass Authors
+		if ( ! $this->passItemByType($pass, 'Authors'))
+		{
+			return $this->pass(false);
+		}
+
+		return $this->pass($pass);
 	}
 
 	public function passCategories()
@@ -143,6 +188,30 @@ class RLAssignmentsContent extends RLAssignment
 		return $this->pass($pass);
 	}
 
+	public function passPageTypes()
+	{
+		$components = ['com_content', 'com_contentsubmit'];
+		if ( ! in_array($this->request->option, $components))
+		{
+			return $this->pass(false);
+		}
+		if ($this->request->view == 'category' && $this->request->layout == 'blog')
+		{
+			$view = 'categoryblog';
+		}
+		else
+		{
+			$view = $this->request->view;
+		}
+
+		return $this->passSimple($view);
+	}
+
+	private function getCatParentIds($id = 0)
+	{
+		return $this->getParentIds($id, 'categories');
+	}
+
 	private function getCategoryIds($is_category = false)
 	{
 		if ($is_category)
@@ -168,78 +237,9 @@ class RLAssignmentsContent extends RLAssignment
 		{
 			$menuparams = $this->getMenuItemParams($this->request->Itemid);
 
-			return isset($menuparams->featured_categories) ? (array) $menuparams->featured_categories : (array) $catid;
+			return (array) ($menuparams->featured_categories ?? $catid);
 		}
 
-		return isset($menuparams->catid) ? (array) $menuparams->catid : (array) $catid;
-	}
-
-	public function passArticles()
-	{
-		if ( ! $this->request->id
-			|| ! (($this->request->option == 'com_content' && $this->request->view == 'article')
-				|| ($this->request->option == 'com_flexicontent' && $this->request->view == 'item')
-			)
-		)
-		{
-			return $this->pass(false);
-		}
-
-		$pass = false;
-
-		// Pass Article Id
-		if ( ! $this->passItemByType($pass, 'ContentIds'))
-		{
-			return $this->pass(false);
-		}
-
-		// Pass Content Keywords
-		if ( ! $this->passItemByType($pass, 'ContentKeywords'))
-		{
-			return $this->pass(false);
-		}
-
-		// Pass Meta Keywords
-		if ( ! $this->passItemByType($pass, 'MetaKeywords'))
-		{
-			return $this->pass(false);
-		}
-
-		// Pass Authors
-		if ( ! $this->passItemByType($pass, 'Authors'))
-		{
-			return $this->pass(false);
-		}
-
-		return $this->pass($pass);
-	}
-
-	public function getItem($fields = [])
-	{
-		if ($this->article)
-		{
-			return $this->article;
-		}
-
-		if ( ! class_exists('ContentModelArticle'))
-		{
-			require_once JPATH_SITE . '/components/com_content/models/article.php';
-		}
-
-		$model = JModel::getInstance('article', 'contentModel');
-
-		if ( ! method_exists($model, 'getItem'))
-		{
-			return null;
-		}
-
-		$this->article = $model->getItem($this->request->id);
-
-		return $this->article;
-	}
-
-	private function getCatParentIds($id = 0)
-	{
-		return $this->getParentIds($id, 'categories');
+		return (array) ($menuparams->catid ?? $catid);
 	}
 }

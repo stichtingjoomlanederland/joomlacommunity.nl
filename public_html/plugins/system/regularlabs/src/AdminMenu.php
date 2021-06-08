@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -18,6 +18,51 @@ use RegularLabs\Library\RegEx as RL_RegEx;
 
 class AdminMenu
 {
+	public static function addHelpItem()
+	{
+		$params = Params::get();
+
+		if ( ! $params->show_help_menu)
+		{
+			return;
+		}
+
+		$html = JFactory::getApplication()->getBody();
+
+		if ($html == '')
+		{
+			return;
+		}
+
+		$pos_1 = strpos($html, '<!-- Top Navigation -->');
+		$pos_2 = strpos($html, '<!-- Header -->');
+
+		if ( ! $pos_1 || ! $pos_2)
+		{
+			return;
+		}
+
+		$nav = substr($html, $pos_1, $pos_2 - $pos_1);
+
+		$shop_item = '(\s*<li>\s*<a [^>]*class="[^"]*menu-help-)shop("\s[^>]*)href="[^"]+\.joomla\.org[^"]*"([^>]*>)[^<]*(</a>s*</li>)';
+
+		$nav = RL_RegEx::replace(
+			$shop_item,
+			'\0<li class="divider"><span></span></li>\1dev\2href="https://regularlabs.com"\3Regular Labs Extensions\4',
+			$nav
+		);
+
+		// Just in case something fails
+		if (empty($nav))
+		{
+			return;
+		}
+
+		$html = substr_replace($html, $nav, $pos_1, $pos_2 - $pos_1);
+
+		JFactory::getApplication()->setBody($html);
+	}
+
 	public static function combine()
 	{
 		$params = Params::get();
@@ -104,51 +149,6 @@ class AdminMenu
 
 		$html = str_replace($first, $new_menu_item, $html);
 		$html = str_replace($matches[0], '', $html);
-
-		JFactory::getApplication()->setBody($html);
-	}
-
-	public static function addHelpItem()
-	{
-		$params = Params::get();
-
-		if ( ! $params->show_help_menu)
-		{
-			return;
-		}
-
-		$html = JFactory::getApplication()->getBody();
-
-		if ($html == '')
-		{
-			return;
-		}
-
-		$pos_1 = strpos($html, '<!-- Top Navigation -->');
-		$pos_2 = strpos($html, '<!-- Header -->');
-
-		if ( ! $pos_1 || ! $pos_2)
-		{
-			return;
-		}
-
-		$nav = substr($html, $pos_1, $pos_2 - $pos_1);
-
-		$shop_item = '(\s*<li>\s*<a [^>]*class="[^"]*menu-help-)shop("\s[^>]*)href="[^"]+\.joomla\.org[^"]*"([^>]*>)[^<]*(</a>s*</li>)';
-
-		$nav = RL_RegEx::replace(
-			$shop_item,
-			'\0<li class="divider"><span></span></li>\1dev\2href="https://www.regularlabs.com"\3Regular Labs Extensions\4',
-			$nav
-		);
-
-		// Just in case something fails
-		if (empty($nav))
-		{
-			return;
-		}
-
-		$html = substr_replace($html, $nav, $pos_1, $pos_2 - $pos_1);
 
 		JFactory::getApplication()->setBody($html);
 	}

@@ -152,3 +152,7 @@
 .rsepro-calendar table caption select {
 	display: inline-block;
 }
+
+#conditional_fields {
+	min-width: 225px;
+}

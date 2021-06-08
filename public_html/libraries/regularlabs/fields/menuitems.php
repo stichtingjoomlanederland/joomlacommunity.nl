@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -26,30 +26,6 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 class JFormFieldRL_MenuItems extends \RegularLabs\Library\Field
 {
 	public $type = 'MenuItems';
-
-	protected function getInput()
-	{
-		$size     = (int) $this->get('size');
-		$multiple = $this->get('multiple', 0);
-
-		return $this->selectListAjax(
-			$this->type, $this->name, $this->value, $this->id,
-			compact('size', 'multiple')
-		);
-	}
-
-	function getAjaxRaw(Registry $attributes)
-	{
-		$name     = $attributes->get('name', $this->type);
-		$id       = $attributes->get('id', strtolower($name));
-		$value    = $attributes->get('value', []);
-		$size     = $attributes->get('size');
-		$multiple = $attributes->get('multiple');
-
-		$options = $this->getMenuItems();
-
-		return $this->selectList($options, $name, $value, $id, $size, $multiple);
-	}
 
 	/**
 	 * Get a list of menu links for one or all menus.
@@ -107,5 +83,29 @@ class JFormFieldRL_MenuItems extends \RegularLabs\Library\Field
 		}
 
 		return $menuTypes;
+	}
+
+	public function getAjaxRaw(Registry $attributes)
+	{
+		$name     = $attributes->get('name', $this->type);
+		$id       = $attributes->get('id', strtolower($name));
+		$value    = $attributes->get('value', []);
+		$size     = $attributes->get('size');
+		$multiple = $attributes->get('multiple');
+
+		$options = $this->getMenuItems();
+
+		return $this->selectList($options, $name, $value, $id, $size, $multiple);
+	}
+
+	protected function getInput()
+	{
+		$size     = (int) $this->get('size');
+		$multiple = $this->get('multiple', 0);
+
+		return $this->selectListAjax(
+			$this->type, $this->name, $this->value, $this->id,
+			compact('size', 'multiple')
+		);
 	}
 }

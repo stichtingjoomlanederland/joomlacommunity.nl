@@ -186,6 +186,9 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_events` (
   `invoice_prefix` varchar(50) NOT NULL DEFAULT '',
   `invoice_title` varchar(255) NOT NULL DEFAULT '',
   `invoice_layout` text NOT NULL,
+  `notify_me_emails` text NOT NULL,
+  `notify_me_paid_emails` text NOT NULL,
+  `notify_me_unsubscribe_emails` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `location` (`location`),
   KEY `owner` (`owner`),
@@ -320,6 +323,7 @@ CREATE TABLE IF NOT EXISTS `#__rseventspro_speakers` (
   `twitter` varchar(255) NOT NULL DEFAULT '',
   `linkedin` varchar(255) NOT NULL DEFAULT '',
   `phone` varchar(255) NOT NULL DEFAULT '',
+  `custom` text NOT NULL,
   `published` tinyint(2) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -578,7 +582,7 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('payment_pay
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('jsactivity', '1');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('hideyear', '0');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('postreminder_hash', '2437ec0d9cd9392705cd34c09a3a73c5');
-INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('gallery_params', '{"thumb_resolution":"w,280","full_resolution":"w,600","use_original":"1","ordering":"title","direction":"ASC","limit":"","show_title":"1","show_description":"1"}');
+INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('gallery_params', '{"itemsrow":"3","center_list":"1","thumb_resolution":"w,280","full_resolution":"w,600","use_original":"1","ordering":"title","direction":"ASC","limit":"","show_title":"1","show_description":"1","show_details_thumb":"1"}');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('payment_mask', '%p %c');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES('rules_check', '');
 INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES ('active_events', '1');
@@ -664,6 +668,7 @@ INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_l
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_theme', 'light');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('hcaptcha_size', 'NORMAL');
 INSERT IGNORE INTO `#__rseventspro_config` (`name` ,`value`) VALUES ('google_map_direction', '1');
+INSERT IGNORE INTO `#__rseventspro_config` (`name`, `value`) VALUES ('google_recurrence', '0'); 
 
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Afghanistan');
 INSERT IGNORE INTO `#__rseventspro_countries` (`name`) VALUES('Akrotiri');

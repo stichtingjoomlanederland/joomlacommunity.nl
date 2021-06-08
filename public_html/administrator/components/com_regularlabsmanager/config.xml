@@ -4,7 +4,7 @@
 		<field name="@loadlanguage" type="rl_loadlanguage" extension="com_regularlabsmanager" />
 		<field name="@block_key_a" type="rl_block" start="1"
 			   label="RLEM_DOWNLOAD_KEY"
-			   description="RLEM_DOWNLOAD_KEY_DESC,&lt;a href=&quot;https://www.regularlabs.com/purchase&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;,&lt;a href=&quot;https://www.regularlabs.com/downloads&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;" />
+			   description="RLEM_DOWNLOAD_KEY_DESC,&lt;a href=&quot;https://regularlabs.com/purchase&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;,&lt;a href=&quot;https://regularlabs.com/downloads&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;" />
 		<field name="key" type="rl_key"
 			   filter="raw"
 			   label="RLEM_DOWNLOAD_KEY"

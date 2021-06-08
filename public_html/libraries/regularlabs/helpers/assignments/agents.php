@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -18,14 +18,46 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
-require_once dirname(__DIR__) . '/text.php';
-require_once dirname(__DIR__) . '/mobile_detect.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/text.php';
+require_once dirname(__FILE__, 2) . '/mobile_detect.php';
 
 class RLAssignmentsAgents extends RLAssignment
 {
 	var $agent  = null;
 	var $device = null;
+
+	/**
+	 * isDesktop
+	 */
+	public function isDesktop()
+	{
+		return $this->getDevice() == 'desktop';
+	}
+
+	/**
+	 * isMobile
+	 */
+	public function isMobile()
+	{
+		return $this->getDevice() == 'mobile';
+	}
+
+	/**
+	 * isPhone
+	 */
+	public function isPhone()
+	{
+		return $this->isMobile();
+	}
+
+	/**
+	 * isTablet
+	 */
+	public function isTablet()
+	{
+		return $this->getDevice() == 'tablet';
+	}
 
 	/**
 	 * passBrowsers
@@ -51,14 +83,6 @@ class RLAssignmentsAgents extends RLAssignment
 	}
 
 	/**
-	 * passOS
-	 */
-	public function passOS()
-	{
-		return self::passBrowsers();
-	}
-
-	/**
 	 * passDevices
 	 */
 	public function passDevices()
@@ -71,66 +95,11 @@ class RLAssignmentsAgents extends RLAssignment
 	}
 
 	/**
-	 * isPhone
+	 * passOS
 	 */
-	public function isPhone()
+	public function passOS()
 	{
-		return $this->isMobile();
-	}
-
-	/**
-	 * isMobile
-	 */
-	public function isMobile()
-	{
-		return $this->getDevice() == 'mobile';
-	}
-
-	/**
-	 * isTablet
-	 */
-	public function isTablet()
-	{
-		return $this->getDevice() == 'tablet';
-	}
-
-	/**
-	 * isDesktop
-	 */
-	public function isDesktop()
-	{
-		return $this->getDevice() == 'desktop';
-	}
-
-	/**
-	 * setDevice
-	 */
-	private function getDevice()
-	{
-		if ( ! is_null($this->device))
-		{
-			return $this->device;
-		}
-
-		$detect = new RLMobile_Detect;
-
-		$this->is_mobile = $detect->isMobile();
-
-		switch (true)
-		{
-			case($detect->isTablet()):
-				$this->device = 'tablet';
-				break;
-
-			case ($detect->isMobile()):
-				$this->device = 'mobile';
-				break;
-
-			default:
-				$this->device = 'desktop';
-		}
-
-		return $this->device;
+		return self::passBrowsers();
 	}
 
 	/**
@@ -168,6 +137,37 @@ class RLAssignmentsAgents extends RLAssignment
 		$this->agent = $agent;
 
 		return $this->agent;
+	}
+
+	/**
+	 * setDevice
+	 */
+	private function getDevice()
+	{
+		if ( ! is_null($this->device))
+		{
+			return $this->device;
+		}
+
+		$detect = new RLMobile_Detect;
+
+		$this->is_mobile = $detect->isMobile();
+
+		switch (true)
+		{
+			case($detect->isTablet()):
+				$this->device = 'tablet';
+				break;
+
+			case ($detect->isMobile()):
+				$this->device = 'mobile';
+				break;
+
+			default:
+				$this->device = 'desktop';
+		}
+
+		return $this->device;
 	}
 
 	/**

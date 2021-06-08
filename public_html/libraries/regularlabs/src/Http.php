@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,6 +16,7 @@ defined('_JEXEC') or die;
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Http\HttpFactory as JHttpFactory;
 use Joomla\Registry\Registry;
+use RegularLabs\Library\CacheNew as Cache;
 use RuntimeException;
 
 /**
@@ -44,45 +45,6 @@ class Http
 	}
 
 	/**
-	 * Get the contents of the given url
-	 *
-	 * @param string $url
-	 * @param int    $timeout
-	 *
-	 * @return string
-	 */
-	public static function getFromUrl($url, $timeout = 20)
-	{
-		$cache_id = 'getUrl_' . $url;
-
-		if (Cache::has($cache_id))
-		{
-			return Cache::get($cache_id);
-		}
-
-		if (JFactory::getApplication()->input->getInt('cache', 0)
-			&& $content = Cache::read($cache_id)
-		)
-		{
-			return $content;
-		}
-
-		$content = self::getContents($url, $timeout);
-
-		if (empty($content))
-		{
-			return '';
-		}
-
-		if ($ttl = JFactory::getApplication()->input->getInt('cache', 0))
-		{
-			return Cache::write($cache_id, $content, $ttl > 1 ? $ttl : 0);
-		}
-
-		return Cache::set($cache_id, $content);
-	}
-
-	/**
 	 * Get the contents of the given external url from the Regular Labs server
 	 *
 	 * @param string $url
@@ -92,11 +54,17 @@ class Http
 	 */
 	public static function getFromServer($url, $timeout = 20)
 	{
-		$cache_id = 'getByUrl_' . $url;
+		$cache     = new Cache([__METHOD__, $url]);
+		$cache_ttl = JFactory::getApplication()->input->getInt('cache', 0);
 
-		if (Cache::has($cache_id))
+		if ($cache_ttl)
 		{
-			return Cache::get($cache_id);
+			$cache->useFiles($cache_ttl > 1 ? $cache_ttl : null);
+		}
+
+		if ($cache->exists())
+		{
+			return $cache->get();
 		}
 
 		// only allow url calls from administrator
@@ -106,7 +74,7 @@ class Http
 		}
 
 		// only allow when logged in
-		$user = JFactory::getUser();
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
 		if ( ! $user->id)
 		{
 			die;
@@ -150,12 +118,40 @@ class Http
 		header("Cache-Control: public");
 		header("Content-type: " . $format);
 
-		if ($ttl = JFactory::getApplication()->input->getInt('cache', 0))
+		return $cache->set($content);
+	}
+
+	/**
+	 * Get the contents of the given url
+	 *
+	 * @param string $url
+	 * @param int    $timeout
+	 *
+	 * @return string
+	 */
+	public static function getFromUrl($url, $timeout = 20)
+	{
+		$cache     = new Cache([__METHOD__, $url]);
+		$cache_ttl = JFactory::getApplication()->input->getInt('cache', 0);
+
+		if ($cache_ttl)
 		{
-			return Cache::write($cache_id, $content, $ttl > 1 ? $ttl : 0);
+			$cache->useFiles($cache_ttl > 1 ? $cache_ttl : null);
 		}
 
-		return Cache::set($cache_id, $content);
+		if ($cache->exists())
+		{
+			return $cache->get();
+		}
+
+		$content = self::getContents($url, $timeout);
+
+		if (empty($content))
+		{
+			return '';
+		}
+
+		return $cache->set($content);
 	}
 
 	/**

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -24,24 +24,24 @@ class RLCache
 {
 	static $cache = [];
 
-	public static function has($id)
-	{
-		return RL_Cache::has($id);
-	}
-
 	public static function get($id)
 	{
 		return RL_Cache::get($id);
 	}
 
-	public static function set($id, $data)
+	public static function has($id)
 	{
-		return RL_Cache::set($id, $data);
+		return RL_Cache::has($id);
 	}
 
 	public static function read($id)
 	{
 		return RL_Cache::read($id);
+	}
+
+	public static function set($id, $data)
+	{
+		return RL_Cache::set($id, $data);
 	}
 
 	public static function write($id, $data, $ttl = 0)

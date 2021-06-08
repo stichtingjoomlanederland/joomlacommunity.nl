@@ -116,7 +116,7 @@ class plgSystemBackuponupdate extends CMSPlugin
 		}
 
 		// Make sure a user is logged in
-		$user = $this->app->getIdentity();
+		$user = JFactory::getUser();
 
 		if (!is_object($user) || $user->guest)
 		{

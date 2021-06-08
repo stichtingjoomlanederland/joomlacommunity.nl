@@ -7,6 +7,7 @@ use AcyMailing\Classes\FollowupClass;
 use AcyMailing\Classes\MailClass;
 use AcyMailing\Classes\ListClass;
 use AcyMailing\Classes\MailStatClass;
+use AcyMailing\Classes\QueueClass;
 use AcyMailing\Classes\SegmentClass;
 use AcyMailing\Classes\TagClass;
 use AcyMailing\Classes\UserClass;
@@ -33,7 +34,7 @@ class CampaignsController extends acymController
             'recipients' => ['vue-applications' => ['entity_select']],
             'send_settings' => ['datepicker'],
             'summary' => ['vue-applications' => ['modal_users_summary']],
-            'segment' => ['vue-applications' => ['modal_users_summary']],
+            'segment' => ['datepicker', 'vue-applications' => ['modal_users_summary']],
         ];
         acym_setVar('edition', '1');
         if (acym_isAdmin()) $this->stepContainerClass = 'xxlarge-9';
@@ -195,7 +196,7 @@ class CampaignsController extends acymController
 
     public function campaigns_auto()
     {
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'campaigns_auto');
             $data = [
                 'cleartask' => 'campaigns_auto',
@@ -207,7 +208,7 @@ class CampaignsController extends acymController
             $this->prepareListingClasses($data);
             parent::display($data);
         }
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             $this->campaigns();
         }
     }
@@ -294,7 +295,7 @@ class CampaignsController extends acymController
             $textToDisplay->triggers = $campaign->sending_params;
             acym_trigger('onAcymDeclareSummary_triggers', [&$textToDisplay], 'plgAcymTime');
             $textToDisplay = array_values($textToDisplay->triggers);
-            $data['allCampaigns'][$key]->sending_params = empty($textToDisplay[0]) ? acym_translation('ACYM_ERROR_WHILE_RECOVERING_TRIGGERS') : $textToDisplay[0];
+            $data['allCampaigns'][$key]->sending_params['trigger_text'] = empty($textToDisplay[0]) ? acym_translation('ACYM_ERROR_WHILE_RECOVERING_TRIGGERS') : $textToDisplay[0];
         }
     }
 
@@ -343,7 +344,7 @@ class CampaignsController extends acymController
     private function getIsPendingGenerated(&$data)
     {
         $campaignClass = new CampaignClass();
-        $campaingsGenerated = $campaignClass->getAllCampaignsGenerated();
+        $campaingsGenerated = $campaignClass->getAllCampaignsGeneratedWaiting();
         $data['generatedPending'] = !empty($campaingsGenerated);
     }
 
@@ -958,7 +959,7 @@ class CampaignsController extends acymController
             'workflowHelper' => new WorkflowHelper(),
         ];
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             $listClass = new ListClass();
             $segmentClass = new SegmentClass();
 
@@ -1350,7 +1351,7 @@ class CampaignsController extends acymController
 
         $currentCampaign->sending_type = $sendingType;
         if (empty($currentCampaign->sending_params)) $currentCampaign->sending_params = [];
-        $currentCampaign->sending_params = array_merge($sendingParams, $currentCampaign->sending_params);
+        $currentCampaign->sending_params = array_merge($currentCampaign->sending_params, $sendingParams);
         $currentCampaign->sending_date = null;
 
         if (empty($currentMail) || empty($senderInformation)) {
@@ -1370,7 +1371,7 @@ class CampaignsController extends acymController
 
         $mailClass->save($currentMail);
 
-        if (empty($currentCampaign->sent) && $isScheduled && !empty($sendingDate)) {
+        if ($isScheduled && !empty($sendingDate)) {
             $currentCampaign->sending_date = acym_date(acym_getTime($sendingDate), 'Y-m-d H:i:s', false);
             if ($currentCampaign->sending_date < acym_date('now', 'Y-m-d H:i:s', false)) acym_enqueueMessage(acym_translation('ACYM_BE_CAREFUL_SENDING_DATE_IN_PAST'), 'warning');
         }
@@ -1409,6 +1410,9 @@ class CampaignsController extends acymController
             $campaign->draft = 1;
             $campaign->sent = 0;
             $campaign->active = 0;
+            if (!empty($campaign->sending_params['resendTarget'])) {
+                unset($campaign->sending_params['resendTarget']);
+            }
 
             $mail = $mailClass->getOneById($campaign->mail_id);
             $oldMailId = $mail->id;
@@ -1603,6 +1607,16 @@ class CampaignsController extends acymController
         $data['listsReceiver'] = $campaignLists;
         $data['listsIds'] = $listsIds;
         $data['nbSubscribers'] = $nbSubscribers;
+
+        if (!empty($data['campaignInformation']->sent) && !empty($data['campaignInformation']->active)) {
+            $queueClass = new QueueClass();
+            $data['mailInformation']->sending_params = $data['campaignInformation']->sending_params;
+            $automationHelper = $queueClass->getMailReceivers($data['mailInformation'], true);
+            $data['receiversNew'] = acym_loadResult($automationHelper->getQuery(['COUNT(`user`.id)']));
+
+            $automationHelper = $queueClass->getMailReceivers($data['mailInformation'], false);
+            $data['receiversAll'] = acym_loadResult($automationHelper->getQuery(['COUNT(`user`.id)']));
+        }
     }
 
     public function unpause_campaign()
@@ -1857,7 +1871,7 @@ class CampaignsController extends acymController
                     ).$campaign->id.'">'.$campaign->name.'</a>
                         <div class="acym__dashboard__active-campaigns__one-campaign__state medium-2 small-12 acym__background-color__blue text-center"><span>'.acym_translation(
                         'ACYM_SCHEDULED'
-                    ).' : '.acym_getDate($campaign->sending_date, 'M. j, Y').'</span></div>
+                    ).' : '.acym_getDate($campaign->sending_date, 'ACYM_DATE_FORMAT_LC3').'</span></div>
                         <div class="medium-6 small-12"><p id="'.$campaign->id.'" class="acym__dashboard__active-campaigns__one-campaign__action acym__color__dark-gray">'.acym_translation(
                         'ACYM_CANCEL_SCHEDULING'
                     ).'</p></div>
@@ -1909,7 +1923,7 @@ class CampaignsController extends acymController
 
     private function _redirectAfterQueued()
     {
-        if (acym_isAdmin() && (!acym_level(1) || $this->config->get('cron_last', 0) < (time() - 43200))) {
+        if (acym_isAdmin() && (!acym_level(ACYM_ESSENTIAL) || $this->config->get('cron_last', 0) < (time() - 43200))) {
             acym_redirect(acym_completeLink('queue&task=campaigns', false, true));
         } else {
             $this->listing();
@@ -2016,7 +2030,7 @@ class CampaignsController extends acymController
         $data = [
             'id' => $campaign->id,
             'test_emails' => $defaultEmails,
-            'upgrade' => !acym_level(1),
+            'upgrade' => !acym_level(ACYM_ESSENTIAL),
             'version' => 'enterprise',
         ];
 
@@ -2323,6 +2337,7 @@ class CampaignsController extends acymController
                         $receiver->name = $decodedInformation['name'];
                         $receiver->confirmed = 1;
                         $receiver->enabled = 1;
+                        $mailerHelper->isSpamTest = true;
 
                         if ($mailerHelper->sendOne($campaign->mail_id, $receiver)) {
                             $result->type = 'success';

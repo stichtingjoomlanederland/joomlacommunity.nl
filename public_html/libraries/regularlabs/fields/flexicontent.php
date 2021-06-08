@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,20 +20,10 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 class JFormFieldRL_FlexiContent extends \RegularLabs\Library\FieldGroup
 {
-	public $type          = 'FlexiContent';
 	public $default_group = 'Tags';
+	public $type          = 'FlexiContent';
 
-	protected function getInput()
-	{
-		if ($error = $this->missingFilesOrTables(['tags', 'types']))
-		{
-			return $error;
-		}
-
-		return $this->getSelectList();
-	}
-
-	function getTags()
+	public function getTags()
 	{
 		$query = $this->db->getQuery(true)
 			->select('t.name as id, t.name')
@@ -48,7 +38,7 @@ class JFormFieldRL_FlexiContent extends \RegularLabs\Library\FieldGroup
 		return $this->getOptionsByList($list);
 	}
 
-	function getTypes()
+	public function getTypes()
 	{
 		$query = $this->db->getQuery(true)
 			->select('t.id, t.name')
@@ -59,5 +49,12 @@ class JFormFieldRL_FlexiContent extends \RegularLabs\Library\FieldGroup
 		$list = $this->db->loadObjectList();
 
 		return $this->getOptionsByList($list);
+	}
+
+	protected function getInput()
+	{
+		$error = $this->missingFilesOrTables(['tags', 'types']);
+
+		return $error ?: $this->getSelectList();
 	}
 }

@@ -1,5 +1,5 @@
 <?php
-if (acym_level(2)) {
+if (acym_level(ACYM_ENTERPRISE)) {
     ?>
 	<div class="acym_area padding-vertical-1 padding-horizontal-2">
 		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_BOUNCE_HANDLING'); ?></div>
@@ -113,7 +113,7 @@ if (acym_level(2)) {
 	</div>
     <?php
 }
-if (!acym_level(2)) {
+if (!acym_level(ACYM_ENTERPRISE)) {
     $data['isEnterprise'] = false;
     echo '<div class="margin-top-1">';
     include acym_getView('bounces', 'splashscreen');

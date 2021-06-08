@@ -10,6 +10,9 @@ defined( '_JEXEC' ) or die( 'Restricted access' ); ?>
 	<?php echo $this->form->renderField('locations'); ?>
 	<?php echo $this->form->renderField('categories'); ?>
 	<?php echo $this->form->renderField('tags'); ?>
+	<?php echo $this->form->renderField('groups'); ?>
+	<?php echo $this->form->renderField('speakers'); ?>
+	<?php echo $this->form->renderField('sponsors'); ?>
 	<?php echo $this->form->renderField('itemid'); ?>
 	<?php echo $this->form->renderField('type'); ?>
 </div>

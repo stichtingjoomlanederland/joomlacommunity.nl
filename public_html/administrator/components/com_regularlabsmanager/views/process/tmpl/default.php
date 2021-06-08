@@ -1,7 +1,7 @@
 <?php
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.7
+ * @version         7.4.9
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com
@@ -35,8 +35,8 @@ $options = [
 RL_Document::scriptOptions($options, 'Extension Manager');
 JText::script('RLEM_INSTALLATION_FAILED');
 
-RL_Document::script('regularlabsmanager/process.min.js', '7.4.7');
-RL_Document::style('regularlabsmanager/process.min.css', '7.4.7');
+RL_Document::script('regularlabsmanager/process.min.js', '7.4.9');
+RL_Document::style('regularlabsmanager/process.min.css', '7.4.9');
 ?>
 
 <div id="rlem">
@@ -104,7 +104,6 @@ RL_Document::style('regularlabsmanager/process.min.css', '7.4.7');
 				?>
 				<tr id="row_<?php echo $item->id; ?>" class="<?php echo $disabled ? 'ghosted' : ''; ?>">
 					<td width="1%" nowrap="nowrap" class="ext_name">
-						<span class="icon-reglab icon-<?php echo $item->alias; ?>"></span>
 						<span id="ext_name_<?php echo $item->id; ?>"><?php echo JText::_($item->name); ?></span>
 					</td>
 					<td class="statuses">

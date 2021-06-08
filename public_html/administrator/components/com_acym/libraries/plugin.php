@@ -214,6 +214,37 @@ class acymPlugin extends acymObject
         return $this->subCategories[$categoryId];
     }
 
+    protected function autoContentOptions(&$options)
+    {
+        $options[] = [
+            'title' => 'ACYM_COLUMNS',
+            'type' => 'number',
+            'name' => 'cols',
+            'default' => 1,
+        ];
+
+        $options[] = [
+            'title' => 'ACYM_COLUMN_HORIZONTAL_PADDING',
+            'type' => 'number',
+            'name' => 'hpadding',
+            'default' => 10,
+        ];
+
+        $options[] = [
+            'title' => 'ACYM_COLUMN_VERTICAL_PADDING',
+            'type' => 'number',
+            'name' => 'vpadding',
+            'default' => 10,
+        ];
+
+        $options[] = [
+            'title' => 'ACYM_MAX_NB_ELEMENTS',
+            'type' => 'number',
+            'name' => 'max',
+            'default' => 20,
+        ];
+    }
+
     protected function autoCampaignOptions(&$options)
     {
         if (empty($this->campaignId) && empty($this->campaignType)) {
@@ -434,9 +465,12 @@ class acymPlugin extends acymObject
 
         $arrayElements = [];
         unset($parameter->id);
+
+        $i = 0;
         foreach ($elements as $oneElementId) {
             $args = [];
             $args[] = $this->name.':'.$oneElementId;
+
             foreach ($parameter as $oneParam => $val) {
                 if (is_bool($val)) {
                     $args[] = $oneParam;
@@ -444,7 +478,14 @@ class acymPlugin extends acymObject
                     $args[] = $oneParam.':'.$val;
                 }
             }
+
+            if ($i % 2 === 1 && !empty($parameter->alternate)) {
+                $args[] = 'invert';
+            }
+
             $arrayElements[] = '{'.implode('| ', $args).'}';
+
+            $i++;
         }
 
         return $this->pluginHelper->getFormattedResult($arrayElements, $parameter);
@@ -812,7 +853,10 @@ class acymPlugin extends acymObject
 
             $id = $plugin->folder_name.'_'.$key;
             $name = $plugin->folder_name.'['.$key.']';
-            if (!empty($field['label'])) $field['label'] = acym_translation($field['label']);
+            if (!empty($field['label'])) {
+                $field['label'] = acym_translation($field['label']);
+            }
+
             if (!empty($field['info'])) {
                 $field['label'] .= acym_info(
                     acym_translation($field['info']),
@@ -918,6 +962,27 @@ class acymPlugin extends acymObject
                     'acym-data-plugins-id="'.$idCustomView.'" acym-data-plugin-class="'.get_class($this).'" acym-data-plugin-folder="'.$this->name.'"',
                     'class="cell button"'
                 );
+            } elseif ($field['type'] == 'multikeyvalue') {
+                $text .= '<label class="cell shrink">'.$field['label'].'</label>';
+
+                $text .= '<div class="multikeyvalue_container grid-x">';
+
+                if (!empty($field['value'])) {
+                    $headers = json_decode($field['value'], true);
+                    foreach ($headers as $headerKey => $headerValue) {
+                        $text .= '<input type="text" class="cell" placeholder="'.acym_translation('ACYM_DKIM_KEY', true).'" value="'.acym_escape($headerKey).'"/>';
+                        $text .= '<input type="text" class="cell" placeholder="'.acym_translation('ACYM_VALUE', true).'" value="'.acym_escape($headerValue).'" />';
+                        $text .= '<div class="multikeyvalue_container_separator cell small-6"></div>';
+                    }
+                }
+
+                $text .= '<input type="text" class="cell" placeholder="'.acym_translation('ACYM_DKIM_KEY', true).'" value=""/>';
+                $text .= '<input type="text" class="cell" placeholder="'.acym_translation('ACYM_VALUE', true).'" value="" />';
+
+                $text .= '<button class="button multikeyvalue_container_new">'.acym_translation('ACYM_ADD_NEW').'</button>';
+
+                $text .= '<input type="hidden" name="'.$name.'" value="" />';
+                $text .= '</div>';
             } elseif ($field['type'] == 'custom') {
                 $text .= $field['content'];
             }
@@ -1002,10 +1067,10 @@ class acymPlugin extends acymObject
         $tmpMails = [];
         foreach ($specialMails as $i => $oneMail) {
             if ($oneMail->sending_type == $mailType) {
-                if ($time >= $dayBasedOnCMSTimezoneAtSpecifiedHour && (empty($oneMail->next_trigger) || date('m-d', $oneMail->next_trigger) == date(
-                            'm-d',
-                            $dayBasedOnCMSTimezoneAtSpecifiedHour
-                        ))) {
+                $noNextTrigger = empty($oneMail->next_trigger);
+                $nextTriggerIsNow = date('m-d', $oneMail->next_trigger) == date('m-d', $dayBasedOnCMSTimezoneAtSpecifiedHour);
+                $nextTriggerIsInPast = $oneMail->next_trigger < $time;
+                if ($time >= $dayBasedOnCMSTimezoneAtSpecifiedHour && ($noNextTrigger || $nextTriggerIsNow || $nextTriggerIsInPast)) {
                     $oneMail->next_trigger = acym_getTime('tomorrow '.$dailyHour.':'.$dailyMinute);
                     $oneMail->last_generated = $time;
                     $campaignClass->save($oneMail);

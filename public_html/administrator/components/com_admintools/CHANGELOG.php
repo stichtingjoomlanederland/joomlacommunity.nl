@@ -1,4 +1,17 @@
 <?php die() ?>
+Admin Tools 6.0.6
+================================================================================
+# [HIGH] Fixed wrongly detection of unauthorised security settings modification under NginX and IIS
+# [MEDIUM] The print view of the PHP File Change Scanner report is missing information
+# [LOW] Default email templates still had GeoIP information even though we removed this feature in January 2020
+# [LOW] The system plugin is incompatible with the Joomla 4 API application
+
+Admin Tools 6.0.5
+================================================================================
+~ Update Chart.js
+# [LOW] The server configuration file was detected as changed when it hasn't.
+# [LOW] The Quick Setup Wizard didn't enable the “Reset custom error pages” option when applying the administrator password protection.
+
 Admin Tools 6.0.4
 ================================================================================
 ~ Rewritten installer plugin

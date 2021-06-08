@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -22,41 +22,6 @@ use Joomla\CMS\Factory as JFactory;
 class DB
 {
 	static $tables = [];
-
-	/**
-	 * Check if a table exists in the database
-	 *
-	 * @param string $table
-	 *
-	 * @return bool
-	 */
-	public static function tableExists($table)
-	{
-		if (isset(self::$tables[$table]))
-		{
-			return self::$tables[$table];
-		}
-
-		$db = JFactory::getDbo();
-
-		if (strpos($table, '#__') === 0)
-		{
-			$table = $db->getPrefix() . substr($table, 3);
-		}
-
-		if (strpos($table, $db->getPrefix()) !== 0)
-		{
-			$table = $db->getPrefix() . $table;
-		}
-
-		$query = 'SHOW TABLES LIKE ' . $db->quote($table);
-		$db->setQuery($query);
-		$result = $db->loadResult();
-
-		self::$tables[$table] = ! empty($result);
-
-		return self::$tables[$table];
-	}
 
 	/**
 	 * Concatenate conditions using AND or OR
@@ -80,12 +45,72 @@ class DB
 
 		if (count($conditions) < 2)
 		{
-			return $conditions[0];
+			return reset($conditions);
 		}
 
 		$glue = strtoupper($glue) == 'AND' ? 'AND' : 'OR';
 
 		return '(' . implode(' ' . $glue . ' ', $conditions) . ')';
+	}
+
+	public static function getOperator(&$value, $default = '=')
+	{
+		if (empty($value))
+		{
+			return $default;
+		}
+
+		if (is_array($value))
+		{
+			$value = array_values($value);
+
+			$operator = self::getOperatorFromValue($value[0], $default);
+
+			// remove operators from other array values
+			foreach ($value as &$val)
+			{
+				$val = self::removeOperator($val);
+			}
+
+			return $operator;
+		}
+
+		$operator = self::getOperatorFromValue($value, $default);
+
+		$value = self::removeOperator($value);
+
+		return $operator;
+	}
+
+	public static function getOperatorFromValue($value, $default = '=')
+	{
+		$regex = '^' . RegEx::quote(self::getOperators(), 'operator');
+
+		if ( ! RegEx::match($regex, $value, $parts))
+		{
+			return $default;
+		}
+
+		$operator = $parts['operator'];
+
+		switch ($operator)
+		{
+			case '!':
+			case '!NOT!':
+				$operator = '!=';
+				break;
+
+			case '==':
+				$operator = '=';
+				break;
+		}
+
+		return $operator;
+	}
+
+	public static function getOperators()
+	{
+		return ['!NOT!', '!=', '!', '<>', '<=', '<', '>=', '>', '=', '=='];
 	}
 
 	/**
@@ -123,6 +148,23 @@ class DB
 		return ' ' . $operator . ' (' . $values . ')';
 	}
 
+	/**
+	 * Create an LIKE statement
+	 *
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	public static function like($value)
+	{
+		$operator = self::getOperator($value);
+		$value    = str_replace('*', '%', self::prepareValue($value));
+
+		$operator = $operator == '!=' ? 'NOT LIKE' : 'LIKE';
+
+		return ' ' . $operator . ' ' . $value;
+	}
+
 	public static function prepareValue($value, $handle_now = false)
 	{
 		if (is_array($value))
@@ -152,35 +194,6 @@ class DB
 		return JFactory::getDbo()->quote($value);
 	}
 
-	public static function getOperator(&$value, $default = '=')
-	{
-		if (empty($value))
-		{
-			return $default;
-		}
-
-		if (is_array($value))
-		{
-			$value = array_values($value);
-
-			$operator = self::getOperatorFromValue($value[0], $default);
-
-			// remove operators from other array values
-			foreach ($value as &$val)
-			{
-				$val = self::removeOperator($val);
-			}
-
-			return $operator;
-		}
-
-		$operator = self::getOperatorFromValue($value, $default);
-
-		$value = self::removeOperator($value);
-
-		return $operator;
-	}
-
 	public static function removeOperator($string)
 	{
 		$regex = '^' . RegEx::quote(self::getOperators(), 'operator');
@@ -188,51 +201,38 @@ class DB
 		return RegEx::replace($regex, '', $string);
 	}
 
-	public static function getOperators()
-	{
-		return ['!NOT!', '!=', '!', '<>', '<=', '<', '>=', '>', '=', '=='];
-	}
-
-	public static function getOperatorFromValue($value, $default = '=')
-	{
-		$regex = '^' . RegEx::quote(self::getOperators(), 'operator');
-
-		if ( ! RegEx::match($regex, $value, $parts))
-		{
-			return $default;
-		}
-
-		$operator = $parts['operator'];
-
-		switch ($operator)
-		{
-			case '!':
-			case '!NOT!':
-				$operator = '!=';
-				break;
-
-			case '==':
-				$operator = '=';
-				break;
-		}
-
-		return $operator;
-	}
-
 	/**
-	 * Create an LIKE statement
+	 * Check if a table exists in the database
 	 *
-	 * @param string $value
+	 * @param string $table
 	 *
-	 * @return string
+	 * @return bool
 	 */
-	public static function like($value)
+	public static function tableExists($table)
 	{
-		$operator = self::getOperator($value);
-		$value    = str_replace('*', '%', self::prepareValue($value));
+		if (isset(self::$tables[$table]))
+		{
+			return self::$tables[$table];
+		}
 
-		$operator = $operator == '!=' ? 'NOT LIKE' : 'LIKE';
+		$db = JFactory::getDbo();
 
-		return ' ' . $operator . ' ' . $value;
+		if (strpos($table, '#__') === 0)
+		{
+			$table = $db->getPrefix() . substr($table, 3);
+		}
+
+		if (strpos($table, $db->getPrefix()) !== 0)
+		{
+			$table = $db->getPrefix() . $table;
+		}
+
+		$query = 'SHOW TABLES LIKE ' . $db->quote($table);
+		$db->setQuery($query);
+		$result = $db->loadResult();
+
+		self::$tables[$table] = ! empty($result);
+
+		return self::$tables[$table];
 	}
 }

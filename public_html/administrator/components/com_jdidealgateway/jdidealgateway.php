@@ -56,7 +56,7 @@ try
 			<div class="span-12 center item">
 				<a href="https://rolandd.com/products/ro-payments" target="_blank">
 					RO Payments
-				</a> 6.3.2 | Copyright (C) 2009 -
+				</a> 6.4.1 | Copyright (C) 2009 -
 				<?php echo date('Y'); ?>
 				<a href="https://rolandd.com/" target="_blank">RolandD Cyber Produksi</a>
 			</div>

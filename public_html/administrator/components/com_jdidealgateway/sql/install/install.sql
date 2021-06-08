@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS `#__jdidealgateway_logs`
         COMMENT 'The user language',
     `pid`              VARCHAR(50)    NOT NULL
         COMMENT 'A unique identifier for the transaction',
+    `user_id`          INT(10) UNSIGNED NULL,
     PRIMARY KEY (`id`)
 )
     CHARSET = utf8

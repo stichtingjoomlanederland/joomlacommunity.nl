@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -25,17 +25,7 @@ class JFormFieldRL_K2 extends \RegularLabs\Library\FieldGroup
 {
 	public $type = 'K2';
 
-	protected function getInput()
-	{
-		if ($error = $this->missingFilesOrTables(['categories', 'items', 'tags']))
-		{
-			return $error;
-		}
-
-		return $this->getSelectList();
-	}
-
-	function getCategories()
+	public function getCategories()
 	{
 		$state_field = RL_K2_VERSION == 3 ? 'state' : 'published';
 
@@ -68,24 +58,7 @@ class JFormFieldRL_K2 extends \RegularLabs\Library\FieldGroup
 		return $this->getOptionsTreeByList($items);
 	}
 
-	function getTags()
-	{
-		$state_field = RL_K2_VERSION == 3 ? 'state' : 'published';
-
-		$query = $this->db->getQuery(true)
-			->select('t.name as id, t.name as name')
-			->from('#__k2_tags AS t')
-			->where('t.' . $state_field . ' = 1')
-			->where('t.name != ' . $this->db->quote(''))
-			->group('t.name')
-			->order('t.name');
-		$this->db->setQuery($query);
-		$list = $this->db->loadObjectList();
-
-		return $this->getOptionsByList($list);
-	}
-
-	function getItems()
+	public function getItems()
 	{
 		$state_field = RL_K2_VERSION == 3 ? 'state' : 'published';
 
@@ -112,5 +85,32 @@ class JFormFieldRL_K2 extends \RegularLabs\Library\FieldGroup
 		$list = $this->db->loadObjectList();
 
 		return $this->getOptionsByList($list, ['cat', 'id']);
+	}
+
+	public function getTags()
+	{
+		$state_field = RL_K2_VERSION == 3 ? 'state' : 'published';
+
+		$query = $this->db->getQuery(true)
+			->select('t.name as id, t.name as name')
+			->from('#__k2_tags AS t')
+			->where('t.' . $state_field . ' = 1')
+			->where('t.name != ' . $this->db->quote(''))
+			->group('t.name')
+			->order('t.name');
+		$this->db->setQuery($query);
+		$list = $this->db->loadObjectList();
+
+		return $this->getOptionsByList($list);
+	}
+
+	protected function getInput()
+	{
+		if ($error = $this->missingFilesOrTables(['categories', 'items', 'tags']))
+		{
+			return $error;
+		}
+
+		return $this->getSelectList();
 	}
 }

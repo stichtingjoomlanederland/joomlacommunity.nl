@@ -31,7 +31,17 @@ class RseventsproModelSpeaker extends JModelAdmin
 	 * @return	mixed	Object on success, false on failure.
 	 */
 	public function getItem($pk = null) {
-		return parent::getItem($pk);
+		if ($item = parent::getItem($pk)) {
+			try {
+				$registry = new JRegistry;
+				$registry->loadString($item->custom);
+				$item->custom = $registry->toArray();
+			} catch (Exception $e) {
+				$item->custom = array();
+			}
+		}
+		
+		return $item;
 	}
 	
 	/**

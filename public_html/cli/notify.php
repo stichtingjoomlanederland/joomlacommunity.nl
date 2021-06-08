@@ -11,6 +11,7 @@
 use Jdideal\Gateway;
 use Jdideal\Status\Request;
 use Joomla\CMS\Application\SiteApplication;
+use Joomla\CMS\Component\ComponentHelper;
 use Joomla\CMS\Factory;
 use Joomla\CMS\Language\LanguageFactoryInterface;
 use Joomla\CMS\Session\Session;
@@ -83,7 +84,10 @@ $language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgatew
 $language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway/', $language->getDefault(), true);
 $language->load('com_jdidealgateway', JPATH_SITE . '/components/com_jdidealgateway/', null, true);
 
-$_SERVER['HTTP_HOST'] = 'example.com';
+if (!isset($_SERVER['HTTP_HOST']))
+{
+	$_SERVER['HTTP_HOST'] = ComponentHelper::getParams('com_jdidealgateway')->get('domain');
+}
 
 JLoader::registerNamespace('Jdideal', JPATH_LIBRARIES);
 

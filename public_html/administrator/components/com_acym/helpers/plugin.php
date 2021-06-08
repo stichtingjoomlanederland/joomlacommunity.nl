@@ -28,7 +28,7 @@ class PluginHelper extends acymObject
         $beforeBlock['br'] = '';
 
         $beforeOne = [];
-        $beforeOne['table'] = '<td valign="top" width="{equalwidth}" class="elementstable_td numcol{numcol}" >'."\n";
+        $beforeOne['table'] = '<td valign="top" width="{equalwidth}" style="{padding}" class="elementstable_td numcol{numcol}" >'."\n";
         $beforeOne['ul'] = '<li class="elementsul_li numrow{rownum}">'."\n";
         $beforeOne['br'] = '';
 
@@ -60,19 +60,40 @@ class PluginHelper extends acymObject
             $cols = $parameter->cols;
         }
 
+        $parameter->hpadding = is_null($parameter->hpadding) ? 10 : $parameter->hpadding;
+        $parameter->vpadding = is_null($parameter->vpadding) ? 10 : $parameter->vpadding;
+
+        $horizontalPadding = round($parameter->hpadding / 2);
+        $verticalPadding = round($parameter->vpadding / 2);
+
         $string = $beforeAll[$type];
         $a = 0;
         $numrow = 1;
-        foreach ($elements as $oneElement) {
+        foreach ($elements as $key => $oneElement) {
+            $topPadding = $verticalPadding.'px';
+            $rightPadding = $horizontalPadding.'px';
+            $bottomPadding = $verticalPadding.'px';
+            $leftPadding = $horizontalPadding.'px';
+
             if ($a == $cols) {
                 $string .= $afterBlock[$type];
                 $a = 0;
-            }
-            if ($a == 0) {
-                $string .= str_replace('{rownum}', $numrow, $beforeBlock[$type]);
                 $numrow++;
             }
+
+            if ($a == 0) {
+                $string .= str_replace('{rownum}', $numrow, $beforeBlock[$type]);
+                $leftPadding = '0px';
+            }
+
+            if ($a + 1 == $cols) $rightPadding = '0px';
+            if ($numrow == 1) $topPadding = '0px';
+            if (round(count($elements) / $cols) == $numrow) $bottomPadding = '0px';
+
+            $padding = 'padding: '.$topPadding.' '.$rightPadding.' '.$bottomPadding.' '.$leftPadding.' !important;';
+
             $string .= str_replace('{numcol}', $a + 1, $beforeOne[$type]).$oneElement.$afterOne[$type];
+            $string = str_replace('{padding}', $padding, $string);
             $a++;
         }
         while ($cols > $a) {
@@ -187,6 +208,7 @@ class PluginHelper extends acymObject
             '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
             $text
         );
+
         $text = preg_replace(
             '#{youtube}[^{]+v=([^{&]+)(&[^{]*)?{/youtube}#Uis',
             '<a target="_blank" href="https://www.youtube.com/watch?v=$1"><img src="https://img.youtube.com/vi/$1/0.jpg"/></a>',
@@ -209,9 +231,8 @@ class PluginHelper extends acymObject
                     $replace = strpos($hash[0]['thumbnail_large'], '_') === false ? '.' : '_';
                     $hash[0]['thumbnail_large'] = substr($hash[0]['thumbnail_large'], 0, strrpos($hash[0]['thumbnail_large'], $replace)).'_'.$width[1].$extension;
                 }
-                $thumbnail = 'https://i.vimeocdn.com/filter/overlay?src='.urlencode($hash[0]['thumbnail_large']).'&src='.urlencode(
-                        'https://f.vimeocdn.com/p/images/crawler_play.png'
-                    );
+                $thumbnail = 'https://i.vimeocdn.com/filter/overlay?src='.urlencode($hash[0]['thumbnail_large']);
+                $thumbnail .= '&src='.urlencode('https://f.vimeocdn.com/p/images/crawler_play.png');
 
                 $text = str_replace(
                     $matches[0][$key],
@@ -600,7 +621,7 @@ class PluginHelper extends acymObject
     {
         if (empty($format->tag->format)) $format->tag->format = 'TOP_LEFT';
         if (!in_array($format->tag->format, ['TOP_LEFT', 'TOP_RIGHT', 'TITLE_IMG', 'TITLE_IMG_RIGHT', 'CENTER_IMG', 'TOP_IMG', 'COL_LEFT', 'COL_RIGHT'])) {
-            return 'Wrong format supplied: '.$format->tag->format;
+            $format->tag->format = 'TOP_LEFT';
         }
 
         $invertValues = [
@@ -627,18 +648,22 @@ class PluginHelper extends acymObject
             }
 
             if (!empty($style)) {
+                $linkStyle = 'style="float:'.$style.';"';
+
                 if ($style === 'left') {
                     $style = 'style="float:left; margin-right: 7px; margin-bottom: 7px;"';
-                    $linkStyle = 'style="float:left;"';
                 } else {
                     $style = 'style="float:right; margin-left: 7px; margin-bottom: 7px;"';
-                    $linkStyle = 'style="float:right;"';
                 }
             }
 
             preg_match('#src="([^"]+)"#Uis', $format->imagePath, $matches);
             if (!empty($matches[1])) $format->imagePath = $matches[1];
             $image = '<img class="content_main_image" alt="" src="'.$format->imagePath.'" '.$style.' />';
+
+            if(!empty($format->imageCaption) && !in_array($format->tag->format, ['TITLE_IMG', 'TITLE_IMG_RIGHT'])){
+                $image .= '<p class="content_main_image_caption">'.acym_escape($format->imageCaption).'</p>';
+            }
         }
 
         $result = '';
@@ -660,7 +685,7 @@ class PluginHelper extends acymObject
             if (empty($image)) {
                 $format->tag->format = 'TOP_LEFT';
             } else {
-                $result = '<table><tr><td valign="top" class="acyleftcol">';
+                $result = '<table><tr><td valign="middle" style="vertical-align: middle; padding-right: 7px;" class="acyleftcol">';
                 if ($format->tag->format == 'COL_LEFT') {
                     $result .= $image.'</td><td valign="top" class="acyrightcol">';
                 }
@@ -716,7 +741,7 @@ class PluginHelper extends acymObject
             }
 
             if ($format->tag->format == 'COL_RIGHT') {
-                $result .= '</td><td valign="top" class="acyrightcol">'.$image;
+                $result .= '</td><td valign="middle" style="vertical-align: middle; padding-left: 7px;" class="acyrightcol">'.$image;
             }
             $result .= '</td></tr></table>';
         }
@@ -780,113 +805,6 @@ class PluginHelper extends acymObject
         return acym_absoluteURL($result);
     }
 
-    public function getFormatOption($plugin, $default = 'TOP_LEFT', $singleElement = true, $function = 'updateTag')
-    {
-        $contentformat = [
-            'TOP_LEFT' => '-208',
-            'TOP_RIGHT' => '-260',
-            'TITLE_IMG' => '0',
-            'TITLE_IMG_RIGHT' => '-52',
-            'CENTER_IMG' => '-104',
-            'TOP_IMG' => '-156',
-            'COL_LEFT' => '-312',
-            'COL_RIGHT' => '-364',
-        ];
-
-        $name = $singleElement ? 'contentformat' : 'contentformatauto';
-
-        $result = '<input type="hidden" name="'.$name.'" id="'.$name.'" value="'.$default.'" size="1"/>';
-        $result .= '<span id="'.$name.'button" class="btn acybuttonformat" style="margin: 0px 10px 0px 0px; background-position: '.$contentformat[$default].'px -6px;height:34px;" onclick="togglediv'.$name.'();"></span>';
-        $result .= '<div id="'.$name.'div" class="formatbox" style="display:none;">';
-
-        $reset = '';
-        if (file_exists(ACYM_MEDIA.'plugins')) {
-
-
-
-            $files = acym_getFiles(ACYM_MEDIA.'plugins', '^'.$plugin);
-            foreach ($files as $oneFile) {
-                $reset .= "document.getElementById('".$name.$oneFile."').style.backgroundPosition = '-480px -5px';document.getElementById('".$name.$oneFile."').style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05)';";
-                $result .= '<span id="'.$name.$oneFile.'" class="btn acybuttonformat" style="background-position: -480px -5px;height:34px;" onclick="selectFormat'.$name.'(\''.$oneFile.'\',\''.$oneFile.'\',true);"></span>'.substr(
-                        $oneFile,
-                        0,
-                        strlen($oneFile) - 4
-                    ).'<br/>';
-            }
-            $result .= '<br />';
-        }
-
-        foreach ($contentformat as $value => $position) {
-            $reset .= "document.getElementById('".$name.$value."').style.backgroundPosition = '".$position."px -10px';document.getElementById('".$name.$value."').style.boxShadow = 'inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05)';";
-            $result .= '<span id="'.$name.$value.'" class="btn acybuttonformat" style="background-position: '.$position.'px '.($value == $default ? -64 : -10).'px;" onclick="selectFormat'.$name.'(\''.$value.'\',\''.$position.'\',false);"></span>';
-        }
-
-        $result .= '<br />';
-
-        if (!$singleElement) {
-            $result .= '<br /><input type="hidden" id="'.$name.'invert" value="0"/>';
-            $result .= '<span id="'.$name.'invertbutton" class="btn acybuttonformat" style="background-position:-415px -8px;width:58px;height:30px;" onclick="toggleInvert'.$name.'();"></span>'.acym_tooltip(
-                    'Alternatively display the image on the left and right',
-                    'Alternate',
-                    '',
-                    'Alternate'
-                );
-        }
-
-        $result .= '<span class="btn acyokbutton acybuttonformat" onclick="togglediv'.$name.'();">'.acym_translation('ACY_CLOSE').'</span>';
-        $result .= '</div>';
-        ob_start();
-        ?>
-		<script type="text/javascript">
-            <!--
-            function togglediv<?php echo $name; ?>() {
-                var divelement = document.getElementById('<?php echo $name; ?>div');
-                if (divelement.style.display == 'none') {
-                    divelement.style.display = '';
-                } else {
-                    divelement.style.display = 'none';
-                }
-            }
-            <?php if(!$singleElement){ ?>
-            function toggleInvert<?php echo $name; ?>() {
-                var invertElement = document.getElementById('<?php echo $name; ?>invert');
-                var posy = '8';
-                var shadow = 'inset 0 1px 0 rgba(255,255,255,.2), 0 1px 2px rgba(0,0,0,.05)';
-                if (invertElement.value == 0) {
-                    posy = '60';
-                    shadow = 'inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05)';
-                }
-                invertElement.value = 1 - invertElement.value;
-                document.getElementById('<?php echo $name; ?>invertbutton').style.backgroundPosition = '-415px -' + posy + 'px';
-                document.getElementById('<?php echo $name; ?>invertbutton').style.boxShadow = shadow;
-                <?php echo $function; ?>();
-            }
-            <?php } ?>
-
-            function selectFormat<?php echo $name; ?>(format, position, custom) {
-                <?php echo $reset; ?>
-                var prosy = '64';
-                var newVal = format;
-                if (custom) {
-                    position = '-480';
-                    prosy = '58';
-                    newVal = '<?php echo $default; ?>| template:' + format;
-                }
-                document.getElementById('<?php echo $name; ?>').value = newVal;
-                document.getElementById('<?php echo $name; ?>button').style.backgroundPosition = position + 'px -5px';
-                document.getElementById('<?php echo $name; ?>' + format).style.backgroundPosition = position + 'px -' + prosy + 'px';
-                document.getElementById('<?php echo $name; ?>' + format).style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,.15), 0 1px 2px rgba(0,0,0,.05)';
-                <?php echo $function; ?>();
-            }
-
-            -->
-		</script>
-        <?php
-        $result .= ob_get_clean();
-
-        return $result;
-    }
-
     public function displayOptions($options, $dynamicIdentifier, $type = 'individual', $defaultValues = null)
     {
         $suffix = preg_replace('[^a-zA-Z0-9]', '_', $dynamicIdentifier);
@@ -924,16 +842,34 @@ class PluginHelper extends acymObject
                         ['containerClass' => 'dcontent_pictures'],
                         !acym_isAdmin()
                     ).'</div>';
-                $currentOption .= '<span id="pictsize'.$suffix.'" class="cell grid-x" '.$resizeDisplay.'>
-                                <div class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_DIMENSIONS').'</div>
-                                <div class="cell large-7">'.acym_translation(
-                        'ACYM_WIDTH'
-                    ).' <input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
-                                x '.acym_translation(
-                        'ACYM_HEIGHT'
-                    ).' <input class="intext_input" name="pictheight'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxHeight).'"/>
+                $currentOption .= '<div id="pictsize'.$suffix.'" class="cell grid-x margin-y margin-top-1" '.$resizeDisplay.'>
+                                <div class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_MAX_WIDTH').'</div>
+                                <div class="cell large-7">
+                                	<input class="intext_input" name="pictwidth'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxWidth).'"/>
                             	</div>
-                            </span>';
+                                <div class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_MAX_HEIGHT').'</div>
+                                <div class="cell large-7">
+                    				<input class="intext_input" name="pictheight'.$suffix.'" type="number" onchange="'.$updateFunction.'();" value="'.intval($maxHeight).'"/>
+                            	</div>
+                            </div>';
+                if (!empty($option['caption'])) {
+                    $currentOption .= '<div class="cell grid-x margin-top-1">';
+                    $currentOption .= '<label class="cell large-5 acym_plugin_field">'.acym_translation('ACYM_CAPTION').'</label>';
+                    $currentOption .= acym_radio(
+                        [
+                            acym_selectOption('1', 'ACYM_YES'),
+                            acym_selectOption('0', 'ACYM_NO'),
+                        ],
+                        'caption'.$suffix,
+                        isset($defaultValues->caption) ? $defaultValues->caption : '0',
+                        ['onchange' => $updateFunction.'();'],
+                        ['containerClass' => 'cell large-7']
+                    );
+                    $currentOption .= '</div>';
+
+                    $jsOptionsMerge[] = 'otherinfo += "| caption:" + jQuery(\'input[name="caption'.$suffix.'"]:checked\').val();';
+                }
+
                 $jsOptionsMerge[] = '
                     var _pictVal'.$suffix.' = jQuery(\'input[name="pict'.$suffix.'"]:checked\').val();
                     otherinfo += "| pict:" + _pictVal'.$suffix.';
@@ -1109,6 +1045,50 @@ class PluginHelper extends acymObject
 
             if (!empty($option['main']) || in_array($option['type'], ['pictures', 'checkbox'])) {
                 $outputStructure['topOptions'][$currentLabel] = $currentOption;
+
+                if ($option['type'] === 'checkbox' && $currentLabel === 'ACYM_DISPLAY') {
+                    $formatOption = '<div class="grid-x">';
+                    $formatOption .= '<div class="cell large-3">'.acym_translation('ACYM_FORMAT').'</div>';
+                    $formatOption .= '<div class="cell large-9 dcontentFormatContainer">';
+
+                    $default = empty($defaultValues->format) ? 'TOP_LEFT' : $defaultValues->format;
+                    $formats = ['TOP_LEFT', 'TOP_RIGHT', 'TITLE_IMG', 'TITLE_IMG_RIGHT', 'CENTER_IMG', 'TOP_IMG', 'COL_LEFT', 'COL_RIGHT'];
+                    foreach ($formats as $oneFormat) {
+                        $class = 'button-radio';
+                        if ($default === $oneFormat) $class .= ' button-radio-selected';
+
+                        $formatOption .= '<button 
+											class="'.$class.'" 
+											acym-button-radio-group="dcontentFormat'.$suffix.'" 
+											acym-data-type="'.$oneFormat.'"
+											acym-callback="'.$updateFunction.'">
+											<img alt="'.$oneFormat.'" src="'.ACYM_IMAGES.'dynamics/'.strtolower($oneFormat).'.png"/>
+										</button>';
+                    }
+                    $formatOption .= '</div>';
+
+                    if ($type === 'grouped') {
+                        $formatOption .= '<div class="cell large-3">'.acym_translation('ACYM_ALTERNATE').acym_info('ACYM_ALTERNATE_DESC').'</div>';
+                        $formatOption .= '<div class="cell large-9">';
+                        $formatOption .= acym_boolean(
+                            'alternate'.$suffix,
+                            !empty($defaultValues->alternate),
+                            'alternate'.$suffix,
+                            ['onclick' => $updateFunction.'();']
+                        );
+                        $formatOption .= '</div>';
+
+                        $jsOptionsMerge[] = 'var alternate = jQuery(\'input[name="alternate'.$suffix.'"]:checked\').val();';
+                        $jsOptionsMerge[] = 'if (!acym_helper.empty(alternate)) otherinfo += "| alternate";';
+                    }
+
+                    $formatOption .= '</div>';
+
+                    $jsOptionsMerge[] = 'var selectedFormatOption = jQuery(\'.button-radio-selected[acym-button-radio-group="dcontentFormat'.$suffix.'"]\')';
+                    $jsOptionsMerge[] = 'if (!acym_helper.empty(selectedFormatOption)) otherinfo += "| format:" + selectedFormatOption.attr("acym-data-type");';
+
+                    $outputStructure['topOptions']['ACYM_FORMAT'] = $formatOption;
+                }
                 continue;
             }
 
@@ -1231,7 +1211,7 @@ class PluginHelper extends acymObject
         }
 
         $output .= '
-                    acym_editorWysidDynammic.insertDContent(tag);
+                    acym_editorWysidDynamic.insertDContent(tag);
                 }
                
                 function addAdditionalInfo'.$suffix.'(index, value){

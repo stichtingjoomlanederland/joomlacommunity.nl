@@ -54,27 +54,23 @@ $date->setTimezone($tz);
 				&hellip;
 				{{{ substr($row->path, -100) }}}
 				@else
-					{{{ $path }}}
+					{{{ $row->path }}}
 				@endif
-
-
 			</td>
 			<td>
 				@if($row->newfile)
-				<span class="admintools-scanfile-new {{ $row->threat_score ? '' : 'admintools-scanfile-nothreat' }}">
+					<span class="admintools-scanfile-new {{ $row->threat_score ? '' : 'admintools-scanfile-nothreat' }}">
 					@lang('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS_NEW')
 				</span>
 				@elseif($row->suspicious)
-				<span class="admintools-scanfile-suspicious {{ $row->threat_score ? '' : 'admintools-scanfile-nothreat' }}">
+					<span class="admintools-scanfile-suspicious {{ $row->threat_score ? '' : 'admintools-scanfile-nothreat' }}">
 					@lang('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS_SUSPICIOUS')
 				</span>
 				@else
-				<span class="admintools-scanfile-modified {{ $row->threat_score ? '' : 'admintools-scanfile-nothreat' }}">
+					<span class="admintools-scanfile-modified {{ $row->threat_score ? '' : 'admintools-scanfile-nothreat' }}">
 					@lang('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS_MODIFIED')
 				</span>
 				@endif
-
-				@lang('COM_ADMINTOOLS_LBL_SCANALERTS_STATUS_' . $fstatus)
 			</td>
 			<td>
 				<?php

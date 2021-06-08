@@ -498,9 +498,9 @@ rseventsproMapHelper::loadMap($mapParams);
 	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LIST_SPONSORS'); ?></h3>
 	<?php $schunks = array_chunk($sponsors, 4); ?>
 	<?php foreach ($schunks as $sponsors) { ?>
-	<ul class="thumbnails rsepro-sponsors clearfix">
+	<ul class="thumbnails rsepro-sponsors list-inline d-flex clearfix">
 	<?php foreach($sponsors as $sponsor) { ?>
-		<li class="<?php echo RSEventsproAdapterGrid::column(3); ?>">
+		<li class="<?php echo RSEventsproAdapterGrid::column(3); ?> list-inline-item">
 			<div class="thumbnail center">
 				<?php if ($sponsor->url) { ?><a href="<?php echo $sponsor->url; ?>" target="_blank"><?php } ?>
 				<?php if ($sponsor->image) { ?>
@@ -521,9 +521,9 @@ rseventsproMapHelper::loadMap($mapParams);
 	<!-- Speakers -->
 	<h3><?php echo JText::_('COM_RSEVENTSPRO_EVENT_LIST_SPEAKERS'); ?></h3>
 	<?php foreach ($chunks as $speakers) { ?>
-	<ul class="thumbnails rsepro-speakers clearfix">
+	<ul class="thumbnails rsepro-speakers list-inline d-flex clearfix">
 	<?php foreach($speakers as $speaker) { ?>
-		<li class="<?php echo RSEventsproAdapterGrid::column(3); ?>">
+		<li class="<?php echo RSEventsproAdapterGrid::column(3); ?> list-inline-item">
 			<div class="thumbnail">
 				<?php if ($speaker->image) { ?>
 				<img class="rsepro-speaker-image" src="<?php echo JUri::root(); ?>components/com_rseventspro/assets/images/speakers/<?php echo $speaker->image; ?>" alt="<?php echo $speaker->name; ?>" width="<?php echo rseventsproHelper::getConfig('speaker_icon_width', 'int', 100); ?>" height="<?php echo rseventsproHelper::getConfig('speaker_icon_height', 'int', 150); ?>" />
@@ -575,6 +575,15 @@ rseventsproMapHelper::loadMap($mapParams);
 								<i class="fa fa-linkedin"></i>
 							</a>
 						</li>
+						<?php } ?>
+						<?php if ($speaker->custom) { ?>
+						<?php foreach ($speaker->custom as $custom) { ?>
+						<li>
+							<a href="<?php echo $custom['link']; ?>" target="_blank">
+								<i class="<?php echo $custom['class']; ?>"></i>
+							</a>
+						</li>
+						<?php } ?>
 						<?php } ?>
 						<li></li>
 					</ul>

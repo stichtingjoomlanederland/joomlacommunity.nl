@@ -168,7 +168,14 @@ class QueueClass extends acymClass
         }
 
         if (!empty($settings['search'])) {
-            $filters[] = 'mail.subject LIKE '.acym_escapeDB('%'.$settings['search'].'%').' OR mail.name LIKE '.acym_escapeDB('%'.$settings['search'].'%');
+            $searchColumns = [
+                'user.email',
+                'user.name',
+                'mail.subject',
+                'mail.name',
+            ];
+
+            $filters[] = implode(' LIKE '.acym_escapeDB('%'.$settings['search'].'%').' OR ', $searchColumns).' LIKE '.acym_escapeDB('%'.$settings['search'].'%');
         }
 
         if (!empty($filters)) {
@@ -220,7 +227,7 @@ class QueueClass extends acymClass
 
         foreach ($mailReady as $mailid => $mail) {
             $nbQueue[$mailid] = $this->queue($mail);
-            $this->messages[] = acym_translationSprintf('ACYM_ADDED_QUEUE_SCHEDULE', $nbQueue, '<b>'.$mail->name.'</b>');
+            $this->messages[] = acym_translationSprintf('ACYM_ADDED_QUEUE_SCHEDULE', $nbQueue[$mailid], '<b>'.$mail->name.'</b>');
         }
 
         $mailIds = array_keys($mailReady);
@@ -391,52 +398,77 @@ class QueueClass extends acymClass
         );
     }
 
-    public function queue($mail)
+    public function getMailReceivers($mail, $onlyNew = null)
     {
+        if (empty($mail->sending_params)) {
+            $sendingParams = [];
+            $mail->filters = [];
+        } else {
+            $sendingParams = is_array($mail->sending_params) ? $mail->sending_params : json_decode($mail->sending_params, true);
 
-        $campaignClass = new CampaignClass();
-        $mail->filters = empty($mail->sending_params) ? [] : $campaignClass->getFilterCampaign(json_decode($mail->sending_params, true));
-
-        $priority = $this->config->get('priority_newsletter', 3);
-
-        $where = $mail->id == $mail->parent_id ? ' OR user.language = "" OR (user.language != "" AND user.language != childmail.language)' : '';
+            $campaignClass = new CampaignClass();
+            $mail->filters = $campaignClass->getFilterCampaign($sendingParams);
+        }
 
         $automationHelper = new AutomationHelper();
         $automationHelper->join['userlist'] = ' #__acym_user_has_list AS userlist ON user.id = userlist.user_id';
         $automationHelper->join['maillist'] = ' #__acym_mail_has_list AS maillist ON userlist.list_id = maillist.list_id';
         $automationHelper->where = [
             'userlist.status = 1',
-            'maillist.mail_id = '.intval($mail->parent_id),
+            'maillist.mail_id = '.intval(empty($mail->parent_id) ? $mail->id : $mail->parent_id),
         ];
 
-        if (acym_isMultilingual()) $automationHelper->where[] = ' (user.language = '.acym_escapeDB($mail->language).' '.$where.')';
+        if ($onlyNew === null && acym_isMultilingual()) {
+            $where = $mail->id == $mail->parent_id ? ' OR user.language = "" OR (user.language != "" AND user.language != childmail.language)' : '';
+            $automationHelper->where[] = ' (user.language = '.acym_escapeDB($mail->language).' '.$where.')';
+        }
 
-        if ($this->config->get('require_confirmation', 1) == 1) $automationHelper->where[] = '`user`.`confirmed` = 1';
+        if ($this->config->get('require_confirmation', 1) == 1) {
+            $automationHelper->where[] = '`user`.`confirmed` = 1';
+        }
 
-        if ($mail->id == $mail->parent_id) $automationHelper->leftjoin['childmail'] = ' #__acym_mail AS childmail ON childmail.parent_id = '.$mail->id;
+        if ($mail->id == $mail->parent_id) {
+            $automationHelper->leftjoin['childmail'] = ' #__acym_mail AS childmail ON childmail.parent_id = '.$mail->id;
+        }
 
+        if ((is_null($onlyNew) && !empty($sendingParams['resendTarget']) && 'new' === $sendingParams['resendTarget']) || $onlyNew) {
+            $automationHelper->leftjoin['us'] = '`#__acym_user_stat` AS `us` ON `us`.`user_id` = `user`.`id` AND `us`.`mail_id` = '.intval($mail->id);
+            $automationHelper->where[] = '`us`.`user_id` IS NULL';
+        }
 
         $segmentsController = new SegmentsController();
-        $automationHelper->removeFlag($segmentsController::FLAG_USERS);
+        $automationHelper->removeFlag();
 
-        foreach ($mail->filters as $or => $orValues) {
-            $automationHelperClone = clone $automationHelper;
-            foreach ($orValues as $and => $andValues) {
-                $and = intval($and);
-                foreach ($andValues as $filterName => $options) {
-                    acym_trigger('onAcymProcessFilter_'.$filterName, [&$automationHelper, &$options, &$and]);
+        if (empty($mail->filters)) {
+            $automationHelper->addFlag($segmentsController::FLAG_USERS, true);
+        } else {
+            foreach ($mail->filters as $or => $orValues) {
+                $automationHelperClone = clone $automationHelper;
+                foreach ($orValues as $and => $andValues) {
+                    $and = intval($and);
+                    foreach ($andValues as $filterName => $options) {
+                        acym_trigger('onAcymProcessFilter_'.$filterName, [&$automationHelperClone, &$options, &$and]);
+                    }
                 }
+
+                $automationHelperClone->addFlag($segmentsController::FLAG_USERS);
             }
-            $automationHelperClone->addFlag($segmentsController::FLAG_USERS, true);
         }
 
         $automationHelper->where[] = 'user.automation LIKE "%a'.intval($segmentsController::FLAG_USERS).'a%"';
 
-        $select = [intval($mail->id), 'userlist.user_id', acym_escapeDB($mail->sending_date), intval($priority), '0'];
+        return $automationHelper;
+    }
 
+    public function queue($mail)
+    {
+        $automationHelper = $this->getMailReceivers($mail);
+
+        $priority = $this->config->get('priority_newsletter', 3);
+        $select = [intval($mail->id), 'userlist.user_id', acym_escapeDB($mail->sending_date), intval($priority), '0'];
         $inserted = acym_query('INSERT IGNORE INTO #__acym_queue '.$automationHelper->getQuery($select));
 
-        $automationHelper->removeFlag($segmentsController::FLAG_USERS);
+        $automationHelper->removeFlag();
 
         return $inserted;
     }

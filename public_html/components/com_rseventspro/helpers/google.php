@@ -133,13 +133,14 @@ class RSEPROGoogle
 	}
 	
 	public function parse() {
-		$db		= JFactory::getDBO();
-		$query	= $db->getQuery(true);
-		$user	= JFactory::getUser();
-		$events	= $this->getEvents();
-		$jform	= JFactory::getApplication()->input->get('jform',array(),'array');
-		$idcat	= isset($jform['google_category']) ? $jform['google_category'] : rseventsproHelper::getConfig('google_category','int');
-		$expired= isset($jform['google_expired']) ? $jform['google_expired'] : rseventsproHelper::getConfig('google_expired','int', 1);
+		$db			= JFactory::getDBO();
+		$query		= $db->getQuery(true);
+		$user		= JFactory::getUser();
+		$jform		= JFactory::getApplication()->input->get('jform',array(),'array');
+		$idcat		= isset($jform['google_category']) ? $jform['google_category'] : rseventsproHelper::getConfig('google_category','int');
+		$expired	= isset($jform['google_expired']) ? $jform['google_expired'] : rseventsproHelper::getConfig('google_expired','int', 1);
+		$recurring	= isset($jform['google_recurrence']) ? $jform['google_recurrence'] : rseventsproHelper::getConfig('google_recurrence','int', 0);
+		$events		= $this->getEvents($expired, $recurring);
 		
 		$now	= new DateTime();
 		$now->setTimezone(new DateTimeZone('UTC'));
@@ -305,7 +306,7 @@ class RSEPROGoogle
 	*	Get and parse events
 	*/
 	
-	protected function getEvents() {
+	protected function getEvents($expired, $isrecurring) {
 		$eventList	= array();
 		$return		= array();
 		
@@ -414,8 +415,30 @@ class RSEPROGoogle
 				
 				$event->allday = $allday;
 				
-				if (isset($item->recurrence)) {
-					$recurrenceRules = $item->recurrence[0];
+				if (!$expired) {
+					$endDate = $event->allday ? $event->start : $event->end;
+					$endDate = new DateTime($endDate, new DateTimeZone($event->timezone));
+					$endDate->setTimezone(new DateTimeZone('UTC'));
+					
+					$now	= new DateTime();
+					$now->setTimezone(new DateTimeZone('UTC'));
+					
+					if ($now > $endDate) {
+						continue;
+					}
+				}
+				
+				if (isset($item->recurrence) && $isrecurring) {
+					$selector = '0';
+					if (is_array($item->recurrence)) {
+						foreach($item->recurrence as $i => $option) {
+							if (strpos($option, 'RRULE') !== false) {
+								$selector = $i;
+							}
+						}
+					}
+					
+					$recurrenceRules = $item->recurrence[$selector];
 					$recurrenceRules = str_replace('RRULE:','', $recurrenceRules);
 					if ($recurrenceRules = explode(';', $recurrenceRules)) {
 						$rule = new stdClass();

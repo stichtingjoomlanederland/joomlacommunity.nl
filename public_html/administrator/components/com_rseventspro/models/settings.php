@@ -102,7 +102,7 @@ class RseventsproModelSettings extends JModelAdmin
 	public function getLayouts() {
 		$fields = array('general', 'dashboard', 'events', 'emails', 'maps', 'captcha', 'payments', 'sync', 'integrations');
 		
-		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/helpers/integration.php'))
+		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/rsmediagallery.php'))
 			$fields[] = 'gallery';
 		
 		if (rseventsproHelper::pdf('1.18'))
@@ -224,7 +224,7 @@ class RseventsproModelSettings extends JModelAdmin
 		}
 		
 		// Save gallery params
-		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/helpers/integration.php')) {
+		if (file_exists(JPATH_ADMINISTRATOR.'/components/com_rsmediagallery/rsmediagallery.php')) {
 			$gallery = isset($data['gallery']) ? $data['gallery'] : array();
 			if (!empty($gallery)) {
 				if (is_array($gallery['thumb_resolution']))

@@ -284,7 +284,6 @@ class Gateway
 			->select($db->quoteName('id', 'profile_id'))
 			->from($db->quoteName('#__jdidealgateway_profiles'));
 
-		// See if we need to load a specific alias
 		if (null !== $profileAlias)
 		{
 			$query->where($db->quoteName('alias') . ' = ' . $db->quote($profileAlias));
@@ -470,6 +469,7 @@ class Gateway
 		$db    = Factory::getDbo();
 		$pid   = UserHelper::genRandomPassword(50);
 		$date  = HTMLHelper::_('date', 'now', 'Y-m-d H:i:s', false);
+		$userId = Factory::getUser()->id;
 		$query = $db->getQuery(true);
 		$query->insert('#__jdidealgateway_logs')
 			->columns(
@@ -490,6 +490,7 @@ class Gateway
 						'language',
 						'pid',
 						'date_added',
+						'user_id'
 					]
 				)
 			)
@@ -508,7 +509,8 @@ class Gateway
 				$db->quote($transactionId) . ', ' .
 				$db->quote($language) . ', ' .
 				$db->quote($pid) . ', ' .
-				$db->quote($date)
+				$db->quote($date) . ', ' .
+				$db->quote($userId)
 			);
 		$db->setQuery($query)->execute();
 

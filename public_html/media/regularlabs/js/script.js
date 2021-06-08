@@ -1,9 +1,9 @@
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -12,11 +12,11 @@
 
 if (typeof window.RegularLabsScripts === 'undefined'
 	|| typeof RegularLabsScripts.version === 'undefined'
-	|| RegularLabsScripts.version < '21.2.23991') {
+	|| RegularLabsScripts.version < '21.6.1331') {
 
 	(function($) {
 		window.RegularLabsScripts = {
-			version: '21.2.23991',
+			version: '21.6.1331',
 
 			ajax_list        : [],
 			started_ajax_list: false,
@@ -69,13 +69,13 @@ if (typeof window.RegularLabsScripts === 'undefined'
 			},
 
 			displayVersion: function(data, extension, version) {
-				if (!data) {
+				if ( ! data) {
 					return;
 				}
 
 				const xml = this.getObjectFromXML(data);
 
-				if (!xml) {
+				if ( ! xml) {
 					return;
 				}
 
@@ -85,7 +85,7 @@ if (typeof window.RegularLabsScripts === 'undefined'
 
 				const dat = xml[extension];
 
-				if (!dat || typeof dat.version === 'undefined' || !dat.version) {
+				if ( ! dat || typeof dat.version === 'undefined' || ! dat.version) {
 					return;
 				}
 
@@ -128,7 +128,7 @@ if (typeof window.RegularLabsScripts === 'undefined'
 			addToAjaxList: function(action) {
 				this.ajax_list.push(action);
 
-				if (!this.started_ajax_list) {
+				if ( ! this.started_ajax_list) {
 					this.ajaxRun();
 				}
 			},
@@ -138,7 +138,7 @@ if (typeof window.RegularLabsScripts === 'undefined'
 					RegularLabsToggler.initialize();
 				}
 
-				if (!this.ajax_list.length) {
+				if ( ! this.ajax_list.length) {
 					return;
 				}
 
@@ -150,7 +150,7 @@ if (typeof window.RegularLabsScripts === 'undefined'
 
 				eval(`${action};`);
 
-				if (!this.ajax_list.length) {
+				if ( ! this.ajax_list.length) {
 					return;
 				}
 
@@ -190,7 +190,7 @@ if (typeof window.RegularLabsScripts === 'undefined'
 			},
 
 			getObjectFromXML: function(xml) {
-				if (!xml) {
+				if ( ! xml) {
 					return;
 				}
 
@@ -242,11 +242,11 @@ if (typeof window.RegularLabsScripts === 'undefined'
 				}
 
 				// numbers are same, so compare trailing letters
-				if (letter2 && (!letter1 || letter1 > letter2)) {
+				if (letter2 && ( ! letter1 || letter1 > letter2)) {
 					return '>';
 				}
 
-				if (letter1 && (!letter2 || letter1 < letter2)) {
+				if (letter1 && ( ! letter2 || letter1 < letter2)) {
 					return '<';
 				}
 
@@ -256,13 +256,13 @@ if (typeof window.RegularLabsScripts === 'undefined'
 			getEditorSelection: function(editorID) {
 				const editor_textarea = document.getElementById(editorID);
 
-				if (!editor_textarea) {
+				if ( ! editor_textarea) {
 					return '';
 				}
 
 				const editorIFrame = editor_textarea.parentNode.querySelector('iframe');
 
-				if (!editorIFrame) {
+				if ( ! editorIFrame) {
 					return '';
 				}
 

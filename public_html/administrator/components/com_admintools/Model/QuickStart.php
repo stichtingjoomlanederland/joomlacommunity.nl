@@ -141,8 +141,9 @@ class QuickStart extends Model
 	 */
 	private function applyAdministratorPassword()
 	{
-		$this->adminPasswordModel->username = $this->getState('admin_username', '');
-		$this->adminPasswordModel->password = $this->getState('admin_password', '');
+		$this->adminPasswordModel->username        = $this->getState('admin_username', '');
+		$this->adminPasswordModel->password        = $this->getState('admin_password', '');
+		$this->adminPasswordModel->resetErrorPages = true;
 
 		if (empty($this->adminPasswordModel->username) || empty($this->adminPasswordModel->password))
 		{

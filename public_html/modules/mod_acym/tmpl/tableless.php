@@ -52,7 +52,7 @@ if ($listPosition == 'before') echo $listsContent;
 
     if ($listPosition != 'before') echo $listsContent;
 
-    if (empty($identifiedUser->id) && $config->get('captcha', '') == 1) {
+    if (empty($identifiedUser->id) && $config->get('captcha', 'none') !== 'none') {
         echo '<div class="onefield fieldacycaptcha" id="field_captcha_'.$formName.'">';
         $captcha = new CaptchaHelper();
         echo $captcha->display($formName, $params->get('includejs') == 'module');

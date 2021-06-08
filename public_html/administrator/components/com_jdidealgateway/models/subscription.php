@@ -10,9 +10,12 @@
 
 use Jdideal\Gateway;
 use Jdideal\Recurring\Mollie;
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\Factory;
+use Joomla\CMS\Language\Text;
 use Joomla\CMS\MVC\Model\AdminModel;
 use Joomla\CMS\MVC\Model\BaseDatabaseModel;
+use Joomla\CMS\Object\CMSObject;
 
 defined('_JEXEC') or die;
 
@@ -36,7 +39,80 @@ class JdidealgatewayModelSubscription extends AdminModel
 	 */
 	public function getForm($data = array(), $loadData = true)
 	{
-		return false;
+		$form = $this->loadForm(
+			'com_jdidealgateway.subscription',
+			'subscription',
+			['control' => 'jform', 'load_data' => $loadData]
+		);
+
+		if (!is_object($form))
+		{
+			return false;
+		}
+
+		return $form;
+	}
+
+	/**
+	 * Sync the subscriptions.
+	 *
+	 * @return  void
+	 *
+	 * @since   6.3.0
+	 * @throws  Exception
+	 */
+	public function sync(): void
+	{
+		/** @var JdidealgatewayModelProfiles $profilesModel */
+		$profilesModel = BaseDatabaseModel::getInstance('Profiles', 'JdidealgatewayModel', ['ignore_request' => true]);
+		$profiles      = $profilesModel->getItems();
+
+		foreach ($profiles as $profile)
+		{
+			$jdideal = new Gateway($profile->alias);
+
+			if ((bool) $jdideal->get('recurring', false) === false)
+			{
+				continue;
+			}
+
+			$mollie = new Mollie;
+			$mollie->setProfileId($jdideal->getProfileId());
+			$mollie->setApiKey($jdideal->get('profile_key'));
+			$mollie->syncAllSubscriptions();
+		}
+	}
+
+	/**
+	 * Cancel the user subscription.
+	 *
+	 * @param   string  $subscriptionId  The subscription ID to cancel
+	 *
+	 * @return  void
+	 *
+	 * @since   6.4.0
+	 * @throws  Exception
+	 */
+	public function cancelSubscription(string $subscriptionId): void
+	{
+		BaseDatabaseModel::addIncludePath(
+			JPATH_ADMINISTRATOR . '/components/com_jdidealgateway/models'
+		);
+
+		/** @var JdidealgatewayModelSubscriptions $subscriptionsModel */
+		$subscriptionsModel = BaseDatabaseModel::getInstance(
+			'Subscriptions', 'JdidealgatewayModel', ['ignore_request' => true]
+		);
+		$subscriptionsModel->setState(
+			'filter.subscriptionId', $subscriptionId
+		);
+		$subscriptions = $subscriptionsModel->getItems();
+
+		foreach ($subscriptions as $subscription)
+		{
+			$pks = [$subscription->id];
+			$this->delete($pks);
+		}
 	}
 
 	/**
@@ -48,7 +124,6 @@ class JdidealgatewayModelSubscription extends AdminModel
 	 *
 	 * @since   5.0.0
 	 * @throws  Exception
-	 *
 	 */
 	public function delete(&$pks)
 	{
@@ -58,21 +133,23 @@ class JdidealgatewayModelSubscription extends AdminModel
 			$query = $db->getQuery(true)
 				->select(
 					$db->quoteName(
-						array(
+						[
 							'subscriptions.subscriptionId',
 							'subscriptions.profileId',
-							'customers.email'
-						)
+							'customers.email',
+						]
 					)
 				)
 				->from($db->quoteName('#__jdidealgateway_subscriptions', 'subscriptions'))
 				->leftJoin(
 					$db->quoteName('#__jdidealgateway_customers', 'customers')
-					. ' ON ' . $db->quoteName('customers.id') . ' = ' . $db->quoteName('subscriptions.customerId')
+					. ' ON ' . $db->quoteName('customers.customerId') . ' = ' . $db->quoteName(
+						'subscriptions.customerId'
+					)
 				);
 
 			// Keep track of loded profiles
-			$loaded = array();
+			$loaded = [];
 
 			// Go through the items to cancel
 			foreach ($pks as $index => $pk)
@@ -108,6 +185,16 @@ class JdidealgatewayModelSubscription extends AdminModel
 
 				// Cancel the subscription
 				$mollie->cancelSubscription($subscription->email, $subscription->subscriptionId);
+
+				if (JVERSION < 4)
+				{
+					$dispatcher = JEventDispatcher::getInstance();
+					$dispatcher->trigger('onCancelSubscriptionComplete', [$subscription]);
+				}
+				else
+				{
+					Factory::getApplication()->triggerEvent('onCancelSubscriptionComplete', [$subscription]);
+				}
 			}
 
 			return true;
@@ -121,32 +208,114 @@ class JdidealgatewayModelSubscription extends AdminModel
 	}
 
 	/**
-	 * Sync the subscriptions.
+	 * Method to save the form data.
 	 *
-	 * @return  void
+	 * @param   array  $data  The form data.
 	 *
-	 * @since   6.3.0
+	 * @return  boolean  True on success, False on error.
+	 *
+	 * @since   6.4.0
+	 */
+	public function save($data)
+	{
+		if (parent::save($data) === false)
+		{
+			return false;
+		}
+
+		$table = $this->getTable();
+		$table->load($this->getState($this->getName() . '.id'));
+		$mollie                         = $this->getMollieClient($table->get('profileId'));
+		$subscription                   = $mollie->getSubscription(
+			$table->get('customerId'), $table->get('subscriptionId')
+		);
+		$subscription->description      = $data['description'];
+		$subscription->amount->value    = $data['amount'];
+		$subscription->amount->currency = $data['currency'];
+		$subscription->interval         = $data['interval'];
+		$subscription->times            = $data['times'];
+		$subscription->metadata         = $data['metadata'];
+		$subscription->webhookUrl       = $data['webhookUrl'];
+		$subscription->startDate        = (new Date($data['startDate']))->format('Y-m-d');
+
+		$subscription->update();
+
+		return true;
+	}
+
+	/**
+	 * Load Mollie client.
+	 *
+	 * @param   int  $profileId  The profile ID
+	 *
+	 * @return  Mollie  The Mollie client.
+	 *
+	 * @since   6.4.0
 	 * @throws  Exception
 	 */
-	public function sync(): void
+	private function getMollieClient(int $profileId): Mollie
 	{
-		/** @var JdidealgatewayModelProfiles $profilesModel */
-		$profilesModel = BaseDatabaseModel::getInstance('Profiles', 'JdidealgatewayModel', ['ignore_request' => true]);
-		$profiles      = $profilesModel->getItems();
+		$profileTable = $this->getTable('Profile', 'Table');
+		$profileTable->load($profileId);
+		$jdideal = new Gateway($profileTable->get('alias'));
+		$mollie  = new Mollie;
+		$mollie->setProfileId($jdideal->getProfileId());
+		$mollie->setApiKey($jdideal->get('profile_key'));
 
-		foreach ($profiles as $profile)
+		return $mollie;
+	}
+
+	/**
+	 * Method to get the data that should be injected in the form.
+	 *
+	 * @return  array  The default data is an empty array.
+	 *
+	 * @since   6.4.0
+	 * @throws  Exception
+	 */
+	protected function loadFormData()
+	{
+		$data = Factory::getApplication()->getUserState('com_jdidealgateway.edit.subscription.data', []);
+
+		if (0 === count($data))
 		{
-			$jdideal = new Gateway($profile->alias);
-
-			if ($jdideal->get('recurring', false) === false)
-			{
-				continue;
-			}
-
-			$mollie = new Mollie;
-			$mollie->setProfileId($jdideal->getProfileId());
-			$mollie->setApiKey($jdideal->get('profile_key'));
-			$mollie->syncAllSubscriptions();
+			$data = $this->getItem();
 		}
+
+		return $data;
+	}
+
+	/**
+	 * Method to get a single record.
+	 *
+	 * @param   integer  $pk  The id of the primary key.
+	 *
+	 * @return  CMSObject|boolean  Object on success, false on failure.
+	 *
+	 * @since   6.4.0
+	 * @throws  Exception
+	 */
+	public function getItem($pk = null)
+	{
+		$item         = parent::getItem($pk);
+		$mollie       = $this->getMollieClient($item->get('profileId'));
+		$subscription = $mollie->getSubscription($item->get('customerId'), $item->get('subscriptionId'));
+
+		$item->set('webhookUrl', $subscription->webhookUrl);
+		$item->set('createdAt', (new Date($subscription->createdAt))->format(Text::_('DATE_FORMAT_LC6')));
+		$item->set('method', $subscription->method);
+		$item->set('status', $subscription->status);
+		$item->set('amount', $subscription->amount->value);
+		$item->set('currency', $subscription->amount->currency);
+		$item->set('description', $subscription->description);
+		$item->set('interval', $subscription->interval);
+		$item->set('mandateId', $subscription->mandateId);
+		$item->set('metadata', $subscription->metadata);
+		$item->set('times', $subscription->times);
+		$item->set('startDate', (new Date($subscription->startDate))->format('Y-m-d'));
+		$item->set('timesRemaining', $subscription->timesRemaining);
+		$item->set('nextPaymentDate', (new Date($subscription->nextPaymentDate))->format(Text::_('DATE_FORMAT_LC4')));
+
+		return $item;
 	}
 }

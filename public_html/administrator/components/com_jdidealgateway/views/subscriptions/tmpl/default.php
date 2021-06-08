@@ -15,6 +15,7 @@ use Joomla\CMS\Factory;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
+use Joomla\CMS\Router\Route;
 
 /** @var JdidealgatewayViewStatuses $this */
 
@@ -70,11 +71,23 @@ $db            = Factory::getDbo();
 				<tbody>
 	                <?php if ($this->items) : ?>
 					<?php foreach ($this->items as $i => $item) : ?>
+			                <?php
+			                    $canEdit = $this->canDo->get('core.edit') && $item->status === 'active';
+			                ?>
 							<tr>
 								<td>
-									<?php echo HTMLHelper::_('grid.checkedout',  $item, $i, 'id'); ?>
+									<?php if ($canEdit) : ?>
+										<?php echo HTMLHelper::_('grid.id', $i, $item->id); ?>
+									<?php endif; ?>
 								</td>
-								<td><?php echo $item->name; ?></td>
+								<td>
+									<?php if ($canEdit) : ?>
+										<a href="<?php echo Route::_('index.php?option=com_jdidealgateway&task=subscription.edit&id=' . (int) $item->id); ?>" title="<?php echo Text::sprintf('COM_ROPAYMENTS_EDIT_SUBSCRIPTION', $this->escape($item->name)); ?>">
+											<?php echo $this->escape($item->name); ?></a>
+									<?php else : ?>
+										<?php echo $this->escape($item->name); ?>
+									<?php endif; ?>
+								</td>
 								<td><?php echo $item->status; ?></td>
 								<td><?php echo $item->currency; ?></td>
 								<td><?php echo $item->amount; ?></td>

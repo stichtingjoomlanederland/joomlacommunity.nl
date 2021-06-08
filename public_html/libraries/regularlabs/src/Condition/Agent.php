@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -13,6 +13,7 @@ namespace RegularLabs\Library\Condition;
 
 defined('_JEXEC') or die;
 
+use RegularLabs\Library\Condition;
 use RegularLabs\Library\MobileDetect;
 use RegularLabs\Library\RegEx;
 
@@ -20,19 +21,18 @@ use RegularLabs\Library\RegEx;
  * Class Agent
  * @package RegularLabs\Library\Condition
  */
-abstract class Agent
-	extends \RegularLabs\Library\Condition
+abstract class Agent extends Condition
 {
 	var $agent     = null;
 	var $device    = null;
 	var $is_mobile = false;
 
 	/**
-	 * isPhone
+	 * isDesktop
 	 */
-	public function isPhone()
+	public function isDesktop()
 	{
-		return $this->isMobile();
+		return $this->getDevice() == 'desktop';
 	}
 
 	/**
@@ -44,19 +44,19 @@ abstract class Agent
 	}
 
 	/**
+	 * isPhone
+	 */
+	public function isPhone()
+	{
+		return $this->isMobile();
+	}
+
+	/**
 	 * isTablet
 	 */
 	public function isTablet()
 	{
 		return $this->getDevice() == 'tablet';
-	}
-
-	/**
-	 * isDesktop
-	 */
-	public function isDesktop()
-	{
-		return $this->getDevice() == 'desktop';
 	}
 
 	/**
@@ -79,37 +79,6 @@ abstract class Agent
 		$browser = str_replace('\.]', '\._]', $browser);
 
 		return RegEx::match($browser, $this->getAgent(), $match, 'i');
-	}
-
-	/**
-	 * setDevice
-	 */
-	private function getDevice()
-	{
-		if ( ! is_null($this->device))
-		{
-			return $this->device;
-		}
-
-		$detect = new MobileDetect;
-
-		$this->is_mobile = $detect->isMobile();
-
-		switch (true)
-		{
-			case($detect->isTablet()):
-				$this->device = 'tablet';
-				break;
-
-			case ($detect->isMobile()):
-				$this->device = 'mobile';
-				break;
-
-			default:
-				$this->device = 'desktop';
-		}
-
-		return $this->device;
 	}
 
 	/**
@@ -147,5 +116,36 @@ abstract class Agent
 		$this->agent = $agent;
 
 		return $this->agent;
+	}
+
+	/**
+	 * setDevice
+	 */
+	private function getDevice()
+	{
+		if ( ! is_null($this->device))
+		{
+			return $this->device;
+		}
+
+		$detect = new MobileDetect;
+
+		$this->is_mobile = $detect->isMobile();
+
+		switch (true)
+		{
+			case($detect->isTablet()):
+				$this->device = 'tablet';
+				break;
+
+			case ($detect->isMobile()):
+				$this->device = 'mobile';
+				break;
+
+			default:
+				$this->device = 'desktop';
+		}
+
+		return $this->device;
 	}
 }

@@ -49,11 +49,11 @@ if (!empty($data['translation_languages'])) {
 		<div class="cell small-6">
             <?php echo acym_translation('ACYM_DATE_CREATED'); ?> : <b><?php echo acym_date(
                     empty($data['listInformation']->id) ? time() : $data['listInformation']->creation_date,
-                    'M. j, Y'
+                    'ACYM_DATE_FORMAT_LC3'
                 ); ?></b>
 		</div>
 	</div>
-<?php if (acym_level(2) && ACYM_CMS === 'joomla') { ?>
+<?php if (acym_level(ACYM_ENTERPRISE) && ACYM_CMS === 'joomla') { ?>
 	<div class="cell grid-x">
 		<div class="cell grid-x">
 			<label class="cell">

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -14,14 +14,14 @@ namespace RegularLabs\Library\Condition;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory as JFactory;
+use RegularLabs\Library\Condition;
 use RegularLabs\Library\Document as RL_Document;
 
 /**
  * Class Menu
  * @package RegularLabs\Library\Condition
  */
-class Menu
-	extends \RegularLabs\Library\Condition
+class Menu extends Condition
 {
 	public function pass()
 	{
@@ -88,7 +88,7 @@ class Menu
 		{
 			$menu = JFactory::getApplication()->getMenu()->getItem((int) $this->request->Itemid);
 
-			$this->request->menutype = isset($menu->menutype) ? $menu->menutype : '';
+			$this->request->menutype = $menu->menutype ?? '';
 
 			return $this->request->menutype;
 		}

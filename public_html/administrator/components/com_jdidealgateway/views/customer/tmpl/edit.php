@@ -37,6 +37,8 @@ HTMLHelper::_('formbehavior.chosen');
 		<th><?php echo Text::_('COM_ROPAYMENTS_MANDATE_NAME'); ?></th>
 		<th><?php echo Text::_('COM_ROPAYMENTS_MANDATE_ACCOUNT'); ?></th>
 		<th><?php echo Text::_('COM_ROPAYMENTS_MANDATE_BIC'); ?></th>
+		<th><?php echo Text::_('COM_ROPAYMENTS_MANDATE_CARDLABEL'); ?></th>
+		<th><?php echo Text::_('COM_ROPAYMENTS_MANDATE_CARD_EXPIRYDATE'); ?></th>
 	</tr>
 	</thead>
     <tbody>
@@ -47,9 +49,19 @@ HTMLHelper::_('formbehavior.chosen');
 			<td><?php echo $mandate->status; ?></td>
 			<td><?php echo $mandate->method; ?></td>
 			<td><?php echo HTMLHelper::_('date', $mandate->signatureDate, Text::_('DATE_FORMAT_LC6')); ?></td>
-			<td><?php echo $mandate->details->consumerName ?? ''; ?></td>
-			<td><?php echo $mandate->details->consumerAccount ?? ''; ?></td>
-			<td><?php echo $mandate->details->consumerBic ?? ''; ?></td>
+			<?php if ($mandate->method === 'creditcard') : ?>
+				<td><?php echo $mandate->details->cardHolder ?? ''; ?></td>
+				<td>**** **** **** <?php echo $mandate->details->cardNumber ?? ''; ?></td>
+				<td></td>
+				<td><?php echo $mandate->details->cardLabel ?? ''; ?></td>
+				<td><?php echo $mandate->details->cardExpiryDate ?? ''; ?></td>
+			<?php else : ?>
+				<td><?php echo $mandate->details->consumerName ?? ''; ?></td>
+				<td><?php echo $mandate->details->consumerAccount ?? ''; ?></td>
+				<td><?php echo $mandate->details->consumerBic ?? ''; ?></td>
+				<td></td>
+				<td></td>
+			<?php endif; ?>
 		</tr>
 	<?php endforeach; ?>
     </tbody>

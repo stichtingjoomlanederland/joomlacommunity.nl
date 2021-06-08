@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,16 +20,22 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 // If controller.php exists, assume this is K2 v3
 defined('RL_K2_VERSION') or define('RL_K2_VERSION', file_exists(JPATH_ADMINISTRATOR . '/components/com_k2/controller.php') ? 3 : 2);
 
 class RLAssignmentsK2 extends RLAssignment
 {
-	public function passPageTypes()
+	public function getItem($fields = [])
 	{
-		return $this->passByPageTypes('com_k2', $this->selection, $this->assignment, false, true);
+		$query = $this->db->getQuery(true)
+			->select($fields)
+			->from('#__k2_items')
+			->where('id = ' . (int) $this->request->id);
+		$this->db->setQuery($query);
+
+		return $this->db->loadObject();
 	}
 
 	public function passCategories()
@@ -71,42 +77,45 @@ class RLAssignmentsK2 extends RLAssignment
 		return $this->passSimple($cats);
 	}
 
-	private function getCategories()
+	public function passItems()
 	{
-		switch ($this->request->view)
+		if ( ! $this->request->id || $this->request->option != 'com_k2' || $this->request->view != 'item')
 		{
-			case 'item' :
-				return $this->getCategoryIDFromItem();
-				break;
-
-			case 'itemlist' :
-				return $this->getCategoryID();
-				break;
-
-			default:
-				return '';
-		}
-	}
-
-	private function getCategoryID()
-	{
-		return $this->request->id ?: JFactory::getApplication()->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
-	}
-
-	private function getCategoryIDFromItem()
-	{
-		if ($this->article && isset($this->article->catid))
-		{
-			return $this->article->catid;
+			return $this->pass(false);
 		}
 
-		$query = $this->db->getQuery(true)
-			->select('i.catid')
-			->from('#__k2_items AS i')
-			->where('i.id = ' . (int) $this->request->id);
-		$this->db->setQuery($query);
+		$pass = false;
 
-		return $this->db->loadResult();
+		// Pass Article Id
+		if ( ! $this->passItemByType($pass, 'ContentIds'))
+		{
+			return $this->pass(false);
+		}
+
+		// Pass Content Keywords
+		if ( ! $this->passItemByType($pass, 'ContentKeywords'))
+		{
+			return $this->pass(false);
+		}
+
+		// Pass Meta Keywords
+		if ( ! $this->passItemByType($pass, 'MetaKeywords'))
+		{
+			return $this->pass(false);
+		}
+
+		// Pass Authors
+		if ( ! $this->passItemByType($pass, 'Authors'))
+		{
+			return $this->pass(false);
+		}
+
+		return $this->pass($pass);
+	}
+
+	public function passPageTypes()
+	{
+		return $this->passByPageTypes('com_k2', $this->selection, $this->assignment, false, true);
 	}
 
 	public function passTags()
@@ -146,57 +155,48 @@ class RLAssignmentsK2 extends RLAssignment
 		return $this->passSimple($tags, true);
 	}
 
-	public function passItems()
-	{
-		if ( ! $this->request->id || $this->request->option != 'com_k2' || $this->request->view != 'item')
-		{
-			return $this->pass(false);
-		}
-
-		$pass = false;
-
-		// Pass Article Id
-		if ( ! $this->passItemByType($pass, 'ContentIds'))
-		{
-			return $this->pass(false);
-		}
-
-		// Pass Content Keywords
-		if ( ! $this->passItemByType($pass, 'ContentKeywords'))
-		{
-			return $this->pass(false);
-		}
-
-		// Pass Meta Keywords
-		if ( ! $this->passItemByType($pass, 'MetaKeywords'))
-		{
-			return $this->pass(false);
-		}
-
-		// Pass Authors
-		if ( ! $this->passItemByType($pass, 'Authors'))
-		{
-			return $this->pass(false);
-		}
-
-		return $this->pass($pass);
-	}
-
-	public function getItem($fields = [])
-	{
-		$query = $this->db->getQuery(true)
-			->select($fields)
-			->from('#__k2_items')
-			->where('id = ' . (int) $this->request->id);
-		$this->db->setQuery($query);
-
-		return $this->db->loadObject();
-	}
-
 	private function getCatParentIds($id = 0)
 	{
 		$parent_field = RL_K2_VERSION == 3 ? 'parent_id' : 'parent';
 
 		return $this->getParentIds($id, 'k2_categories', $parent_field);
+	}
+
+	private function getCategories()
+	{
+		switch ($this->request->view)
+		{
+			case 'item' :
+				return $this->getCategoryIDFromItem();
+				break;
+
+			case 'itemlist' :
+				return $this->getCategoryID();
+				break;
+
+			default:
+				return '';
+		}
+	}
+
+	private function getCategoryID()
+	{
+		return $this->request->id ?: JFactory::getApplication()->getUserStateFromRequest('com_k2itemsfilter_category', 'catid', 0, 'int');
+	}
+
+	private function getCategoryIDFromItem()
+	{
+		if ($this->article && isset($this->article->catid))
+		{
+			return $this->article->catid;
+		}
+
+		$query = $this->db->getQuery(true)
+			->select('i.catid')
+			->from('#__k2_items AS i')
+			->where('i.id = ' . (int) $this->request->id);
+		$this->db->setQuery($query);
+
+		return $this->db->loadResult();
 	}
 }

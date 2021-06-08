@@ -3,7 +3,7 @@
  * @package    PwtAcl
  *
  * @author     Sander Potjer - Perfect Web Team <extensions@perfectwebteam.com>
- * @copyright  Copyright (C) 2011 - 2020 Perfect Web Team. All rights reserved.
+ * @copyright  Copyright (C) 2011 - 2021 Perfect Web Team. All rights reserved.
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  * @link       https://extensions.perfectwebteam.com/pwt-acl
  */
@@ -995,8 +995,7 @@ class PwtAclModelDiagnostics extends ListModel
 		{
 			case 'extensions':
 				$query
-					->where($db->quoteName('assets.name') . ' NOT LIKE  ' . $db->quote('%.%'))
-					->where($db->quoteName('assets.name') . ' NOT IN ("' . $this->getComponents(false, 'categories') . '")');
+					->where($db->quoteName('assets.name') . ' NOT REGEXP ("' . $this->getComponents(false, 'extensions') . '")');
 				break;
 
 			case 'categories':
@@ -1497,6 +1496,12 @@ class PwtAclModelDiagnostics extends ListModel
 				->where($db->quoteName('level') . ' > 0')
 				->where($db->quoteName('extension') . ' NOT LIKE' . $db->quote('%.%'));
 		}
+		elseif ($table === 'extensions')
+		{
+			$query
+				->select('element')
+				->where($db->quoteName('type') . ' = ' . $db->quote('component'));
+		}
 		else
 		{
 			$query
@@ -1514,7 +1519,10 @@ class PwtAclModelDiagnostics extends ListModel
 
 		if (!$returnquery && $components)
 		{
-			return implode('", "', $components);
+			$components[] = 'root';
+			$components[] = 'ucm_content';
+
+			return implode('|', $components);
 		}
 
 		if ($components)

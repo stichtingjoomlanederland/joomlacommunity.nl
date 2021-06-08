@@ -1,8 +1,8 @@
 RO Payments
 Author: RolandD Cyber Produksi (contact@rolandd.com)
 Website: https://rolandd.com/
-Version: 6.3.2
-Date: 21 January 2021
+Version: 6.4.1
+Date: 5 May 2021
 
 Legenda:
 + Added
@@ -11,7 +11,34 @@ Legenda:
 / Changed
 
 Changelog
-Version 6.3.2 [ 2021-01-19 ]
+Version 6.4.1 [ 2021-05-05 ]
+* Fixed profile option not shown in RSEvents! Pro
+* Fixed incorrect URL if installed in a subfolder
+* Fixed Sisow throwing an internal server error
+
+Version 6.4.0 [ 2021-04-20 ]
++ Automatically detect choosePayment field for RSForm! Pro
+* Fixed syncing subscriptions sync recurring state
++ Added plugin trigger onPrepareThankYouMessage to modify RSForm! Pro thank you message
++ Added plugin trigger onPrepareRedirectUrl to modify RSForm! Pro redirect URL
+/ Update Mollie API to version 2.30.2
+* Fixed consumer name fields
+/ Store the profile ID with the customer in Mollie recurring
+* Fixed sending the payment method from RSForm! Pro form
++ Added option to set expiry time for submissions to be deleted in RO Payments - RSForm! Pro plugin
+* Fixed show credit card details as mandate in customer view
++ Added front-end view for managing subscriptions
+* Fixed recurring subscription hook callback URL
++ Added subscription edit page
+* Fixed hour difference in transactions list
+* Added onCancelSubscriptionComplete trigger
++ Added example plugin on how to handle triggers
+* Fixed tax value field in RSForm! Pro
++ Added authentication plugin to process callbacks to work behind a login
+* Fixed restoring settings with forms in RSForm! Pro
+* Fixed fatal error if no log ID is found in HikaShop plugin
+
+Version 6.3.2 [ 2021-01-21 ]
 * Fixed error on RSEvents! Pro plugin
 
 Version 6.3.1 [ 2021-01-19 ]

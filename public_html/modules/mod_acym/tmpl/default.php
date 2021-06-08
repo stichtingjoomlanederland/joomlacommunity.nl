@@ -59,7 +59,7 @@ if ($listPosition == 'before') echo $listsContent;
             if (!$displayInline) echo '</tr><tr>';
         }
 
-        if (empty($identifiedUser->id) && $config->get('captcha', '') == 1) {
+        if (empty($identifiedUser->id) && $config->get('captcha', 'none') !== 'none') {
             echo '<td class="captchakeymodule" '.($displayOutside && !$displayInline ? 'colspan="2"' : '').'>';
             $captcha = new CaptchaHelper();
             echo $captcha->display($formName, $params->get('includejs') == 'module');

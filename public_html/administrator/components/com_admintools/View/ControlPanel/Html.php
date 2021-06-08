@@ -300,7 +300,9 @@ class Html extends BaseView
 		if (defined('ADMINTOOLS_PRO') && ADMINTOOLS_PRO && $this->showstats)
 		{
 			// Load JavaScript
-			$this->addJavascriptFile('admin://components/com_admintools/media/js/Chart.bundle.min.js', $this->container->mediaVersion,'text/javascript', true);
+			$this->addJavascriptFile('https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js', null,'text/javascript', true);
+			$this->addJavascriptFile('https://cdn.jsdelivr.net/npm/moment@2.27.0', null,'text/javascript', true);
+			$this->addJavascriptFile('https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@0.1.1', null,'text/javascript', true);
 		}
 
 		// Push translations

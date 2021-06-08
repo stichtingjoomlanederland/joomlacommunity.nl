@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -84,9 +84,10 @@ class JFormFieldRL_Ajax extends \RegularLabs\Library\Field
 			';
 		}
 
-		$query = '';
+		$query     = '';
+		$url_query = $this->get('url-query');
 
-		if ($url_query = $this->get('url-query'))
+		if ($url_query)
 		{
 			$name_prefix = $this->form->getFormControl() . '\\\[' . $this->group . '\\\]';
 			$id_prefix   = $this->form->getFormControl() . '_' . $this->group . '_';
@@ -95,7 +96,7 @@ class JFormFieldRL_Ajax extends \RegularLabs\Library\Field
 
 			foreach ($url_query as $url_query_part)
 			{
-				list($key, $id) = explode(':', $url_query_part);
+				[$key, $id] = explode(':', $url_query_part);
 
 				$el_name = 'document.querySelector("input[name=' . $name_prefix . '\\\[' . $id . '\\\]]:checked")';
 				$el_id   = 'document.querySelector("#' . $id_prefix . $id . '")';

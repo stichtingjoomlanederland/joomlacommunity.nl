@@ -17,6 +17,8 @@ class CronController extends acymController
 
     public function cron()
     {
+        if (!acym_level(ACYM_ESSENTIAL)) exit;
+
         acym_header('Content-type:text/html; charset=utf-8');
         if (strlen(ACYM_LIVE) < 10) {
             die(acym_translationSprintf('ACYM_CRON_WRONG_DOMAIN', ACYM_LIVE));

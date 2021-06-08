@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <extension version="3.9" type="library" method="upgrade">
 	<name>Regular Labs Library</name>
-	<libraryname>regularlabs</libraryname>
-	<description></description>
-	<version>21.2.23991</version>
-	<creationDate>February 2021</creationDate>
+	<description>Regular Labs Library - used by Regular Labs extensions</description>
+	<version>21.6.1331</version>
+	<creationDate>June 2021</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
-	<authorUrl>https://www.regularlabs.com</authorUrl>
-	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
+	<authorUrl>https://regularlabs.com</authorUrl>
+	<copyright>Copyright © 2021 Regular Labs - All Rights Reserved</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 
+	<libraryname>regularlabs</libraryname>
 	<scriptfile>script.install.php</scriptfile>
 
 	<files>
@@ -21,7 +21,7 @@
 		<folder>fields</folder>
 		<folder>helpers</folder>
 		<folder>layouts</folder>
-		<filename>script.install.helper.php</filename>
+		<file>script.install.helper.php</file>
 	</files>
 
 	<media folder="media" destination="regularlabs">

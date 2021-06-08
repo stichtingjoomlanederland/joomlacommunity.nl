@@ -18,7 +18,7 @@ class FieldsController extends acymController
     public function listing()
     {
         $data = [];
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'listing');
             $fieldClass = new FieldClass();
             $fieldsElements = $fieldClass->getMatchingElements();
@@ -31,7 +31,7 @@ class FieldsController extends acymController
             return parent::display($data);
         }
 
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'splashscreen');
         }
 
@@ -187,14 +187,7 @@ class FieldsController extends acymController
         if (in_array($id, [2, $languageFieldId])) {
             $field['required'] = 1;
         }
-        if (empty($field['name'])) {
-            return false;
-        }
-
-
-        $value = [];
-
-        $fieldValues = $field['value'];
+        if (empty($field['name'])) return false;
 
         if (in_array($id, [1, 2])) {
             $field['type'] = 'text';
@@ -203,21 +196,23 @@ class FieldsController extends acymController
         }
 
         $i = 0;
+        $value = [];
+        $fieldValues = $field['value'];
         foreach ($fieldValues['value'] as $one) {
             if (empty($one) && $one != '0' && ($i != 0 || !in_array($field['type'], ['single_dropdown', 'multiple_dropdown']))) {
                 $i++;
                 continue;
-            } else {
-                $value[$i] = [
-                    'value' => $one,
-                    'title' => $fieldValues['title'][$i],
-                    'disabled' => $fieldValues['disabled'][$i],
-                ];
-                $i++;
             }
-        }
-        $field['name'] = strip_tags($field['name'], '<i><b><strong>');
 
+            $value[$i] = [
+                'value' => $one,
+                'title' => $fieldValues['title'][$i],
+                'disabled' => $fieldValues['disabled'][$i],
+            ];
+            $i++;
+        }
+
+        $field['name'] = strip_tags($field['name'], '<i><b><strong>');
         $field['namekey'] = empty($field['namekey']) ? $fieldClass->generateNamekey($field['name']) : $field['namekey'];
         $field['option']['format'] = ($field['type'] == 'date' && empty($field['option']['format'])) ? '%d%m%y' : strtolower($field['option']['format']);
         $field['option']['rows'] = ($field['type'] == 'textarea' && empty($field['option']['rows'])) ? '5' : $field['option']['rows'];
@@ -225,7 +220,10 @@ class FieldsController extends acymController
 
         $field['value'] = json_encode($value);
         $field['option']['fieldDB'] = $fieldDB;
-        $field['option']['format'] = !empty($field['option']['format']) ? preg_replace('/[^a-zA-Z\%]/', '', $field['option']['format']) : $field['option']['format'];
+        if (!empty($field['option']['format'])) {
+            $field['option']['format'] = preg_replace('/[^a-zA-Z\%]/', '', $field['option']['format']);
+        }
+
         $newField = new \stdClass();
         $newField->name = $field['name'];
         $newField->active = $field['active'];
@@ -242,12 +240,16 @@ class FieldsController extends acymController
         $newField->backend_edition = $field['backend_edition'];
         $newField->backend_listing = $field['backend_listing'];
         $newField->access = 'all';
+
         if (empty($id)) {
             $newField->ordering = $fieldClass->getOrdering() + 1;
         } else {
             $newField->id = $id;
         }
-        $newField->translation = $field['translation'];
+
+        if (!empty($field['translation'])) {
+            $newField->translation = $field['translation'];
+        }
 
         return $newField;
     }

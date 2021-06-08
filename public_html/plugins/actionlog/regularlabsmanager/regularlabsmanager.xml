@@ -2,11 +2,11 @@
 <extension version="3.9" type="plugin" group="actionlog" method="upgrade">
 	<name>PLG_ACTIONLOG_REGULARLABSMANAGER</name>
 	<description>PLG_ACTIONLOG_REGULARLABSMANAGER_DESC</description>
-	<version>7.4.7</version>
-	<creationDate>February 2021</creationDate>
+	<version>7.4.9</version>
+	<creationDate>April 2021</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
-	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<authorUrl>https://regularlabs.com</authorUrl>
 	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 
@@ -37,7 +37,7 @@
 				<field name="@header" type="rl_header"
 					   label="REGULARLABSEXTENSIONMANAGER"
 					   description="REGULARLABSEXTENSIONMANAGER_DESC"
-					   url="https://www.regularlabs.com/extensionmanager" />
+					   url="https://regularlabs.com/extensionmanager" />
 
 				<field name="@notice_settings" type="note" class="alert alert-info"
 					   description="RLEM_SETTINGS,&lt;a href=&quot;index.php?option=com_regularlabsmanager&quot; target=&quot;_blank&quot;&gt;,&lt;/a&gt;" />

@@ -2,7 +2,7 @@
 	<div class="acym__content acym_area padding-vertical-1 padding-horizontal-2 margin-bottom-2">
 		<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_FRONTEND_EDITION'); ?></div>
         <?php
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             ?>
 			<div class="grid-x grid-margin-x margin-y">
 				<div class="cell medium-3"><?php echo acym_translation('ACYM_FRONT_DELETE_BUTTON').acym_info('ACYM_FRONT_DELETE_BUTTON_DESC'); ?></div>
@@ -21,7 +21,7 @@
 			</div>
             <?php
         }
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             $data['version'] = 'enterprise';
             include acym_getView('dashboard', 'upgrade', true);
         }

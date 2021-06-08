@@ -39,20 +39,21 @@ class UpdateHelper extends acymObject
         $forwardEmail = str_replace('"', '', $forwardEmail);
 
         $query = "INSERT INTO `#__acym_rule` (`id`, `name`, `ordering`, `regex`, `executed_on`, `action_message`, `action_user`, `active`, `increment_stats`, `execute_action_after`) VALUES ";
-        $query .= "(1, 'ACYM_ACTION_REQUIRED', 1, 'action *requ|verif', '[\"subject\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 0, 0),";
-        $query .= "(2, 'ACYM_ACKNOWLEDGMENT_RECEIPT_SUBJECT', 2, '(out|away) *(of|from)|vacation|holiday|absen|congés|recept|acknowledg|thank you for', '[\"subject\"]', '[\"delete_message\"]', '[]', 1, 0, 0),";
-        $query .= "(3, 'ACYM_FEEDBACK_LOOP', 3, 'feedback|staff@hotmail.com|complaints@.{0,15}email-abuse.amazonses.com|complaint about message', '[\"senderInfo\",\"subject\"]', '[\"save_message\",\"delete_message\"]', '[\"unsubscribe_user\"]', 1, 0, 0),";
-        $query .= "(4, 'ACYM_FEEDBACK_LOOP_BODY', 4, 'Feedback-Type.{1,5}abuse', '[\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"unsubscribe_user\"]', 1, 1, 0),";
-        $query .= "(5, 'ACYM_MAILBOX_FULL', 5, '((mailbox|mailfolder|storage|quota|space|inbox) *(is)? *(over)? *(exceeded|size|storage|allocation|full|quota|maxi))|status(-code)? *(:|=)? *5.2.2|quota-issue|not *enough.{1,20}space|((over|exceeded|full|exhausted) *(allowed)? *(mail|storage|quota))', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(6, 'ACYM_BLOCKED_GOOGLE_GROUPS', 6, 'message *rejected *by *Google *Groups', '[\"body\"]', '[\"delete_message\"]', '[]', 1, 1, 0),";
-        $query .= "(7, 'ACYM_MAILBOX_DOESNT_EXIST_1', 7, '(Invalid|no such|unknown|bad|des?activated|inactive|unrouteable) *(mail|destination|recipient|user|address|person)|bad-mailbox|inactive-mailbox|not listed in.{1,20}directory|RecipNotFound|(user|mailbox|address|recipients?|host|account|domain) *(is|has been)? *(error|disabled|failed|unknown|unavailable|not *(found|available)|.{1,30}inactiv)|no *mailbox *here|user does.?n.t have.{0,30}account', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(8, 'ACYM_MESSAGE_BLOCKED_RECIPIENTS', 8, 'blocked *by|block *list|look(ed)? *like *spam|spam-related|spam *detected| CXBL | CDRBL | IPBL | URLBL |(unacceptable|banned|offensive|filtered|blocked|unsolicited) *(content|message|e?-?mail)|service refused|(status(-code)?|554) *(:|=)? *5.7.1|administratively *denied|blacklisted *IP|policy *reasons|rejected.{1,10}spam|junkmail *rejected|throttling *constraints|exceeded.{1,10}max.{1,40}hour|comply with required standards|421 RP-00|550 SC-00|550 DY-00|550 OU-00', '[\"body\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 1, 0),";
-        $query .= "(9, 'ACYM_MAILBOX_DOESNT_EXIST_2', 9, 'status(-code)? *(:|=)? *5.(1.[1-6]|0.0|4.[0123467])|recipient *address *rejected|does *not *like *recipient', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(10, 'ACYM_DOMAIN_NOT_EXIST', 10, 'No.{1,10}MX *(record|host)|host *does *not *receive *any *mail|bad-domain|connection.{1,10}mail.{1,20}fail|domain.{1,10}not *exist|fail.{1,10}establish *connection', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(11, 'ACYM_TEMPORARY_FAILURES', 11, 'has.*been.*delayed|delayed *mail|message *delayed|message-expired|temporar(il)?y *(failure|unavailable|disable|offline|unable)|deferred|delayed *([0-9]*) *(hour|minut)|possible *mail *loop|too *many *hops|delivery *time *expired|Action: *delayed|status(-code)? *(:|=)? *4.4.6|will continue to be attempted|unable to deliver in.*Status: 4.4.7', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(12, 'ACYM_FAILED_PERM', 12, 'failed *permanently|permanent.{1,20}(failure|error)|not *accepting *(any)? *mail|does *not *exist|no *valid *route|delivery *failure', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
-        $query .= "(13, 'ACYM_ACKNOWLEDGMENT_RECEIPT_BODY', 13, 'vacances|holiday|vacation|absen|urlaub', '[\"body\"]', '[\"delete_message\"]', '[]', 1, 0, 0),";
-        $query .= "(14, 'ACYM_FINAL_RULE', 14, '.', '[\"senderInfo\",\"subject\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 1, 0);";
+        $query .= "(1, 'ACYM_LIST_UNSUBSCRIBE_HANDLING', 1, 'Please unsubscribe user ID \\\\d+', '[\"body\"]', '[\"delete_message\"]', '[\"unsubscribe_user\"]', 1, 0, 0),";
+        $query .= "(2, 'ACYM_ACTION_REQUIRED', 2, 'action *requ|verif', '[\"subject\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 0, 0),";
+        $query .= "(3, 'ACYM_ACKNOWLEDGMENT_RECEIPT_SUBJECT', 3, '(out|away) *(of|from)|vacation|holiday|absen|congés|recept|acknowledg|thank you for', '[\"subject\"]', '[\"delete_message\"]', '[]', 1, 0, 0),";
+        $query .= "(4, 'ACYM_FEEDBACK_LOOP', 4, 'feedback|staff@hotmail.com|complaints@.{0,15}email-abuse.amazonses.com|complaint about message', '[\"senderInfo\",\"subject\"]', '[\"save_message\",\"delete_message\"]', '[\"unsubscribe_user\"]', 1, 0, 0),";
+        $query .= "(5, 'ACYM_FEEDBACK_LOOP_BODY', 5, 'Feedback-Type.{1,5}abuse', '[\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"unsubscribe_user\"]', 1, 1, 0),";
+        $query .= "(6, 'ACYM_MAILBOX_FULL', 6, '((mailbox|mailfolder|storage|quota|space|inbox) *(is)? *(over)? *(exceeded|size|storage|allocation|full|quota|maxi))|status(-code)? *(:|=)? *5.2.2|quota-issue|not *enough.{1,20}space|((over|exceeded|full|exhausted) *(allowed)? *(mail|storage|quota))', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
+        $query .= "(7, 'ACYM_BLOCKED_GOOGLE_GROUPS', 7, 'message *rejected *by *Google *Groups', '[\"body\"]', '[\"delete_message\"]', '[]', 1, 1, 0),";
+        $query .= "(8, 'ACYM_MAILBOX_DOESNT_EXIST_1', 8, '(Invalid|no such|unknown|bad|des?activated|inactive|unrouteable) *(mail|destination|recipient|user|address|person)|bad-mailbox|inactive-mailbox|not listed in.{1,20}directory|RecipNotFound|(user|mailbox|address|recipients?|host|account|domain) *(is|has been)? *(error|disabled|failed|unknown|unavailable|not *(found|available)|.{1,30}inactiv)|no *mailbox *here|user does.?n.t have.{0,30}account', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
+        $query .= "(9, 'ACYM_MESSAGE_BLOCKED_RECIPIENTS', 9, 'blocked *by|block *list|look(ed)? *like *spam|spam-related|spam *detected| CXBL | CDRBL | IPBL | URLBL |(unacceptable|banned|offensive|filtered|blocked|unsolicited) *(content|message|e?-?mail)|service refused|(status(-code)?|554) *(:|=)? *5.7.1|administratively *denied|blacklisted *IP|policy *reasons|rejected.{1,10}spam|junkmail *rejected|throttling *constraints|exceeded.{1,10}max.{1,40}hour|comply with required standards|421 RP-00|550 SC-00|550 DY-00|550 OU-00', '[\"body\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 1, 0),";
+        $query .= "(10, 'ACYM_MAILBOX_DOESNT_EXIST_2', 10, 'status(-code)? *(:|=)? *5.(1.[1-6]|0.0|4.[0123467])|recipient *address *rejected|does *not *like *recipient', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
+        $query .= "(11, 'ACYM_DOMAIN_NOT_EXIST', 11, 'No.{1,10}MX *(record|host)|host *does *not *receive *any *mail|bad-domain|connection.{1,10}mail.{1,20}fail|domain.{1,10}not *exist|fail.{1,10}establish *connection', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
+        $query .= "(12, 'ACYM_TEMPORARY_FAILURES', 12, 'has.*been.*delayed|delayed *mail|message *delayed|message-expired|temporar(il)?y *(failure|unavailable|disable|offline|unable)|deferred|delayed *([0-9]*) *(hour|minut)|possible *mail *loop|too *many *hops|delivery *time *expired|Action: *delayed|status(-code)? *(:|=)? *4.4.6|will continue to be attempted|unable to deliver in.*Status: 4.4.7', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
+        $query .= "(13, 'ACYM_FAILED_PERM', 13, 'failed *permanently|permanent.{1,20}(failure|error)|not *accepting *(any)? *mail|does *not *exist|no *valid *route|delivery *failure', '[\"subject\",\"body\"]', '[\"save_message\",\"delete_message\"]', '[\"block_user\"]', 1, 1, 0),";
+        $query .= "(14, 'ACYM_ACKNOWLEDGMENT_RECEIPT_BODY', 14, 'vacances|holiday|vacation|absen|urlaub', '[\"body\"]', '[\"delete_message\"]', '[]', 1, 0, 0),";
+        $query .= "(15, 'ACYM_FINAL_RULE', 15, '.', '[\"senderInfo\",\"subject\"]', '{\"0\":\"delete_message\",\"1\":\"forward_message\",\"forward_to\":\"".$forwardEmail."\"}', '[]', 1, 1, 0);";
 
         acym_query($query);
 
@@ -72,26 +73,25 @@ class UpdateHelper extends acymObject
 
         acym_query('DELETE FROM #__updates WHERE element = "com_acym"');
 
-        $update_site_id = acym_loadResult("SELECT update_site_id FROM #__update_sites WHERE location LIKE '%component=acymailing%' AND type LIKE 'extension'");
-
         $object = new \stdClass();
+        $object->enabled = 1;
         $object->name = 'AcyMailing';
         $object->type = 'extension';
         $object->location = ACYM_UPDATEMEURL.'updatexml&component=acymailing&cms=joomla&level='.$this->config->get('level').'&version='.$this->config->get('version');
-        if (acym_level(1)) {
+
+        if (acym_level(ACYM_ESSENTIAL)) {
             $object->location .= '&li='.urlencode(base64_encode(ACYM_LIVE));
         }
 
-        $object->enabled = 1;
-
+        $update_site_id = acym_loadResult('SELECT update_site_id FROM #__update_sites WHERE location LIKE "%component=acymailing%" AND type = "extension"');
         if (empty($update_site_id)) {
-            $update_site_id = acym_insertObject("#__update_sites", $object);
+            $update_site_id = acym_insertObject('#__update_sites', $object);
         } else {
             $object->update_site_id = $update_site_id;
-            acym_updateObject("#__update_sites", $object, 'update_site_id');
+            acym_updateObject('#__update_sites', $object, 'update_site_id');
         }
 
-        $extension_id = acym_loadResult("SELECT extension_id FROM #__extensions WHERE `element` = 'com_acym' AND type LIKE 'component'");
+        $extension_id = acym_loadResult('SELECT extension_id FROM #__extensions WHERE `element` = "com_acym" AND type = "component"');
         if (empty($update_site_id) || empty($extension_id)) {
             return false;
         }
@@ -213,8 +213,8 @@ class UpdateHelper extends acymObject
     public function installFields()
     {
         $query = "INSERT IGNORE INTO #__acym_field (`id`, `name`, `type`, `value`, `active`, `default_value`, `required`, `ordering`, `option`, `core`, `backend_edition`, `backend_listing`, `frontend_edition`, `frontend_listing`, `access`, `namekey`) VALUES 
-    (1, 'ACYM_NAME', 'text', NULL, 1, NULL, 0, 1, '{\"editable_user_creation\":\"1\",\"editable_user_modification\":\"1\",\"error_message\":\"\",\"error_message_invalid\":\"\",\"size\":\"\",\"rows\":\"\",\"columns\":\"\",\"format\":\"\",\"custom_text\":\"\",\"css_class\":\"\",\"authorized_content\":{\"0\":\"all\",\"regex\":\"\"}}', 1, 1, 1, 1, 1, 'all', 'acym_name'), 
-    (2, 'ACYM_EMAIL', 'text', NULL, 1, NULL, 1, 2, '{\"editable_user_creation\":\"1\",\"editable_user_modification\":\"1\",\"error_message\":\"\",\"error_message_invalid\":\"\",\"size\":\"\",\"rows\":\"\",\"columns\":\"\",\"format\":\"\",\"custom_text\":\"\",\"css_class\":\"\",\"authorized_content\":{\"0\":\"all\",\"regex\":\"\"}}', 1, 1, 1, 1, 1, 'all', 'acym_email');";
+    (1, 'ACYM_NAME', 'text', NULL, 1, NULL, 0, 1, '{\"error_message\":\"\",\"error_message_invalid\":\"\",\"size\":\"\",\"rows\":\"\",\"columns\":\"\",\"format\":\"\",\"custom_text\":\"\",\"css_class\":\"\",\"authorized_content\":{\"0\":\"all\",\"regex\":\"\"}}', 1, 1, 1, 1, 1, 'all', 'acym_name'), 
+    (2, 'ACYM_EMAIL', 'text', NULL, 1, NULL, 1, 2, '{\"error_message\":\"\",\"error_message_invalid\":\"\",\"size\":\"\",\"rows\":\"\",\"columns\":\"\",\"format\":\"\",\"custom_text\":\"\",\"css_class\":\"\",\"authorized_content\":{\"0\":\"all\",\"regex\":\"\"}}', 1, 1, 1, 1, 1, 'all', 'acym_email');";
         acym_query($query);
 
         $fieldClass = new FieldClass();
@@ -293,10 +293,10 @@ class UpdateHelper extends acymObject
         $adminCreate->conditions = '{"type_condition":"user"}';
         $adminCreate->emailTitle = acym_translation('ACYM_SUBSCRIBER_CREATION');
         $adminCreate->emailSubject = acym_translation('ACYM_SUBSCRIBER_CREATION');
-        $adminCreate->emailContent = '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+        $adminCreate->emailContent = '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NEW_USER_ACYMAILING').':</p>
-                    <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{subtag:name|info:current}', 'Roger').'</p>
-                    <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{subtag:email|info:current}', 'roger@example.com').'</p>';
+                    <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{subscriber:name|info:current}', 'Roger').'</p>
+                    <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{subscriber:email|info:current}', 'roger@example.com').'</p>';
 
         $adminModif = new \stdClass();
         $adminModif->desc = 'ACYM_ADMIN_USER_MODIFICATION_DESC';
@@ -304,10 +304,10 @@ class UpdateHelper extends acymObject
         $adminModif->conditions = '{"type_condition":"user"}';
         $adminModif->emailTitle = acym_translation('ACYM_SUBSCRIBER_MODIFICATION');
         $adminModif->emailSubject = acym_translation('ACYM_SUBSCRIBER_MODIFICATION');
-        $adminModif->emailContent = '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+        $adminModif->emailContent = '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_USER_MODIFY_ACYMAILING').':</p>
-                    <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{subtag:name|info:current}', 'Roger').'</p>
-                    <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{subtag:email|info:current}', 'roger@example.com').'</p>';
+                    <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{subscriber:name|info:current}', 'Roger').'</p>
+                    <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{subscriber:email|info:current}', 'roger@example.com').'</p>';
 
         $info = [
             'ACYM_ADMIN_USER_CREATE' => $adminCreate,
@@ -402,9 +402,9 @@ class UpdateHelper extends acymObject
         if (empty($notifications['acy_confirm'])) {
             $addNotif[] = [
                 'name' => 'acy_confirm',
-                'subject' => '{subtag:name|ucfirst}, {trans:ACYM_PLEASE_CONFIRM_SUBSCRIPTION}',
+                'subject' => '{subscriber:name|ucfirst}, {trans:ACYM_PLEASE_CONFIRM_SUBSCRIPTION}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">{trans:ACYM_HELLO} '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">{trans:ACYM_HELLO} '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>{trans:ACYM_CONFIRM_MESSAGE}</p>
                     <p>{trans:ACYM_CONFIRM_MESSAGE_ACTIVATE}</p>
                     <p style="text-align: center;"><strong>{confirm}{trans:ACYM_CONFIRM_SUBSCRIPTION}{/confirm}</strong></p>'
@@ -417,7 +417,7 @@ class UpdateHelper extends acymObject
                 'name' => 'acy_notification_create',
                 'subject' => acym_translation('ACYM_NOTIFICATION_CREATE_SUBJECT').': {user:email}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NOTIFICATION_CREATE_BODY').'</p>
                     <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{user:name}', 'Julia').'</p>
                     <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{user:email}', 'julia@example.com').'</p>
@@ -432,7 +432,7 @@ class UpdateHelper extends acymObject
                 'name' => 'acy_notification_unsub',
                 'subject' => acym_translation('ACYM_NOTIFICATION_UNSUB_SUBJECT').': {user:email}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NOTIFICATION_UNSUB_BODY').'</p>
                     <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{user:name}', 'Julia').'</p>
                     <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{user:email}', 'julia@example.com').'</p>
@@ -446,7 +446,7 @@ class UpdateHelper extends acymObject
                 'name' => 'acy_notification_unsuball',
                 'subject' => acym_translation('ACYM_NOTIFICATION_UNSUBALL_SUBJECT').': {user:email}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NOTIFICATION_UNSUBALL_BODY').'</p>
                     <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{user:name}', 'Julia').'</p>
                     <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{user:email}', 'julia@example.com').'</p>'
@@ -459,7 +459,7 @@ class UpdateHelper extends acymObject
                 'name' => 'acy_notification_subform',
                 'subject' => acym_translation('ACYM_NOTIFICATION_SUBFORM_SUBJECT').': {user:email}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NOTIFICATION_SUBFORM_BODY').'</p>
                     <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{user:name}', 'Julia').'</p>
                     <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{user:email}', 'julia@example.com').'</p>
@@ -473,7 +473,7 @@ class UpdateHelper extends acymObject
                 'name' => 'acy_notification_profile',
                 'subject' => acym_translation('ACYM_NOTIFICATION_PROFILE_SUBJECT').': {user:email}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NOTIFICATION_PROFILE_BODY').'</p>
                     <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{user:name}', 'Julia').'</p>
                     <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{user:email}', 'julia@example.com').'</p>
@@ -487,7 +487,7 @@ class UpdateHelper extends acymObject
                 'name' => 'acy_notification_confirm',
                 'subject' => acym_translation('ACYM_NOTIFICATION_CONFIRM_SUBJECT').': {user:email}',
                 'content' => $this->getFormatedNotification(
-                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subtag:name|ucfirst}', 'Marc').',</h1>
+                    '<h1 style="font-size: 24px;">'.acym_translation('ACYM_HELLO').' '.$this->getDTextDisplay('{subscriber:name|ucfirst}', 'Marc').',</h1>
                     <p>'.acym_translation('ACYM_NOTIFICATION_CONFIRM_BODY').'</p>
                     <p>'.acym_translation('ACYM_NAME').': '.$this->getDTextDisplay('{user:name}', 'Julia').'</p>
                     <p>'.acym_translation('ACYM_EMAIL').': '.$this->getDTextDisplay('{user:email}', 'julia@example.com').'</p>

@@ -3,7 +3,7 @@
 
 namespace Composer\Autoload;
 
-class ComposerStaticInit4b0ad522e7847e5990a2176023366d07
+class ComposerStaticInit621c9c90031d23133d364b119f138ba8
 {
     public static $prefixLengthsPsr4 = array (
         'A' => 
@@ -54,6 +54,7 @@ class ComposerStaticInit4b0ad522e7847e5990a2176023366d07
         'AcyMailing\\Controllers\\FileController' => __DIR__ . '/../..' . '/controllers/file.php',
         'AcyMailing\\Controllers\\FollowupsController' => __DIR__ . '/../..' . '/controllers/followups.php',
         'AcyMailing\\Controllers\\FormsController' => __DIR__ . '/../..' . '/controllers/forms.php',
+        'AcyMailing\\Controllers\\GoproController' => __DIR__ . '/../..' . '/controllers/gopro.php',
         'AcyMailing\\Controllers\\LanguageController' => __DIR__ . '/../..' . '/controllers/language.php',
         'AcyMailing\\Controllers\\ListsController' => __DIR__ . '/../..' . '/controllers/lists.php',
         'AcyMailing\\Controllers\\MailsController' => __DIR__ . '/../..' . '/controllers/mails.php',
@@ -114,11 +115,13 @@ class ComposerStaticInit4b0ad522e7847e5990a2176023366d07
         'AcyMailing\\Init\\acyElementor' => __DIR__ . '/../..' . '/wpinit/elementor.php',
         'AcyMailing\\Init\\acyFakePhpMailer' => __DIR__ . '/../..' . '/wpinit/fake_phpmailer.php',
         'AcyMailing\\Init\\acyForms' => __DIR__ . '/../..' . '/wpinit/forms.php',
+        'AcyMailing\\Init\\acyGutenberg' => __DIR__ . '/../..' . '/wpinit/gutenberg.php',
         'AcyMailing\\Init\\acyHook' => __DIR__ . '/../..' . '/wpinit/init.php',
         'AcyMailing\\Init\\acyMenu' => __DIR__ . '/../..' . '/wpinit/menu.php',
         'AcyMailing\\Init\\acyMessage' => __DIR__ . '/../..' . '/wpinit/message.php',
         'AcyMailing\\Init\\acyOverrideEmail' => __DIR__ . '/../..' . '/wpinit/override_email.php',
         'AcyMailing\\Init\\acyRouter' => __DIR__ . '/../..' . '/wpinit/router.php',
+        'AcyMailing\\Init\\acySecurity' => __DIR__ . '/../..' . '/wpinit/security.php',
         'AcyMailing\\Init\\acyUpdate' => __DIR__ . '/../..' . '/wpinit/update.php',
         'AcyMailing\\Init\\acyUsersynch' => __DIR__ . '/../..' . '/wpinit/usersynch.php',
         'AcyMailing\\Init\\acyWidget' => __DIR__ . '/../..' . '/wpinit/widget.php',
@@ -147,6 +150,7 @@ class ComposerStaticInit4b0ad522e7847e5990a2176023366d07
         'AcyMailing\\Views\\FieldsViewFields' => __DIR__ . '/../..' . '/views/fields/view.html.php',
         'AcyMailing\\Views\\FileViewFile' => __DIR__ . '/../..' . '/views/file/view.html.php',
         'AcyMailing\\Views\\FormsViewForms' => __DIR__ . '/../..' . '/views/forms/view.html.php',
+        'AcyMailing\\Views\\GoproViewGopro' => __DIR__ . '/../..' . '/views/gopro/view.html.php',
         'AcyMailing\\Views\\LanguageViewLanguage' => __DIR__ . '/../..' . '/views/language/view.html.php',
         'AcyMailing\\Views\\ListsViewLists' => __DIR__ . '/../..' . '/views/lists/view.html.php',
         'AcyMailing\\Views\\MailsViewMails' => __DIR__ . '/../..' . '/views/mails/view.html.php',
@@ -161,9 +165,9 @@ class ComposerStaticInit4b0ad522e7847e5990a2176023366d07
     public static function getInitializer(ClassLoader $loader)
     {
         return \Closure::bind(function () use ($loader) {
-            $loader->prefixLengthsPsr4 = ComposerStaticInit4b0ad522e7847e5990a2176023366d07::$prefixLengthsPsr4;
-            $loader->prefixDirsPsr4 = ComposerStaticInit4b0ad522e7847e5990a2176023366d07::$prefixDirsPsr4;
-            $loader->classMap = ComposerStaticInit4b0ad522e7847e5990a2176023366d07::$classMap;
+            $loader->prefixLengthsPsr4 = ComposerStaticInit621c9c90031d23133d364b119f138ba8::$prefixLengthsPsr4;
+            $loader->prefixDirsPsr4 = ComposerStaticInit621c9c90031d23133d364b119f138ba8::$prefixDirsPsr4;
+            $loader->classMap = ComposerStaticInit621c9c90031d23133d364b119f138ba8::$classMap;
 
         }, null, ClassLoader::class);
     }

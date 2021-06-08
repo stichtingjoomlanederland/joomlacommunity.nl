@@ -2,19 +2,19 @@
 <extension version="3.9" type="plugin" group="system" method="upgrade">
 	<name>PLG_SYSTEM_REGULARLABS</name>
 	<description>PLG_SYSTEM_REGULARLABS_DESC</description>
-	<version>21.2.23991</version>
-	<creationDate>February 2021</creationDate>
+	<version>21.6.1331</version>
+	<creationDate>June 2021</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
-	<authorUrl>https://www.regularlabs.com</authorUrl>
-	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
+	<authorUrl>https://regularlabs.com</authorUrl>
+	<copyright>Copyright © 2021 Regular Labs - All Rights Reserved</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 
 	<scriptfile>script.install.php</scriptfile>
 
 	<files>
-		<filename plugin="regularlabs">regularlabs.php</filename>
-		<filename>script.install.helper.php</filename>
+		<file plugin="regularlabs">regularlabs.php</file>
+		<file>script.install.helper.php</file>
 		<folder>language</folder>
 		<folder>src</folder>
 		<folder>vendor</folder>

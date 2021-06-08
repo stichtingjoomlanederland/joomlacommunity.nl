@@ -1,6 +1,6 @@
 /**
  * @package         Regular Labs Extension Manager
- * @version         7.4.7
+ * @version         7.4.9
  * 
  * @author          Peter van Westen <info@regularlabs.com>
  * @link            http://www.regularlabs.com

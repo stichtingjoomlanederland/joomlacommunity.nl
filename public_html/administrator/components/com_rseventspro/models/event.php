@@ -204,6 +204,9 @@ class RseventsproModelEvent extends JModelAdmin
 			$form->setFieldAttribute('early_fee_type', 'class', 'input-small');
 			$form->setFieldAttribute('late_fee', 'class', 'input-small');
 			$form->setFieldAttribute('late_fee_type', 'class', 'input-small');
+			$form->setFieldAttribute('notify_me_emails', 'class', 'span10');
+			$form->setFieldAttribute('notify_me_paid_emails', 'class', 'span10');
+			$form->setFieldAttribute('notify_me_unsubscribe_emails', 'class', 'span10');
 		}
 		
 		if ($form->getValue('allday') == 1) {
@@ -915,6 +918,9 @@ class RseventsproModelEvent extends JModelAdmin
 		
 		$categories	= isset($batch['categories']) ? $batch['categories'] : array();
 		$tags		= isset($batch['tags']) ? $batch['tags'] : array();
+		$groups		= isset($batch['groups']) ? $batch['groups'] : array();
+		$sponsors	= isset($batch['sponsors']) ? $batch['sponsors'] : array();
+		$speakers	= isset($batch['speakers']) ? $batch['speakers'] : array();
 		$location	= isset($batch['locations']) ? $batch['locations'] : 0;
 		$itemid		= isset($batch['itemid']) ? $batch['itemid'] : '';
 		$type		= isset($batch['type']) ? $batch['type'] : 'r';
@@ -983,80 +989,13 @@ class RseventsproModelEvent extends JModelAdmin
 			}
 			
 			// Update categories
-			if (!empty($categories)) {
-				$categories = array_map('intval',$categories);
-				
-				if ($all) {
-					if ($type == 'r') {
-						$query->clear()
-							->delete($db->qn('#__rseventspro_taxonomy'))
-							->where($db->qn('type').' = '.$db->q('category'));
-						$db->setQuery($query);
-						$db->execute();
-					}
-					
-					$query->clear()
-						->select($db->qn('id'))
-						->from($db->qn('#__rseventspro_events'));
-					$db->setQuery($query);
-					if ($events = $db->loadColumn()) {
-						foreach ($events as $id) {
-							foreach ($categories as $category) {
-								$query->clear()
-									->select($db->qn('id'))
-									->from($db->qn('#__rseventspro_taxonomy'))
-									->where($db->qn('type').' = '.$db->q('category'))
-									->where($db->qn('ide').' = '.$db->q($id))
-									->where($db->qn('id').' = '.$db->q($category));
-								$db->setQuery($query);
-								$txid = (int) $db->loadResult();
-								
-								if (!$txid) {
-									$query->clear()
-										->insert($db->qn('#__rseventspro_taxonomy'))
-										->set($db->qn('type').' = '.$db->q('category'))
-										->set($db->qn('ide').' = '.$db->q($id))
-										->set($db->qn('id').' = '.$db->q($category));
-									$db->setQuery($query);
-									$db->execute();
-								}
-							}
-						}
-					}
-				} else {
-					if ($type == 'r') {
-						$query->clear()
-							->delete($db->qn('#__rseventspro_taxonomy'))
-							->where($db->qn('type').' = '.$db->q('category'))
-							->where($db->qn('ide').' IN ('.implode(',', $pks).')');
-						$db->setQuery($query);
-						$db->execute();
-					}
-					
-					foreach ($pks as $id) {
-						foreach ($categories as $category) {
-							$query->clear()
-								->select($db->qn('id'))
-								->from($db->qn('#__rseventspro_taxonomy'))
-								->where($db->qn('type').' = '.$db->q('category'))
-								->where($db->qn('ide').' = '.$db->q($id))
-								->where($db->qn('id').' = '.$db->q($category));
-							$db->setQuery($query);
-							$txid = (int) $db->loadResult();
-							
-							if (!$txid) {
-								$query->clear()
-									->insert($db->qn('#__rseventspro_taxonomy'))
-									->set($db->qn('type').' = '.$db->q('category'))
-									->set($db->qn('ide').' = '.$db->q($id))
-									->set($db->qn('id').' = '.$db->q($category));
-								$db->setQuery($query);
-								$db->execute();
-							}
-						}
-					}
-				}
-			}
+			$this->updateBatchOptions($categories, 'category', $pks, $all, $type);
+			// Update groups
+			$this->updateBatchOptions($groups, 'groups', $pks, $all, $type);
+			// Update sponsors
+			$this->updateBatchOptions($sponsors, 'sponsor', $pks, $all, $type);
+			// Update speakers
+			$this->updateBatchOptions($speakers, 'speaker', $pks, $all, $type);
 			
 			// Update tags
 			if (!empty($tags)) {
@@ -1392,5 +1331,84 @@ class RseventsproModelEvent extends JModelAdmin
 		}
 		
 		return $locations[$id];
+	}
+	
+	protected function updateBatchOptions($array, $taxonomy, $pks, $all, $type) {
+		if (!empty($array)) {
+			$db		= JFactory::getDbo();
+			$query	= $db->getQuery(true);
+			$array	= array_map('intval',$array);
+			
+			if ($all) {
+				if ($type == 'r') {
+					$query->clear()
+						->delete($db->qn('#__rseventspro_taxonomy'))
+						->where($db->qn('type').' = '.$db->q($taxonomy));
+					$db->setQuery($query);
+					$db->execute();
+				}
+				
+				$query->clear()
+					->select($db->qn('id'))
+					->from($db->qn('#__rseventspro_events'));
+				$db->setQuery($query);
+				if ($events = $db->loadColumn()) {
+					foreach ($events as $id) {
+						foreach ($array as $arrayID) {
+							$query->clear()
+								->select($db->qn('id'))
+								->from($db->qn('#__rseventspro_taxonomy'))
+								->where($db->qn('type').' = '.$db->q($taxonomy))
+								->where($db->qn('ide').' = '.$db->q($id))
+								->where($db->qn('id').' = '.$db->q($arrayID));
+							$db->setQuery($query);
+							$txid = (int) $db->loadResult();
+							
+							if (!$txid) {
+								$query->clear()
+									->insert($db->qn('#__rseventspro_taxonomy'))
+									->set($db->qn('type').' = '.$db->q($taxonomy))
+									->set($db->qn('ide').' = '.$db->q($id))
+									->set($db->qn('id').' = '.$db->q($arrayID));
+								$db->setQuery($query);
+								$db->execute();
+							}
+						}
+					}
+				}
+			} else {
+				if ($type == 'r') {
+					$query->clear()
+						->delete($db->qn('#__rseventspro_taxonomy'))
+						->where($db->qn('type').' = '.$db->q($taxonomy))
+						->where($db->qn('ide').' IN ('.implode(',', $pks).')');
+					$db->setQuery($query);
+					$db->execute();
+				}
+				
+				foreach ($pks as $id) {
+					foreach ($array as $arrayID) {
+						$query->clear()
+							->select($db->qn('id'))
+							->from($db->qn('#__rseventspro_taxonomy'))
+							->where($db->qn('type').' = '.$db->q($taxonomy))
+							->where($db->qn('ide').' = '.$db->q($id))
+							->where($db->qn('id').' = '.$db->q($arrayID));
+						$db->setQuery($query);
+						$txid = (int) $db->loadResult();
+						
+						if (!$txid) {
+							$query->clear()
+								->insert($db->qn('#__rseventspro_taxonomy'))
+								->set($db->qn('type').' = '.$db->q($taxonomy))
+								->set($db->qn('ide').' = '.$db->q($id))
+								->set($db->qn('id').' = '.$db->q($arrayID));
+							$db->setQuery($query);
+							$db->execute();
+						}
+					}
+				}
+			}
+		}
 	}
 }

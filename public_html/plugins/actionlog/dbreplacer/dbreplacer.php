@@ -1,21 +1,25 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 defined('_JEXEC') or die;
 
+use RegularLabs\Library\ActionLogPlugin as RL_ActionLogPlugin;
 use RegularLabs\Library\ArrayHelper as RL_Array;
 use RegularLabs\Library\Document as RL_Document;
+use RegularLabs\Library\Extension as RL_Extension;
 use RegularLabs\Library\Log as RL_Log;
 
-if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
+if ( ! is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php')
+	|| ! is_file(JPATH_LIBRARIES . '/regularlabs/src/ActionLogPlugin.php')
+)
 {
 	return;
 }
@@ -24,13 +28,14 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 if ( ! RL_Document::isJoomlaVersion(3))
 {
+	RL_Extension::disable('dbreplacer', 'plugin', 'actionlog');
+
 	return;
 }
 
 if (true)
 {
-	class PlgActionlogDBReplacer
-		extends \RegularLabs\Library\ActionLogPlugin
+	class PlgActionlogDBReplacer extends RL_ActionLogPlugin
 	{
 		public $name  = 'DBREPLACER';
 		public $alias = 'dbreplacer';

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -26,6 +26,11 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 class JFormFieldRL_ConditionSelection extends \RegularLabs\Library\Field
 {
 	public $type = 'ConditionSelection';
+
+	protected function closeShowOn()
+	{
+		return RL_ShowOn::close();
+	}
 
 	protected function getLabel()
 	{
@@ -72,8 +77,12 @@ class JFormFieldRL_ConditionSelection extends \RegularLabs\Library\Field
 		{
 			$class .= ' alert-error';
 		}
+
 		$html[] = '<div class="' . $class . '">';
-		if ($showclose && JFactory::getUser()->authorise('core.admin'))
+
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
+
+		if ($showclose && $user->authorise('core.admin'))
 		{
 			$html[] = '<button type="button" class="close" aria-label="Close">&times;</button>';
 		}
@@ -124,10 +133,5 @@ class JFormFieldRL_ConditionSelection extends \RegularLabs\Library\Field
 		$formControl = $formControl == 'root' ? '' : $formControl;
 
 		return RL_ShowOn::open($condition, $formControl);
-	}
-
-	protected function closeShowOn()
-	{
-		return RL_ShowOn::close();
 	}
 }

@@ -432,6 +432,10 @@
 			<option value="1">JYES</option>
 			<option value="0">JNO</option>
 		</field>
+		<field name="google_recurrence" type="radio" class="btn-group btn-group-yesno" label="COM_RSEVENTSPRO_CONF_FACEBOOK_RECURRING" description="COM_RSEVENTSPRO_CONF_FACEBOOK_RECURRING_DESC" default="1">
+			<option value="1">JYES</option>
+			<option value="0">JNO</option>
+		</field>
 		<field name="google_calendars" type="gcalendars" label="COM_RSEVENTSPRO_CONF_GOOGLE_CALENDARS" description="COM_RSEVENTSPRO_CONF_GOOGLE_CALENDARS_DESC" multiple="multiple" default="" />
 	</fieldset>
 
@@ -469,6 +473,17 @@
 	
 	<fields name="gallery">
 		<fieldset name="gallery" label="COM_RSEVENTSPRO_CONF_GALLERY" description="COM_RSEVENTSPRO_CONF_GALLERY_DESC">
+			<field name="itemsrow" type="list" class="input-small" default="3" label="COM_RSEVENTSPRO_CONF_GALLERY_RESPONSIVE_ITEMS_ROW" description="COM_RSEVENTSPRO_CONF_GALLERY_RESPONSIVE_ITEMS_ROW_DESC">
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+				<option value="4">4</option>
+				<option value="6">6</option>
+			</field>
+			<field name="center_list" type="radio" class="btn-group btn-group-yesno" default="1" label="COM_RSEVENTSPRO_CONF_GALLERY_CENTER_LIST" description="COM_RSEVENTSPRO_CONF_GALLERY_CENTER_LIST_DESC">
+				<option value="1">JYES</option>
+				<option value="0">JNO</option>
+			</field>
 			<field name="thumb_resolution" type="rsresolution" label="COM_RSEVENTSPRO_CONF_THUMB_RESOLUTION" description="COM_RSEVENTSPRO_CONF_THUMB_RESOLUTION_DESC" size="5" default="w,280" />
 			<field name="full_resolution" type="rsresolution" label="COM_RSEVENTSPRO_CONF_FULL_RESOLUTION" description="COM_RSEVENTSPRO_CONF_FULL_RESOLUTION_DESC" size="5" default="w,600" />
 			

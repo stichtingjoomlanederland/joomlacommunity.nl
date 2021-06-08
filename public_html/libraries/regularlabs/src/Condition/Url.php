@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -14,6 +14,7 @@ namespace RegularLabs\Library\Condition;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Uri\Uri as JUri;
+use RegularLabs\Library\Condition;
 use RegularLabs\Library\RegEx;
 use RegularLabs\Library\StringHelper;
 
@@ -21,12 +22,12 @@ use RegularLabs\Library\StringHelper;
  * Class Url
  * @package RegularLabs\Library\Condition
  */
-class Url
-	extends \RegularLabs\Library\Condition
+class Url extends Condition
 {
 	public function pass()
 	{
-		$regex = isset($this->params->regex) ? $this->params->regex : false;
+		$regex         = $this->params->regex ?? false;
+		$casesensitive = $this->params->casesensitive ?? false;
 
 		if ( ! is_array($this->selection))
 		{
@@ -52,18 +53,23 @@ class Url
 		$pass = false;
 		foreach ($urls as $url)
 		{
-			foreach ($this->selection as $s)
+			if ( ! $casesensitive)
 			{
-				$s = trim($s);
-				if ($s == '')
+				$url = StringHelper::strtolower($url);
+			}
+
+			foreach ($this->selection as $selection)
+			{
+				$selection = trim($selection);
+				if ($selection == '')
 				{
 					continue;
 				}
 
 				if ($regex)
 				{
-					$url_part = str_replace(['#', '&amp;'], ['\#', '(&amp;|&)'], $s);
-					if (@RegEx::match($url_part, $url))
+					$url_part = str_replace(['#', '&amp;'], ['\#', '(&amp;|&)'], $selection);
+					if (@RegEx::match($url_part, $url, $match, $casesensitive ? 's' : 'si'))
 					{
 						$pass = true;
 						break;
@@ -72,7 +78,12 @@ class Url
 					continue;
 				}
 
-				if (strpos($url, $s) !== false)
+				if ( ! $casesensitive)
+				{
+					$selection = StringHelper::strtolower($selection);
+				}
+
+				if (strpos($url, $selection) !== false)
 				{
 					$pass = true;
 					break;

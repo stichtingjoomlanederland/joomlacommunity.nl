@@ -630,6 +630,45 @@ function rsepro_import_facebook(pages, owners, step, names, types, total) {
 	});
 }
 
+function addCustomSocial() {
+	var table = jQuery('#socialLinks');
+	var rowid = Math.round(Math.random() * 100000);
+	
+	var row = jQuery('<tr>',{id: 'custom' + rowid });
+	
+	var cell1 = jQuery('<td>');
+	var cell2 = jQuery('<td>');
+	var cell3 = jQuery('<td>');
+	
+	var input1 = jQuery('<input>', {
+		type : 'text',
+		name : 'jform[custom][class][]',
+	});
+	
+	input1.addClass('form-control');
+	
+	var input2 = jQuery('<input>', {
+		type : 'text',
+		name : 'jform[custom][link][]',
+	});
+	
+	input2.addClass('form-control');
+	
+	cell1.append(input1);
+	cell2.append(input2);
+	cell3.html('<a href="javascript:void(0)" class="btn btn-danger" onclick="removeCustomSocial(\''+rowid+'\')">x</a>');
+	
+	row.append(cell1);
+	row.append(cell2);
+	row.append(cell3);
+	
+	table.append(row);
+}
+
+function removeCustomSocial(id) {
+	jQuery('#custom'+id).remove();
+}
+
 /****** DEPRECATED ******/
 function rs_stop() {}
 function rs_search() {}

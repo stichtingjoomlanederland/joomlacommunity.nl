@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -25,67 +25,7 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 class JFormFieldRL_Geo extends \RegularLabs\Library\Field
 {
-	public $type = 'Geo';
-
-	protected function getInput()
-	{
-
-		if ( ! is_array($this->value))
-		{
-			$this->value = explode(',', $this->value);
-		}
-
-		$size      = (int) $this->get('size');
-		$multiple  = $this->get('multiple');
-		$group     = $this->get('group', 'countries');
-		$use_names = $this->get('use_names', false);
-
-		return $this->selectListSimpleAjax(
-			$this->type, $this->name, $this->value, $this->id,
-			compact('size', 'multiple', 'group', 'use_names')
-		);
-	}
-
-	function getAjaxRaw(Registry $attributes)
-	{
-		$name  = $attributes->get('name', $this->type);
-		$id    = $attributes->get('id', strtolower($name));
-		$value = $attributes->get('value', []);
-		$size  = $attributes->get('size');
-
-		$options = $this->getOptions(
-			$attributes->get('group', 'countries'),
-			(bool) $attributes->get('use_names', false)
-		);
-
-		return $this->selectListSimple($options, $name, $value, $id, $size, true);
-	}
-
-	function getOptions($group = 'countries', $use_names = '')
-	{
-		$options = [];
-		foreach ($this->{$group} as $key => $val)
-		{
-			if ( ! $val)
-			{
-				$options[] = JHtml::_('select.option', '-', '&nbsp;', 'value', 'text', true);
-				continue;
-			}
-
-			if ($key[0] == '-')
-			{
-				$options[] = JHtml::_('select.option', '-', $val, 'value', 'text', true);
-				continue;
-			}
-
-			$val       = RL_Form::prepareSelectItem($val);
-			$options[] = JHtml::_('select.option', $use_names ? $val : $key, $val);
-		}
-
-		return $options;
-	}
-
-	public $continents = [
+	public $continents       = [
 		'AF' => 'Africa',
 		'AS' => 'Asia',
 		'EU' => 'Europe',
@@ -94,8 +34,7 @@ class JFormFieldRL_Geo extends \RegularLabs\Library\Field
 		'OC' => 'Oceania',
 		'AN' => 'Antarctica',
 	];
-
-	public $countries = [
+	public $countries        = [
 		'AF' => "Afghanistan",
 		'AX' => "Aland Islands",
 		'AL' => "Albania",
@@ -341,8 +280,55 @@ class JFormFieldRL_Geo extends \RegularLabs\Library\Field
 		'ZM' => "Zambia",
 		'ZW' => "Zimbabwe",
 	];
-
-	public $regions = [
+	public $region_countries = [
+		'AU' => "Australia",
+		'BE' => "Belgium",
+		'BR' => "Brazil",
+		'BG' => "Bulgaria",
+		'CA' => "Canada",
+		'CN' => "China",
+		'CY' => "Cyprus",
+		'CZ' => "Czech Republic",
+		'DK' => "Denmark",
+		'EG' => "Egypt",
+		'FR' => "France",
+		'DE' => "Germany",
+		'GR' => "Greece",
+		'HK' => "Hong Kong",
+		'HU' => "Hungary",
+		'IS' => "Iceland",
+		'IN' => "India",
+		'ID' => "Indonesia",
+		'IE' => "Ireland",
+		'IL' => "Israel",
+		'IT' => "Italy",
+		'JP' => "Japan",
+		'MX' => "Mexico",
+		'MA' => "Morocco",
+		'NL' => "Netherlands",
+		'NG' => "Nigeria",
+		'NO' => "Norway",
+		'PH' => "Philippines",
+		'PL' => "Poland",
+		'PT' => "Portugal",
+		'RO' => "Romania",
+		'RU' => "Russian Federation",
+		'SK' => "Slovakia",
+		'SI' => "Slovenia",
+		'ZA' => "South Africa",
+		'ES' => "Spain",
+		'SE' => "Sweden",
+		'CH' => "Switzerland",
+		'TW' => "Taiwan",
+		'TH' => "Thailand",
+		'TR' => "Turkey",
+		'UA' => "Ukraine",
+		'AE' => "United Arab Emirates",
+		'GB' => "United Kingdom",
+		'US' => "United States",
+		'VN' => "Vietnam",
+	];
+	public $regions          = [
 		'-AU'    => "Australia",
 		'AU-ACT' => "Australia: Australian Capital Territory",
 		'AU-NSW' => "Australia: New South Wales",
@@ -984,7 +970,7 @@ class JFormFieldRL_Geo extends \RegularLabs\Library\Field
 		'IE-CN' => "Ireland: Cavan",
 		'IE-CE' => "Ireland: Clare",
 		'IE-C'  => "Ireland: Connacht",
-		'IE-C'  => "Ireland: Cork",
+		'IE-CO' => "Ireland: Cork",
 		'IE-DL' => "Ireland: Donegal",
 		'IE-D'  => "Ireland: Dublin",
 		'IE-G'  => "Ireland: Galway",
@@ -2601,5 +2587,103 @@ class JFormFieldRL_Geo extends \RegularLabs\Library\Field
 		'VN-39' => "Vietnam: Đồng Nai",
 		'VN-45' => "Vietnam: Đồng Tháp",
 	];
+	public $type             = 'Geo';
+
+	public function cleanRegions($regions)
+	{
+		$regions = str_replace('"', '', $regions);
+
+		$regions = htmlspecialchars($regions);
+
+		// LR,MY, name for US-MD,Maryland,Maryland
+		// >>
+		// LR,MY,Maryland,Maryland
+		// US,MD,Maryland,Maryland
+		$regex = '(\n[^,]*),([^\n]*), name for ([^-]*)-([^,]*),([^\n]*\n)';
+		RL_RegEx::match($regex, $regions, $match);
+		while ($match)
+		{
+			$regions = RL_RegEx::replace($regex, '\1,\2,\5\3,\4,\5', $regions);
+
+			RL_RegEx::match($regex, $regions, $match);
+		}
+
+		// LR,MY,Maryland,Maryland
+		// >>
+		// LR,MY,Maryland
+		$regions = RL_RegEx::replace('(\n[^,]*,[^,]*),([^,]*),\2', '\1,\2', $regions);
+
+		// LR,MY,District of Columbia,Disricte de Columbia
+		// >>
+		// LR, MY, District of Columbia, Disricte de Columbia
+		$regions = str_replace(',', ', ', $regions);
+
+		// GB, WRX, Wrexham;Wrecsam
+		// >>
+		// GB, WRX, Wrexham (Wrecsam)
+		$regions = RL_RegEx::replace('(\n[^,]*,[^,]*,[^;]*);([^\n]*)', '\1 (\2)', $regions);
+
+		$regions = trim(RL_RegEx::replace('  +', ' ', $regions));
+
+		return explode("\n", $regions);
+	}
+
+	public function getAjaxRaw(Registry $attributes)
+	{
+		$name  = $attributes->get('name', $this->type);
+		$id    = $attributes->get('id', strtolower($name));
+		$value = $attributes->get('value', []);
+		$size  = $attributes->get('size');
+
+		$options = $this->getOptions(
+			$attributes->get('group', 'countries'),
+			(bool) $attributes->get('use_names', false)
+		);
+
+		return $this->selectListSimple($options, $name, $value, $id, $size, true);
+	}
+
+	public function getOptions($group = 'countries', $use_names = '')
+	{
+		$options = [];
+		foreach ($this->{$group} as $key => $val)
+		{
+			if ( ! $val)
+			{
+				$options[] = JHtml::_('select.option', '-', '&nbsp;', 'value', 'text', true);
+				continue;
+			}
+
+			if ($key[0] == '-')
+			{
+				$options[] = JHtml::_('select.option', '-', $val, 'value', 'text', true);
+				continue;
+			}
+
+			$val       = RL_Form::prepareSelectItem($val);
+			$options[] = JHtml::_('select.option', $use_names ? $val : $key, $val);
+		}
+
+		return $options;
+	}
+
+	protected function getInput()
+	{
+
+		if ( ! is_array($this->value))
+		{
+			$this->value = explode(',', $this->value);
+		}
+
+		$size      = (int) $this->get('size');
+		$multiple  = $this->get('multiple');
+		$group     = $this->get('group', 'countries');
+		$use_names = $this->get('use_names', false);
+
+		return $this->selectListSimpleAjax(
+			$this->type, $this->name, $this->value, $this->id,
+			compact('size', 'multiple', 'group', 'use_names')
+		);
+	}
 
 }

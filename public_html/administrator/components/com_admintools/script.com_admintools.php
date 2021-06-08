@@ -306,6 +306,9 @@ class Com_AdmintoolsInstallerScript extends \FOF40\InstallScript\Component
 			'administrator/components/com_admintools/media/js/Tooltip.min.map',
 			'administrator/components/com_admintools/media/js/cpanelgraphs.min.js',
 			'administrator/components/com_admintools/media/js/cpanelgraphs.min.map',
+
+			// Update Charts.js
+			'administrator/components/com_admintools/media/js/Chart.bundle.min.js',
 		],
 		'folders' => [
 			// Obsolete folders from AT 1.x, 2.x and 3.x

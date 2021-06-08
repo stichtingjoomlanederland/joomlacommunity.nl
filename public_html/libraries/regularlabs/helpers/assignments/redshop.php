@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,7 +20,7 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 class RLAssignmentsRedShop extends RLAssignment
 {
@@ -29,11 +29,6 @@ class RLAssignmentsRedShop extends RLAssignment
 		$this->request->item_id     = JFactory::getApplication()->input->getInt('pid', 0);
 		$this->request->category_id = JFactory::getApplication()->input->getInt('cid', 0);
 		$this->request->id          = ($this->request->item_id) ? $this->request->item_id : $this->request->category_id;
-	}
-
-	public function passPageTypes()
-	{
-		return $this->passByPageTypes('com_redshop', $this->selection, $this->assignment, true);
 	}
 
 	public function passCategories()
@@ -87,6 +82,11 @@ class RLAssignmentsRedShop extends RLAssignment
 		}
 
 		return $this->passSimple($cats);
+	}
+
+	public function passPageTypes()
+	{
+		return $this->passByPageTypes('com_redshop', $this->selection, $this->assignment, true);
 	}
 
 	public function passProducts()

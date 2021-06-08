@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -12,9 +12,9 @@
 defined('_JEXEC') or die;
 
 use RegularLabs\Library\Article as RL_Article;
-use RegularLabs\Library\Cache as RL_Cache;
+use RegularLabs\Library\CacheNew as RL_Cache;
 use RegularLabs\Library\Document as RL_Document;
-use RegularLabs\Library\Parameters as RL_Parameters;
+use RegularLabs\Library\ParametersNew as RL_Parameters;
 
 if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 {
@@ -30,16 +30,16 @@ class RLHelper
 			return null;
 		}
 
-		$hash = md5('getPluginHelper_' . $plugin->get('_type') . '_' . $plugin->get('_name') . '_' . json_encode($params));
+		$cache = new RL_Cache([__METHOD__, $plugin->get('_type'), $plugin->get('_name'),$params]);
 
-		if (RL_Cache::has($hash))
+		if ($cache->exists())
 		{
-			return RL_Cache::get($hash);
+			return $cache->get();
 		}
 
 		if ( ! $params)
 		{
-			$params = RL_Parameters::getInstance()->getPluginParams($plugin->get('_name'));
+			$params = RL_Parameters::getPlugin($plugin->get('_name'));
 		}
 
 		$file = JPATH_PLUGINS . '/' . $plugin->get('_type') . '/' . $plugin->get('_name') . '/helper.php';
@@ -52,19 +52,16 @@ class RLHelper
 		require_once $file;
 		$class = get_class($plugin) . 'Helper';
 
-		return RL_Cache::set(
-			$hash,
-			new $class($params)
-		);
-	}
-
-	public static function processArticle(&$article, &$context, &$helper, $method, $params = [])
-	{
-		class_exists('RegularLabs\Library\Article') && RL_Article::process($article, $context, $helper, $method, $params);
+		return $cache->set(new $class($params));
 	}
 
 	public static function isCategoryList($context)
 	{
 		return class_exists('RegularLabs\Library\Document') && RL_Document::isCategoryList($context);
+	}
+
+	public static function processArticle(&$article, &$context, &$helper, $method, $params = [])
+	{
+		class_exists('RegularLabs\Library\Article') && RL_Article::process($article, $context, $helper, $method, $params);
 	}
 }

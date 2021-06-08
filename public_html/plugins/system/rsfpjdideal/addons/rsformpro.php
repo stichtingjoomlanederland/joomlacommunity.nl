@@ -134,7 +134,7 @@ class AddonRsformpro implements AddonInterface
 
 		$data['order_total']  = $this->db->loadResult();
 		$data['order_status'] = $this->translateOrderStatus($order['_STATUS']->fieldValue);
-		$data['user_email']   = $order[$emailField]->fieldValue ?? $order[$emailField]->userEmail;
+		$data['user_email']   = isset($order[$emailField]) ? $order[$emailField]->fieldValue ?? $order[$emailField]->userEmail : '';
 
 		return $data;
 	}

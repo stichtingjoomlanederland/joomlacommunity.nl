@@ -49,7 +49,7 @@ class EditorHelper extends acymObject
             usort(
                 $data['plugins'],
                 function ($a, $b) {
-                    return strtolower($a->name) > strtolower($b->name);
+                    return strtolower($a->name) > strtolower($b->name) ? 1 : -1;
                 }
             );
 
@@ -215,7 +215,7 @@ class EditorHelper extends acymObject
 
         if (empty($id)) {
             $id = acym_getVar('int', 'id');
-            if (!empty($id) && $ctrl == 'campaigns') $id = acym_loadResult('SELECT mail_id FROM #__acym_campaign WHERE id = '.intval($id));
+            if (!empty($id) && in_array($ctrl, ['campaigns', 'frontcampaigns'])) $id = acym_loadResult('SELECT mail_id FROM #__acym_campaign WHERE id = '.intval($id));
         }
 
 
@@ -317,10 +317,17 @@ class EditorHelper extends acymObject
 
         $styles = '';
         foreach ($settings as $element => $rules) {
-            $styles .= '#acym__wysid__template '.$element.':not(.acym__wysid__content-no-settings-style){';
+            $values = '';
             foreach ($rules as $ruleName => $value) {
-                $styles .= $ruleName.': '.$value.';';
+                if ($ruleName == 'overridden') continue;
+                $values .= $ruleName.': '.$value.';';
             }
+            $styles .= '#acym__wysid__template .acym__wysid__column__element__td .acym__wysid__tinymce--text '.$element.':not(.acym__wysid__content-no-settings-style){';
+            $styles .= $values;
+            $styles .= '}';
+
+            $styles .= '#acym__wysid__template .acym__wysid__column__element__td .acymailing_content '.$element.':not(.acym__wysid__content-no-settings-style){';
+            $styles .= $values;
             $styles .= '}';
         }
 

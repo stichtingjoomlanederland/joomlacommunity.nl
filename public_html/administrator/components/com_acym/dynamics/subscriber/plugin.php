@@ -3,6 +3,7 @@
 use AcyMailing\Classes\FollowupClass;
 use AcyMailing\Classes\SegmentClass;
 use AcyMailing\Helpers\AutomationHelper;
+use AcyMailing\Helpers\ExportHelper;
 use AcyMailing\Libraries\acymPlugin;
 use AcyMailing\Classes\UserClass;
 use AcyMailing\Classes\MailClass;
@@ -24,6 +25,8 @@ class plgAcymSubscriber extends acymPlugin
         'user_unsubscribe' => 'ACYM_WHEN_USER_UNSUBSCRIBES',
         'user_confirmation' => 'ACYM_WHEN_USER_CONFIRMS_SUBSCRIPTION',
     ];
+
+    const TRIGGERS_MAIL = ['user_click', 'user_open'];
 
     public function __construct()
     {
@@ -173,12 +176,29 @@ class plgAcymSubscriber extends acymPlugin
         return $replaceme;
     }
 
-    public function onAcymDeclareTriggers(&$triggers)
+    public function onAcymDeclareTriggers(&$triggers, &$defaultValues)
     {
         foreach (self::TRIGGERS as $key => $name) {
             $triggers['user'][$key] = new stdClass();
-            $triggers['user'][$key]->name = acym_translation($name);
+            $triggers['user'][$key]->name = '<div class="cell shrink">'.acym_translation($name).'</div>';
             $triggers['user'][$key]->option = '<input type="hidden" name="[triggers][user]['.$key.'][]" value="">';
+
+            if (in_array($key, self::TRIGGERS_MAIL)) {
+                $ajaxParams = json_encode(['plugin' => 'plgAcymStatistics', 'trigger' => 'searchMail',]);
+                $mailIdAttributes = [
+                    'data-class' => 'acym_select2_ajax',
+                    'data-placeholder' => acym_translation('ACYM_ANY_EMAIL', true),
+                    'data-params' => $ajaxParams,
+                ];
+                if (!empty($defaultValues['mail_'.$key])) $mailIdAttributes['data-selected'] = $defaultValues['mail_'.$key];
+
+                $triggers['user'][$key]->option .= '<div class="cell shrink">'.acym_select(
+                        [],
+                        '[triggers][user][mail_'.$key.']',
+                        null,
+                        $mailIdAttributes
+                    ).'</div>';
+            }
         }
     }
 
@@ -188,8 +208,13 @@ class plgAcymSubscriber extends acymPlugin
 
         $triggers = $step->triggers;
 
+
         foreach (self::TRIGGERS as $identifier => $name) {
             if (empty($triggers[$identifier])) continue;
+
+            if (!empty($triggers['mail_'.$identifier]) && in_array($identifier, self::TRIGGERS_MAIL)) {
+                if (empty($data['mailId']) || $data['mailId'] != $triggers['mail_'.$identifier]) continue;
+            }
 
             $execute = true;
             break;
@@ -283,7 +308,7 @@ class plgAcymSubscriber extends acymPlugin
                 if (!is_numeric($options['value'])) {
                     $options['value'] = strtotime($options['value']);
                 }
-                $options['value'] = acym_date($options['value'], "Y-m-d H:i:s");
+                $options['value'] = acym_date($options['value'], 'Y-m-d H:i:s');
             }
             $query->where[] = $query->convertQuery('user', $options['field'], $options['operator'], $options['value']);
         }
@@ -564,7 +589,7 @@ class plgAcymSubscriber extends acymPlugin
         if (empty($action['time']) || empty($action['mail_id'])) return '';
 
         $sendDate = acym_replaceDate($action['time']);
-        $sendDate = acym_date($sendDate, "Y-m-d H:i:s", false);
+        $sendDate = acym_date($sendDate, 'Y-m-d H:i:s', false);
         $mailClass = new MailClass();
 
         $mail = $mailClass->getOneById($action['mail_id']);
@@ -665,10 +690,57 @@ class plgAcymSubscriber extends acymPlugin
         }
     }
 
-    public function onAcymAfterUserModify(&$user)
+    public function onAcymAfterUserModify(&$user, &$oldUser)
     {
+        if (empty($user)) return;
+
         $automationClass = new AutomationClass();
         $automationClass->trigger('user_modification', ['userId' => $user->id]);
+
+        if (empty($oldUser)) return;
+
+        $exportChanges = $this->config->get('export_data_changes', 0);
+        if (!$exportChanges) return;
+
+        $fieldsToExport = $this->config->get('export_data_changes_fields', []);
+        if (empty($fieldsToExport)) return;
+
+        $userClass = new UserClass();
+        $newUser = $userClass->getOneByIdWithCustomFields($user->id);
+        if (empty($newUser)) return;
+
+        if (empty($fieldsToExport)) return;
+
+        $fieldsToExport = explode(',', $fieldsToExport);
+        $fieldClass = new FieldClass();
+        $fields = $fieldClass->getByIds($fieldsToExport);
+
+        $fieldsName = [];
+        foreach ($fields as $field) {
+            if ($field->name == 'ACYM_NAME') {
+                $name = 'name';
+            } elseif ($field->name == 'ACYM_EMAIL') {
+                $name = 'email';
+            } elseif ($field->name == 'ACYM_LANGUAGE') {
+                $name = 'language';
+            } else {
+                $name = $field->name;
+            }
+            $fieldsName[] = $name;
+        }
+
+        if (empty($fieldsName)) return;
+
+        $exportHelper = new ExportHelper();
+
+        foreach ($newUser as $column => $value) {
+            if (!isset($oldUser[$column])) $oldUser[$column] = '';
+            if (!isset($newUser[$column])) $newUser[$column] = '';
+
+            if ($oldUser[$column] == $newUser[$column]) continue;
+
+            $exportHelper->exportChanges($newUser, $fieldsName, $column, $newUser[$column], $oldUser[$column]);
+        }
     }
 
     public function onAcymDeclareSummary_conditions(&$automation)
@@ -831,5 +903,25 @@ class plgAcymSubscriber extends acymPlugin
             'level' => 2,
             'alias' => self::FOLLOWTRIGGER,
         ];
+    }
+
+    public function onBeforeSaveConfigFields(&$newConfig)
+    {
+        $fieldToExportOnChange = $this->config->get('export_data_changes_fields', []);
+        if (empty($fieldToExportOnChange)) return;
+
+        if (!is_array($fieldToExportOnChange)) $fieldToExportOnChange = explode(',', $fieldToExportOnChange);
+
+        if (empty($newConfig['export_data_changes_fields'])) $newConfig['export_data_changes_fields'] = [];
+
+        if ($fieldToExportOnChange == $newConfig['export_data_changes_fields']) return;
+
+        $exportHelper = new ExportHelper();
+        $fileExportPath = $exportHelper->getExportChangesFilePath();
+
+        if (!file_exists($fileExportPath)) return;
+
+        $newFilename = $exportHelper->generateExportChangesFilePathConfigChanges();
+        @rename($fileExportPath, $newFilename);
     }
 }

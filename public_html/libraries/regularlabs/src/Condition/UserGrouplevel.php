@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,12 +20,11 @@ use RegularLabs\Library\DB as RL_DB;
  * Class UserGrouplevel
  * @package RegularLabs\Library\Condition
  */
-class UserGrouplevel
-	extends User
+class UserGrouplevel extends User
 {
 	public function pass()
 	{
-		$user = JFactory::getUser();
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
 
 		if ( ! empty($user->groups))
 		{
@@ -49,13 +48,6 @@ class UserGrouplevel
 		}
 
 		return $this->passSimple($groups);
-	}
-
-	private function passMatchAll($groups)
-	{
-		$pass = ! array_diff($this->selection, $groups) && ! array_diff($groups, $this->selection);
-
-		return $this->_($pass);
 	}
 
 	private function convertUsergroupNamesToIds($selection)
@@ -91,20 +83,6 @@ class UserGrouplevel
 		$group_ids = $db->loadColumn();
 
 		return array_unique(array_merge($selection, $group_ids));
-	}
-
-	private function setUserGroupChildrenIds()
-	{
-		$children = $this->getUserGroupChildrenIds($this->selection);
-
-		if ($this->params->inc_children == 2)
-		{
-			$this->selection = $children;
-
-			return;
-		}
-
-		$this->selection = array_merge($this->selection, $children);
 	}
 
 	private function getUserGroupChildrenIds($groups)
@@ -143,5 +121,26 @@ class UserGrouplevel
 		$children = array_unique($children);
 
 		return $children;
+	}
+
+	private function passMatchAll($groups)
+	{
+		$pass = ! array_diff($this->selection, $groups) && ! array_diff($groups, $this->selection);
+
+		return $this->_($pass);
+	}
+
+	private function setUserGroupChildrenIds()
+	{
+		$children = $this->getUserGroupChildrenIds($this->selection);
+
+		if ($this->params->inc_children == 2)
+		{
+			$this->selection = $children;
+
+			return;
+		}
+
+		$this->selection = array_merge($this->selection, $children);
 	}
 }

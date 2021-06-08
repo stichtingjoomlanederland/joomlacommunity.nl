@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -24,6 +24,107 @@ use Joomla\CMS\Uri\Uri as JUri;
 class Uri
 {
 	/**
+	 * adds the given url parameter (key + value) to the url or replaces it already exists
+	 *
+	 * @param string $url
+	 * @param string $key
+	 * @param string $value
+	 * @param bool   $replace
+	 *
+	 * @return string
+	 */
+	public static function addParameter($url, $key, $value = '', $replace = true)
+	{
+		if (empty($key))
+		{
+			return $url;
+		}
+
+		$uri   = parse_url($url);
+		$query = self::parse_query($uri['query'] ?? '');
+
+		if ( ! $replace && isset($query[$key]))
+		{
+			return $url;
+		}
+
+		$query[$key] = $value;
+
+		$uri['query'] = http_build_query($query);
+
+		return self::createUrlFromArray($uri);
+	}
+
+	/**
+	 * Appends the given hash to the url or replaces it if there is already one
+	 *
+	 * @param string $url
+	 * @param string $hash
+	 *
+	 * @return string
+	 */
+	public static function appendHash($url = '', $hash = '')
+	{
+		if (empty($hash))
+		{
+			return $url;
+		}
+
+		$uri = parse_url($url);
+
+		$uri['fragment'] = $hash;
+
+		return self::createUrlFromArray($uri);
+	}
+
+	public static function createCompressedAttributes($string)
+	{
+		$parameters = [];
+
+		$compressed   = base64_encode(gzdeflate($string));
+		$chunk_length = ceil(strlen($compressed) / 10);
+		$chunks       = str_split($compressed, $chunk_length);
+
+		foreach ($chunks as $i => $chunk)
+		{
+			$parameters[] = 'rlatt_' . $i . '=' . urlencode($chunk);
+		}
+
+		return implode('&', $parameters);
+	}
+
+	/**
+	 * Converts an array of url parts (like made by parse_url) to a string
+	 *
+	 * @param array $uri
+	 *
+	 * @return string
+	 */
+	public static function createUrlFromArray($uri)
+	{
+		$user = $uri['user'] ?? '';
+		$pass = ! empty($uri['pass']) ? ':' . $uri['pass'] : '';
+
+		return (! empty($uri['scheme']) ? $uri['scheme'] . '://' : '')
+			. (($user || $pass) ? $user . $pass . '@' : '')
+			. (! empty($uri['host']) ? $uri['host'] : '')
+			. (! empty($uri['port']) ? ':' . $uri['port'] : '')
+			. (! empty($uri['path']) ? $uri['path'] : '')
+			. (! empty($uri['query']) ? '?' . $uri['query'] : '')
+			. (! empty($uri['fragment']) ? '#' . $uri['fragment'] : '');
+	}
+
+	public static function decode($string)
+	{
+		return gzinflate(base64_decode(urldecode($string)));
+	}
+
+	public static function encode($string)
+	{
+		return urlencode(base64_encode(gzdeflate($string)));
+	}
+
+	/**
 	 * Returns the full uri and optionally adds/replaces the hash
 	 *
 	 * @param string $hash
@@ -42,36 +143,31 @@ class Uri
 		return self::appendHash($url, $hash);
 	}
 
-	/**
-	 * adds the given url parameter (key + value) to the url or replaces it already exists
-	 *
-	 * @param string $url
-	 * @param string $key
-	 * @param string $value
-	 * @param bool   $replace
-	 *
-	 * @return string
-	 */
-	public static function addParameter($url, $key, $value = '', $replace = true)
+	public static function getCompressedAttributes()
 	{
-		if (empty($key))
+		$input = JFactory::getApplication()->input;
+
+		$compressed = '';
+
+		for ($i = 0; $i < 10; $i++)
 		{
-			return $url;
+			$compressed .= $input->getString('rlatt_' . $i, '');
 		}
 
-		$uri   = parse_url($url);
-		$query = isset($uri['query']) ? self::parse_query($uri['query']) : [];
+		return gzinflate(base64_decode($compressed));
+	}
 
-		if ( ! $replace && isset($query[$key]))
+	public static function isExternal($url)
+	{
+		if (strpos($url, '://') === false)
 		{
-			return $url;
+			return false;
 		}
 
-		$query[$key] = $value;
+		// hostname: give preference to SERVER_NAME, because this includes subdomains
+		$hostname = ($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
 
-		$uri['query'] = http_build_query($query);
-
-		return self::createUrlFromArray($uri);
+		return ! (strpos(RegEx::replace('^.*?://', '', $url), $hostname) === 0);
 	}
 
 	/**
@@ -104,105 +200,9 @@ class Uri
 		return self::createUrlFromArray($uri);
 	}
 
-	/**
-	 * Converts an array of url parts (like made by parse_url) to a string
-	 *
-	 * @param array $uri
-	 *
-	 * @return string
-	 */
-	public static function createUrlFromArray($uri)
-	{
-		$user = ! empty($uri['user']) ? $uri['user'] : '';
-		$pass = ! empty($uri['pass']) ? ':' . $uri['pass'] : '';
-
-		return (! empty($uri['scheme']) ? $uri['scheme'] . '://' : '')
-			. (($user || $pass) ? $user . $pass . '@' : '')
-			. (! empty($uri['host']) ? $uri['host'] : '')
-			. (! empty($uri['port']) ? ':' . $uri['port'] : '')
-			. (! empty($uri['path']) ? $uri['path'] : '')
-			. (! empty($uri['query']) ? '?' . $uri['query'] : '')
-			. (! empty($uri['fragment']) ? '#' . $uri['fragment'] : '');
-	}
-
-	/**
-	 * Appends the given hash to the url or replaces it if there is already one
-	 *
-	 * @param string $url
-	 * @param string $hash
-	 *
-	 * @return string
-	 */
-	public static function appendHash($url = '', $hash = '')
-	{
-		if (empty($hash))
-		{
-			return $url;
-		}
-
-		$uri = parse_url($url);
-
-		$uri['fragment'] = $hash;
-
-		return self::createUrlFromArray($uri);
-	}
-
-	public static function isExternal($url)
-	{
-		if (strpos($url, '://') === false)
-		{
-			return false;
-		}
-
-		// hostname: give preference to SERVER_NAME, because this includes subdomains
-		$hostname = ($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : $_SERVER['HTTP_HOST'];
-
-		return ! (strpos(RegEx::replace('^.*?://', '', $url), $hostname) === 0);
-	}
-
 	public static function route($url)
 	{
 		return JRoute::_(JUri::root(true) . '/' . $url);
-	}
-
-	public static function encode($string)
-	{
-		return urlencode(base64_encode(gzdeflate($string)));
-	}
-
-	public static function decode($string)
-	{
-		return gzinflate(base64_decode(urldecode($string)));
-	}
-
-	public static function createCompressedAttributes($string)
-	{
-		$parameters = [];
-
-		$compressed   = base64_encode(gzdeflate($string));
-		$chunk_length = ceil(strlen($compressed) / 10);
-		$chunks       = str_split($compressed, $chunk_length);
-
-		foreach ($chunks as $i => $chunk)
-		{
-			$parameters[] = 'rlatt_' . $i . '=' . urlencode($chunk);
-		}
-
-		return implode('&', $parameters);
-	}
-
-	public static function getCompressedAttributes()
-	{
-		$input = JFactory::getApplication()->input;
-
-		$compressed = '';
-
-		for ($i = 0; $i < 10; $i++)
-		{
-			$compressed .= $input->getString('rlatt_' . $i, '');
-		}
-
-		return gzinflate(base64_decode($compressed));
 	}
 
 	/**

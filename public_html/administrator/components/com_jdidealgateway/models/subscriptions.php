@@ -102,6 +102,7 @@ class JdidealgatewayModelSubscriptions extends ListModel
 					'subscriptions.created',
 					'subscriptions.start',
 					'subscriptions.cancelled',
+					'subscriptions.profileId',
 					'customers.name',
 				)
 			)
@@ -132,7 +133,8 @@ class JdidealgatewayModelSubscriptions extends ListModel
 					$db->quoteName('subscriptions.amount') . ' LIKE ' . $db->quote('%' . $search . '%'),
 					$db->quoteName('subscriptions.times') . ' LIKE ' . $db->quote('%' . $search . '%'),
 					$db->quoteName('subscriptions.interval') . ' LIKE ' . $db->quote('%' . $search . '%'),
-					$db->quoteName('subscriptions.description') . ' LIKE ' . $db->quote('%' . $search . '%')
+					$db->quoteName('subscriptions.description') . ' LIKE ' . $db->quote('%' . $search . '%'),
+					$db->quoteName('customers.name') . ' LIKE ' . $db->quote('%' . $search . '%')
 				);
 			}
 
@@ -144,6 +146,20 @@ class JdidealgatewayModelSubscriptions extends ListModel
 		if ($psp)
 		{
 			$query->where($db->quoteName('subscriptions.profileId') . ' = ' . (int) $psp);
+		}
+
+		$customerId = $this->getState('filter.customerId', '');
+
+		if ($customerId)
+		{
+			$query->where($db->quoteName('subscriptions.customerId') . ' = ' . $db->quote($customerId));
+		}
+
+		$subscriptionId = $this->getState('filter.subscriptionId', '');
+
+		if ($subscriptionId)
+		{
+			$query->where($db->quoteName('subscriptions.subscriptionId') . ' = ' . $db->quote($subscriptionId));
 		}
 
 		// Add the list ordering clause.

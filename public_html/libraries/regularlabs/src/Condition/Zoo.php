@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -14,15 +14,27 @@ namespace RegularLabs\Library\Condition;
 defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory as JFactory;
+use RegularLabs\Library\Condition;
+use RegularLabs\Library\ConditionContent;
 
 /**
  * Class Zoo
  * @package RegularLabs\Library\Condition
  */
-abstract class Zoo
-	extends \RegularLabs\Library\Condition
+abstract class Zoo extends Condition
 {
-	use \RegularLabs\Library\ConditionContent;
+	use ConditionContent;
+
+	public function getItem($fields = [])
+	{
+		$query = $this->db->getQuery(true)
+			->select($fields)
+			->from('#__zoo_item')
+			->where('id = ' . (int) $this->request->id);
+		$this->db->setQuery($query);
+
+		return $this->db->loadObject();
+	}
 
 	public function initRequest(&$request)
 	{
@@ -68,17 +80,6 @@ abstract class Zoo
 		}
 
 		$request->id = $menu->getParams()->get('item_id', 0);
-	}
-
-	public function getItem($fields = [])
-	{
-		$query = $this->db->getQuery(true)
-			->select($fields)
-			->from('#__zoo_item')
-			->where('id = ' . (int) $this->request->id);
-		$this->db->setQuery($query);
-
-		return $this->db->loadObject();
 	}
 
 }

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,12 +20,11 @@ use RegularLabs\Library\DB as RL_DB;
  * Class UserAccesslevel
  * @package RegularLabs\Library\Condition
  */
-class UserAccesslevel
-	extends User
+class UserAccesslevel extends User
 {
 	public function pass()
 	{
-		$user = JFactory::getUser();
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
 
 		$levels = $user->getAuthorisedViewLevels();
 

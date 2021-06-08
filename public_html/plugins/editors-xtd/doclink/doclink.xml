@@ -2,7 +2,7 @@
 <extension type="plugin" version="2.5" group="editors-xtd" method="upgrade">
 	<identifier>plg:editors-xtd.doclink</identifier>
 	<name>plg_editors-xtd_doclink</name>
-	<version>3.5.8</version>
+	<version>3.5.9</version>
     <author>Joomlatools</author>
     <creationDate>March 2021</creationDate>
     <copyright>Copyright (C) 2011 Timble CVBA (http://www.timble.net)</copyright>

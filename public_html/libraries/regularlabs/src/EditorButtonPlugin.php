@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -15,24 +15,34 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Object\CMSObject as JObject;
-use Joomla\CMS\Plugin\CMSPlugin as JPlugin;
+use Joomla\CMS\Plugin\CMSPlugin as JCMSPlugin;
 use ReflectionClass;
+use RegularLabs\Library\ParametersNew as Parameters;
 
 /**
  * Class EditorButtonPlugin
  * @package RegularLabs\Library
  */
-class EditorButtonPlugin
-	extends JPlugin
+class EditorButtonPlugin extends JCMSPlugin
 {
-	private $_init   = false;
-	private $_helper = null;
+	var     $check_installed      = null;
+	var     $enable_on_acymailing = false;
+	var     $folder               = null; // The type of extension that holds the parameters
+	var     $main_type            = 'plugin'; // The types of extensions that need to be checked (will default to main_type)
+	var     $require_core_auth    = true; // Whether or not the core content create/edit permissions are required
+	private $_helper              = null; // The path to the original caller file
+	private $_init                = false; // Whether or not to enable the editor button on AcyMailing
 
-	var $main_type            = 'plugin'; // The type of extension that holds the parameters
-	var $check_installed      = null; // The types of extensions that need to be checked (will default to main_type)
-	var $require_core_auth    = true; // Whether or not the core content create/edit permissions are required
-	var $folder               = null; // The path to the original caller file
-	var $enable_on_acymailing = false; // Whether or not to enable the editor button on AcyMailing
+	public function extraChecks($params)
+	{
+		return true;
+	}
+
+	/*
+	 * Below methods are general functions used in most of the Regular Labs extensions
+	 * The reason these are not placed in the Regular Labs Library files is that they also
+	 * need to be used when the Regular Labs Library is not installed
+	 */
 
 	/**
 	 * Display the button
@@ -41,7 +51,7 @@ class EditorButtonPlugin
 	 *
 	 * @return JObject|null A button object
 	 */
-	function onDisplay($editor_name)
+	public function onDisplay($editor_name)
 	{
 		if ( ! $this->getHelper())
 		{
@@ -51,11 +61,13 @@ class EditorButtonPlugin
 		return $this->_helper->render($editor_name, $this->_subject);
 	}
 
-	/*
-	 * Below methods are general functions used in most of the Regular Labs extensions
-	 * The reason these are not placed in the Regular Labs Library files is that they also
-	 * need to be used when the Regular Labs Library is not installed
-	 */
+	private function getDir()
+	{
+		// use static::class instead of get_class($this) after php 5.4 support is dropped
+		$rc = new ReflectionClass(get_class($this));
+
+		return dirname($rc->getFileName());
+	}
 
 	/**
 	 * Create the helper object
@@ -116,19 +128,6 @@ class EditorButtonPlugin
 		return $this->_helper;
 	}
 
-	public function extraChecks($params)
-	{
-		return true;
-	}
-
-	private function getDir()
-	{
-		// use static::class instead of get_class($this) after php 5.4 support is dropped
-		$rc = new ReflectionClass(get_class($this));
-
-		return dirname($rc->getFileName());
-	}
-
 	private function getParams()
 	{
 		switch ($this->main_type)
@@ -140,7 +139,7 @@ class EditorButtonPlugin
 				}
 
 				// Load component parameters
-				return Parameters::getInstance()->getComponentParams($this->_name);
+				return Parameters::getComponent($this->_name);
 
 			case 'plugin':
 			default:
@@ -150,7 +149,7 @@ class EditorButtonPlugin
 				}
 
 				// Load plugin parameters
-				return Parameters::getInstance()->getPluginParams($this->_name);
+				return Parameters::getPlugin($this->_name);
 		}
 	}
 

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -21,31 +21,21 @@ if ( ! class_exists('PlgSystemRegularLabsInstallerScript'))
 		public $alias          = 'regularlabs';
 		public $extension_type = 'plugin';
 		public $show_message   = false;
+		public $soft_break     = true;
 
 		public function onBeforeInstall($route)
 		{
-			if ( ! $this->isNewer())
+			if ( ! parent::onBeforeInstall($route))
 			{
-				$this->softbreak = true;
-
 				return false;
 			}
 
-			return true;
+			return $this->isNewer();
 		}
 
 		public function uninstall($adapter)
 		{
-			$this->deleteLibrary();
-		}
-
-		private function deleteLibrary()
-		{
-			$this->delete(
-				[
-					JPATH_LIBRARIES . '/regularlabs',
-				]
-			);
+			$this->uninstallLibrary($this->extname);
 		}
 	}
 }

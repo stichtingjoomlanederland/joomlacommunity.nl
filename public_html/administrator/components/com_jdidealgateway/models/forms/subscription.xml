@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<form>
+    <fieldset name="subscription">
+        <field
+                name="id"
+                type="text"
+                class="readonly"
+                label="JGLOBAL_FIELD_ID_LABEL"
+                size="10"
+                default="0"
+                readonly="true"/>
+
+        <field
+                name="description"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_DESCRIPTION_LABEL"
+                class="input-xxlarge"
+                required=""/>
+
+        <field
+                name="amount"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_AMOUNT_LABEL"
+                class="input-xxlarge"
+                required=""/>
+
+        <field
+                name="currency"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_CURRENCY_LABEL"
+                class="input-xxlarge"
+                required=""/>
+
+        <field
+                name="interval"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_INTERVAL_LABEL"
+                class="input-xxlarge"
+                required=""/>
+
+        <field
+                name="times"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_TIMES_LABEL"
+                class="input-xxlarge"
+                required=""/>
+
+        <field
+                name="metadata"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_METADATA_LABEL"
+                class="input-xxlarge"
+                required=""/>
+
+        <field
+                name="webhookUrl"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_WEBHOOKURL_LABEL"
+                class="input-xxlarge"
+                size="60"
+                required="true"/>
+
+        <field
+                name="startDate"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_STARTDATE_LABEL"
+                class="input-xxlarge"
+                size="60"
+                required="true"/>
+
+        <field
+                name="status"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_STATUS_LABEL"
+                class="input-xxlarge"
+                readonly="true"/>
+
+        <field
+                name="timesRemaining"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_TIMES_REMAINING_LABEL"
+                class="input-xxlarge"
+                readonly="true"/>
+
+        <field
+                name="method"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_METHOD_LABEL"
+                class="input-xxlarge"
+                readonly="true"/>
+
+        <field
+                name="mandateId"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_MANDATEID_LABEL"
+                class="input-xxlarge"
+                readonly="true"/>
+
+        <field
+                name="nextPaymentDate"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_NEXT_PAYMENT_DATE_LABEL"
+                class="input-xxlarge"
+                readonly="true"/>
+
+        <field
+                name="createdAt"
+                type="text"
+                label="COM_ROPAYMENTS_SUBSCRIPTION_CREATEDAT_LABEL"
+                class="input-xxlarge"
+                readonly="true"/>
+
+    </fieldset>
+</form>

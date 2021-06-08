@@ -11,7 +11,7 @@
  *
  * Based on JImage library from Joomla.Platform 11.3
  */
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 /**
  * Class to manipulate an image.
@@ -55,7 +55,7 @@ class WFImageGD
         // Determine which image types are supported by GD, but only once.
         if (!isset(self::$formats[IMAGETYPE_JPEG])) {
             $info = gd_info();
-            
+
             self::$formats[IMAGETYPE_JPEG] = ($info['JPEG Support']) ? true : false;
 
             if (self::$formats[IMAGETYPE_JPEG] === false) {
@@ -68,12 +68,21 @@ class WFImageGD
         }
 
         // If the source input is a resource, set it as the image handle.
-        if (is_resource($source) && (get_resource_type($source) == 'gd')) {
+        if ($this->isValidResource($source)) {
             $this->handle = $source;
         } elseif (!empty($source) && is_string($source)) {
             // If the source input is not empty, assume it is a path and populate the image handle.
             $this->loadFile($source);
         }
+    }
+
+    private function isValidResource($resource)
+    {        
+        if (!((is_object($resource) && get_class($resource) == 'GdImage') || (is_resource($resource) && get_resource_type($resource) == 'gd'))) {
+            return false;
+        }
+
+        return true;
     }
 
     private static function convertIniValue($value)
@@ -195,7 +204,7 @@ class WFImageGD
     public function isLoaded()
     {
         // Make sure the resource handle is valid.
-        return is_resource($this->handle) && get_resource_type($this->handle) === 'gd';
+        return $this->isValidResource($this->handle);
     }
 
     /**
@@ -247,7 +256,7 @@ class WFImageGD
                 // Attempt to create the image handle.
                 $handle = imagecreatefromgif($path);
 
-                if (!is_resource($handle)) {
+                if (!$this->isValidResource($handle)) {
                     throw new RuntimeException('Unable to process GIF image.');
                 }
 
@@ -263,7 +272,7 @@ class WFImageGD
                 // Attempt to create the image handle.
                 $handle = imagecreatefromjpeg($path);
 
-                if (!is_resource($handle)) {
+                if (!$this->isValidResource($handle)) {
                     throw new RuntimeException('Unable to process JPG image.');
                 }
 
@@ -279,7 +288,7 @@ class WFImageGD
                 // Attempt to create the image handle.
                 $handle = imagecreatefrompng($path);
 
-                if (!is_resource($handle)) {
+                if (!$this->isValidResource($handle)) {
                     throw new RuntimeException('Unable to process PNG image.');
                 }
 
@@ -287,20 +296,20 @@ class WFImageGD
                 break;
 
             case 'image/webp':
-                    // Make sure the image type is supported.
-                    if (empty(self::$formats[IMAGETYPE_WEBP])) {
-                        throw new RuntimeException('Attempting to load an image of unsupported type WebP.');
-                    }
-    
-                    // Attempt to create the image handle.
-                    $handle = imagecreatefromwebp($path);
-    
-                    if (!is_resource($handle)) {
-                        throw new RuntimeException('Unable to process WebP image.');
-                    }
-    
-                    $this->handle = $handle;
-                    break;
+                // Make sure the image type is supported.
+                if (empty(self::$formats[IMAGETYPE_WEBP])) {
+                    throw new RuntimeException('Attempting to load an image of unsupported type WebP.');
+                }
+
+                // Attempt to create the image handle.
+                $handle = imagecreatefromwebp($path);
+
+                if (!$this->isValidResource($handle)) {
+                    throw new RuntimeException('Unable to process WebP image.');
+                }
+
+                $this->handle = $handle;
+                break;
 
             default:
                 throw new InvalidArgumentException('Attempting to load an image of unsupported type: ' . $properties->mime);
@@ -342,10 +351,9 @@ class WFImageGD
 
         $handle = imagecreatefromstring($string);
 
-        if (is_resource($handle) && get_resource_type($handle) == 'gd') {
+        if ($this->isValidResource($handle)) {
             $this->handle = $handle;
             $this->source = $string;
-
         } else {
             imagedestroy($handle);
             throw new RuntimeException('Attempting to load an image of unsupported type.');
@@ -506,7 +514,7 @@ class WFImageGD
             $mark = new self($options->image);
         }
 
-        if ($mark && is_resource($mark->handle) && get_resource_type($mark->handle) == 'gd') {
+        if ($mark && $this->isValidResource($mark->handle)) {
             $mw = imagesx($mark->handle);
             $mh = imagesy($mark->handle);
 
@@ -915,7 +923,7 @@ class WFImageGD
 
     public function restore($resource)
     {
-        if (!is_resource($resource) || get_resource_type($resource) !== 'gd') {
+        if (!$this->isValidResource($resource)) {
             throw new LogicException('Invalid image resource');
         }
 

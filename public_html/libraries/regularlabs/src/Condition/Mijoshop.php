@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -15,13 +15,13 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory as JFactory;
 use MijoShop as MijoShopClass;
+use RegularLabs\Library\Condition;
 
 /**
  * Class Mijoshop
  * @package RegularLabs\Library\Condition
  */
-abstract class Mijoshop
-	extends \RegularLabs\Library\Condition
+abstract class Mijoshop extends Condition
 {
 	public function initRequest(&$request)
 	{
@@ -31,7 +31,8 @@ abstract class Mijoshop
 
 		if (strpos($category_id, '_'))
 		{
-			$category_id = end(explode('_', $category_id));
+			$category_parts = explode('_', $category_id);
+			$category_id    = end($category_parts);
 		}
 
 		$request->item_id     = $input->getInt('product_id', 0);

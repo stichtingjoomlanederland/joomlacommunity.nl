@@ -9,6 +9,12 @@
         ];
         echo acym_listingActions($actions);
         ?>
+		<div class="margin-left-1 cell medium-auto hide-for-small-only">
+            <?php echo acym_externalLink(
+                'ACYM_SEE_OUR_TEMPLATES_PACK',
+                ACYM_ACYMAILLING_WEBSITE.'pack-template-newsletter/?utm_source=acymailing_plugin&utm_campaign=purchase_templates_pack&utm_medium=button_template_listing'
+            ); ?>
+		</div>
 		<div class="grid-x cell auto">
 			<div class="cell acym_listing_sort-by">
                 <?php
@@ -41,7 +47,7 @@
 						<div class="cell acym__templates__footer__title acym_text_ellipsis" title="<?php echo acym_escape($oneTemplate->name); ?>">
                             <?php echo acym_escape($oneTemplate->name); ?>
 						</div>
-						<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'M. j, Y'); ?></div>
+						<div class="cell"><?php echo acym_date($oneTemplate->creation_date, 'ACYM_DATE_FORMAT_LC3'); ?></div>
 					</div>
 				</a>
 				<div class="text-center cell acym__listing__block__icons acym__listing__block__select">

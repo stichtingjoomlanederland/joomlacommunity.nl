@@ -83,7 +83,8 @@ class JdidealgatewayModelCustomers extends ListModel
 					'name',
 					'email',
 					'customerId',
-					'created'
+					'created',
+					'profileId',
 				]
 			)
 		)

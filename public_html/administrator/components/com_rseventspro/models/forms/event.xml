@@ -41,8 +41,11 @@
 		<field name="waitinglist_user" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_WAITINGLIST_USER" />
 		<field name="waitinglist_admin" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_WAITINGLIST_ADMIN" />
 		<field name="notify_me" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_NOTIFICATION" />
+		<field name="notify_me_emails" type="text" label="COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_NOTIFICATION_EMAILS" description="COM_RSEVENTSPRO_EVENT_NOTIFICATION_EMAILS_DESC" />
 		<field name="notify_me_paid" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_PAID_NOTIFICATION" />
+		<field name="notify_me_paid_emails" type="text" label="COM_RSEVENTSPRO_EVENT_SUBSCRIPTION_PAID_NOTIFICATION_EMAILS" description="COM_RSEVENTSPRO_EVENT_NOTIFICATION_EMAILS_DESC" />
 		<field name="notify_me_unsubscribe" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE_NOTIFICATION" />
+		<field name="notify_me_unsubscribe_emails" type="text" label="COM_RSEVENTSPRO_EVENT_UNSUBSCRIBE_NOTIFICATION_EMAILS" description="COM_RSEVENTSPRO_EVENT_NOTIFICATION_EMAILS_DESC" />
 		<field name="show_registered" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_SHOW_GUESTS" />
 		<field name="automatically_approve" type="rscheckbox" label="COM_RSEVENTSPRO_EVENT_APPROVE" />
 		<field name="ticketsconfig" type="rscheckbox" label="COM_RSEVENTSPRO_ENABLE_TICKETS_CONFIGURATION" />

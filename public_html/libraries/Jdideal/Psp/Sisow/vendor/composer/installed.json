@@ -1,63 +1,68 @@
-[
-    {
-        "name": "sisow/php-client",
-        "version": "1.0.2",
-        "version_normalized": "1.0.2.0",
-        "source": {
-            "type": "git",
-            "url": "https://github.com/Sisow/php-client.git",
-            "reference": "b0501c61a1b3290538d3d4fb0b722489ea00207d"
-        },
-        "dist": {
-            "type": "zip",
-            "url": "https://api.github.com/repos/Sisow/php-client/zipball/b0501c61a1b3290538d3d4fb0b722489ea00207d",
-            "reference": "b0501c61a1b3290538d3d4fb0b722489ea00207d",
-            "shasum": ""
-        },
-        "require": {
-            "ext-curl": "*",
-            "ext-simplexml": "*",
-            "php": ">=7.0.7"
-        },
-        "require-dev": {
-            "phpunit/phpunit": "^7"
-        },
-        "time": "2020-09-16T06:49:38+00:00",
-        "type": "library",
-        "installation-source": "dist",
-        "autoload": {
-            "psr-4": {
-                "Sisow\\": "src/"
-            }
-        },
-        "notification-url": "https://packagist.org/downloads/",
-        "license": [
-            "MIT"
-        ],
-        "authors": [
-            {
-                "name": "Mark van Haaren (Sisow B.V.)",
-                "email": "support@sisow.nl",
-                "homepage": "https://www.sisow.nl",
-                "role": "Developer"
-            }
-        ],
-        "description": "PHP client to integrate Sisow payment methods",
-        "homepage": "https://www.sisow.nl",
-        "keywords": [
-            "afterpay",
-            "bancontact",
-            "creditcard",
-            "eps",
-            "giropay",
-            "ideal",
-            "klarna",
-            "mastercard",
-            "payment",
-            "paypal",
-            "sisow",
-            "sofort",
-            "visa"
-        ]
-    }
-]
+{
+    "packages": [
+        {
+            "name": "sisow/php-client",
+            "version": "1.0.2",
+            "version_normalized": "1.0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Sisow/php-client.git",
+                "reference": "b0501c61a1b3290538d3d4fb0b722489ea00207d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Sisow/php-client/zipball/b0501c61a1b3290538d3d4fb0b722489ea00207d",
+                "reference": "b0501c61a1b3290538d3d4fb0b722489ea00207d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-simplexml": "*",
+                "php": ">=7.0.7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7"
+            },
+            "time": "2020-09-16T06:49:38+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "Sisow\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Mark van Haaren (Sisow B.V.)",
+                    "email": "support@sisow.nl",
+                    "homepage": "https://www.sisow.nl",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP client to integrate Sisow payment methods",
+            "homepage": "https://www.sisow.nl",
+            "keywords": [
+                "afterpay",
+                "bancontact",
+                "creditcard",
+                "eps",
+                "giropay",
+                "ideal",
+                "klarna",
+                "mastercard",
+                "payment",
+                "paypal",
+                "sisow",
+                "sofort",
+                "visa"
+            ],
+            "install-path": "../sisow/php-client"
+        }
+    ],
+    "dev": false,
+    "dev-package-names": []
+}

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -47,31 +47,28 @@ class JFormFieldRL_Checkbox extends \RegularLabs\Library\Field
 				continue;
 			}
 
-			$text   = trim((string) $option);
-			$hasval = 0;
-			if (isset($option['value']))
+			$text = trim((string) $option);
+
+			if ( ! isset($option['value']))
 			{
-				$val      = (string) $option['value'];
-				$disabled = (int) $option['disabled'];
-				$hasval   = 1;
+				$options[] = '<label style="clear:both;"><strong>' . JText::_($text) . '</strong></label>';
+				continue;
 			}
-			if ($hasval)
+
+			$val      = (string) $option['value'];
+			$disabled = (int) $option['disabled'];
+
+			$option = '<input type="checkbox" class="rl_' . $this->id . '" id="' . $this->id . $val . '" name="' . $this->name . '[]" value="' . $val . '"';
+			if ($checkall || in_array($val, $this->value))
 			{
-				$option = '<input type="checkbox" class="rl_' . $this->id . '" id="' . $this->id . $val . '" name="' . $this->name . '[]" value="' . $val . '"';
-				if ($checkall || in_array($val, $this->value))
-				{
-					$option .= ' checked="checked"';
-				}
-				if ($disabled)
-				{
-					$option .= ' disabled="disabled"';
-				}
-				$option .= '> <label for="' . $this->id . $val . '" class="checkboxes">' . JText::_($text) . '</label>';
+				$option .= ' checked="checked"';
 			}
-			else
+			if ($disabled)
 			{
-				$option = '<label style="clear:both;"><strong>' . JText::_($text) . '</strong></label>';
+				$option .= ' disabled="disabled"';
 			}
+			$option .= '> <label for="' . $this->id . $val . '" class="checkboxes">' . JText::_($text) . '</label>';
+
 			$options[] = $option;
 		}
 

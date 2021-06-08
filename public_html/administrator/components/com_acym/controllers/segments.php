@@ -18,17 +18,17 @@ class SegmentsController extends acymController
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_SEGMENTS')] = acym_completeLink('segments');
         $this->loadScripts = [
-            'edit' => ['vue-applications' => ['modal_users_summary']],
+            'edit' => ['datepicker', 'vue-applications' => ['modal_users_summary']],
         ];
     }
 
     public function listing()
     {
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'listing');
             $pagination = new PaginationHelper();
             $searchFilter = $this->getVarFiltersListing('string', 'segments_search', '');
@@ -87,11 +87,11 @@ class SegmentsController extends acymController
 
     public function edit()
     {
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_redirect(acym_completeLink('dashboard&task=upgrade&version=enterprise', false, true));
         }
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'edit');
             $id = acym_getVar('int', 'id', 0);
 
@@ -401,7 +401,7 @@ class SegmentsController extends acymController
         if (empty($stepAutomation['filters'][$or][$and])) acym_sendAjaxResponse(acym_translation('ACYM_COULD_NOT_RETRIEVE_DATA'), [], false);
 
         $automationHelper = new AutomationHelper();
-        
+
         $listsIds = acym_getVar('string', 'list_selected', '');
 
         if (!empty($listsIds)) {

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -27,9 +27,9 @@ class JFormFieldRL_CustomFieldKey extends \RegularLabs\Library\Field
 
 	protected function getLabel()
 	{
-		$label       = $this->get('label') ? $this->get('label') : '';
+		$label       = $this->get('label') ?: '';
 		$size        = $this->get('size') ? 'style="width:' . $this->get('size') . 'px"' : '';
-		$class       = 'class="' . ($this->get('class') ? $this->get('class') : 'text_area') . '"';
+		$class       = 'class="' . ($this->get('class') ?: 'text_area') . '"';
 		$this->value = htmlspecialchars(RL_String::html_entity_decoder($this->value), ENT_QUOTES);
 
 		return

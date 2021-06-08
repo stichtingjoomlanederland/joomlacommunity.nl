@@ -6,8 +6,11 @@
 		</field>
 		<field name="categories" type="category" extension="com_rseventspro" label="COM_RSEVENTSPRO_EVENT_CATEGORIES" multiple="multiple" class="rs200 rschosen" />
 		<field name="tags" type="rstags" default="" label="COM_RSEVENTSPRO_EVENT_TAGS" multiple="multiple" class="rs200 rschosen" />
+		<field name="groups" type="groups" label="COM_RSEVENTSPRO_EVENT_GROUPS" multiple="multiple" />
+		<field name="speakers" type="sql" label="COM_RSEVENTSPRO_EVENT_SPEAKERS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_speakers" sql_where="published=1" key_field="id" value_field="name" />
+		<field name="sponsors" type="sql" label="COM_RSEVENTSPRO_EVENT_SPONSORS" multiple="multiple" sql_select="id,name" sql_from="#__rseventspro_sponsors" sql_where="published=1" key_field="id" value_field="name" />
 		<field name="itemid" type="text" default="" label="COM_RSEVENTSPRO_EVENT_ITEMID" />
-		<field name="type" type="radio" label="" default="a">
+		<field name="type" type="list" label="" default="a">
 			<option value="a">COM_RSEVENTSPRO_ADD</option>
 			<option value="r">COM_RSEVENTSPRO_REPLACE</option>
 		</field>

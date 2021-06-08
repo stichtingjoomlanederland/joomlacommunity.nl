@@ -18,6 +18,8 @@ defined('JPATH_PLATFORM') or die;
  */
 class plgEditorJCE extends JPlugin
 {
+    protected static $instances = array();
+    
     /**
      * Constructor.
      *
@@ -27,23 +29,29 @@ class plgEditorJCE extends JPlugin
      * @since       1.5
      */
     public function __construct(&$subject, $config)
-    {
+    {        
         parent::__construct($subject, $config);
     }
 
-    protected static function getEditorInstance()
-    {
-        static $instance;
+    protected function getEditorInstance()
+    {        
+        // pass config to WFEditor
+        $config = array(
+            'profile_id' => $this->params->get('profile_id', 0),
+            'plugin' => $this->params->get('plugin', '')
+        );
 
-        if (!isset($instance)) {
+        $signature = md5(serialize($config));
+
+        if (empty(self::$instances[$signature])) {
             // load base file
             require_once JPATH_ADMINISTRATOR . '/components/com_jce/includes/base.php';
 
             // create editor
-            $instance = new WFEditor();
+            self::$instances[$signature] = new WFEditor($config);
         }
 
-        return $instance;
+        return self::$instances[$signature];
     }
 
     /**
@@ -58,7 +66,6 @@ class plgEditorJCE extends JPlugin
      */
     public function onInit()
     {
-        $app = JFactory::getApplication();
         $language = JFactory::getLanguage();
 
         $document = JFactory::getDocument();
@@ -66,9 +73,7 @@ class plgEditorJCE extends JPlugin
         $language->load('plg_editors_jce', JPATH_ADMINISTRATOR);
         $language->load('com_jce', JPATH_ADMINISTRATOR);
 
-        $app->triggerEvent('onBeforeWfEditorLoad');
-
-        $editor = self::getEditorInstance();
+        $editor = $this->getEditorInstance();
         $editor->init();
 
         foreach ($editor->getScripts() as $script) {
@@ -113,17 +118,23 @@ class plgEditorJCE extends JPlugin
     }
 
     /**
-     * JCE WYSIWYG Editor - display the editor.
+     * JCE WYSIWYG Editor - Display the editor area.
      *
-     * @vars string The name of the editor area
-     * @vars string The content of the field
-     * @vars string The width of the editor area
-     * @vars string The height of the editor area
-     * @vars int The number of columns for the editor area
-     * @vars int The number of rows for the editor area
-     * @vars mixed Can be boolean or array.
+     * @param   string   $name     The name of the editor area.
+     * @param   string   $content  The content of the field.
+     * @param   string   $width    The width of the editor area.
+     * @param   string   $height   The height of the editor area.
+     * @param   int      $col      The number of columns for the editor area.
+     * @param   int      $row      The number of rows for the editor area.
+     * @param   boolean  $buttons  True and the editor buttons will be displayed.
+     * @param   string   $id       An optional ID for the textarea. If not supplied the name is used.
+     * @param   string   $asset    The object asset
+     * @param   object   $author   The author.
+     * @param   array    $params   Associative array of editor parameters.
+     *
+     * @return  string
      */
-    public function onDisplay($name, $content, $width, $height, $col, $row, $buttons = true, $id = null, $asset = null, $author = null)
+    public function onDisplay($name, $content, $width, $height, $col, $row, $buttons = true, $id = null, $asset = null, $author = null, $params = array())
     {
         if (empty($id)) {
             $id = $name;
@@ -133,6 +144,7 @@ class plgEditorJCE extends JPlugin
         if (is_numeric($width)) {
             $width .= 'px';
         }
+
         if (is_numeric($height)) {
             $height .= 'px';
         }
@@ -152,13 +164,15 @@ class plgEditorJCE extends JPlugin
         $textarea->height = $height;
         $textarea->content = $content;
 
+        $classes = version_compare(JVERSION, '4', 'ge') ? ' mb-2 joomla4' : '';
+
         // Render Editor markup
-        $html = '<div class="editor wf-editor-container mb-2">';
+        $html = '<div class="editor wf-editor-container' . $classes . '">';
         $html .= '<div class="wf-editor-header"></div>';
         $html .= JLayoutHelper::render('editor.textarea', $textarea, __DIR__ . '/layouts');
         $html .= '</div>';
 
-        $editor = self::getEditorInstance();
+        $editor = $this->getEditorInstance();
 
         // no profile assigned or available
         if (!$editor->hasProfile()) {
@@ -172,7 +186,7 @@ class plgEditorJCE extends JPlugin
 
             if (!empty($list)) {
                 $options = array(
-                    'joomla_xtd_buttons' => $list
+                    'joomla_xtd_buttons' => $list,
                 );
 
                 JFactory::getDocument()->addScriptOptions('plg_editor_jce', $options, true);
@@ -205,7 +219,7 @@ class plgEditorJCE extends JPlugin
 
         if (!empty($buttons)) {
             foreach ($buttons as $i => $button) {
-                if ($button->get('name')) {                    
+                if ($button->get('name')) {
                     // Set some vars
                     $name = 'button-' . $i . '-' . str_replace(' ', '-', $button->get('text'));
                     $title = $button->get('text');

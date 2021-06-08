@@ -10,7 +10,7 @@
  *
  * Based on JImage library from Joomla.Platform 11.3
  */
-defined('_JEXEC') or die;
+defined('JPATH_PLATFORM') or die;
 
 define('IMAGE_FLIP_HORIZONTAL', 1);
 define('IMAGE_FLIP_VERTICAL', 2);

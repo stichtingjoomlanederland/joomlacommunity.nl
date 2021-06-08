@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -17,8 +17,7 @@ defined('_JEXEC') or die;
  * Class EasyblogCategory
  * @package RegularLabs\Library\Condition
  */
-class EasyblogCategory
-	extends Easyblog
+class EasyblogCategory extends Easyblog
 {
 	public function pass()
 	{
@@ -56,6 +55,11 @@ class EasyblogCategory
 		return $this->passSimple($cats);
 	}
 
+	private function getCatParentIds($id = 0)
+	{
+		return $this->getParentIds($id, 'easyblog_category', 'parent_id');
+	}
+
 	private function getCategories()
 	{
 		switch ($this->request->view)
@@ -82,10 +86,5 @@ class EasyblogCategory
 		$this->db->setQuery($query);
 
 		return $this->db->loadResult();
-	}
-
-	private function getCatParentIds($id = 0)
-	{
-		return $this->getParentIds($id, 'easyblog_category', 'parent_id');
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,20 +20,10 @@ require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 
 class JFormFieldRL_AkeebaSubs extends \RegularLabs\Library\FieldGroup
 {
-	public $type          = 'AkeebaSubs';
 	public $default_group = 'Levels';
+	public $type          = 'AkeebaSubs';
 
-	protected function getInput()
-	{
-		if ($error = $this->missingFilesOrTables(['levels']))
-		{
-			return $error;
-		}
-
-		return $this->getSelectList();
-	}
-
-	function getLevels()
+	public function getLevels()
 	{
 		$query = $this->db->getQuery(true)
 			->select('l.akeebasubs_level_id as id, l.title AS name, l.enabled as published')
@@ -44,5 +34,12 @@ class JFormFieldRL_AkeebaSubs extends \RegularLabs\Library\FieldGroup
 		$list = $this->db->loadObjectList();
 
 		return $this->getOptionsByList($list, ['id']);
+	}
+
+	protected function getInput()
+	{
+		$error = $this->missingFilesOrTables(['levels']);
+
+		return $error ?: $this->getSelectList();
 	}
 }

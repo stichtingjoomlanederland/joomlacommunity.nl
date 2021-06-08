@@ -240,7 +240,7 @@ function acym_cmsPermission()
 
 function acym_checkVersion($ajax = false)
 {
-    if (acym_level(1)) {
+    if (acym_level(ACYM_ESSENTIAL)) {
         ob_start();
         $config = acym_config();
         $url = ACYM_UPDATEURL.'loadUserInformation';
@@ -260,7 +260,7 @@ function acym_checkVersion($ajax = false)
             $url .= '&'.$param.'='.urlencode($value);
         }
 
-        $userInformation = acym_fileGetContent($url, 30);
+        $userInformation = acym_fileGetContent($url, 10);
         $warnings = ob_get_clean();
         $result = (!empty($warnings) && acym_isDebug()) ? $warnings : '';
 
@@ -289,4 +289,26 @@ function acym_checkVersion($ajax = false)
 
 
     return false;
+}
+
+function acym_triggerCmsHook($action, $args = [])
+{
+    array_unshift($args, $action);
+
+    return call_user_func_array('do_action', $args);
+}
+
+function acym_getCmsCaptcha()
+{
+    return [];
+}
+
+function acym_loadCaptcha($captchaPluginName, $id)
+{
+    return '';
+}
+
+function acym_checkCaptcha($captchaPluginName)
+{
+    return true;
 }

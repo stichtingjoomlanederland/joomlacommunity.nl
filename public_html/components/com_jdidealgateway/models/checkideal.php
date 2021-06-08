@@ -40,4 +40,40 @@ class JdidealgatewayModelCheckideal extends BaseDatabaseModel
 
 		return $db->loadObject() ?? new stdClass;
 	}
+
+	/**
+	 * Load the username for a given transaction.
+	 *
+	 * @param   string  $transactionId  The transaction ID
+	 * @param   string  $pid            The unique ID
+	 *
+	 * @return  string  The username or empty if not found.
+	 *
+	 * @since   6.4.0
+	 */
+	public function getUsername(string $transactionId, string $pid): string
+	{
+		$db    = $this->getDbo();
+		$query = $db->getQuery(true)
+			->select($db->quoteName('users.username'))
+			->from($db->quoteName('#__jdidealgateway_logs', 'logs'))
+			->innerJoin(
+				$db->quoteName('#__users', 'users')
+				. ' ON ' . $db->quoteName('users.id') . ' = ' . $db->quoteName(
+					'logs.user_id'
+				)
+			)
+			->where(
+				$db->quoteName('logs.trans') . ' = ' . $db->quote(
+					$transactionId
+				)
+			)
+			->where(
+				$db->quoteName('logs.pid') . ' = ' . $db->quote($pid)
+			);
+
+		$db->setQuery($query);
+
+		return (string) $db->loadResult();
+	}
 }

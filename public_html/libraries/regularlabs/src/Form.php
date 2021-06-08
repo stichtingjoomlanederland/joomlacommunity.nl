@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,9 +16,129 @@ defined('_JEXEC') or die;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Language\Text as JText;
 use Joomla\CMS\Plugin\PluginHelper as JPluginHelper;
+use RegularLabs\Library\ParametersNew as Parameters;
 
 class Form
 {
+	public static function getAddToLoadAjaxListScript($field, $name, $value, $id, $attributes = [], $simple = false)
+	{
+		$attributes['field'] = $field;
+		$attributes['name']  = $name;
+		$attributes['value'] = $value;
+		$attributes['id']    = $id;
+
+		$url = 'index.php?option=com_ajax&plugin=regularlabs&format=raw'
+			. '&' . Uri::createCompressedAttributes(json_encode($attributes));
+
+		$remove_spinner = "$('#" . $id . "_spinner').remove();";
+		$replace_field  = "$('#" . $id . "').replaceWith(data);";
+		$init_chosen    = 'document.getElementById("' . $id . '") && document.getElementById("' . $id . '").nodeName == "SELECT" && $("#' . $id . '").chosen();';
+
+		$success = $replace_field;
+
+		if ($simple)
+		{
+			$success .= $init_chosen;
+		}
+		else
+		{
+			Document::script('regularlabs/multiselect.min.js');
+			Document::stylesheet('regularlabs/multiselect.min.css');
+
+			$success .= "if(data.indexOf('rl_multiselect') > -1)\{RegularLabsMultiSelect.init($('#" . $id . "'));\} else { " . $init_chosen . "}";
+		}
+
+//		$success .= "console.log('#" . $id . "');";
+//		$success .= "console.log(data);";
+
+		$error   = $remove_spinner;
+		$success = "if(data)\{" . $success . "\}" . $remove_spinner;
+
+		$script = "jQuery(document).ready(function() {"
+			. "RegularLabsScripts.addToLoadAjaxList("
+			. "'" . addslashes($url) . "',"
+			. "'" . addslashes($success) . "',"
+			. "'" . addslashes($error) . "'"
+			. ")"
+			. "});";
+
+		return '<script>' . $script . '</script>';
+	}
+
+	public static function getOptionsCount($options)
+	{
+		$count = 0;
+
+		foreach ($options as $option)
+		{
+			$count++;
+			if ( ! empty($option->links))
+			{
+				$count += self::getOptionsCount($option->links);
+			}
+		}
+
+		return $count;
+	}
+
+	/**
+	 * Prepare the string for a select form field item
+	 *
+	 * @param string $string
+	 * @param int    $published
+	 * @param string $type
+	 * @param int    $remove_first
+	 *
+	 * @return string
+	 */
+	public static function prepareSelectItem($string, $published = 1, $type = '', $remove_first = 0)
+	{
+		if (empty($string))
+		{
+			return '';
+		}
+
+		$string = str_replace(['&nbsp;', '&#160;'], ' ', $string);
+		$string = RegEx::replace('- ', '  ', $string);
+
+		for ($i = 0; $remove_first > $i; $i++)
+		{
+			$string = RegEx::replace('^  ', '', $string, '');
+		}
+
+		if (RegEx::match('^( *)(.*)$', $string, $match, ''))
+		{
+			[$string, $pre, $name] = $match;
+
+			$pre = str_replace('  ', ' ·  ', $pre);
+			$pre = RegEx::replace('(( ·  )*) ·  ', '\1 »  ', $pre);
+			$pre = str_replace('  ', ' &nbsp; ', $pre);
+
+			$string = $pre . $name;
+		}
+
+		switch (true)
+		{
+			case ($type == 'separator'):
+				$string = '[[:font-weight:normal;font-style:italic;color:grey;:]]' . $string;
+				break;
+
+			case ($published == -2):
+				$string = '[[:font-style:italic;color:grey;:]]' . $string . ' [' . JText::_('JTRASHED') . ']';
+				break;
+
+			case ($published == 0):
+				$string = '[[:font-style:italic;color:grey;:]]' . $string . ' [' . JText::_('JUNPUBLISHED') . ']';
+				break;
+
+			case ($published == 2):
+				$string = '[[:font-style:italic;:]]' . $string . ' [' . JText::_('JARCHIVED') . ']';
+				break;
+		}
+
+		return $string;
+	}
+
 	/**
 	 * Render a full select list
 	 *
@@ -30,10 +150,11 @@ class Form
 	 * @param bool   $multiple
 	 * @param bool   $simple
 	 * @param bool   $readonly
+	 * @param bool   $ignore_max_count
 	 *
 	 * @return string
 	 */
-	public static function selectList(&$options, $name, $value, $id, $size = 0, $multiple = false, $simple = false, $readonly = false)
+	public static function selectList(&$options, $name, $value, $id, $size = 0, $multiple = false, $simple = false, $readonly = false, $ignore_max_count = false)
 	{
 		if (empty($options))
 		{
@@ -45,8 +166,7 @@ class Form
 			$simple = true;
 		}
 
-		$parameters = Parameters::getInstance();
-		$params     = $parameters->getPluginParams('regularlabs');
+		$params = Parameters::getPlugin('regularlabs');
 
 		if ( ! is_array($value))
 		{
@@ -68,14 +188,14 @@ class Form
 				{
 					$count += count($option->links);
 				}
-				if ($count > $params->max_list_count)
+				if ( ! $ignore_max_count && $count > $params->max_list_count)
 				{
 					break;
 				}
 			}
 		}
 
-		if ($options == -1 || $count > $params->max_list_count)
+		if ($options == -1 || ( ! $ignore_max_count && $count > $params->max_list_count))
 		{
 			if (is_array($value))
 			{
@@ -117,7 +237,7 @@ class Form
 
 		if ($simple)
 		{
-			$first_level = isset($options[0]->level) ? $options[0]->level : 0;
+			$first_level = $options[0]->level ?? 0;
 			foreach ($options as &$option)
 			{
 				if ( ! isset($option->level))
@@ -243,13 +363,13 @@ class Form
 		$o = [];
 		foreach ($options as $option)
 		{
-			$option->level = isset($option->level) ? $option->level : 0;
+			$option->level = $option->level ?? 0;
 			$o[]           = $option;
 			if (isset($option->links))
 			{
 				foreach ($option->links as $link)
 				{
-					$link->level = $option->level + (isset($link->level) ? $link->level : 1);
+					$link->level = $option->level + ($link->level ?? 1);
 					$o[]         = $link;
 				}
 			}
@@ -276,11 +396,11 @@ class Form
 				$html[] = '</li>';
 			}
 
-			$labelclass = trim('pull-left ' . (isset($option->labelclass) ? $option->labelclass : ''));
+			$labelclass = trim('pull-left ' . ($option->labelclass ?? ''));
 
 			$html[] = '<li>';
 
-			$item = '<div class="' . trim('rl_multiselect-item pull-left ' . (isset($option->class) ? $option->class : '')) . '">';
+			$item = '<div class="' . trim('rl_multiselect-item pull-left ' . ($option->class ?? '')) . '">';
 			if (isset($option->title))
 			{
 				$labelclass .= ' nav-header';
@@ -342,40 +462,6 @@ class Form
 		return self::handlePreparedStyles($html);
 	}
 
-	public static function getOptionsCount($options)
-	{
-		$count = 0;
-
-		foreach ($options as $option)
-		{
-			$count++;
-			if ( ! empty($option->links))
-			{
-				$count += self::getOptionsCount($option->links);
-			}
-		}
-
-		return $count;
-	}
-
-	/**
-	 * Render a simple select list
-	 *
-	 * @param array  $options
-	 * @param        $string $name
-	 * @param string $value
-	 * @param string $id
-	 * @param int    $size
-	 * @param bool   $multiple
-	 * @param bool   $readonly
-	 *
-	 * @return string
-	 */
-	public static function selectListSimple(&$options, $name, $value, $id, $size = 0, $multiple = false, $readonly = false)
-	{
-		return self::selectlist($options, $name, $value, $id, $size, $multiple, true, $readonly);
-	}
-
 	/**
 	 * Render a select list loaded via Ajax
 	 *
@@ -408,49 +494,23 @@ class Form
 		return $input . $script;
 	}
 
-	public static function getAddToLoadAjaxListScript($field, $name, $value, $id, $attributes = [], $simple = false)
+	/**
+	 * Render a simple select list
+	 *
+	 * @param array  $options
+	 * @param        $string $name
+	 * @param string $value
+	 * @param string $id
+	 * @param int    $size
+	 * @param bool   $multiple
+	 * @param bool   $readonly
+	 * @param bool   $ignore_max_count
+	 *
+	 * @return string
+	 */
+	public static function selectListSimple(&$options, $name, $value, $id, $size = 0, $multiple = false, $readonly = false, $ignore_max_count = false)
 	{
-		$attributes['field'] = $field;
-		$attributes['name']  = $name;
-		$attributes['value'] = $value;
-		$attributes['id']    = $id;
-
-		$url = 'index.php?option=com_ajax&plugin=regularlabs&format=raw'
-			. '&' . Uri::createCompressedAttributes(json_encode($attributes));
-
-		$remove_spinner = "$('#" . $id . "_spinner').remove();";
-		$replace_field  = "$('#" . $id . "').replaceWith(data);";
-		$init_chosen    = 'document.getElementById("' . $id . '") && document.getElementById("' . $id . '").nodeName == "SELECT" && $("#' . $id . '").chosen();';
-
-		$success = $replace_field;
-
-		if ($simple)
-		{
-			$success .= $init_chosen;
-		}
-		else
-		{
-			Document::script('regularlabs/multiselect.min.js');
-			Document::stylesheet('regularlabs/multiselect.min.css');
-
-			$success .= "if(data.indexOf('rl_multiselect') > -1)\{RegularLabsMultiSelect.init($('#" . $id . "'));\} else { " . $init_chosen . "}";
-		}
-
-//		$success .= "console.log('#" . $id . "');";
-//		$success .= "console.log(data);";
-
-		$error   = $remove_spinner;
-		$success = "if(data)\{" . $success . "\}" . $remove_spinner;
-
-		$script = "jQuery(document).ready(function() {"
-			. "RegularLabsScripts.addToLoadAjaxList("
-			. "'" . addslashes($url) . "',"
-			. "'" . addslashes($success) . "',"
-			. "'" . addslashes($error) . "'"
-			. ")"
-			. "});";
-
-		return '<script>' . $script . '</script>';
+		return self::selectlist($options, $name, $value, $id, $size, $multiple, true, $readonly, $ignore_max_count);
 	}
 
 	/**
@@ -467,64 +527,6 @@ class Form
 	public static function selectListSimpleAjax($field, $name, $value, $id, $attributes = [])
 	{
 		return self::selectListAjax($field, $name, $value, $id, $attributes, true);
-	}
-
-	/**
-	 * Prepare the string for a select form field item
-	 *
-	 * @param string $string
-	 * @param int    $published
-	 * @param string $type
-	 * @param int    $remove_first
-	 *
-	 * @return string
-	 */
-	public static function prepareSelectItem($string, $published = 1, $type = '', $remove_first = 0)
-	{
-		if (empty($string))
-		{
-			return '';
-		}
-
-		$string = str_replace(['&nbsp;', '&#160;'], ' ', $string);
-		$string = RegEx::replace('- ', '  ', $string);
-
-		for ($i = 0; $remove_first > $i; $i++)
-		{
-			$string = RegEx::replace('^  ', '', $string, '');
-		}
-
-		if (RegEx::match('^( *)(.*)$', $string, $match, ''))
-		{
-			list($string, $pre, $name) = $match;
-
-			$pre = str_replace('  ', ' ·  ', $pre);
-			$pre = RegEx::replace('(( ·  )*) ·  ', '\1 »  ', $pre);
-			$pre = str_replace('  ', ' &nbsp; ', $pre);
-
-			$string = $pre . $name;
-		}
-
-		switch (true)
-		{
-			case ($type == 'separator'):
-				$string = '[[:font-weight:normal;font-style:italic;color:grey;:]]' . $string;
-				break;
-
-			case ($published == -2):
-				$string = '[[:font-style:italic;color:grey;:]]' . $string . ' [' . JText::_('JTRASHED') . ']';
-				break;
-
-			case ($published == 0):
-				$string = '[[:font-style:italic;color:grey;:]]' . $string . ' [' . JText::_('JUNPUBLISHED') . ']';
-				break;
-
-			case ($published == 2):
-				$string = '[[:font-style:italic;:]]' . $string . ' [' . JText::_('JARCHIVED') . ']';
-				break;
-		}
-
-		return $string;
 	}
 
 	/**

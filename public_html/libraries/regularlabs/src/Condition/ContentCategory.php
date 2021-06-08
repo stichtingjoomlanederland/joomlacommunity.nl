@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -21,8 +21,7 @@ use Joomla\CMS\Table\Table as JTable;
  * Class ContentCategory
  * @package RegularLabs\Library\Condition
  */
-class ContentCategory
-	extends Content
+class ContentCategory extends Content
 {
 	public function pass()
 	{
@@ -126,6 +125,11 @@ class ContentCategory
 		return $this->_($pass);
 	}
 
+	private function getCatParentIds($id = 0)
+	{
+		return $this->getParentIds($id, 'categories');
+	}
+
 	private function getCategoryIds($is_category = false)
 	{
 		if ($is_category)
@@ -167,14 +171,9 @@ class ContentCategory
 		{
 			$menuparams = $this->getMenuItemParams($this->request->Itemid);
 
-			return isset($menuparams->featured_categories) ? (array) $menuparams->featured_categories : (array) $catid;
+			return (array) ($menuparams->featured_categories ?? $catid);
 		}
 
-		return isset($menuparams->catid) ? (array) $menuparams->catid : (array) $catid;
-	}
-
-	private function getCatParentIds($id = 0)
-	{
-		return $this->getParentIds($id, 'categories');
+		return (array) ($menuparams->catid ?? $catid);
 	}
 }

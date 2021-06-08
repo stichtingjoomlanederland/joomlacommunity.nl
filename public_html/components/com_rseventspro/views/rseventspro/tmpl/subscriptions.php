@@ -76,7 +76,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 			<?php } ?>
 			<td class="<?php echo RSEventsproAdapterGrid::styles(array('center')); ?>">
 				<div class="btn-group">
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.rseventsproHelper::sef($subscription->ids,$subscription->iname).'&ide='.rseventsproHelper::sef($subscription->id,$subscription->name).$this->code.'&return='.$this->return,false); ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn','btn-small')); ?>">
+					<a rel="nofollow" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&layout=editsubscriber&id='.$subscription->ids.'&ide='.rseventsproHelper::sef($subscription->id,$subscription->name).$this->code.'&return='.$this->return,false); ?>" class="<?php echo RSEventsproAdapterGrid::styles(array('btn','btn-small')); ?>">
 						<i class="fa fa-pencil"></i>
 					</a>
 					<?php if ($subscription->state == 1 && rseventsproHelper::hasInvoice($subscription->ids)) { ?>
@@ -85,7 +85,7 @@ defined( '_JEXEC' ) or die( 'Restricted access' );?>
 					</a>
 					<?php } ?>
 					<?php if (rseventsproHelper::canUnsubscribe($subscription->id, true)) { ?>
-					<a href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.deletesubscriber&id='.$subscription->ids.$this->code, false); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_DELETE',true); ?>');" class="<?php echo RSEventsproAdapterGrid::styles(array('btn','btn-small')); ?>">
+					<a rel="nofollow" href="<?php echo rseventsproHelper::route('index.php?option=com_rseventspro&task=rseventspro.deletesubscriber&id='.$subscription->ids.$this->code, false); ?>" onclick="return confirm('<?php echo JText::_('COM_RSEVENTSPRO_MY_SUBSCRIPTION_DELETE',true); ?>');" class="<?php echo RSEventsproAdapterGrid::styles(array('btn','btn-small')); ?>">
 						<i class="fa fa-trash"></i>
 					</a>
 					<?php } ?>

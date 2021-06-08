@@ -8,7 +8,7 @@
 
 class ComDocmanVersion extends KObject
 {
-    const VERSION = '3.5.8';
+    const VERSION = '3.5.9';
 
     /**
      * Get the version

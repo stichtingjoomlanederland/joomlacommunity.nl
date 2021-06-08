@@ -59,6 +59,7 @@ class MailerHelper extends acyPHPMailer
     public $receiverEmail;
 
     public $isTest = false;
+    public $isSpamTest = false;
 
     public function __construct()
     {
@@ -238,13 +239,17 @@ class MailerHelper extends acyPHPMailer
         }
 
         if (empty($this->Subject) || empty($this->Body)) {
-            $this->reportMessage = acym_translation('ACYM_SEND_EMPTY');
-            $this->errorNumber = 8;
-            if ($this->report) {
-                acym_enqueueMessage($this->reportMessage, 'error');
-            }
+            if ($this->isTest && empty($this->Subject)) {
+                $this->Subject = acym_translation('ACYM_EMAIL_SUBJECT');
+            } else {
+                $this->reportMessage = acym_translation('ACYM_SEND_EMPTY');
+                $this->errorNumber = 8;
+                if ($this->report) {
+                    acym_enqueueMessage($this->reportMessage, 'error');
+                }
 
-            return false;
+                return false;
+            }
         }
 
         if (empty($this->ReplyTo) && empty($this->ReplyToQueue)) {
@@ -325,7 +330,7 @@ class MailerHelper extends acyPHPMailer
         }
 
         if (strpos($this->Host, 'elasticemail')) {
-            $this->addCustomHeader('referral:2f0447bb-173a-459d-ab1a-ab8cbebb9aab');
+            $this->addCustomHeader('referral', '2f0447bb-173a-459d-ab1a-ab8cbebb9aab');
         }
 
         $this->Subject = str_replace(
@@ -339,7 +344,7 @@ class MailerHelper extends acyPHPMailer
         $externalSending = false;
 
         $mailClass = new MailClass();
-        $isTransactional = $this->isTest || (!empty($this->defaultMail[$this->mailId]) && $mailClass->isTransactionalMail($this->defaultMail[$this->mailId]));
+        $isTransactional = $this->isTest || $this->isSpamTest || (!empty($this->defaultMail[$this->mailId]) && $mailClass->isTransactionalMail($this->defaultMail[$this->mailId]));
 
         acym_trigger('onAcymProcessQueueExternalSendingCampaign', [&$externalSending, $isTransactional]);
 
@@ -430,11 +435,7 @@ class MailerHelper extends acyPHPMailer
 
         global $acymLanguages;
         if (!acym_isMultilingual() || $this->isTest) {
-            $this->defaultMail[$mailId] = $mailClass->getOneById($mailId, true);
-
-            if (empty($this->defaultMail[$mailId])) {
-                $this->defaultMail[$mailId] = $mailClass->getOneByName($mailId, false, true);
-            }
+            if (empty($this->defaultMail[$mailId])) $this->defaultMail[$mailId] = $mailClass->getOneByName($mailId, false, true);
         } elseif (empty($this->overrideEmailToSend)) {
             $defaultLanguage = $this->config->get('multilingual_default', ACYM_DEFAULT_LANGUAGE);
             $mails = $mailClass->getMultilingualMails($mailId);
@@ -539,7 +540,8 @@ class MailerHelper extends acyPHPMailer
 
         unset($style['foundation']);
 
-        $finalContent = '<html><head>';
+        $finalContent = '<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office"><head>';
+        $finalContent .= '<!--[if gte mso 9]><xml><o:OfficeDocumentSettings><o:AllowPNG/><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->';
         $finalContent .= '<meta http-equiv="Content-Type" content="text/html; charset='.strtolower($this->config->get('charset')).'" />'."\n";
         $finalContent .= '<meta name="viewport" content="width=device-width, initial-scale=1.0" />'."\n";
         $finalContent .= '<title>'.$mail->subject.'</title>'."\n";

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -36,18 +36,15 @@ class Alias
 			return '';
 		}
 
-		$string = strip_tags($string);
-
-		// Remove < > html entities
-		$string = str_replace(['&lt;', '&gt;'], '', $string);
-
-		// Remove quotes
-		$string = str_replace(['"', "'"], '', $string);
+		$string = StringHelper::removeHtml($string);
 
 		if ($unicode || JFactory::getConfig()->get('unicodeslugs') == 1)
 		{
 			return self::stringURLUnicodeSlug($string);
 		}
+
+		// Remove < > html entities
+		$string = str_replace(['&lt;', '&gt;'], '', $string);
 
 		// Convert html entities
 		$string = StringHelper::html_entity_decoder($string);

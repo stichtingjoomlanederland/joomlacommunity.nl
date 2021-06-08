@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -19,6 +19,18 @@ defined('_JEXEC') or die;
  */
 class ObjectHelper
 {
+	/**
+	 * Deep clone an object
+	 *
+	 * @param object $object
+	 *
+	 * @return object
+	 */
+	public static function deepClone($object)
+	{
+		return unserialize(serialize($object));
+	}
+
 	/**
 	 * Return the value by the object property key
 	 * A list of keys can be given. The first one that is not empty will get returned
@@ -43,18 +55,6 @@ class ObjectHelper
 		}
 
 		return $default;
-	}
-
-	/**
-	 * Deep clone an object
-	 *
-	 * @param object $object
-	 *
-	 * @return object
-	 */
-	public static function deepClone($object)
-	{
-		return unserialize(serialize($object));
 	}
 
 	/**

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -15,23 +15,22 @@ defined('_JEXEC') or die;
 
 use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\Language\Text as JText;
-use Joomla\CMS\Plugin\CMSPlugin as JPlugin;
+use Joomla\CMS\Plugin\CMSPlugin as JCMSPlugin;
+use RegularLabs\Library\ParametersNew as Parameters;
 
 /**
  * Class ActionLogPlugin
  * @package RegularLabs\Library
  */
-class ActionLogPlugin
-	extends JPlugin
+class ActionLogPlugin extends JCMSPlugin
 {
-	public $name   = '';
+	static $ids    = [];
 	public $alias  = '';
-	public $option = '';
-	public $items  = [];
-	public $table  = null;
 	public $events = [];
-
-	static $ids = [];
+	public $items  = [];
+	public $name   = '';
+	public $option = '';
+	public $table  = null;
 
 	public function __construct(&$subject, array $config = [])
 	{
@@ -39,9 +38,9 @@ class ActionLogPlugin
 
 		Language::load('plg_actionlog_' . $this->alias);
 
-		$config = Parameters::getInstance()->getComponentParams($this->alias);
+		$config = Parameters::getComponent($this->alias);
 
-		$enable_actionlog = isset($config->enable_actionlog) ? $config->enable_actionlog : true;
+		$enable_actionlog = $config->enable_actionlog ?? true;
 		$this->events     = $enable_actionlog ? ['*'] : [];
 
 		if ($enable_actionlog && ! empty($config->actionlog_events))
@@ -51,6 +50,31 @@ class ActionLogPlugin
 
 		$this->name   = JText::_($this->name);
 		$this->option = $this->option ?: 'com_' . $this->alias;
+	}
+
+	public function onContentAfterDelete($context, $table)
+	{
+		if (strpos($context, $this->option) === false)
+		{
+			return;
+		}
+
+		if ( ! ArrayHelper::find(['*', 'delete'], $this->events))
+		{
+			return;
+		}
+
+		$item = $this->getItem($context);
+
+		$title = $table->title ?? $table->name ?? $table->id;
+
+		$message = [
+			'type'  => $item->title,
+			'id'    => $table->id,
+			'title' => $title,
+		];
+
+		Log::delete($message, $context);
 	}
 
 	public function onContentAfterSave($context, $table, $isNew)
@@ -69,7 +93,7 @@ class ActionLogPlugin
 
 		$item = $this->getItem($context);
 
-		$title    = isset($table->title) ? $table->title : (isset($table->name) ? $table->name : $table->id);
+		$title    = $table->title ?? $table->name ?? $table->id;
 		$item_url = str_replace('{id}', $table->id, $item->url);
 
 		$message = [
@@ -80,31 +104,6 @@ class ActionLogPlugin
 		];
 
 		Log::save($message, $context, $isNew);
-	}
-
-	public function onContentAfterDelete($context, $table)
-	{
-		if (strpos($context, $this->option) === false)
-		{
-			return;
-		}
-
-		if ( ! ArrayHelper::find(['*', 'delete'], $this->events))
-		{
-			return;
-		}
-
-		$item = $this->getItem($context);
-
-		$title = isset($table->title) ? $table->title : (isset($table->name) ? $table->name : $table->id);
-
-		$message = [
-			'type'  => $item->title,
-			'id'    => $table->id,
-			'title' => $title,
-		];
-
-		Log::delete($message, $context);
 	}
 
 	public function onContentChangeState($context, $ids, $value)
@@ -137,7 +136,7 @@ class ActionLogPlugin
 		{
 			$this->table->load($id);
 
-			$title    = isset($this->table->title) ? $this->table->title : (isset($this->table->name) ? $this->table->name : $this->table->id);
+			$title    = $this->table->title ?? $this->table->name ?? $this->table->id;
 			$itemlink = str_replace('{id}', $this->table->id, $item->url);
 
 			$message = [
@@ -149,11 +148,6 @@ class ActionLogPlugin
 
 			Log::changeState($message, $context, $value);
 		}
-	}
-
-	public function onExtensionAfterSave($context, $table, $isNew)
-	{
-		self::onContentAfterSave($context, $table, $isNew);
 	}
 
 	public function onExtensionAfterDelete($context, $table)
@@ -205,6 +199,11 @@ class ActionLogPlugin
 		Log::install($message, 'com_regularlabsmanager', $manifest->type);
 	}
 
+	public function onExtensionAfterSave($context, $table, $isNew)
+	{
+		self::onContentAfterSave($context, $table, $isNew);
+	}
+
 	public function onExtensionAfterUninstall($installer, $eid, $result)
 	{
 		// Prevent duplicate logs
@@ -253,7 +252,7 @@ class ActionLogPlugin
 
 		$item->title = isset($item->title)
 			? JText::_($item->title)
-			: $this->type . ' ' . JText::_('RL_ITEM');
+			: $item->type . ' ' . JText::_('RL_ITEM');
 
 		if ( ! isset($item->file))
 		{

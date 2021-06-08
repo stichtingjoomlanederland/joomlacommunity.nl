@@ -18,6 +18,34 @@ class RseventsproTableSpeaker extends JTable
 		parent::__construct('#__rseventspro_speakers', 'id', $db);
 	}
 	
+	public function bind($array, $ignore = '') {
+		if (isset($array['custom']) && is_array($array['custom'])) {
+			$custom		= array();
+			$classname	= $array['custom']['class'];
+			
+			if (isset($classname)) {
+				foreach ($classname as $i => $name) {
+					if (empty($name)) continue;
+					
+					$custom[] = array(
+						'class' 	=> $name,
+						'link' 		=> (isset($array['custom']['link'][$i]) ? $array['custom']['link'][$i] : '')
+					);
+				}
+			}
+			
+			$registry = new JRegistry;
+			$registry->loadArray($custom);
+			$array['custom'] = (string) $registry;
+		}
+		
+		if (!isset($array['custom'])) {
+			$array['custom'] = '';
+		}
+		
+		return parent::bind($array, $ignore);
+	}
+	
 	public function uploadImage() {
 		jimport('joomla.filesystem.file');
 		

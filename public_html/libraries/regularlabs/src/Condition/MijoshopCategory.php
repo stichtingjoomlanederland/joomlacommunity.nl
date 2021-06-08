@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -17,8 +17,7 @@ defined('_JEXEC') or die;
  * Class MijoshopCategory
  * @package RegularLabs\Library\Condition
  */
-class MijoshopCategory
-	extends Mijoshop
+class MijoshopCategory extends Mijoshop
 {
 	public function pass()
 	{
@@ -59,6 +58,11 @@ class MijoshopCategory
 		return $this->passSimple($cats);
 	}
 
+	private function getCatParentIds($id = 0)
+	{
+		return $this->getParentIds($id, 'mijoshop_category', 'parent_id', 'category_id');
+	}
+
 	private function getCats()
 	{
 		if ($this->request->category_id)
@@ -79,10 +83,5 @@ class MijoshopCategory
 		$cats = $this->db->loadColumn();
 
 		return $this->makeArray($cats);
-	}
-
-	private function getCatParentIds($id = 0)
-	{
-		return $this->getParentIds($id, 'mijoshop_category', 'parent_id', 'category_id');
 	}
 }

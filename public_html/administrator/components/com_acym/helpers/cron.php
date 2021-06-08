@@ -55,6 +55,7 @@ class CronHelper extends acymObject
                 'followup',
                 'delete_history',
                 'clean_data_external_sending_method',
+                'clean_export_changes',
             ];
         }
     }
@@ -150,7 +151,7 @@ class CronHelper extends acymObject
             }
         }
 
-        if (!in_array('bounce', $this->skip) && acym_level(2) && $this->config->get('auto_bounce', 0) && $time > (int)$this->config->get(
+        if (!in_array('bounce', $this->skip) && acym_level(ACYM_ENTERPRISE) && $this->config->get('auto_bounce', 0) && $time > (int)$this->config->get(
                 'auto_bounce_next',
                 0
             ) && (empty($queueHelper->stoptime) || time() < $queueHelper->stoptime - 5)) {
@@ -192,7 +193,7 @@ class CronHelper extends acymObject
             }
         }
 
-        if (!in_array('automation', $this->skip) && acym_level(2)) {
+        if (!in_array('automation', $this->skip) && acym_level(ACYM_ENTERPRISE)) {
             $automationClass = new AutomationClass();
             $automationClass->trigger('classic');
 
@@ -210,7 +211,7 @@ class CronHelper extends acymObject
             }
         }
 
-        if (!in_array('campaign', $this->skip) && acym_level(2)) {
+        if (!in_array('campaign', $this->skip) && acym_level(ACYM_ENTERPRISE)) {
             $campaignClass = new CampaignClass();
             $campaignClass->triggerAutoCampaign();
             if (!empty($campaignClass->messages)) {
@@ -267,6 +268,11 @@ class CronHelper extends acymObject
 
         if (!in_array('clean_data_external_sending_method', $this->skip) && $this->isDailyCron()) {
             acym_trigger('onAcymCleanDataExternalSendingMethod');
+        }
+
+        if (!in_array('clean_export_changes', $this->skip) && $this->isDailyCron()) {
+            $exportHelper = new ExportHelper();
+            $exportHelper->cleanExportChangesFile();
         }
 
         if ($this->externalSendingNotFinished) acym_makeCurlCall(acym_frontendLink('cron&external_sending_repeat=1'), [], [], true);
@@ -352,7 +358,7 @@ class CronHelper extends acymObject
 
     private function multiCron()
     {
-        if (!empty($this->startQueue) || !acym_level(2)) return;
+        if (!empty($this->startQueue) || !acym_level(ACYM_ENTERPRISE)) return;
         $emailsBatches = $this->config->get('queue_batch_auto', 1);
         $emailsBatches = intval($emailsBatches);
         $emailsPerBatches = $this->config->get('queue_nbmail_auto', 70);

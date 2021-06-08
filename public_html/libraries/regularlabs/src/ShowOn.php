@@ -1,20 +1,19 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
 
 namespace RegularLabs\Library;
 
-use Joomla\CMS\Form\FormHelper as JFormHelper;
-use RegularLabs\Library\Document as RL_Document;
-
 defined('_JEXEC') or die;
+
+use Joomla\CMS\Form\FormHelper as JFormHelper;
 
 /**
  * Class ShowOn
@@ -22,6 +21,11 @@ defined('_JEXEC') or die;
  */
 class ShowOn
 {
+	public static function close()
+	{
+		return '</div>';
+	}
+
 	public static function open($condition = '', $formControl = '', $group = '', $class = '')
 	{
 		if ( ! $condition)
@@ -29,18 +33,13 @@ class ShowOn
 			return self::close();
 		}
 
-		RL_Document::loadFormDependencies();
+		Document::loadFormDependencies();
 
 		$json = json_encode(JFormHelper::parseShowOnConditions($condition, $formControl, $group));
 
 		$class = $class ? ' class="' . $class . '"' : '';
 
 		return '<div data-showon=\'' . $json . '\' style="display: none;"' . $class . '>';
-	}
-
-	public static function close()
-	{
-		return '</div>';
 	}
 
 	public static function show($string = '', $condition = '', $formControl = '', $group = '', $animate = true, $class = '')

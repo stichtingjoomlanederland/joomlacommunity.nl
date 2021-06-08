@@ -10,6 +10,7 @@
 
 defined('_JEXEC') or die;
 
+use Joomla\CMS\Date\Date;
 use Joomla\CMS\HTML\HTMLHelper;
 use Joomla\CMS\Language\Text;
 use Joomla\CMS\Layout\LayoutHelper;
@@ -165,7 +166,7 @@ $noPaymentProviders = ['easy', 'internetkassa', 'lite', 'omnikassa', 'ogone'];
 									</td>
 									<td>
 										<?php
-											echo HTMLHelper::_('date', $entry->date_added, 'd-m-Y H:i:s', true);
+											echo (new Date($entry->date_added))->format('d-m-Y H:i:s');
 										?>
 									</td>
 									<td>

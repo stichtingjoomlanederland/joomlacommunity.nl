@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -25,18 +25,7 @@ class JFormFieldRL_Languages extends \RegularLabs\Library\Field
 {
 	public $type = 'Languages';
 
-	protected function getInput()
-	{
-		$size     = (int) $this->get('size');
-		$multiple = $this->get('multiple');
-
-		return $this->selectListSimpleAjax(
-			$this->type, $this->name, $this->value, $this->id,
-			compact('size', 'multiple')
-		);
-	}
-
-	function getAjaxRaw(Registry $attributes)
+	public function getAjaxRaw(Registry $attributes)
 	{
 		$name     = $attributes->get('name', $this->type);
 		$id       = $attributes->get('id', strtolower($name));
@@ -49,7 +38,7 @@ class JFormFieldRL_Languages extends \RegularLabs\Library\Field
 		return $this->selectListSimple($options, $name, $value, $id, $size, $multiple);
 	}
 
-	function getLanguages($value)
+	public function getLanguages($value)
 	{
 		$langs = JHtml::_('contentlanguage.existing');
 
@@ -75,5 +64,16 @@ class JFormFieldRL_Languages extends \RegularLabs\Library\Field
 		}
 
 		return $options;
+	}
+
+	protected function getInput()
+	{
+		$size     = (int) $this->get('size');
+		$multiple = $this->get('multiple');
+
+		return $this->selectListSimpleAjax(
+			$this->type, $this->name, $this->value, $this->id,
+			compact('size', 'multiple')
+		);
 	}
 }

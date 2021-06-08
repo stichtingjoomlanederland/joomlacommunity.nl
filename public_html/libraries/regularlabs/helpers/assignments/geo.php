@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -21,11 +21,36 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 class RLAssignmentsGeo extends RLAssignment
 {
 	var $geo = null;
+
+	public function getGeo($ip = '')
+	{
+		if ($this->geo !== null)
+		{
+			return $this->geo;
+		}
+
+		$geo = $this->getGeoObject($ip);
+
+		if (empty($geo))
+		{
+			return false;
+		}
+
+		$this->geo = $geo->get();
+
+		if (JFactory::getApplication()->get('debug'))
+		{
+			JLog::addLogger(['text_file' => 'regularlabs_geoip.log.php'], JLog::ALL, ['regularlabs_geoip']);
+			JLog::add(json_encode($this->geo), JLog::DEBUG, 'regularlabs_geoip');
+		}
+
+		return $this->geo;
+	}
 
 	/**
 	 * passContinents
@@ -56,24 +81,6 @@ class RLAssignmentsGeo extends RLAssignment
 	}
 
 	/**
-	 * passRegions
-	 */
-	public function passRegions()
-	{
-		if ( ! $this->getGeo() || empty($this->geo->countryCode) || empty($this->geo->regionCodes))
-		{
-			return $this->pass(false);
-		}
-
-		$regions = $this->geo->regionCodes;
-		array_walk($regions, function (&$value) {
-			$value = $this->geo->countryCode . '-' . $value;
-		});
-
-		return $this->passSimple($regions);
-	}
-
-	/**
 	 * passPostalcodes
 	 */
 	public function passPostalcodes()
@@ -89,29 +96,22 @@ class RLAssignmentsGeo extends RLAssignment
 		return $this->passInRange($postalcode);
 	}
 
-	public function getGeo($ip = '')
+	/**
+	 * passRegions
+	 */
+	public function passRegions()
 	{
-		if ($this->geo !== null)
+		if ( ! $this->getGeo() || empty($this->geo->countryCode) || empty($this->geo->regionCodes))
 		{
-			return $this->geo;
+			return $this->pass(false);
 		}
 
-		$geo = $this->getGeoObject($ip);
+		$regions = $this->geo->regionCodes;
+		array_walk($regions, function (&$value) {
+			$value = $this->geo->countryCode . '-' . $value;
+		});
 
-		if (empty($geo))
-		{
-			return false;
-		}
-
-		$this->geo = $geo->get();
-
-		if (JFactory::getApplication()->get('debug'))
-		{
-			JLog::addLogger(['text_file' => 'regularlabs_geoip.log.php'], JLog::ALL, ['regularlabs_geoip']);
-			JLog::add(json_encode($this->geo), JLog::DEBUG, 'regularlabs_geoip');
-		}
-
-		return $this->geo;
+		return $this->passSimple($regions);
 	}
 
 	private function getGeoObject($ip)

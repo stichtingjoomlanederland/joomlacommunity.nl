@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -24,6 +24,28 @@ class JFormFieldRL_OnlyPro extends \RegularLabs\Library\Field
 {
 	public $type = 'OnlyPro';
 
+	protected function getExtensionName()
+	{
+		if ($extension = $this->form->getValue('element'))
+		{
+			return $extension;
+		}
+
+		if ($extension = JFactory::getApplication()->input->get('component'))
+		{
+			return str_replace('com_', '', $extension);
+		}
+
+		if ($extension = JFactory::getApplication()->input->get('folder'))
+		{
+			$extension = explode('.', $extension);
+
+			return array_pop($extension);
+		}
+
+		return false;
+	}
+
 	protected function getLabel()
 	{
 		$label   = $this->prepareText($this->get('label'));
@@ -41,7 +63,7 @@ class JFormFieldRL_OnlyPro extends \RegularLabs\Library\Field
 
 		if ( ! $tooltip)
 		{
-			return $label;
+			return ($label == '---' ? '' : $label);
 		}
 
 		return '<label class="hasPopover" title="' . $label . '" data-content="' . htmlentities($tooltip) . '">'
@@ -73,7 +95,7 @@ class JFormFieldRL_OnlyPro extends \RegularLabs\Library\Field
 
 		if ($alias)
 		{
-			$text = '<a href="https://www.regularlabs.com/extensions/' . $extension . '/features" target="_blank">'
+			$text = '<a href="https://regularlabs.com/' . $extension . '/features" target="_blank">'
 				. $text
 				. '</a>';
 		}
@@ -82,27 +104,5 @@ class JFormFieldRL_OnlyPro extends \RegularLabs\Library\Field
 		$class = $class ? ' class="' . $class . '"' : '';
 
 		return '<div' . $class . '>' . $text . '</div>';
-	}
-
-	protected function getExtensionName()
-	{
-		if ($extension = $this->form->getValue('element'))
-		{
-			return $extension;
-		}
-
-		if ($extension = JFactory::getApplication()->input->get('component'))
-		{
-			return str_replace('com_', '', $extension);
-		}
-
-		if ($extension = JFactory::getApplication()->input->get('folder'))
-		{
-			$extension = explode('.', $extension);
-
-			return array_pop($extension);
-		}
-
-		return false;
 	}
 }

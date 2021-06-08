@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -16,7 +16,7 @@ use Joomla\CMS\Factory as JFactory;
 use Joomla\CMS\HTML\HTMLHelper as JHtml;
 use Joomla\CMS\Language\Text as JText;
 use RegularLabs\Library\Language as RL_Language;
-use RegularLabs\Library\Parameters as RL_Parameters;
+use RegularLabs\Library\ParametersNew as RL_Parameters;
 use RegularLabs\Library\RegEx as RL_RegEx;
 
 if (JFactory::getApplication()->isClient('site'))
@@ -36,7 +36,7 @@ class DBReplacer
 
 	public function render()
 	{
-		$this->config = RL_Parameters::getInstance()->getComponentParams('com_dbreplacer');
+		$this->config = RL_Parameters::getComponent('com_dbreplacer');
 
 		$field  = JFactory::getApplication()->input->get('field', 'table');
 		$params = JFactory::getApplication()->input->getBase64('params');
@@ -78,126 +78,33 @@ class DBReplacer
 		}
 	}
 
-	private function renderColumns()
+	private function addCustomWhereClause(&$query)
 	{
-		$table    = $this->params->table;
-		$selected = Model::implodeParams($this->params->columns);
+		$where = Model::prepareCustomWhereClause($this->params->where, $this->params->table);
 
-		$options = [];
-		if ($table)
+		if (empty($where))
 		{
-			$columns = $this->getTableColumns();
-			foreach ($columns as $col)
-			{
-				$options[] = JHtml::_('select.option', $col, $col, 'value', 'text', 0);
-			}
+			return;
 		}
 
-		$html = '<strong>' . $this->params->table . '</strong><br>';
-		$html .= JHtml::_('select.genericlist', $options, 'columns[]', 'multiple="multiple" size="20"', 'value', 'text', $selected, 'dbr-columns');
-
-		return $html;
+		$query->where('(' . $where . ')');
 	}
 
-	private function renderRows()
+	private function addWhereClause(&$query)
 	{
-		// Load plugin language
+		$where = Model::getWhereClause(
+			$this->params->search,
+			$this->params->columns,
+			$this->params->case,
+			$this->params->regex
+		);
 
-		RL_Language::load('com_dbreplacer');
-
-		$max = (int) $this->config->max_rows;
-
-		if ( ! $this->params->table)
+		if (empty($where))
 		{
-			return '';
+			return;
 		}
 
-		$seach_columns = Model::implodeParams($this->params->columns);
-
-		$rows = $this->getRows($max);
-
-		if (is_null($rows))
-		{
-			return $this->getMessage(JText::_('DBR_INVALID_QUERY'), 'error');
-		}
-
-		if (empty($rows))
-		{
-			return $this->getMessage(JText::_('DBR_ROW_COUNT_NONE'));
-		}
-
-		$columns = $this->getTableColumns();
-
-		$html = [];
-
-		if ($this->params->search)
-		{
-			if (count($rows) > $max - 1)
-			{
-				$html[] = $this->getMessage(JText::sprintf('DBR_MAXIMUM_ROW_COUNT_REACHED', $max), 'warning');
-			}
-			else
-			{
-				$html[] = $this->getMessage(JText::sprintf('DBR_ROW_COUNT', count($rows)));
-			}
-		}
-
-		$html[] = '<h4>Table: ' . $this->params->table . '</h4>';
-		$html[] = '<p><a class="btn btn-default" onclick="RLDBReplacer.toggleInactiveColumns();">' . JText::_('DBR_TOGGLE_INACTIVE_COLUMNS') . '</a></p>';
-
-		$html[] = '<table class="table table-striped" id="dbr_results">';
-		$html[] = '<thead><tr>';
-		foreach ($columns as $column)
-		{
-			$class = [];
-			if ( ! in_array($column, $seach_columns))
-			{
-				$class[] = 'ghosted';
-			}
-
-			if ($column == 'id')
-			{
-				$class[] = 'is_id';
-			}
-
-			$html[] = '<th class="' . implode(' ', $class) . '">' . $column . '</th>';
-		}
-		$html[] = '</tr></thead>';
-		if ($rows && ! empty($rows))
-		{
-			$html[] = '<tbody>';
-			$html[] = $this->getTableRow($rows, $columns);
-			$html[] = '</tbody>';
-		}
-		$html[] = '</table>';
-
-		return implode("\n", $html);
-	}
-
-	private function getMessage($text = '', $type = 'info')
-	{
-		return '<div class="alert alert-' . $type . '">' . $text . '</div>';
-	}
-
-	private function getTableRow($rows, $cols)
-	{
-		foreach ($rows as $row)
-		{
-			$html[] = '<tr>';
-			foreach ($cols as $col)
-			{
-				list($val, $class) = $this->getCellData($row, $col);
-				$val    = nl2br($val);
-				$html[] = '<td class="db_value ' . $class . '">'
-					. '<div class="cell_content">'
-					. $val
-					. '</div>'
-					. '</td>';
-			}
-			$html[] = '</tr>';
-		}
-
-		return implode('', $html);
+		$query->where($where);
 	}
 
 	private function getCellData($row, $col)
@@ -322,6 +229,118 @@ class DBReplacer
 		return [$value, $class];
 	}
 
+	private function getMessage($text = '', $type = 'info')
+	{
+		return '<div class="alert alert-' . $type . '">' . $text . '</div>';
+	}
+
+	private function getRows($max = 100)
+	{
+		if (RL_RegEx::match('[^a-z0-9-_\#]', $this->params->table))
+		{
+			die('Invalid data found in URL!');
+		}
+
+		$db    = JFactory::getDbo();
+		$table = $this->params->table;
+
+		$columns = $this->getTableColumns();
+		array_walk($columns, function (&$column, $key, $db) {
+			$column = $db->quoteName($column);
+		}, $db);
+
+		$query = $db->getQuery(true)
+			->select($columns)
+			->from($db->quoteName(trim($table)))
+			->setLimit($max);
+
+		$this->addWhereClause($query);
+
+		$this->addCustomWhereClause($query);
+
+		$db->setQuery($query);
+
+		return $db->loadObjectList();
+	}
+
+	private function getTableColumns()
+	{
+		return Model::getTableColumns($this->params->table);
+	}
+
+	private function getTableRow($rows, $cols)
+	{
+		$html = [];
+
+		foreach ($rows as $row)
+		{
+			$html[] = '<tr>';
+			foreach ($cols as $col)
+			{
+				[$val, $class] = $this->getCellData($row, $col);
+				$val    = nl2br($val);
+				$html[] = '<td class="db_value ' . $class . '">'
+					. '<div class="cell_content">'
+					. $val
+					. '</div>'
+					. '</td>';
+			}
+			$html[] = '</tr>';
+		}
+
+		return implode('', $html);
+	}
+
+	private function isTooLong($string, $max_length = 0, $max_lines = 0)
+	{
+		$max_length = $max_length ?: $this->max_trim_length;
+		$max_lines  = $max_lines ?: $this->max_trim_lines;
+
+		// return TRUE if string is longer than 110% of max
+		if (strlen($string) > ($max_length * 1.1))
+		{
+			return true;
+		}
+
+		// return TRUE if string has more lines than the max
+		if (RL_RegEx::match('(.*?\n){' . $max_lines . '}', $string))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	private function ltrim($string, $max_length = 0, $max_lines = 0)
+	{
+		$max_length = $max_length ?: $this->max_trim_length;
+		$max_lines  = $max_lines ?: $this->max_trim_lines;
+
+		if ( ! $this->isTooLong($string, $max_length, $max_lines))
+		{
+			return $string;
+		}
+
+		$parts = [substr($string, 0, strlen($string) - $max_length), substr($string, -$max_length)];
+		$parts = $this->ltrimLines($parts, $max_lines);
+
+		return '[:DBR:START-TRIMMED:' . uniqid() . ':]' . $parts[0] . '[:DBR:END-TRIMMED:]'
+			. $parts[1];
+	}
+
+	private function ltrimLines($parts, $max_lines = 3)
+	{
+		if ( ! RL_RegEx::match('^(.*\n)((?:[^\n]*\n[^\n]*){' . ($max_lines - 1) . '})$', $parts[1], $matches))
+		{
+			return $parts;
+		}
+
+		$parts[0] .= $matches[1];
+		$parts[1] = $matches[2];
+
+		return $parts;
+	}
+
 	private function prepareResultString($value, $match, $search, $replace, $options)
 	{
 		// If there is no search, show entire cell content
@@ -381,6 +400,102 @@ class DBReplacer
 		return $value;
 	}
 
+	private function renderColumns()
+	{
+		$table    = $this->params->table;
+		$selected = Model::implodeParams($this->params->columns);
+
+		$options = [];
+		if ($table)
+		{
+			$columns = $this->getTableColumns();
+			foreach ($columns as $col)
+			{
+				$options[] = JHtml::_('select.option', $col, $col, 'value', 'text', 0);
+			}
+		}
+
+		$html = '<strong>' . $this->params->table . '</strong><br>';
+		$html .= JHtml::_('select.genericlist', $options, 'columns[]', 'multiple="multiple" size="20"', 'value', 'text', $selected, 'dbr-columns');
+
+		return $html;
+	}
+
+	private function renderRows()
+	{
+		// Load plugin language
+
+		RL_Language::load('com_dbreplacer');
+
+		$max = (int) $this->config->max_rows;
+
+		if ( ! $this->params->table)
+		{
+			return '';
+		}
+
+		$seach_columns = Model::implodeParams($this->params->columns);
+
+		$rows = $this->getRows($max);
+
+		if (is_null($rows))
+		{
+			return $this->getMessage(JText::_('DBR_INVALID_QUERY'), 'error');
+		}
+
+		if (empty($rows))
+		{
+			return $this->getMessage(JText::_('DBR_ROW_COUNT_NONE'));
+		}
+
+		$columns = $this->getTableColumns();
+
+		$html = [];
+
+		if ($this->params->search)
+		{
+			if (count($rows) > $max - 1)
+			{
+				$html[] = $this->getMessage(JText::sprintf('DBR_MAXIMUM_ROW_COUNT_REACHED', $max), 'warning');
+			}
+			else
+			{
+				$html[] = $this->getMessage(JText::sprintf('DBR_ROW_COUNT', count($rows)));
+			}
+		}
+
+		$html[] = '<h4>Table: ' . $this->params->table . '</h4>';
+		$html[] = '<p><a class="btn btn-default" onclick="RLDBReplacer.toggleInactiveColumns();">' . JText::_('DBR_TOGGLE_INACTIVE_COLUMNS') . '</a></p>';
+
+		$html[] = '<table class="table table-striped" id="dbr_results">';
+		$html[] = '<thead><tr>';
+		foreach ($columns as $column)
+		{
+			$class = [];
+			if ( ! in_array($column, $seach_columns))
+			{
+				$class[] = 'ghosted';
+			}
+
+			if ($column == 'id')
+			{
+				$class[] = 'is_id';
+			}
+
+			$html[] = '<th class="' . implode(' ', $class) . '">' . $column . '</th>';
+		}
+		$html[] = '</tr></thead>';
+		if ($rows && ! empty($rows))
+		{
+			$html[] = '<tbody>';
+			$html[] = $this->getTableRow($rows, $columns);
+			$html[] = '</tbody>';
+		}
+		$html[] = '</table>';
+
+		return implode("\n", $html);
+	}
+
 	private function replacePlaceholders($string)
 	{
 		$string = htmlentities($string, ENT_COMPAT, 'utf-8');
@@ -403,43 +518,6 @@ class DBReplacer
 		return $string;
 	}
 
-	private function isTooLong($string, $max_length = 0, $max_lines = 0)
-	{
-		$max_length = $max_length ?: $this->max_trim_length;
-		$max_lines  = $max_lines ?: $this->max_trim_lines;
-
-		// return TRUE if string is longer than 110% of max
-		if (strlen($string) > ($max_length * 1.1))
-		{
-			return true;
-		}
-
-		// return TRUE if string has more lines than the max
-		if (RL_RegEx::match('(.*?\n){' . $max_lines . '}', $string))
-		{
-			return true;
-		}
-
-		return false;
-	}
-
-	private function ltrim($string, $max_length = 0, $max_lines = 0)
-	{
-		$max_length = $max_length ?: $this->max_trim_length;
-		$max_lines  = $max_lines ?: $this->max_trim_lines;
-
-		if ( ! $this->isTooLong($string, $max_length, $max_lines))
-		{
-			return $string;
-		}
-
-		$parts = [substr($string, 0, strlen($string) - $max_length), substr($string, -$max_length)];
-		$parts = $this->ltrimLines($parts, $max_lines);
-
-		return '[:DBR:START-TRIMMED:' . uniqid() . ':]' . $parts[0] . '[:DBR:END-TRIMMED:]'
-			. $parts[1];
-	}
-
 	private function rtrim($string, $max_length = 0, $max_lines = 0)
 	{
 		$max_length = $max_length ?: $this->max_trim_length;
@@ -455,6 +533,19 @@ class DBReplacer
 
 		return $parts[0]
 			. '[:DBR:START-TRIMMED:' . uniqid() . ':]' . $parts[1] . '[:DBR:END-TRIMMED:]';
+	}
+
+	private function rtrimLines($parts, $max_lines = 3)
+	{
+		if ( ! RL_RegEx::match('^((?:[^\n]*\n[^\n]*){' . ($max_lines - 1) . '})(\n.*)$', $parts[0], $matches))
+		{
+			return $parts;
+		}
+
+		$parts[0] = $matches[1];
+		$parts[1] = $matches[2] . $parts[1];
+
+		return $parts;
 	}
 
 	private function trim($string, $max_length = 0, $max_lines = 0)
@@ -479,94 +570,5 @@ class DBReplacer
 		return $start_parts[0]
 			. '[:DBR:START-TRIMMED:' . uniqid() . ':]' . $end_parts[0] . '[:DBR:END-TRIMMED:]'
 			. $end_parts[1];
-	}
-
-	private function ltrimLines($parts, $max_lines = 3)
-	{
-		if ( ! RL_RegEx::match('^(.*\n)((?:[^\n]*\n[^\n]*){' . ($max_lines - 1) . '})$', $parts[1], $matches))
-		{
-			return $parts;
-		}
-
-		$parts[0] .= $matches[1];
-		$parts[1] = $matches[2];
-
-		return $parts;
-	}
-
-	private function rtrimLines($parts, $max_lines = 3)
-	{
-		if ( ! RL_RegEx::match('^((?:[^\n]*\n[^\n]*){' . ($max_lines - 1) . '})(\n.*)$', $parts[0], $matches))
-		{
-			return $parts;
-		}
-
-		$parts[0] = $matches[1];
-		$parts[1] = $matches[2] . $parts[1];
-
-		return $parts;
-	}
-
-	private function getRows($max = 100)
-	{
-		if (RL_RegEx::match('[^a-z0-9-_\#]', $this->params->table))
-		{
-			die('Invalid data found in URL!');
-		}
-
-		$db    = JFactory::getDbo();
-		$table = $this->params->table;
-
-		$columns = $this->getTableColumns();
-		array_walk($columns, function (&$column, $key, $db) {
-			$column = $db->quoteName($column);
-		}, $db);
-
-		$query = $db->getQuery(true)
-			->select($columns)
-			->from($db->quoteName(trim($table)))
-			->setLimit($max);
-
-		$this->addWhereClause($query);
-
-		$this->addCustomWhereClause($query);
-
-		$db->setQuery($query);
-
-		return $db->loadObjectList();
-	}
-
-	private function getTableColumns()
-	{
-		return Model::getTableColumns($this->params->table);
-	}
-
-	private function addWhereClause(&$query)
-	{
-		$where = Model::getWhereClause(
-			$this->params->search,
-			$this->params->columns,
-			$this->params->case,
-			$this->params->regex
-		);
-
-		if (empty($where))
-		{
-			return;
-		}
-
-		$query->where($where);
-	}
-
-	private function addCustomWhereClause(&$query)
-	{
-		$where = Model::prepareCustomWhereClause($this->params->where, $this->params->table);
-
-		if (empty($where))
-		{
-			return;
-		}
-
-		$query->where($where);
 	}
 }

@@ -203,7 +203,7 @@ class JdidealgatewayModelCustomer extends AdminModel
 		{
 			$jdideal = new Gateway($profile->alias);
 
-			if ($jdideal->get('recurring', false) === false)
+			if ((bool) $jdideal->get('recurring', false) === false)
 			{
 				continue;
 			}

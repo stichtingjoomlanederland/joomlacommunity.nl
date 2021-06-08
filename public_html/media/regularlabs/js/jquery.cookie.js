@@ -57,7 +57,7 @@
 
 		// Write
 
-		if (arguments.length > 1 && !$.isFunction(value)) {
+		if (arguments.length > 1 && ! $.isFunction(value)) {
 			options = $.extend({}, config.defaults, options);
 
 			if (typeof options.expires === 'number') {
@@ -96,7 +96,7 @@
 			}
 
 			// Prevent storing a cookie that we couldn't decode.
-			if (!key && (cookie = read(cookie)) !== undefined) {
+			if ( ! key && (cookie = read(cookie)) !== undefined) {
 				result[name] = cookie;
 			}
 		}
@@ -109,7 +109,7 @@
 	$.removeCookie = function(key, options) {
 		// Must not alter options, thus extending a fresh object...
 		$.cookie(key, '', $.extend({}, options, {expires: -1}));
-		return !$.cookie(key);
+		return ! $.cookie(key);
 	};
 
 }));

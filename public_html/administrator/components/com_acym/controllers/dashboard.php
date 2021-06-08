@@ -31,7 +31,6 @@ class DashboardController extends acymController
         acym_setVar('layout', 'listing');
 
         if ($this->migration()) return;
-        if ($this->feedback()) return;
         if ($this->walkthrough()) return;
 
         $campaignClass = new CampaignClass();
@@ -217,7 +216,7 @@ class DashboardController extends acymController
 
         if (!empty($wrongAddresses)) acym_enqueueMessage(acym_translationSprintf('ACYM_WRONG_ADDRESSES', implode(', ', $wrongAddresses)), 'warning');
 
-        $nextStep = acym_isLocalWebsite() ? 'stepGmail' : 'stepPhpmail';
+        $nextStep = 'stepPhpmail';
 
         $this->_saveWalkthrough(['step' => $nextStep, 'list_id' => $listId]);
         $this->$nextStep();
@@ -274,32 +273,6 @@ class DashboardController extends acymController
         $this->stepResult();
     }
 
-    public function stepGmail()
-    {
-        acym_setVar('layout', 'walk_through');
-
-        $data = [
-            'step' => 'gmail',
-            'userEmail' => acym_currentUserEmail(),
-        ];
-
-        parent::display($data);
-    }
-
-    public function saveStepGmail()
-    {
-        if (!$this->_saveFrom() || !$this->_saveGmailInformation()) {
-            $this->stepGmail();
-
-            return;
-        }
-
-        $this->_sendFirstEmail();
-
-        $this->_saveWalkthrough(['step' => 'stepResult']);
-        $this->stepResult();
-    }
-
     public function stepResult()
     {
         acym_setVar('layout', 'walk_through');
@@ -317,7 +290,7 @@ class DashboardController extends acymController
 
         $walkthroughParams = json_decode($this->config->get('walkthrough_params', '[]'), true);
 
-        $stepFail = acym_isLocalWebsite() || !empty($walkthroughParams['step_fail']) ? 'stepFaillocal' : 'stepFail';
+        $stepFail = !empty($walkthroughParams['step_fail']) ? 'stepFaillocal' : 'stepFail';
 
         $nextStep = $result ? 'stepSuccess' : $stepFail;
         $this->_saveWalkthrough(['step' => $nextStep]);
@@ -391,9 +364,7 @@ class DashboardController extends acymController
             return;
         }
 
-        if ($fromFunction == 'stepFaillocal' && acym_isLocalWebsite()) {
-            $fromMessage = 'GMAIL_TRY';
-        } elseif ($fromFunction == 'stepFaillocal') {
+        if ($fromFunction == 'stepFaillocal') {
             $fromMessage = 'GMAIL_PHP_TRY';
         } else {
             $fromMessage = $this->config->get('mailer_method', 'phpmail');
@@ -560,30 +531,6 @@ class DashboardController extends acymController
         $newConfig = new \stdClass();
         $newConfig->migration = '1';
         $this->config->save($newConfig);
-
-        return false;
-    }
-
-    public function feedback()
-    {
-        if ('wordpress' !== ACYM_CMS) return false;
-
-        $installDate = $this->config->get('install_date', time());
-        $remindme = json_decode($this->config->get('remindme', '[]'), true);
-
-        if ($installDate < time() - 1814400 && !in_array('reviews', $remindme)) {
-            $remindme[] = 'reviews';
-            $this->config->save(['remindme' => json_encode($remindme)]);
-
-            $this->config = acym_config();
-            $remindme = json_decode($this->config->get('remindme', '[]'), true);
-            if (in_array('reviews', $remindme)) {
-                acym_setVar('layout', 'feedback');
-                parent::display();
-
-                return true;
-            }
-        }
 
         return false;
     }

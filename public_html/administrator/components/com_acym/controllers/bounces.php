@@ -17,6 +17,7 @@ class BouncesController extends acymController
     {
         parent::__construct();
         $this->breadcrumb[acym_translation('ACYM_BOUNCE_HANDLING')] = acym_completeLink('bounces');
+        $this->currentClass = new RuleClass();
     }
 
     public function listing()
@@ -24,7 +25,7 @@ class BouncesController extends acymController
         $splashscreenHelper = new SplashscreenHelper();
         $data = [];
 
-        if (acym_level(2)) {
+        if (acym_level(ACYM_ENTERPRISE)) {
             if ($splashscreenHelper->getDisplaySplashscreenForViewName('bounces')) {
                 acym_setVar('layout', 'splashscreen');
 
@@ -43,7 +44,7 @@ class BouncesController extends acymController
             }
         }
 
-        if (!acym_level(2)) {
+        if (!acym_level(ACYM_ENTERPRISE)) {
             acym_setVar('layout', 'splashscreen');
             $data['isEnterprise'] = false;
         }
@@ -280,24 +281,7 @@ class BouncesController extends acymController
 
         if ($bounceHelper->init()) {
             if ($bounceHelper->connect()) {
-                $nbMessages = $bounceHelper->getNBMessages();
-                $bounceHelper->close();
-                $messages = [
-                    acym_translationSprintf('ACYM_BOUNCE_CONNECT_SUCC', $this->config->get('bounce_username')),
-                    acym_translationSprintf('ACYM_NB_MAIL_MAILBOX', $nbMessages),
-                ];
-
-                if (!empty($nbMessages)) {
-                    $messages[] = acym_modal(
-                        acym_translation('ACYM_CLICK_BOUNCE'),
-                        '',
-                        null,
-                        'data-reveal-larger',
-                        'data-ajax="true" data-iframe="&ctrl=bounces&task=process" class="acym__color__light-blue cursor-pointer" style="margin: 0"'
-                    );
-                }
-
-                acym_enqueueMessage($messages, 'info');
+                acym_setVar('run_bounce', true);
             } else {
                 $errors = $bounceHelper->getErrors();
                 if (!empty($errors)) {

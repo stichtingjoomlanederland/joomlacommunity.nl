@@ -58,9 +58,10 @@ class WFMediaManager extends WFMediaManagerBase
 
             if ($this->get('can_edit_images') && $this->getParam('thumbnail_editor', 1)) {
                 $request->setRequest(array($this, 'createThumbnail'));
+                $request->setRequest(array($this, 'createThumbnails'));
                 $request->setRequest(array($this, 'deleteThumbnail'));
             }
-    
+
             $this->addFileBrowserEvent('onFilesDelete', array($this, 'onFilesDelete'));
             $this->addFileBrowserEvent('onGetItems', array($this, 'processListItems'));
 
@@ -89,9 +90,9 @@ class WFMediaManager extends WFMediaManagerBase
                     $this->addFileBrowserButton('file', 'image_editor', array('action' => 'editImage', 'title' => JText::_('WF_BUTTON_EDIT_IMAGE'), 'restrict' => 'jpg,jpeg,png,gif,webp'));
                 }
 
-                if ($this->checkAccess('thumbnail_editor', 1)) {                    
-                    $this->addFileBrowserButton('file', 'thumb_create', array('action' => 'createThumbnail', 'title' => JText::_('WF_BUTTON_CREATE_THUMBNAIL'), 'trigger' => true, 'icon' => 'thumbnail'));
-                    $this->addFileBrowserButton('file', 'thumb_delete', array('action' => 'deleteThumbnail', 'title' => JText::_('WF_BUTTON_DELETE_THUMBNAIL'), 'trigger' => true, 'icon' => 'thumbnail-remove'));
+                if ($this->checkAccess('thumbnail_editor', 1)) {
+                    $this->addFileBrowserButton('file', 'thumb_create', array('action' => 'createThumbnail', 'title' => JText::_('WF_BUTTON_CREATE_THUMBNAIL'), 'trigger' => true, 'multiple' => true, 'icon' => 'thumbnail'));
+                    $this->addFileBrowserButton('file', 'thumb_delete', array('action' => 'deleteThumbnail', 'title' => JText::_('WF_BUTTON_DELETE_THUMBNAIL'), 'trigger' => true, 'multiple' => true, 'icon' => 'thumbnail-remove'));
                 }
             }
 
@@ -157,7 +158,7 @@ class WFMediaManager extends WFMediaManagerBase
 
             $document->addScript(array(
                 'libraries/pro/vendor/beautify/beautify.min',
-                'libraries/pro/vendor/codemirror/js/codemirror.min'
+                'libraries/pro/vendor/codemirror/js/codemirror.min',
             ), 'jce');
 
             $document->addStyleSheet(array(
@@ -1621,6 +1622,82 @@ class WFMediaManager extends WFMediaManagerBase
     }
 
     /**
+     * Creates thumbnails for an array of files.
+     *
+     * @param array $files  relative path of the image
+     */
+    public function createThumbnails($files)
+    {
+        $files = (array) $files;
+
+        $app = JFactory::getApplication();
+        $browser = $this->getFileBrowser();
+        $filesystem = $browser->getFileSystem();
+
+        $tw = $app->input->getInt('thumbnail_width');
+        $th = $app->input->getInt('thumbnail_height');
+
+        // Crop Thumbnail
+        $crop = $app->input->getInt('thumbnail_crop', 0);
+
+        $tq = $browser->get('upload_thumbnail_quality');
+
+        // need at least one value
+        if ($tw || $th) {
+
+            foreach ($files as $file) {
+
+                // check path
+                WFUtility::checkPath($file);
+                
+                // get extension
+                $extension = WFUtility::getExtension($file);
+                
+                // get imagelab instance
+                $instance = $this->getImageLab($file);
+
+                // no instance was created, perhaps due to memory error?
+                if (!$instance) {
+                    $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_ERROR'), 'error');
+                    return false;
+                }
+
+                $thumb = WFUtility::makePath($this->getThumbDir($file, true), $this->getThumbName($file));
+
+                $w = $instance->getWidth();
+                $h = $instance->getHeight();
+
+                // calculate width if not set
+                if (!$tw) {
+                    $tw = round($th / $h * $w, 0);
+                }
+
+                // calculate height if not set
+                if (!$th) {
+                    $th = round($tw / $w * $h, 0);
+                }
+
+                if ($crop) {
+                    $instance->fit($tw, $th);
+                } else {
+                    $instance->resize($tw, $th);
+                }
+
+                $data = $instance->toString($extension, array('quality' => $tq));
+
+                if ($data) {
+                    // write to file
+                    if (!$filesystem->write($thumb, $data)) {
+                        $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_ERROR'), 'error');
+                    }
+                }
+            }
+        }
+
+        return $browser->getResult();
+    }
+
+    /**
      * Remove exif data from an image by rewriting it. This will also rotate images to correct orientation.
      *
      * @param $file Absolute path to the image file
@@ -1808,23 +1885,33 @@ class WFMediaManager extends WFMediaManagerBase
         return $this->getDimensions($this->getThumbPath($file));
     }
 
-    public function deleteThumbnail($file)
+    public function deleteThumbnail($files)
     {
         if (!$this->checkAccess('thumbnail_editor', 1)) {
             throw new Exception(JText::_('JERROR_ALERTNOAUTHOR'));
         }
 
-        // check path
-        WFUtility::checkPath($file);
+        $files = (array) $files;
 
-        $browser = $this->getFileBrowser();
-        $filesystem = $browser->getFileSystem();
-        $dir = $this->getThumbDir($file, false);
+        for($i = 0; $i < count($files); $i++) {
+            $file = $files[$i];
+            
+            // check path
+            WFUtility::checkPath($file);
 
-        if ($browser->deleteItem($this->getThumbPath($file))) {
-            if ($filesystem->countFiles($dir) == 0 && $filesystem->countFolders($dir) == 0) {
-                if (!$browser->deleteItem($dir)) {
-                    $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_FOLDER_DELETE_ERROR'), 'error');
+            $browser = $this->getFileBrowser();
+            $filesystem = $browser->getFileSystem();
+            $dir = $this->getThumbDir($file, false);
+
+            $thumb = $this->getThumbPath($file);
+
+            if ($browser->deleteItem($thumb)) {
+                if ($i == count($files) - 1) {
+                    if ($filesystem->countFiles($dir) == 0 && $filesystem->countFolders($dir) == 0) {
+                        if (!$browser->deleteItem($dir)) {
+                            $browser->setResult(JText::_('WF_IMGMANAGER_EXT_THUMBNAIL_FOLDER_DELETE_ERROR'), 'error');
+                        }
+                    }
                 }
             }
         }

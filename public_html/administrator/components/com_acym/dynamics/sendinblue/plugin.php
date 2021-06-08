@@ -97,7 +97,7 @@ class plgAcymSendinblue extends acymPlugin
         $this->users->addAttributeToUser($receiverEmail, $htmlContent, $mailId);
     }
 
-    public function onAcymAfterUserModify($user)
+    public function onAcymAfterUserModify($user, &$oldUser)
     {
         $this->users->createUser($user);
     }
@@ -152,10 +152,10 @@ class plgAcymSendinblue extends acymPlugin
         $data['embedAttachment'][self::SENDING_METHOD_ID] = false;
     }
 
-    public function onAcymSynchonizeExistingeUsers($sendingMethod)
+    public function onAcymSynchronizeExistingUsers($sendingMethod)
     {
         if ($sendingMethod !== self::SENDING_METHOD_ID) return;
 
-        $this->users->synchonizeExistingUsers();
+        $this->users->synchronizeExistingUsers();
     }
 }

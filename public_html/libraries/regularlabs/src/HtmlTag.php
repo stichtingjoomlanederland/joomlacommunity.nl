@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -48,62 +48,6 @@ class HtmlTag
 		}
 
 		return '<' . $tag_type . ' ' . $attribs . '>';
-	}
-
-	/**
-	 * Extract attribute value from a html tag string by given attribute key
-	 *
-	 * @param string $key
-	 * @param string $string
-	 *
-	 * @return string
-	 */
-	public static function getAttributeValue($key, $string)
-	{
-		if (empty($key) || empty($string))
-		{
-			return '';
-		}
-
-		RegEx::match(RegEx::quote($key) . '="([^"]*)"', $string, $match);
-
-		if (empty($match))
-		{
-			return '';
-		}
-
-		return $match[1];
-	}
-
-	/**
-	 * Extract all attributes from a html tag string
-	 *
-	 * @param string $string
-	 *
-	 * @return array
-	 */
-	public static function getAttributes($string)
-	{
-		if (empty($string))
-		{
-			return [];
-		}
-
-		RegEx::matchAll('([a-z0-9-_]+)="([^"]*)"', $string, $matches);
-
-		if (empty($matches))
-		{
-			return [];
-		}
-
-		$attribs = [];
-
-		foreach ($matches as $match)
-		{
-			$attribs[$match[1]] = $match[2];
-		}
-
-		return $attribs;
 	}
 
 	/**
@@ -183,5 +127,90 @@ class HtmlTag
 		}
 
 		return implode(' ', $output);
+	}
+
+	/**
+	 * Extract attribute value from a html tag string by given attribute key
+	 *
+	 * @param string $key
+	 * @param string $string
+	 *
+	 * @return string
+	 */
+	public static function getAttributeValue($key, $string)
+	{
+		if (empty($key) || empty($string))
+		{
+			return '';
+		}
+
+		RegEx::match(RegEx::quote($key) . '="([^"]*)"', $string, $match);
+
+		if (empty($match))
+		{
+			return '';
+		}
+
+		return $match[1];
+	}
+
+	/**
+	 * Extract all attributes from a html tag string
+	 *
+	 * @param string $string
+	 *
+	 * @return array
+	 */
+	public static function getAttributes($string)
+	{
+		if (empty($string))
+		{
+			return [];
+		}
+
+		RegEx::matchAll('([a-z0-9-_]+)="([^"]*)"', $string, $matches);
+
+		if (empty($matches))
+		{
+			return [];
+		}
+
+		$attribs = [];
+
+		foreach ($matches as $match)
+		{
+			$attribs[$match[1]] = $match[2];
+		}
+
+		return $attribs;
+	}
+
+	/**
+	 * Returns true/false based on whether the html tag type is a single tag
+	 *
+	 * @param string $type
+	 *
+	 * @return bool
+	 */
+	public static function isSelfClosingTag($type)
+	{
+		return in_array($type, [
+			'area',
+			'base',
+			'br',
+			'col',
+			'embed',
+			'hr',
+			'img',
+			'input',
+			'keygen',
+			'link',
+			'menuitem',
+			'meta',
+			'param',
+			'source',
+			'track',
+			'wbr',
+		]);
 	}
 }

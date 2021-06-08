@@ -694,7 +694,7 @@ class plgSystemAdmintools extends CMSPlugin
 			/** @var SiteApplication $app */
 			$app = Factory::getApplication();
 
-			if ($app->getLanguageFilter())
+			if (($app->isClient('site') || $app->isClient('administrator')) && $app->getLanguageFilter())
 			{
 				jimport('joomla.language.helper');
 				$languages = LanguageHelper::getLanguages('lang_code');

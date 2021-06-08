@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -35,7 +35,9 @@ class JFormFieldRL_Dependency extends \RegularLabs\Library\Field
 
 	protected function getInput()
 	{
-		if ($file = $this->get('file'))
+		$file = $this->get('file');
+
+		if ($file)
 		{
 			$label = $this->get('label', 'the main extension');
 
@@ -78,35 +80,30 @@ class RLFieldDependency
 		jimport('joomla.filesystem.file');
 
 		$file = str_replace('\\', '/', $file);
-		if (strpos($file, '/administrator') === 0)
-		{
-			$file = str_replace('/administrator', JPATH_ADMINISTRATOR, $file);
-		}
-		else
-		{
-			$file = JPATH_SITE . '/' . $file;
-		}
+		$file = (strpos($file, '/administrator') === 0)
+			? str_replace('/administrator', JPATH_ADMINISTRATOR, $file)
+			: JPATH_SITE . '/' . $file;
+
 		$file = str_replace('//', '/', $file);
 
 		$file_alt = RL_RegEx::replace('(com|mod)_([a-z-_]+\.)', '\2', $file);
 
-		if ( ! file_exists($file) && ! file_exists($file_alt))
+		if (file_exists($file) || file_exists($file_alt))
 		{
-			$msg          = JText::sprintf('RL_THIS_EXTENSION_NEEDS_THE_MAIN_EXTENSION_TO_FUNCTION', JText::_($name));
-			$message_set  = 0;
-			$messageQueue = JFactory::getApplication()->getMessageQueue();
-			foreach ($messageQueue as $queue_message)
+			return;
+		}
+
+		$msg          = JText::sprintf('RL_THIS_EXTENSION_NEEDS_THE_MAIN_EXTENSION_TO_FUNCTION', JText::_($name));
+		$messageQueue = JFactory::getApplication()->getMessageQueue();
+
+		foreach ($messageQueue as $queue_message)
+		{
+			if ($queue_message['type'] == 'error' && $queue_message['message'] == $msg)
 			{
-				if ($queue_message['type'] == 'error' && $queue_message['message'] == $msg)
-				{
-					$message_set = 1;
-					break;
-				}
-			}
-			if ( ! $message_set)
-			{
-				JFactory::getApplication()->enqueueMessage($msg, 'error');
+				return;
 			}
 		}
+
+		JFactory::getApplication()->enqueueMessage($msg, 'error');
 	}
 }

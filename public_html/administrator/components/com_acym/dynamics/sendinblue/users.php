@@ -106,7 +106,7 @@ class SendinblueUsers extends SendinblueClass
         $this->callApiSendingMethod(plgAcymSendinblue::SENDING_METHOD_API_URL.'contacts/attributes/normal/'.$this->getAttributeName($mailId), [], $this->headers, 'DELETE');
     }
 
-    public function synchonizeExistingUsers()
+    public function synchronizeExistingUsers()
     {
         $userClass = new UserClass();
         $users = $userClass->getAllSimpleData();

@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,13 +20,13 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 class RLAssignmentsUsers extends RLAssignment
 {
 	public function passAccessLevels()
 	{
-		$user = JFactory::getUser();
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
 
 		$levels = $user->getAuthorisedViewLevels();
 
@@ -37,7 +37,7 @@ class RLAssignmentsUsers extends RLAssignment
 
 	public function passUserGroupLevels()
 	{
-		$user = JFactory::getUser();
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
 
 		if ( ! empty($user->groups))
 		{
@@ -60,7 +60,9 @@ class RLAssignmentsUsers extends RLAssignment
 
 	public function passUsers()
 	{
-		return $this->passSimple(JFactory::getUser()->get('id'));
+		$user = JFactory::getApplication()->getIdentity() ?: JFactory::getUser();
+
+		return $this->passSimple($user->get('id'));
 	}
 
 	private function convertAccessLevelNamesToIds($selection)
@@ -121,20 +123,6 @@ class RLAssignmentsUsers extends RLAssignment
 		return array_unique(array_merge($selection, $group_ids));
 	}
 
-	private function setUserGroupChildrenIds()
-	{
-		$children = $this->getUserGroupChildrenIds($this->selection);
-
-		if ($this->params->inc_children == 2)
-		{
-			$this->selection = $children;
-
-			return;
-		}
-
-		$this->selection = array_merge($this->selection, $children);
-	}
-
 	private function getUserGroupChildrenIds($groups)
 	{
 		$children = [];
@@ -171,5 +159,19 @@ class RLAssignmentsUsers extends RLAssignment
 		$children = array_unique($children);
 
 		return $children;
+	}
+
+	private function setUserGroupChildrenIds()
+	{
+		$children = $this->getUserGroupChildrenIds($this->selection);
+
+		if ($this->params->inc_children == 2)
+		{
+			$this->selection = $children;
+
+			return;
+		}
+
+		$this->selection = array_merge($this->selection, $children);
 	}
 }

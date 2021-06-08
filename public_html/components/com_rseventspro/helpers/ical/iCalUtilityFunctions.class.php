@@ -63,7 +63,7 @@ class iCalUtilityFunctions {
         if( isset( $theDate['timestamp'] ))
           $tzid = ( isset( $theDate['tz'] )) ? $theDate['tz'] : null;
         else
-          $tzid = ( isset( $theDate['tz'] )) ? $theDate['tz'] : ( 7 == count( $theDate )) ? end( $theDate ) : null;
+          $tzid =  isset($theDate['tz']) ? $theDate['tz'] : ( 7 == count( $theDate ) ? end( $theDate ) : null);
         if( !empty( $tzid )) {
           $parno = 7;
           if( !iCalUtilityFunctions::_isOffset( $tzid ))

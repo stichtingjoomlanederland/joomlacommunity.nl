@@ -29,13 +29,29 @@
 	<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_CONFIGURATION_CAPTCHA'); ?></div>
 	<div class="grid-x grid-margin-x margin-y">
 		<div class="cell medium-6 grid-x">
-            <?php
-            echo acym_switch(
-                'config[captcha]',
-                $this->config->get('captcha', 0),
-                acym_translation('ACYM_CAPTCHA_INVISIBLE').acym_info('ACYM_CAPTCHA_INVISIBLE_DESC')
-            );
-            ?>
+			<label class="cell large-3" for="security_key">
+                <?php echo acym_translation('ACYM_CONFIGURATION_CAPTCHA').acym_info('ACYM_CAPTCHA_DESC'); ?>
+			</label>
+			<div class="cell large-9">
+                <?php
+                $captchaOptions = array_replace(
+                    [
+                        'none' => acym_translation('ACYM_NONE'),
+                        'acym_ireCaptcha' => acym_translation('ACYM_CAPTCHA_INVISIBLE'),
+                    ],
+                    acym_getCmsCaptcha()
+                );
+                echo acym_select(
+                    $captchaOptions,
+                    'config[captcha]',
+                    $this->config->get('captcha', 'none'),
+                    [
+                        'class' => 'acym__select',
+                        'data-toggle-select' => '{"acym_ireCaptcha":".acym__config__captcha__recaptcha"}',
+                    ]
+                );
+                ?>
+			</div>
 		</div>
 		<div class="cell medium-6 grid-x">
 			<label class="cell large-3" for="security_key">
@@ -43,7 +59,7 @@
 			</label>
 			<input class="cell large-9" id="security_key" type="text" name="config[security_key]" value="<?php echo acym_escape($this->config->get('security_key')); ?>" />
 		</div>
-		<div class="cell medium-6 grid-x">
+		<div class="cell medium-6 grid-x acym__config__captcha__recaptcha">
 			<label class="cell large-3" for="recaptcha_sitekey">
                 <?php
                 echo acym_translation('ACYM_SITE_KEY');
@@ -62,7 +78,7 @@
 				   name="config[recaptcha_sitekey]"
 				   value="<?php echo acym_escape($this->config->get('recaptcha_sitekey')); ?>" />
 		</div>
-		<div class="cell medium-6 grid-x">
+		<div class="cell medium-6 grid-x acym__config__captcha__recaptcha">
 			<label class="cell large-3" for="recaptcha_secretkey">
                 <?php
                 echo acym_translation('ACYM_SECRET_KEY');
@@ -107,6 +123,39 @@
                 <?php echo acym_translation('ACYM_UPLOAD_FOLDER').acym_info('ACYM_UPLOAD_FOLDER_DESC'); ?>
 			</label>
 			<input class="cell large-9" id="uploadfolder" type="text" name="config[uploadfolder]" value="<?php echo acym_escape($this->config->get('uploadfolder')); ?>" />
+		</div>
+	</div>
+</div>
+<div class="acym__configuration__check-database acym__content acym_area padding-vertical-1 padding-horizontal-2">
+	<div class="acym__title acym__title__secondary"><?php echo acym_translation('ACYM_REDIRECTIONS'); ?></div>
+	<div class="grid-x grid-margin-x margin-y">
+		<div class="cell medium-6 grid-x acym_vcenter">
+			<label class="cell large-3" for="allowed_files">
+                <?php echo acym_translation('ACYM_ALLOWED_HOSTS').acym_info('ACYM_ALLOWED_HOSTS_DESC'); ?>
+			</label>
+			<div class="cell grid-x large-9">
+                <?php
+                $allowedHosts = $this->config->get('allowed_hosts', '');
+                if (empty($allowedHosts)) {
+                    $allowedHosts = [];
+                } else {
+                    $allowedHosts = explode(',', $allowedHosts);
+                }
+                $allowedHostsFormatted = [];
+                if (!empty($allowedHosts)) {
+                    $allowedHostsFormatted = [];
+                    foreach ($allowedHosts as $host) {
+                        $allowedHostsFormatted[$host] = $host;
+                    }
+                }
+                echo acym_selectMultiple(
+                    $allowedHostsFormatted,
+                    'config[allowed_hosts]',
+                    $allowedHosts,
+                    ['class' => 'acym__allowed__hosts__select', 'placeholder' => acym_translation('ACYM_ENTER_NEW_DOMAIN')]
+                );
+                ?>
+			</div>
 		</div>
 	</div>
 </div>

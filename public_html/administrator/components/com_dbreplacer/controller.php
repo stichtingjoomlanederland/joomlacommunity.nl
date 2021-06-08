@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,6 +20,48 @@ use Joomla\CMS\MVC\Controller\BaseController as JController;
  */
 class DBReplacerController extends JController
 {
+	/**
+	 * Display Method
+	 * Call the method and display the requested view
+	 */
+	public function display($cachable = false, $urlparams = false)
+	{
+		$viewName   = JFactory::getApplication()->input->get('view', 'default');
+		$viewLayout = JFactory::getApplication()->input->get('layout', 'default');
+
+		if ($viewName == 'item')
+		{
+			// Hide the main menu
+			JFactory::getApplication()->input->set('hidemainmenu', 1);
+		}
+
+		$view = $this->getView('default', JFactory::getDocument()->getType());
+
+		// Get/Create the model
+		$model = $this->getModel('default');
+		if ($model)
+		{
+			// Push the model into the view ( as default )
+			$view->setModel($model, true);
+		}
+
+		// Set the layout
+		$view->setLayout($viewLayout);
+
+		// Display the view
+		$view->display();
+	}
+
+	/**
+	 * Import Method
+	 * Call the method and display the import view
+	 */
+	public function import()
+	{
+		JFactory::getApplication()->input->set('layout', 'import');
+		$this->display();
+	}
+
 	/**
 	 * Replace Method
 	 * Set Redirection to the main administrator index
@@ -61,46 +103,5 @@ class DBReplacerController extends JController
 		$params->max   = (int) $config->get('max_rows', '100');
 
 		$model->replace($params);
-	}
-
-	/**
-	 * Display Method
-	 * Call the method and display the requested view
-	 */
-	public function display($cachable = false, $urlparams = false)
-	{
-		$viewName   = JFactory::getApplication()->input->get('view', 'default');
-		$viewLayout = JFactory::getApplication()->input->get('layout', 'default');
-
-		if ($viewName == 'item')
-		{
-			// Hide the main menu
-			JFactory::getApplication()->input->set('hidemainmenu', 1);
-		}
-
-		$view = $this->getView('default', JFactory::getDocument()->getType());
-
-		// Get/Create the model
-		if ($model = $this->getModel('default'))
-		{
-			// Push the model into the view ( as default )
-			$view->setModel($model, true);
-		}
-
-		// Set the layout
-		$view->setLayout($viewLayout);
-
-		// Display the view
-		$view->display();
-	}
-
-	/**
-	 * Import Method
-	 * Call the method and display the import view
-	 */
-	public function import()
-	{
-		JFactory::getApplication()->input->set('layout', 'import');
-		$this->display();
 	}
 }

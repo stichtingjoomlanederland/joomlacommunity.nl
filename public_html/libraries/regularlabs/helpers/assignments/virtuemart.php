@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,7 +20,7 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 class RLAssignmentsVirtueMart extends RLAssignment
 {
@@ -29,17 +29,9 @@ class RLAssignmentsVirtueMart extends RLAssignment
 		$virtuemart_product_id  = JFactory::getApplication()->input->get('virtuemart_product_id', [], 'array');
 		$virtuemart_category_id = JFactory::getApplication()->input->get('virtuemart_category_id', [], 'array');
 
-		$this->request->item_id     = isset($virtuemart_product_id[0]) ? $virtuemart_product_id[0] : null;
-		$this->request->category_id = isset($virtuemart_category_id[0]) ? $virtuemart_category_id[0] : null;
+		$this->request->item_id     = $virtuemart_product_id[0] ?? null;
+		$this->request->category_id = $virtuemart_category_id[0] ?? null;
 		$this->request->id          = ($this->request->item_id) ? $this->request->item_id : $this->request->category_id;
-	}
-
-	public function passPageTypes()
-	{
-		// Because VM sucks, we have to get the view again
-		$this->request->view = JFactory::getApplication()->input->getString('view');
-
-		return $this->passByPageTypes('com_virtuemart', $this->selection, $this->assignment, true);
 	}
 
 	public function passCategories()
@@ -120,6 +112,14 @@ class RLAssignmentsVirtueMart extends RLAssignment
 		}
 
 		return $this->passSimple($cats);
+	}
+
+	public function passPageTypes()
+	{
+		// Because VM sucks, we have to get the view again
+		$this->request->view = JFactory::getApplication()->input->getString('view');
+
+		return $this->passByPageTypes('com_virtuemart', $this->selection, $this->assignment, true);
 	}
 
 	public function passProducts()

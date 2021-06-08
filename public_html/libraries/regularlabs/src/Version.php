@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -44,19 +44,6 @@ class Version
 	}
 
 	/**
-	 * Get the version of the given plugin
-	 *
-	 * @param        $alias
-	 * @param string $folder
-	 *
-	 * @return string
-	 */
-	public static function getPluginVersion($alias, $folder = 'system')
-	{
-		return self::get($alias, 'plugin', $folder);
-	}
-
-	/**
 	 * Get the version of the given component
 	 *
 	 * @param $alias
@@ -69,15 +56,29 @@ class Version
 	}
 
 	/**
-	 * Get the version of the given module
+	 * Get the full footer
 	 *
-	 * @param $alias
+	 * @param     $name
+	 * @param int $copyright
 	 *
 	 * @return string
 	 */
-	public static function getModuleVersion($alias)
+	public static function getFooter($name, $copyright = true)
 	{
-		return self::get($alias, 'module');
+		Document::loadMainDependencies();
+
+		$html = [];
+
+		$html[] = '<div class="rl_footer_extension">' . self::getFooterName($name) . '</div>';
+
+		if ($copyright)
+		{
+			$html[] = '<div class="rl_footer_review">' . self::getFooterReview($name) . '</div>';
+			$html[] = '<div class="rl_footer_logo">' . self::getFooterLogo() . '</div>';
+			$html[] = '<div class="rl_footer_copyright">' . self::getFooterCopyright() . '</div>';
+		}
+
+		return '<div class="rl_footer">' . implode('', $html) . '</div>';
 	}
 
 	/**
@@ -121,136 +122,53 @@ class Version
 	}
 
 	/**
-	 * Get the full footer
+	 * Get the version of the given module
 	 *
-	 * @param     $name
-	 * @param int $copyright
+	 * @param $alias
 	 *
 	 * @return string
 	 */
-	public static function getFooter($name, $copyright = true)
+	public static function getModuleVersion($alias)
 	{
-		Document::loadMainDependencies();
-
-		$html = [];
-
-		$html[] = '<div class="rl_footer_extension">' . self::getFooterName($name) . '</div>';
-
-		if ($copyright)
-		{
-			$html[] = '<div class="rl_footer_review">' . self::getFooterReview($name) . '</div>';
-			$html[] = '<div class="rl_footer_logo">' . self::getFooterLogo() . '</div>';
-			$html[] = '<div class="rl_footer_copyright">' . self::getFooterCopyright() . '</div>';
-		}
-
-		return '<div class="rl_footer">' . implode('', $html) . '</div>';
+		return self::get($alias, 'module');
 	}
 
 	/**
-	 * Get the version message text
+	 * Get the version of the given plugin
 	 *
-	 * @param $alias
-	 * @param $name
-	 * @param $version
+	 * @param        $alias
+	 * @param string $folder
 	 *
-	 * @return array|string
+	 * @return string
 	 */
-	private static function getMessageText($alias, $name, $version)
+	public static function getPluginVersion($alias, $folder = 'system')
 	{
-		list($url, $onclick) = self::getUpdateLink($alias, $version);
-
-		$href    = $onclick ? '' : 'href="' . $url . '" target="_blank" ';
-		$onclick = $onclick ? 'onclick="' . $onclick . '" ' : '';
-
-		$is_pro  = strpos($version, 'PRO') !== false;
-		$version = str_replace(['FREE', 'PRO'], ['', ' <small>[PRO]</small>'], $version);
-
-		$msg = '<div class="text-center">'
-			. '<span class="ghosted">'
-			. JText::sprintf('RL_NEW_VERSION_OF_AVAILABLE', JText::_($name))
-			. '</span>'
-			. '<br>'
-			. '<a ' . $href . $onclick . ' class="btn btn-large btn-success">'
-			. '<span class="icon-upload"></span> '
-			. StringHelper::html_entity_decoder(JText::sprintf('RL_UPDATE_TO', '<span id="regularlabs_newversionnumber_' . $alias . '"></span>'))
-			. '</a>';
-
-		if ( ! $is_pro)
-		{
-			$msg .= ' <a href="https://www.regularlabs.com/purchase/cart/add/' . $alias . '" target="_blank" class="btn btn-large btn-primary">'
-				. '<span class="icon-basket"></span> '
-				. JText::_('RL_GO_PRO')
-				. '</a>';
-		}
-
-		$msg .= '<br>'
-			. '<span class="ghosted">'
-			. '[ <a href="https://www.regularlabs.com/' . $alias . '/changelog" target="_blank">'
-			. JText::_('RL_CHANGELOG')
-			. '</a> ]'
-			. '<br>'
-			. JText::sprintf('RL_CURRENT_VERSION', $version)
-			. '</span>'
-			. '</div>';
-
-		return StringHelper::html_entity_decoder($msg);
+		return self::get($alias, 'plugin', $folder);
 	}
 
 	/**
-	 * Get the url and onclick function for the update link
+	 * Get the copyright text for the footer
 	 *
-	 * @param $alias
-	 * @param $version
-	 *
-	 * @return array
+	 * @return string
 	 */
-	private static function getUpdateLink($alias, $version)
+	private static function getFooterCopyright()
 	{
-		$is_pro = strpos($version, 'PRO') !== false;
+		return JText::_('RL_COPYRIGHT') . ' &copy; ' . date('Y') . ' Regular Labs - ' . JText::_('RL_ALL_RIGHTS_RESERVED');
+	}
 
-		if (
-			! file_exists(JPATH_ADMINISTRATOR . '/components/com_regularlabsmanager/regularlabsmanager.xml')
-			|| ! JComponentHelper::isInstalled('com_regularlabsmanager')
-			|| ! JComponentHelper::isEnabled('com_regularlabsmanager')
-		)
-		{
-			$url = $is_pro
-				? 'https://www.regularlabs.com/' . $alias . '/features'
-				: JRoute::_('index.php?option=com_installer&view=update');
-
-			return [$url, ''];
-		}
-
-		$config = JComponentHelper::getParams('com_regularlabsmanager');
-
-		$key = trim($config->get('key'));
-
-		if ($is_pro && ! $key)
-		{
-			return ['index.php?option=com_regularlabsmanager', ''];
-		}
-
-		jimport('joomla.filesystem.file');
-
-		Document::loadMainDependencies();
-		JHtml::_('behavior.modal');
-
-		JFactory::getDocument()->addScriptDeclaration(
-			"
-			var RLEM_TIMEOUT = " . (int) $config->get('timeout', 5) . ";
-			var RLEM_TOKEN = '" . JSession::getFormToken() . "';
-		"
+	/**
+	 * Get the Regular Labs logo for the footer
+	 *
+	 * @return string
+	 */
+	private static function getFooterLogo()
+	{
+		return JText::sprintf(
+			'RL_POWERED_BY',
+			'<a href="https://regularlabs.com" target="_blank">'
+			. '<img src="' . JUri::root() . 'media/regularlabs/images/logo.svg" width="112" height="24" alt="Regular Labs">'
+			. '</a>'
 		);
-		Document::script('regularlabsmanager/script.min.js', '21.2.23991');
-
-		$url = 'https://download.regularlabs.com?ext=' . $alias . '&j=3';
-
-		if ($is_pro)
-		{
-			$url .= '&k=' . strtolower(substr($key, 0, 8) . md5(substr($key, 8)));
-		}
-
-		return ['', 'RegularLabsManager.openModal(\'update\', [\'' . $alias . '\'], [\'' . $url . '\'], true);'];
 	}
 
 	/**
@@ -308,27 +226,114 @@ class Version
 	}
 
 	/**
-	 * Get the Regular Labs logo for the footer
+	 * Get the version message text
 	 *
-	 * @return string
+	 * @param $alias
+	 * @param $name
+	 * @param $version
+	 *
+	 * @return array|string
 	 */
-	private static function getFooterLogo()
+	private static function getMessageText($alias, $name, $version)
 	{
-		return JText::sprintf(
-			'RL_POWERED_BY',
-			'<a href="https://www.regularlabs.com" target="_blank">'
-			. '<img src="' . JUri::root() . 'media/regularlabs/images/logo.png" width="135" height="24" alt="Regular Labs">'
-			. '</a>'
-		);
+		[$url, $onclick] = self::getUpdateLink($alias, $version);
+
+		$href    = $onclick ? '' : 'href="' . $url . '" target="_blank" ';
+		$onclick = $onclick ? 'onclick="' . $onclick . '" ' : '';
+
+		$is_pro  = strpos($version, 'PRO') !== false;
+		$version = str_replace(['FREE', 'PRO'], ['', ' <small>[PRO]</small>'], $version);
+
+		$msg = '<div class="text-center">'
+			. '<span class="ghosted">'
+			. JText::sprintf('RL_NEW_VERSION_OF_AVAILABLE', JText::_($name))
+			. '</span>'
+			. '<br>'
+			. '<a ' . $href . $onclick . ' class="btn btn-large btn-success">'
+			. '<span class="icon-upload"></span> '
+			. StringHelper::html_entity_decoder(JText::sprintf('RL_UPDATE_TO', '<span id="regularlabs_newversionnumber_' . $alias . '"></span>'))
+			. '</a>';
+
+		if ( ! $is_pro)
+		{
+			$msg .= ' <a href="https://regularlabs.com/purchase/cart/add/' . $alias . '" target="_blank" class="btn btn-large btn-primary">'
+				. '<span class="icon-basket"></span> '
+				. JText::_('RL_GO_PRO')
+				. '</a>';
+		}
+
+		$msg .= '<br>'
+			. '<span class="ghosted">'
+			. '[ <a href="https://regularlabs.com/' . $alias . '/changelog" target="_blank">'
+			. JText::_('RL_CHANGELOG')
+			. '</a> ]'
+			. '<br>'
+			. JText::sprintf('RL_CURRENT_VERSION', $version)
+			. '</span>'
+			. '</div>';
+
+		return StringHelper::html_entity_decoder($msg);
 	}
 
 	/**
-	 * Get the copyright text for the footer
+	 * Get the url and onclick function for the update link
 	 *
-	 * @return string
+	 * @param $alias
+	 * @param $version
+	 *
+	 * @return array
 	 */
-	private static function getFooterCopyright()
+	private static function getUpdateLink($alias, $version)
 	{
-		return JText::_('RL_COPYRIGHT') . ' &copy; ' . date('Y') . ' Regular Labs - ' . JText::_('RL_ALL_RIGHTS_RESERVED');
+		if ((int) JVERSION != 3)
+		{
+			return ['https://regularlabs.com/' . $alias . '/features', ''];
+		}
+
+		$is_pro = strpos($version, 'PRO') !== false;
+
+		if (
+			! file_exists(JPATH_ADMINISTRATOR . '/components/com_regularlabsmanager/regularlabsmanager.xml')
+			|| ! JComponentHelper::isInstalled('com_regularlabsmanager')
+			|| ! JComponentHelper::isEnabled('com_regularlabsmanager')
+		)
+		{
+			$url = $is_pro
+				? 'https://regularlabs.com/' . $alias . '/features'
+				: JRoute::_('index.php?option=com_installer&view=update');
+
+			return [$url, ''];
+		}
+
+		$config = JComponentHelper::getParams('com_regularlabsmanager');
+
+		$key = trim($config->get('key'));
+
+		if ($is_pro && ! $key)
+		{
+			return ['index.php?option=com_regularlabsmanager', ''];
+		}
+
+		jimport('joomla.filesystem.file');
+
+		Document::loadMainDependencies();
+		JHtml::_('behavior.modal');
+
+		JFactory::getDocument()->addScriptDeclaration(
+			"
+			var RLEM_TIMEOUT = " . (int) $config->get('timeout', 5) . ";
+			var RLEM_TOKEN = '" . JSession::getFormToken() . "';
+		"
+		);
+		Document::script('regularlabsmanager/script.min.js', '21.6.1331');
+
+		$url = 'https://download.regularlabs.com?ext=' . $alias . '&j=3';
+
+		if ($is_pro)
+		{
+			$url .= '&k=' . strtolower(substr($key, 0, 8) . md5(substr($key, 8)));
+		}
+
+		return ['', 'RegularLabsManager.openModal(\'update\', [\'' . $alias . '\'], [\'' . $url . '\'], true);'];
 	}
 }

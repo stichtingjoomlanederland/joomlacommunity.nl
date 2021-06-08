@@ -17,12 +17,12 @@ class StatsViewStats extends acymView
         ];
     }
 
-    public function isMailSelected($mailId)
+    public function isMailSelected($mailId, $clickMap)
     {
-        if (acym_level(1)) {
+        if (acym_level(ACYM_ESSENTIAL)) {
             $this->tabs['detailedStats'] = 'ACYM_DETAILED_STATS';
             if (!empty($mailId)) {
-                $this->tabs['clickMap'] = 'ACYM_CLICK_MAP';
+                if ($clickMap) $this->tabs['clickMap'] = 'ACYM_CLICK_MAP';
                 $this->tabs['linksDetails'] = 'ACYM_LINKS_DETAILS';
                 $this->tabs['userClickDetails'] = 'ACYM_USER_CLICK_DETAILS';
             }

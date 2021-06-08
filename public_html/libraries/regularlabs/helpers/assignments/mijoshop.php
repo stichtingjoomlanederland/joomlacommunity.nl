@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -20,7 +20,7 @@ if (is_file(JPATH_LIBRARIES . '/regularlabs/autoload.php'))
 	require_once JPATH_LIBRARIES . '/regularlabs/autoload.php';
 }
 
-require_once dirname(__DIR__) . '/assignment.php';
+require_once dirname(__FILE__, 2) . '/assignment.php';
 
 class RLAssignmentsMijoShop extends RLAssignment
 {
@@ -31,7 +31,8 @@ class RLAssignmentsMijoShop extends RLAssignment
 		$category_id = $input->getCmd('path', 0);
 		if (strpos($category_id, '_'))
 		{
-			$category_id = end(explode('_', $category_id));
+			$category_id_parts = explode('_', $category_id);
+			$category_id       = end($category_id_parts);
 		}
 
 		$this->request->item_id     = $input->getInt('product_id', 0);
@@ -54,11 +55,6 @@ class RLAssignmentsMijoShop extends RLAssignment
 		}
 
 		$this->request->view = $view;
-	}
-
-	public function passPageTypes()
-	{
-		return $this->passByPageTypes('com_mijoshop', $this->selection, $this->assignment, true);
 	}
 
 	public function passCategories()
@@ -112,6 +108,11 @@ class RLAssignmentsMijoShop extends RLAssignment
 		}
 
 		return $this->passSimple($cats);
+	}
+
+	public function passPageTypes()
+	{
+		return $this->passByPageTypes('com_mijoshop', $this->selection, $this->assignment, true);
 	}
 
 	public function passProducts()

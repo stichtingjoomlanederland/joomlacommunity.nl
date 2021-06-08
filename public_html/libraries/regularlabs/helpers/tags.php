@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -32,24 +32,9 @@ class RLTags
 		':' => '[[:COLON:]]',
 	];
 
-	public static function getValuesFromString($string = '', $main_key = 'title', $known_boolean_keys = [], $keep_escaped = [','])
+	public static function cleanSurroundingTags($tags, $elements = ['p', 'span'])
 	{
-		return RL_PluginTag::getAttributesFromString($string, $main_key, $known_boolean_keys, $keep_escaped);
-	}
-
-	public static function protectSpecialChars(&$string)
-	{
-		RL_PluginTag::protectSpecialChars($string);
-	}
-
-	public static function unprotectSpecialChars(&$string, $keep_escaped_chars = [])
-	{
-		RL_PluginTag::unprotectSpecialChars($string, $keep_escaped_chars);
-	}
-
-	public static function replaceKeyAliases(&$values, $key_aliases = [], $handle_plurals = false)
-	{
-		RL_PluginTag::replaceKeyAliases($values, $key_aliases, $handle_plurals);
+		return RL_Html::cleanSurroundingTags($tags, $elements);
 	}
 
 	public static function convertOldSyntax(&$values, $known_boolean_keys = [], $extra_key = 'class')
@@ -57,49 +42,14 @@ class RLTags
 		RL_PluginTag::convertOldSyntax($values, $known_boolean_keys, $extra_key);
 	}
 
-	public static function getRegexSpaces($modifier = '+')
-	{
-		return RL_PluginTag::getRegexSpaces($modifier);
-	}
-
-	public static function getRegexInsideTag()
-	{
-		return RL_PluginTag::getRegexInsideTag();
-	}
-
-	public static function getRegexSurroundingTagPre($elements = ['p', 'span'])
-	{
-		return RL_PluginTag::getRegexSurroundingTagPre($elements);
-	}
-
-	public static function getRegexSurroundingTagPost($elements = ['p', 'span'])
-	{
-		return RL_PluginTag::getRegexSurroundingTagPost($elements);
-	}
-
-	public static function getRegexTags($tags, $include_no_attributes = true, $include_ending = true, $required_attributes = [])
-	{
-		return RL_PluginTag::getRegexTags($tags, $include_no_attributes, $include_ending, $required_attributes);
-	}
-
 	public static function fixBrokenHtmlTags($string)
 	{
 		return RL_Html::fix($string);
 	}
 
-	public static function cleanSurroundingTags($tags, $elements = ['p', 'span'])
-	{
-		return RL_Html::cleanSurroundingTags($tags, $elements);
-	}
-
 	public static function fixSurroundingTags($tags)
 	{
 		return RL_Html::fixArray($tags);
-	}
-
-	public static function removeEmptyHtmlTagPairs($string, $elements = ['p', 'span'])
-	{
-		return RL_Html::removeEmptyTagPairs($string, $elements);
 	}
 
 	public static function getDivTags($start_tag = '', $end_tag = '', $tag_start = '{', $tag_end = '}')
@@ -110,9 +60,54 @@ class RLTags
 		return RL_PluginTag::getDivTags($start_tag, $end_tag, $tag_start, $tag_end);
 	}
 
+	public static function getRegexInsideTag()
+	{
+		return RL_PluginTag::getRegexInsideTag();
+	}
+
+	public static function getRegexSpaces($modifier = '+')
+	{
+		return RL_PluginTag::getRegexSpaces($modifier);
+	}
+
+	public static function getRegexSurroundingTagPost($elements = ['p', 'span'])
+	{
+		return RL_PluginTag::getRegexSurroundingTagPost($elements);
+	}
+
+	public static function getRegexSurroundingTagPre($elements = ['p', 'span'])
+	{
+		return RL_PluginTag::getRegexSurroundingTagPre($elements);
+	}
+
+	public static function getRegexTags($tags, $include_no_attributes = true, $include_ending = true, $required_attributes = [])
+	{
+		return RL_PluginTag::getRegexTags($tags, $include_no_attributes, $include_ending, $required_attributes);
+	}
+
 	public static function getTagValues($string = '', $keys = ['title'], $separator = '|', $equal = '=', $limit = 0)
 	{
 		return RL_PluginTag::getAttributesFromStringOld($string, $keys, $separator, $equal, $limit);
+	}
+
+	public static function getValuesFromString($string = '', $main_key = 'title', $known_boolean_keys = [], $keep_escaped = [','])
+	{
+		return RL_PluginTag::getAttributesFromString($string, $main_key, $known_boolean_keys, $keep_escaped);
+	}
+
+	public static function protectSpecialChars(&$string)
+	{
+		RL_PluginTag::protectSpecialChars($string);
+	}
+
+	public static function removeEmptyHtmlTagPairs($string, $elements = ['p', 'span'])
+	{
+		return RL_Html::removeEmptyTagPairs($string, $elements);
+	}
+
+	public static function replaceKeyAliases(&$values, $key_aliases = [], $handle_plurals = false)
+	{
+		RL_PluginTag::replaceKeyAliases($values, $key_aliases, $handle_plurals);
 	}
 
 	/* @Deprecated */
@@ -192,8 +187,13 @@ class RLTags
 		}
 
 		$a = array_reverse($a);
-		list($pre, $post) = [implode('', $a), implode('', $b)];
+		[$pre, $post] = [implode('', $a), implode('', $b)];
 
 		return [trim($pre), trim($post)];
+	}
+
+	public static function unprotectSpecialChars(&$string, $keep_escaped_chars = [])
+	{
+		RL_PluginTag::unprotectSpecialChars($string, $keep_escaped_chars);
 	}
 }

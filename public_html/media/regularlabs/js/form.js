@@ -1,9 +1,9 @@
 /**
  * @package         Regular Labs Library
- * @version         21.2.23991
+ * @version         21.6.1331
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -12,20 +12,20 @@
 
 if (typeof window.RegularLabsForm === 'undefined'
 	|| typeof RegularLabsForm.version === 'undefined'
-	|| RegularLabsForm.version < '21.2.23991') {
+	|| RegularLabsForm.version < '21.6.1331') {
 
 	(function($) {
 		window.RegularLabsForm = {
-			version: '21.2.23991',
+			version: '21.6.1331',
 
 			getValue: function(name, escape) {
 				let $field = $(`[name="${name}"]`);
 
-				if (!$field.length) {
+				if ( ! $field.length) {
 					$field = $(`[name="${name}[]"]`);
 				}
 
-				if (!$field.length) {
+				if ( ! $field.length) {
 					return;
 				}
 
@@ -61,7 +61,7 @@ if (typeof window.RegularLabsForm === 'undefined'
 			},
 
 			prepareValue: function(value, escape) {
-				if (!isNaN(value) && value.indexOf('.') < 0) {
+				if ( ! isNaN(value) && value.indexOf('.') < 0) {
 					return parseInt(value);
 				}
 
@@ -111,8 +111,8 @@ if (typeof window.RegularLabsForm === 'undefined'
 
 			checkAll: function(checkbox, classname) {
 				const allchecked = this.allChecked(classname);
-				$(checkbox).attr('checked', !allchecked);
-				$(`input.${classname}`).attr('checked', !allchecked);
+				$(checkbox).attr('checked', ! allchecked);
+				$(`input.${classname}`).attr('checked', ! allchecked);
 			},
 
 			// getEditorSelection: function(editorID) {
@@ -159,8 +159,8 @@ if (typeof window.RegularLabsForm === 'undefined'
 				const el = document.getElement(`#${id}`);
 				if (el && el.options) {
 					for (let i = 0; i < el.options.length; i++) {
-						if (!el.options[i].disabled) {
-							el.options[i].selected = !el.options[i].selected;
+						if ( ! el.options[i].disabled) {
+							el.options[i].selected = ! el.options[i].selected;
 						}
 					}
 				}
@@ -215,14 +215,13 @@ if (typeof window.RegularLabsForm === 'undefined'
 
 			function removeEmptyControlGroups() {
 				// remove all empty control groups
-				$('div.control-group > div').each(function(i, el) {
-					if (
-						$(el).html().trim() == ''
-						&& (
-							$(el).attr('class') == 'control-label'
-							|| $(el).attr('class') == 'controls'
-						)
-					) {
+				$('div.control-group > div.control-label label').each(function(i, el) {
+					if ($(el).html().trim() == '') {
+						$(el).remove();
+					}
+				});
+				$('div.control-group > div.control-label,div.control-group > div.controls').each(function(i, el) {
+					if ($(el).html().trim() == '') {
 						$(el).remove();
 					}
 				});

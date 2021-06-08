@@ -2,11 +2,11 @@
 <extension version="3.9" type="component" method="upgrade">
 	<name>COM_REGULARLABSMANAGER</name>
 	<description>COM_REGULARLABSMANAGER_DESC</description>
-	<version>7.4.7</version>
-	<creationDate>February 2021</creationDate>
+	<version>7.4.9</version>
+	<creationDate>April 2021</creationDate>
 	<author>Regular Labs (Peter van Westen)</author>
 	<authorEmail>info@regularlabs.com</authorEmail>
-	<authorUrl>https://www.regularlabs.com</authorUrl>
+	<authorUrl>https://regularlabs.com</authorUrl>
 	<copyright>Copyright © 2018 Regular Labs - All Rights Reserved</copyright>
 	<license>http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL</license>
 

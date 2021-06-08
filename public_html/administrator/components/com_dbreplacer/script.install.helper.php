@@ -1,10 +1,10 @@
 <?php
 /**
  * @package         DB Replacer
- * @version         6.3.9PRO
+ * @version         6.4.0PRO
  * 
  * @author          Peter van Westen <info@regularlabs.com>
- * @link            http://www.regularlabs.com
+ * @link            http://regularlabs.com
  * @copyright       Copyright © 2021 Regular Labs All Rights Reserved
  * @license         http://www.gnu.org/licenses/gpl-2.0.html GNU/GPL
  */
@@ -19,18 +19,21 @@ use Joomla\CMS\Language\Text as JText;
 
 class Com_DBReplacerInstallerScriptHelper
 {
-	public $name              = '';
-	public $alias             = '';
-	public $extname           = '';
-	public $extension_type    = '';
-	public $plugin_folder     = 'system';
-	public $module_position   = 'status';
-	public $client_id         = 1;
-	public $install_type      = 'install';
-	public $show_message      = true;
-	public $db                = null;
-	public $softbreak         = null;
-	public $installed_version = '';
+	public $alias                    = '';
+	public $can_install              = null;
+	public $client_id                = 1;
+	public $current_joomla_version   = '';
+	public $db                       = null;
+	public $extension_type           = '';
+	public $extname                  = '';
+	public $install_type             = 'install';
+	public $installed_joomla_version = '';
+	public $installed_version        = '';
+	public $module_position          = 'status';
+	public $name                     = '';
+	public $plugin_folder            = 'system';
+	public $show_message             = true;
+	public $soft_break               = false;
 
 	public function __construct(&$params)
 	{
@@ -47,7 +50,9 @@ class Com_DBReplacerInstallerScriptHelper
 
 		JFactory::getLanguage()->load('plg_system_regularlabsinstaller', JPATH_PLUGINS . '/system/regularlabsinstaller');
 
-		$this->installed_version = $this->getVersion($this->getInstalledXMLFile());
+		$this->installed_version        = $this->getVersion($this->getInstalledXMLFile());
+		$this->current_joomla_version   = $this->getXmlJoomlaVersion($this->getCurrentXMLFile());
+		$this->installed_joomla_version = $this->getXmlJoomlaVersion($this->getInstalledXMLFile());
 
 		if ($this->show_message && $this->isInstalled())
 		{
@@ -75,6 +80,11 @@ class Com_DBReplacerInstallerScriptHelper
 
 	public function postflight($route, $adapter)
 	{
+		if ( ! $this->canInstall())
+		{
+			return true;
+		}
+
 		$this->removeGlobalLanguageFiles();
 		$this->removeUnusedLanguageFiles();
 
@@ -94,15 +104,8 @@ class Com_DBReplacerInstallerScriptHelper
 			return false;
 		}
 
-		if ($route == 'install')
-		{
-			$this->publishExtension();
-		}
-
-		if ($this->show_message)
-		{
-			$this->addInstalledMessage();
-		}
+		$this->publishExtension($route);
+		$this->addInstalledMessage();
 
 		JFactory::getCache()->clean('com_plugins');
 		JFactory::getCache()->clean('_system');
@@ -193,11 +196,10 @@ class Com_DBReplacerInstallerScriptHelper
 				$folders[] = JPATH_ADMINISTRATOR . '/modules/mod_' . $extname;
 				$folders[] = JPATH_SITE . '/modules/mod_' . $extname;
 				break;
-		}
 
-		if ( ! $this->foldersExist($folders))
-		{
-			return;
+			case 'library':
+				$folders[] = JPATH_SITE . '/libraries/' . $extname;
+				break;
 		}
 
 		$query = $this->db->getQuery(true)
@@ -218,6 +220,11 @@ class Com_DBReplacerInstallerScriptHelper
 		{
 			foreach ($folders as $folder)
 			{
+				if ( ! is_dir($folder))
+				{
+					continue;
+				}
+
 				JFactory::getApplication()->enqueueMessage('2. Deleting: ' . $folder, 'notice');
 				JFolder::delete($folder);
 			}
@@ -289,15 +296,29 @@ class Com_DBReplacerInstallerScriptHelper
 		$this->uninstallExtension($extname, 'module', null, $show_message);
 	}
 
-	public function publishExtension()
+	public function uninstallLibrary($extname, $show_message = true)
 	{
+		$this->uninstallExtension($extname, 'library', null, $show_message);
+	}
+
+	public function publishExtension($route)
+	{
+		if ($route == 'update'
+			&& $this->installed_joomla_version >= $this->current_joomla_version
+		)
+		{
+			return;
+		}
+
 		switch ($this->extension_type)
 		{
 			case 'plugin' :
 				$this->publishPlugin();
+				break;
 
 			case 'module' :
 				$this->publishModule();
+				break;
 		}
 	}
 
@@ -375,6 +396,11 @@ class Com_DBReplacerInstallerScriptHelper
 
 	public function addInstalledMessage()
 	{
+		if ( ! $this->show_message)
+		{
+			return;
+		}
+
 		JFactory::getApplication()->enqueueMessage(
 			JText::sprintf(
 				$this->install_type == 'update' ? 'RLI_THE_EXTENSION_HAS_BEEN_UPDATED_SUCCESSFULLY' : 'RLI_THE_EXTENSION_HAS_BEEN_INSTALLED_SUCCESSFULLY',
@@ -432,21 +458,57 @@ class Com_DBReplacerInstallerScriptHelper
 
 	public function getVersion($file = '')
 	{
+		return $this->getXmlValue('version', $file);
+	}
+
+	public function getXmlValue($key, $file = '')
+	{
+		$xml = $this->getXmlData($file);
+
+		if ( ! $xml || ! isset($xml[$key]))
+		{
+			return '';
+		}
+
+		return $xml[$key];
+	}
+
+	public function getXmlData($file = '')
+	{
 		$file = $file ?: $this->getCurrentXMLFile();
 
 		if ( ! is_file($file))
 		{
-			return '';
+			return null;
 		}
 
 		$xml = JInstaller::parseXMLInstallFile($file);
 
-		if ( ! $xml || ! isset($xml['version']))
+		if ( ! $xml)
 		{
-			return '';
+			return null;
 		}
 
-		return $xml['version'];
+		return $xml;
+	}
+
+	public function getXmlJoomlaVersion($file = '')
+	{
+		$file = $file ?: $this->getCurrentXMLFile();
+
+		if ( ! is_file($file))
+		{
+			return null;
+		}
+
+		$xml = simplexml_load_file($file);
+
+		if ( ! $xml)
+		{
+			return null;
+		}
+
+		return (int) $xml->attributes()->version;
 	}
 
 	public function isNewer()
@@ -463,21 +525,34 @@ class Com_DBReplacerInstallerScriptHelper
 
 	public function canInstall()
 	{
+		if ( ! is_null($this->can_install))
+		{
+			return $this->can_install;
+		}
+
+		$this->can_install = false;
+
 		// The extension is not installed yet
 		if ( ! $this->installed_version)
 		{
+			$this->can_install = true;
+
 			return true;
 		}
 
 		// The free version is installed. So any version is ok to install
 		if (strpos($this->installed_version, 'PRO') === false)
 		{
+			$this->can_install = true;
+
 			return true;
 		}
 
 		// Current package is a pro version, so all good
 		if (strpos($this->getVersion(), 'PRO') !== false)
 		{
+			$this->can_install = true;
+
 			return true;
 		}
 
@@ -489,7 +564,7 @@ class Com_DBReplacerInstallerScriptHelper
 			html_entity_decode(
 				JText::sprintf(
 					'RLI_ERROR_UNINSTALL_FIRST',
-					'<a href="https://www.regularlabs.com/extensions/' . $this->alias . '" target="_blank">',
+					'<a href="https://regularlabs.com/' . $this->alias . '" target="_blank">',
 					'</a>',
 					JText::_($this->name)
 				)
@@ -671,6 +746,7 @@ class Com_DBReplacerInstallerScriptHelper
 	private function updateUpdateSites()
 	{
 		$this->removeOldUpdateSites();
+		$this->removeXXXUpdateSites();
 		$this->updateNamesInUpdateSites();
 		$this->updateHttptoHttpsInUpdateSites();
 		$this->removeDuplicateUpdateSite();
@@ -682,7 +758,7 @@ class Com_DBReplacerInstallerScriptHelper
 		$query = $this->db->getQuery(true)
 			->select($this->db->quoteName('update_site_id'))
 			->from('#__update_sites')
-			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('nonumber.nl%'))
+			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%nonumber.nl%'))
 			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%e=' . $this->alias . '%'));
 		$this->db->setQuery($query, 0, 1);
 		$id = $this->db->loadResult();
@@ -701,6 +777,33 @@ class Com_DBReplacerInstallerScriptHelper
 		$query->clear()
 			->delete('#__update_sites_extensions')
 			->where($this->db->quoteName('update_site_id') . ' = ' . (int) $id);
+		$this->db->setQuery($query);
+		$this->db->execute();
+	}
+
+	private function removeXXXUpdateSites()
+	{
+		$query = $this->db->getQuery(true)
+			->select($this->db->quoteName('update_site_id'))
+			->from('#__update_sites')
+			->where($this->db->quoteName('location') . ' LIKE ' . $this->db->quote('%regularlabs.com/updates.xml?e=XXX%'));
+		$this->db->setQuery($query);
+		$ids = $this->db->loadColumn();
+
+		if ( empty($ids))
+		{
+			return;
+		}
+
+		$query->clear()
+			->delete('#__update_sites')
+			->where($this->db->quoteName('update_site_id') . ' IN (' . implode(',', $ids) . ')');
+		$this->db->setQuery($query);
+		$this->db->execute();
+
+		$query->clear()
+			->delete('#__update_sites_extensions')
+			->where($this->db->quoteName('update_site_id') . ' IN (' . implode(',', $ids) . ')');
 		$this->db->setQuery($query);
 		$this->db->execute();
 	}
